@@ -38,6 +38,17 @@ While evaluating and testing Trunk Merge Queue for your team, we suggest disabli
 
 This setting is found under **Merge Queue** tab **>** repository **> Settings >** toggle **off GitHub Comments.**
 
+#### Running both merge queues simultaneously
+
+Trunk Merge Queue can run alongside GitHub Merge Queue during your evaluation period without disrupting your existing workflow. When Trunk detects that a PR was merged externally (by GitHub Merge Queue or any other tool), it gracefully removes the PR from its queue without posting failure comments.
+
+This allows you to:
+- Test Trunk Merge Queue on select PRs while keeping GitHub Merge Queue active
+- Gradually migrate teams without forcing an immediate cutover
+- Evaluate Trunk's features in production without risk
+
+To enable this workflow, keep GitHub Comments disabled in Trunk (as described above) and submit only test PRs to Trunk using `/trunk merge`. PRs merged by GitHub Merge Queue will be automatically cleaned up from Trunk's queue.
+
 #### Make the switch
 
 Once you have [configured settings](/merge-queue/administration/advanced-settings) and tested out the workflow quietly, turn off other merge tools (like [GitHub merge queue](#turn-off-github-merge-queue)), re-enable GitHub comments in the Trunk web app under the **Merge Queue** tab **>** repository **> Settings >** toggle **on GitHub Comments**
