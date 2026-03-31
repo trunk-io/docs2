@@ -1,0 +1,26 @@
+---
+title: "Ticketing integrations"
+description: "Triage your flaky tests faster by creating automatically assigned and labeled tickets in your ticketing system"
+---
+You can integrate directly with your ticketing systems to automatically create tickets when Trunk [detects a flaky test](/flaky-tests/detection).
+
+### Ticket content
+
+Flaky Tests automatically generates tickets complete with a title and description. If you’re connected to Linear or Jira, you can also assign default issue types, teams, or assignees.
+
+The ticket description contains the following information:
+
+* Identifier of the test
+* Since when has the test been labeled flaky
+* The last time this test failed
+* The impact when run on PRs
+* The impact when run on branches
+* Quarantine status
+* Most common failure reasons
+* Code owners, according to the [CODEOWNERS](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners) file in your repository
+
+### Integration setup
+
+Currently, Ticket Creation supports integrations with Linear and Jira. However, the automatically generated ticket content is formatted in Markdown and can be copied to other platforms like Asana or GitHub issues.
+
+<table data-card-size="large" data-view="cards"><thead><tr><th align="center"></th><th data-hidden data-card-cover data-type="files"></th><th data-hidden data-card-target data-type="content-ref"></th></tr></thead><tbody><tr><td align="center"><strong>Linear</strong></td><td><a href="https://577236045-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F61Ep9MrYBkJa0Yq3zS1s%2Fuploads%2Fgit-blob-3a341cc6ff8bb6dc3229163e6500fb18cec54849%2Flinear-v2.png?alt=media">linear-v2.png</a></td><td><a href="/flaky-tests/ticketing-integrations/linear-integration">linear-integration</a></td></tr><tr><td align="center"><strong>Jira</strong></td><td><a href="https://577236045-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F61Ep9MrYBkJa0Yq3zS1s%2Fuploads%2Fgit-blob-26107c871b80bdf6fa605ec81686b792d0fc228a%2Fjira.png?alt=media">jira.png</a></td><td><a href="/flaky-tests/ticketing-integrations/jira-integration">jira-integration</a></td></tr></tbody></table>

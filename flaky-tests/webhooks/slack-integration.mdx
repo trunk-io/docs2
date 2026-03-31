@@ -1,0 +1,162 @@
+---
+title: "Slack integration"
+description: "Learn how to use flaky test webhooks to power Slack notifications"
+---
+Trunk allows you to create custom workflows to send customized messages to Slack through webhooks.
+
+<figure><picture><source srcset="https://577236045-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F61Ep9MrYBkJa0Yq3zS1s%2Fuploads%2Fgit-blob-8850618c22f90be1ac40f0a885710de01d5517f7%2Fexample-slack-message%20(1).png?alt=media" media="(prefers-color-scheme: dark)" /><img src="https://577236045-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F61Ep9MrYBkJa0Yq3zS1s%2Fuploads%2Fgit-blob-b5679699770faf97cc9da08855a0aad3fe56d8f2%2Fexample-slack-message.png?alt=media" alt="" /></picture><figcaption></figcaption></figure>
+
+This guide will walk you through sending Slack messages using event-triggered webhooks. By the end of this tutorial, you'll receive Slack messages for test status changes. This guide should take 10 minutes to complete.
+
+### 1. Configure Slack webhooks
+
+Trunk uses Svix to integrate with other services, such as Slack, through webhooks.
+
+You can add the new Slack Webhook URL to Svix by following these steps:
+
+1. Login to [Trunk Flaky Tests](https://app.trunk.io/login?intent=flaky%20tests)
+2. From your profile on the top right, navigate to **Settings**
+3. Under **Organization > Webhooks**, click **Slack**
+
+   <figure><img src="https://577236045-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F61Ep9MrYBkJa0Yq3zS1s%2Fuploads%2Fgit-blob-ba95784c2cf8a7facfa350339a5c7675b29ec01d%2Fexample-webhook-connector-light.png?alt=media" alt="" /><figcaption></figcaption></figure>
+4. Click **Connect to Slack** and select the server and channel to connect to.
+
+   <figure><img src="https://577236045-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F61Ep9MrYBkJa0Yq3zS1s%2Fuploads%2Fgit-blob-ff055c1f7fe28479e62d96d076737a3e6051c8c5%2Fexample-webhook-connector-slack%20(1).png?alt=media" alt="" /><figcaption></figcaption></figure>
+5. Review the transformation code automatically generated for GitHub issues. You can customize this transformation at any time. Learn more about [customizing transformations](#id-2.-customize-your-transformation).
+6. By default, this connection will send messages about Trunk Merge and Flaky Tests events. If you only want Flaky Test events, unselect all events other than `test_case.status_changed`.
+7. Create the new endpoint. You will be redirected to the endpoint configuration view.
+
+If you're having trouble adding a new webhook endpoint with Svix, please see the [Adding Endpoint docs from Svix](https://docs.svix.com/receiving/using-app-portal/adding-endpoints).
+
+### 2. Customize your transformation
+
+Transformations are custom code snippets you can write to customize the Slack messages sent by the webhook. A working template transformation will be added automatically for your webhook, but you can further customize the behavior of this webhook.
+
+1. In the endpoint configuration view, navigate to the **Advanced** tab. Under **Transformation**, toggle the **Enabled** switch.
+2. Click **Edit transformation** to update your transformation code, and click **Save** to update the transformation.
+3. You can test the transformation by selecting the `test_case.status_changed` payload and clicking **Run Test**. This will test the transformation but not send a message. You will learn to send a test message in [step 3](#id-3.-test-your-webhook).
+
+An example transformation script is provided below and you can customize your Slack integration by following the [Slack](https://api.slack.com/messaging/webhooks) and [Svix transformations](https://docs.svix.com/transformations#using-transformations) documentation.
+
+```javascript
+/**
+ * @param webhook the webhook object
+ * @param webhook.method destination method. Allowed values: "POST", "PUT"
+ * @param webhook.url current destination address
+ * @param webhook.eventType current webhook Event Type
+ * @param webhook.payload JSON payload
+ * @param webhook.cancel whether to cancel dispatch of the given webhook
+ */
+function handler(webhook) {
+  const payload = summarizeTestCase(webhook.payload)
+
+  webhook.payload = payload
+  return webhook
+}
+
+function summarizeTestCase(payload) {
+    if (!payload || typeof payload !== 'object' || !payload.test_case) {
+        return "Error: Invalid or missing payload.";
+    }
+
+    const {
+        test_case: {
+            name = "N/A",
+            file_path = "N/A",
+            status = {},
+            quarantine = false,
+            repository = {},
+            codeowners = [],
+            failure_rate_last_7d = 0,
+            most_common_failures = [],
+            pull_requests_impacted_last_7d = 0,
+            ticket = {},
+            html_url = "N/A"
+        }
+    } = payload;
+
+    const statusSummary = `Status: ${status.value || "Unknown"} `
+        + `(Reason: ${status.reason?.trim() || "N/A"}, `
+        + `Updated: ${status.timestamp ? new Date(status.timestamp).toLocaleString() : "Unknown"})`;
+
+    const quarantineStatus = quarantine
+        ? "This test is currently quarantined."
+        : "This test is not quarantined.";
+
+    // most_common_failures is a beta feature currently being tested
+    // If you are not on the beta it will be an empty array
+    // Want to try it out? Ask in slack.trunk.io
+    const failureSummary = most_common_failures.map(failure =>
+        `- ${failure.summary} (${failure.occurrence_count || 0} occurrences, `
+        + `last seen: ${failure.last_occurrence ? new Date(failure.last_occurrence).toLocaleString() : "Unknown"})`
+    ).join("\n");
+
+    const repoLink = `Repository: ${repository.html_url || "N/A"}`;
+    const testLink = `Test Details: ${html_url}`;
+    const ticketLink = `Related Ticket: ${ticket.html_url || "N/A"}`;
+    const ownerSummary = `Codeowners: \`${codeowners.join(", ") || "None"}\``;
+    const statsSummary = `Failure rate (last 7 days): ${(failure_rate_last_7d * 100).toFixed(1)}% `
+        + `| PRs Impacted: ${pull_requests_impacted_last_7d}`;
+
+  return {
+    blocks: [
+      {
+        type: "header",
+        text: {
+          type: "plain_text",
+          text: `Test Name: ${name}`
+        }
+      },
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: [
+              `File Path: \`${file_path}\``,
+              statusSummary,
+              quarantineStatus,
+              `Most Common Failures:\n${failureSummary}`,
+              ownerSummary,
+              statsSummary,
+              repoLink,
+              testLink,
+              ticketLink
+          ].join("\n"),
+        },
+      },
+    ],
+  };
+};
+```
+
+### 3. Test your webhook
+
+You can send test messages to your Slack channels as you make updates. You can do this by:
+
+1. In the endpoint configuration view, navigate to the **Testing** tab and select a **Send event**
+2. Under **Subscribed events,** select `test_case.status_changed`as the event type to send.
+3. Click **Send Example** to test your webhook
+
+### 4. Monitoring webhooks
+
+You can monitor the events and the webhook's delivery logs in the **Overview** tab of an endpoint configuration view.
+
+You can see an overview of how many webhook deliveries have been attempted, how many are successful, how many are in flight, and how many fail in the **Attempt Delivery Status** modal.
+
+<figure><img src="https://577236045-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F61Ep9MrYBkJa0Yq3zS1s%2Fuploads%2Fgit-blob-800d6bb45227c3380528a732efb25c222a3a7d95%2Fexample-webhook-delivery-status.png?alt=media" alt="" /><figcaption></figcaption></figure>
+
+You can see a list of past delivery attempts in the **Message Attempts** modal. You can filter this list by **Succeeded** and **Failed** status, and you can click on each message to see the **Message content**, response code, and error message of each attempt. You can learn more about [replaying messages](https://docs.svix.com/receiving/using-app-portal/replaying-messages) and [filtering logs](https://docs.svix.com/receiving/using-app-portal/filtering-logs) in the Svix docs.
+
+<figure><img src="https://577236045-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F61Ep9MrYBkJa0Yq3zS1s%2Fuploads%2Fgit-blob-60f168e9229197c019fb193fadb8905bd571147e%2Fexample-webhook-logs.png?alt=media" alt="" /><figcaption></figcaption></figure>
+
+### Congratulations!
+
+<figure><picture><source srcset="https://577236045-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F61Ep9MrYBkJa0Yq3zS1s%2Fuploads%2Fgit-blob-8850618c22f90be1ac40f0a885710de01d5517f7%2Fexample-slack-message%20(1).png?alt=media" media="(prefers-color-scheme: dark)" /><img src="https://577236045-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F61Ep9MrYBkJa0Yq3zS1s%2Fuploads%2Fgit-blob-b5679699770faf97cc9da08855a0aad3fe56d8f2%2Fexample-slack-message.png?alt=media" alt="" /></picture><figcaption></figcaption></figure>
+
+You should now receive notifications in your Slack workspace when a test's status changes. You can further modify your transformation script to customize your messages.
+
+[See the Trunk webhook event catalog](https://www.svix.com/event-types/us/org_2eQPL41Ew5XSHxiXZIamIUIXg8H/#test_case.status_changed)
+
+[Learn more about consuming webhooks in the Svix docs](https://docs.svix.com/receiving/introduction)
+
+[Learn more about the Slack API](https://api.slack.com/messaging/webhooks)

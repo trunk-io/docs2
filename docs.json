@@ -1,0 +1,291 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "name": "Trunk Platform Documentation",
+  "theme": "aspen",
+  "colors": {
+    "primary": "#346DDB",
+    "light": "#346DDB",
+    "dark": "#346DDB"
+  },
+  "favicon": "favicon.svg",
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "fonts": {
+    "heading": {
+      "family": "Neue",
+      "source": "https://trunk.io/_next/static/media/neue_medium-s.p.a1f08070.woff2",
+      "format": "woff2"
+    },
+    "body": {
+      "family": "Neue",
+      "source": "https://trunk.io/_next/static/media/neue_regular-s.p.b8e8b595.woff2",
+      "format": "woff2"
+    }
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Log in",
+        "href": "https://app.trunk.io/login"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Get a demo",
+      "href": "https://calendly.com/trunk/demo"
+    }
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Home",
+        "groups": [
+          {
+            "group": "Platform",
+            "pages": ["introduction"]
+          }
+        ]
+      },
+      {
+        "tab": "Merge Queue",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": ["merge-queue/merge-queue"]
+          },
+          {
+            "group": "Getting Started",
+            "pages": [
+              "merge-queue/getting-started",
+              "merge-queue/getting-started/install-and-create-your-queue",
+              "merge-queue/getting-started/configure-branch-protection",
+              "merge-queue/getting-started/configure-ci-status-checks",
+              "merge-queue/getting-started/test-your-setup",
+              "merge-queue/migrating-from-github-merge-queue"
+            ]
+          },
+          {
+            "group": "Optimizations",
+            "pages": [
+              "merge-queue/optimizations",
+              "merge-queue/optimizations/predictive-testing",
+              "merge-queue/optimizations/anti-flake-protection",
+              "merge-queue/optimizations/batching",
+              "merge-queue/optimizations/priority-merging",
+              "merge-queue/optimizations/optimistic-merging",
+              "merge-queue/optimizations/pending-failure-depth",
+              "merge-queue/optimizations/direct-merge-to-main"
+            ]
+          },
+          {
+            "group": "Parallel Queues",
+            "pages": [
+              "merge-queue/optimizations/parallel-queues",
+              "merge-queue/optimizations/parallel-queues/bazel",
+              "merge-queue/optimizations/parallel-queues/nx",
+              "merge-queue/optimizations/parallel-queues/api"
+            ]
+          },
+          {
+            "group": "Using the Queue",
+            "pages": [
+              "merge-queue/using-the-queue",
+              "merge-queue/using-the-queue/reference",
+              "merge-queue/using-the-queue/monitor-queue-status",
+              "merge-queue/using-the-queue/handle-failed-pull-requests",
+              "merge-queue/using-the-queue/stacked-pull-requests",
+              "merge-queue/using-the-queue/emergency-pull-requests"
+            ]
+          },
+          {
+            "group": "Integrations",
+            "pages": [
+              "merge-queue/integration-for-slack",
+              "merge-queue/webhooks"
+            ]
+          },
+          {
+            "group": "Administration",
+            "pages": [
+              "merge-queue/administration",
+              "merge-queue/administration/advanced-settings",
+              "merge-queue/administration/metrics"
+            ]
+          },
+          {
+            "group": "Reference",
+            "pages": [
+              "merge-queue/reference",
+              "merge-queue/reference/merge-queue-cli-reference",
+              "merge-queue/reference/merge",
+              "merge-queue/reference/common-problems",
+              "merge-queue/reference/troubleshooting"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Flaky Tests",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "flaky-tests/overview",
+              "flaky-tests/get-started",
+              "flaky-tests/managing-detected-flaky-tests",
+              "flaky-tests/dashboard"
+            ]
+          },
+          {
+            "group": "Test Frameworks",
+            "pages": [
+              "flaky-tests/get-started/frameworks",
+              "flaky-tests/get-started/frameworks/android",
+              "flaky-tests/get-started/frameworks/bazel",
+              "flaky-tests/get-started/frameworks/behave",
+              "flaky-tests/get-started/frameworks/cypress",
+              "flaky-tests/get-started/frameworks/dart-test",
+              "flaky-tests/get-started/frameworks/googletest",
+              "flaky-tests/get-started/frameworks/gotestsum",
+              "flaky-tests/get-started/frameworks/gradle",
+              "flaky-tests/get-started/frameworks/jasmine",
+              "flaky-tests/get-started/frameworks/jest",
+              "flaky-tests/get-started/frameworks/karma",
+              "flaky-tests/get-started/frameworks/kotest",
+              "flaky-tests/get-started/frameworks/maven",
+              "flaky-tests/get-started/frameworks/minitest",
+              "flaky-tests/get-started/frameworks/mocha",
+              "flaky-tests/get-started/frameworks/nightwatch",
+              "flaky-tests/get-started/frameworks/nunit",
+              "flaky-tests/get-started/frameworks/other-test-frameworks",
+              "flaky-tests/get-started/frameworks/pest",
+              "flaky-tests/get-started/frameworks/phpunit",
+              "flaky-tests/get-started/frameworks/playwright",
+              "flaky-tests/get-started/frameworks/pytest",
+              "flaky-tests/get-started/frameworks/robot-framework",
+              "flaky-tests/get-started/frameworks/rspec",
+              "flaky-tests/get-started/frameworks/rspec/manual-uploads",
+              "flaky-tests/get-started/frameworks/rust",
+              "flaky-tests/get-started/frameworks/swift-testing",
+              "flaky-tests/get-started/frameworks/testplan",
+              "flaky-tests/get-started/frameworks/vitest",
+              "flaky-tests/get-started/frameworks/xctest"
+            ]
+          },
+          {
+            "group": "CI Providers",
+            "pages": [
+              "flaky-tests/get-started/ci-providers",
+              "flaky-tests/get-started/ci-providers/atlassian-bamboo",
+              "flaky-tests/get-started/ci-providers/azure-devops-pipelines",
+              "flaky-tests/get-started/ci-providers/bitbucket-pipelines",
+              "flaky-tests/get-started/ci-providers/buildkite",
+              "flaky-tests/get-started/ci-providers/circleci",
+              "flaky-tests/get-started/ci-providers/droneci",
+              "flaky-tests/get-started/ci-providers/github-actions",
+              "flaky-tests/get-started/ci-providers/gitlab",
+              "flaky-tests/get-started/ci-providers/jenkins",
+              "flaky-tests/get-started/ci-providers/otherci",
+              "flaky-tests/get-started/ci-providers/semaphoreci",
+              "flaky-tests/get-started/ci-providers/travisci",
+              "flaky-tests/get-started/multiple-repositories"
+            ]
+          },
+          {
+            "group": "Detection & Operations",
+            "pages": [
+              "flaky-tests/detection",
+              "flaky-tests/detection/pass-on-retry-monitor",
+              "flaky-tests/detection/threshold-monitor",
+              "flaky-tests/detection/flag-as-flaky",
+              "flaky-tests/infrastructure-failure-protection",
+              "flaky-tests/the-importance-of-pr-test-results",
+              "flaky-tests/quarantining",
+              "flaky-tests/quarantine-service-availability",
+              "flaky-tests/github-pull-request-comments"
+            ]
+          },
+          {
+            "group": "Ticketing Integrations",
+            "pages": [
+              "flaky-tests/ticketing-integrations",
+              "flaky-tests/ticketing-integrations/jira-integration",
+              "flaky-tests/ticketing-integrations/linear-integration",
+              "flaky-tests/ticketing-integrations/other-ticketing-platforms"
+            ]
+          },
+          {
+            "group": "Webhooks",
+            "pages": [
+              "flaky-tests/webhooks",
+              "flaky-tests/webhooks/slack-integration",
+              "flaky-tests/webhooks/microsoft-teams-integration",
+              "flaky-tests/webhooks/github-issues-integration",
+              "flaky-tests/webhooks/linear-integration"
+            ]
+          },
+          {
+            "group": "APIs & CLI",
+            "pages": ["flaky-tests/flaky-tests", "flaky-tests/uploader"]
+          },
+          {
+            "group": "MCP Server",
+            "pages": [
+              "flaky-tests/use-mcp-server",
+              "flaky-tests/use-mcp-server/configuration",
+              "flaky-tests/use-mcp-server/configuration/cursor-ide",
+              "flaky-tests/use-mcp-server/configuration/github-copilot-ide",
+              "flaky-tests/use-mcp-server/configuration/claude-code-cli",
+              "flaky-tests/use-mcp-server/configuration/gemini-cli",
+              "flaky-tests/use-mcp-server/mcp-tool-reference",
+              "flaky-tests/use-mcp-server/mcp-tool-reference/get-root-cause-analysis",
+              "flaky-tests/use-mcp-server/mcp-tool-reference/set-up-test-uploads"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Setup & Administration",
+        "groups": [
+          {
+            "group": "Account Setup",
+            "pages": ["setup-and-administration/connecting-to-trunk"]
+          },
+          {
+            "group": "Administration",
+            "pages": [
+              "setup-and-administration/managing-your-organization",
+              "setup-and-administration/github-app-permissions",
+              "setup-and-administration/support",
+              "setup-and-administration/billing",
+              "setup-and-administration/security"
+            ]
+          },
+          {
+            "group": "API Reference",
+            "pages": [
+              "setup-and-administration/apis",
+              "setup-and-administration/apis/webhooks"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "contextual": {
+    "options": ["copy", "view", "chatgpt", "claude"]
+  },
+  "footer": {
+    "socials": {
+      "x": "https://x.com/trunk_io",
+      "github": "https://github.com/trunk-io"
+    }
+  },
+  "seo": {
+    "metatags": {
+      "robots": "noindex"
+    }
+  }
+}

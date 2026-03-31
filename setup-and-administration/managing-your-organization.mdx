@@ -1,0 +1,66 @@
+---
+title: "Managing your Organization"
+description: "Integrating with Trunk through Webhooks, APIs, or CLI will require authentication using your organization's slug and token."
+---
+## Organization Slug and Token
+
+Integrating with Trunk through [Webhooks](/flaky-tests/webhooks), [APIs](/setup-and-administration/apis), or CLI will require authentication using your organization's slug and token.
+
+You can find your organization slug and token by going to **Settings** > **Organization** > **General**.
+
+<figure><img src="https://577236045-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F61Ep9MrYBkJa0Yq3zS1s%2Fuploads%2Fgit-blob-fd8b59e4b4e6763eaac4a025778f68c891df1cb3%2Forg-slug-and-token.png?alt=media" alt="" /><figcaption></figcaption></figure>
+
+---
+
+## Managing Team Members
+
+You can manage a team member's role and remove team members by navigating to **Settings** > **Organization** > **Team** > **Members** and clicking on the name of a team member. You can change the role of a team member between user and admin, as well as removing the user from your organization.
+
+<figure><img src="https://577236045-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F61Ep9MrYBkJa0Yq3zS1s%2Fuploads%2Fgit-blob-5b62d532744bb2a7a7ca2f78fdf23369c6bd67a7%2Forg-team-members.png?alt=media" alt="" /><figcaption></figcaption></figure>
+
+### Inviting Team Members
+
+You can invite individual members manually by navigating to **Settings** > **Organization** > **Team** > **Members** and clicking the **Invite Users** button. An email will be sent to the invitee's inbox.
+
+In the form, add comma separated email addresses and select a Role from the drop down. This role will be applied to all users in this invite batch.
+
+Available Roles are:
+
+* **Member**: Full access with limited permissions (default)
+* **Admin**: Full administrative access
+
+<figure><img src="https://577236045-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F61Ep9MrYBkJa0Yq3zS1s%2Fuploads%2Fgit-blob-90383e2b44c0da7078330d555345b26c9e36bc2f%2Forg-team-members-invite.png?alt=media" alt="" /><figcaption></figcaption></figure>
+
+### Pending Invites
+
+You can view and manage pending email invites by navigating to **Settings** > **Organization** > **Team** > **Pending Invites**.
+
+From this page you can copy the member invite link or revoke the invite using the **three dots** menu.
+
+<figure><img src="https://577236045-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F61Ep9MrYBkJa0Yq3zS1s%2Fuploads%2Fgit-blob-825cb4eb8da0917473a1dec754c5a3bda2d09a57%2Forg-team-pending-invites.png?alt=media" alt="" /><figcaption></figcaption></figure>
+
+### Team Domains
+
+If your team uses emails managed by Google or Microsoft under a common domain, you can grant access to your team using **Team Domains**. When a team member creates a Trunk account with an email under you configured team domain, they will be granted access to your Trunk organization and repositories.
+
+You can enable team domains under **Settings > Organization > Team > Domains** and clicking **Add Domain**.
+
+<Tabs>
+
+<Tab title="Add First Domain">
+
+<figure><img src="https://577236045-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F61Ep9MrYBkJa0Yq3zS1s%2Fuploads%2Fgit-blob-a0b36570229b5505ccdad115c363a878433a3873%2Forg-team.png?alt=media" alt="" /><figcaption></figcaption></figure>
+
+</Tab>
+
+<Tab title="Manage Domains">
+
+<figure><img src="https://577236045-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F61Ep9MrYBkJa0Yq3zS1s%2Fuploads%2Fgit-blob-cc82f3ba65289515b2f468fac4f6832fabea92de%2Forg-team-manage-domain.png?alt=media" alt="" /><figcaption></figcaption></figure>
+
+</Tab>
+
+</Tabs>
+
+<Check>
+Trunk also supports SSO login. If you wish to use SSO, please contact us at support@trunk.io.
+</Check>

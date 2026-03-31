@@ -1,0 +1,263 @@
+---
+title: "Home"
+description: "Ship software as fast as AI writes it"
+mode: "custom"
+---
+
+<div
+  className="not-prose overflow-hidden"
+  style={{
+    backgroundImage:
+      "linear-gradient(135deg, rgba(8, 16, 31, 0.78) 0%, rgba(15, 23, 42, 0.74) 45%, rgba(17, 24, 39, 0.72) 100%), radial-gradient(circle at top right, rgba(52, 109, 219, 0.2), transparent 30%), radial-gradient(circle at bottom left, rgba(52, 109, 219, 0.12), transparent 28%), url('https://trunk.io/_next/image?url=%2F_next%2Fstatic%2Fmedia%2F5-background.4caf532a.jpg&w=3840&q=90')",
+    backgroundPosition: "center 68%",
+    backgroundRepeat: "no-repeat",
+    backgroundSize: "cover",
+  }}
+>
+  <div className="mx-auto grid max-w-7xl gap-10 px-6 py-16 sm:px-8 lg:grid-cols-[1.4fr_0.95fr] lg:px-10 lg:py-20">
+    <div>
+      <h1 className="mt-4 text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl">
+        Ship software as fast as AI writes it
+      </h1>
+      <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-200">
+        AI generates code at machine speed, but code review, CI, and delivery
+        still move at human pace. Trunk closes that gap with flaky test
+        management and a merge queue built for high-throughput teams.
+      </p>
+      <div className="mt-8 flex flex-wrap gap-3">
+        <a
+          href="/setup-and-administration/connecting-to-trunk"
+          className="inline-flex items-center rounded-lg px-5 py-3 font-semibold text-white no-underline transition hover:opacity-90"
+          style={{ backgroundColor: "#346DDB" }}
+        >
+          Get started
+        </a>
+        <a
+          href="/merge-queue/merge-queue"
+          className="inline-flex items-center rounded-lg border border-white/15 px-5 py-3 font-semibold text-white no-underline transition hover:border-white/40 hover:bg-white/5"
+        >
+          Explore Merge Queue
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div className="mx-auto mt-16 max-w-7xl px-4 sm:px-6 lg:px-8">
+  <h2 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white">
+    Quick Start
+  </h2>
+  <p className="mt-3 max-w-3xl text-base leading-7 text-zinc-600 dark:text-zinc-300">
+    Most teams schedule a 30-minute call before integrating. You can also
+    explore the platform on your own in four steps.
+  </p>
+  <Steps>
+    <Step title="Create your account">
+      Sign up in the [Trunk app](https://app.trunk.io/signup) and create an
+      organization for your team.
+    </Step>
+    <Step title="Connect your repository">
+      Follow [Account
+      Setup](/setup-and-administration/connecting-to-trunk) to create your
+      workspace and install the Trunk GitHub App with the right repository
+      access.
+    </Step>
+    <Step title="Choose your first workflow">
+      Start with the [Merge Queue getting
+      started guide](/merge-queue/getting-started) or the [Flaky Tests getting
+      started guide](/flaky-tests/get-started), depending on whether queue
+      depth or CI noise hurts more today.
+    </Step>
+    <Step title="Make your first API call">
+      Use your API token to query Trunk programmatically.
+
+      ```bash
+      curl -X POST https://api.trunk.io/v1/getQueue \
+        -H "Content-Type: application/json" \
+        -H "x-api-token: $TRUNK_API_TOKEN" \
+        -d '{
+          "repo": {
+            "host": "github.com",
+            "owner": "my-org",
+            "name": "my-repo"
+          },
+          "targetBranch": "main"
+        }'
+      ```
+    </Step>
+
+  </Steps>
+</div>
+
+<div className="mx-auto mt-8 max-w-7xl px-4 sm:px-6 lg:px-8">
+  <h2 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white">
+    Product Guides
+  </h2>
+  <p className="mt-3 max-w-3xl text-base leading-7 text-zinc-600 dark:text-zinc-300">
+    Trunk ships two products that work independently or together to keep
+    delivery fast and reliable.
+  </p>
+  <CardGroup cols={2}>
+    <Card title="Flaky Tests" icon="flask" href="/flaky-tests/overview">
+      Detect, quarantine, and fix flaky tests with branch-aware analysis,
+      failure-type tracking, PR comments, and ticketing integrations.
+    </Card>
+    <Card
+      title="Merge Queue"
+      icon="code-branch"
+      href="/merge-queue/merge-queue"
+    >
+      Run a parallel merge queue with impacted targets, batching, bisection,
+      priority handling, and anti-flake protection.
+    </Card>
+  </CardGroup>
+</div>
+
+<div className="mx-auto mt-16 max-w-7xl px-4 sm:px-6 lg:px-8">
+  <h2 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white">
+    Platform Highlights
+  </h2>
+  <p className="mt-3 max-w-3xl text-base leading-7 text-zinc-600 dark:text-zinc-300">
+    The platform is built to work with the tools you already use while removing
+    the bottlenecks that slow delivery down at scale.
+  </p>
+  <CardGroup cols={3}>
+    <Card
+      title="Parallel merge orchestration"
+      icon="shuffle"
+      href="/merge-queue/optimizations/parallel-queues"
+    >
+      Route independent pull requests through separate lanes instead of forcing
+      every change through one serialized line.
+    </Card>
+    <Card
+      title="Runtime flaky test quarantine"
+      icon="shield"
+      href="/flaky-tests/quarantining"
+    >
+      Keep flaky tests visible while preventing known failure modes from
+      blocking CI and backing up your queue.
+    </Card>
+    <Card
+      title="APIs, webhooks, and MCP"
+      icon="plug"
+      href="/setup-and-administration/apis"
+    >
+      Integrate Trunk with your own automation through REST APIs, webhooks, CLI
+      workflows, and the MCP server.
+    </Card>
+  </CardGroup>
+</div>
+
+<div className="mx-auto mt-16 max-w-7xl px-4 sm:px-6 lg:px-8">
+  <h2 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white">
+    Resources
+  </h2>
+  <p className="mt-3 max-w-3xl text-base leading-7 text-zinc-600 dark:text-zinc-300">
+    Dive deeper into setup, administration, integrations, and reference material
+    once your first workflow is live.
+  </p>
+  <CardGroup cols={2}>
+    <Card
+      title="Setup & Administration"
+      icon="gear"
+      href="/setup-and-administration/connecting-to-trunk"
+    >
+      Create your organization, manage access, review GitHub App permissions,
+      and understand billing, security, and support.
+    </Card>
+    <Card
+      title="API Reference"
+      icon="terminal"
+      href="/setup-and-administration/apis"
+    >
+      Explore Trunk REST APIs, webhook payloads, and auth patterns for custom
+      integrations.
+    </Card>
+    <Card
+      title="Framework Guides"
+      icon="book-open"
+      href="/flaky-tests/get-started/frameworks"
+    >
+      Generate compatible test output across frameworks like Jest, Pytest,
+      XCTest, Cypress, Playwright, RSpec, JUnit, and more.
+    </Card>
+    <Card title="MCP Server" icon="robot" href="/flaky-tests/use-mcp-server">
+      Connect Trunk's MCP server to Cursor, Claude Code, GitHub Copilot, or
+      Gemini for CI-assisted root cause analysis and automation.
+    </Card>
+  </CardGroup>
+</div>
+
+<div className="mx-auto mt-16 max-w-7xl px-4 sm:px-6 lg:px-8">
+  <h2 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white">
+    Support
+  </h2>
+  <p className="mt-3 max-w-3xl text-base leading-7 text-zinc-600 dark:text-zinc-300">
+    Get help with onboarding, evaluation, and ongoing rollout through the
+    channels your team already uses.
+  </p>
+  <CardGroup cols={3}>
+    <Card
+      title="Schedule a demo"
+      icon="calendar"
+      href="https://calendly.com/trunk/demo"
+    >
+      Talk through your CI architecture, security review, and rollout plan with
+      the Trunk team.
+    </Card>
+    <Card
+      title="Join the Slack community"
+      icon="messages"
+      href="https://slack.trunk.io/"
+    >
+      Ask questions, share feedback, and get help from other engineers using
+      Trunk.
+    </Card>
+    <Card
+      title="Visit support docs"
+      icon="circle-question"
+      href="/setup-and-administration/support"
+    >
+      Review support availability, response expectations, and enterprise support
+      details.
+    </Card>
+  </CardGroup>
+</div>
+
+<div className="mx-auto my-16 max-w-7xl px-4 sm:px-6 lg:px-8">
+  <div
+    className="not-prose overflow-hidden rounded-3xl border border-zinc-200/70 dark:border-white/10"
+    style={{
+      background:
+        "linear-gradient(135deg, rgba(52, 109, 219, 0.12) 0%, rgba(52, 109, 219, 0.04) 100%)",
+    }}
+  >
+    <div className="mx-auto flex max-w-7xl flex-col gap-6 px-6 py-12 sm:px-8 lg:flex-row lg:items-center lg:justify-between lg:px-10">
+      <div>
+        <h2 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white">
+          Ready to ship faster?
+        </h2>
+        <p className="mt-3 max-w-2xl text-base leading-7 text-zinc-600 dark:text-zinc-300">
+          Start with the guides, explore the APIs, or schedule time with the team
+          if you want help planning your first rollout.
+        </p>
+      </div>
+      <div className="flex flex-wrap gap-3">
+        <a
+          href="https://app.trunk.io/signup"
+          className="inline-flex items-center rounded-lg px-5 py-3 font-semibold text-white no-underline transition hover:opacity-90"
+          style={{ backgroundColor: "#346DDB" }}
+        >
+          Sign up
+        </a>
+        <a
+          href="https://calendly.com/trunk/demo"
+          className="inline-flex items-center rounded-lg border border-zinc-300 px-5 py-3 font-semibold text-zinc-900 no-underline transition hover:bg-zinc-100 dark:border-white/15 dark:text-white dark:hover:bg-white/5"
+        >
+          Schedule a demo
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

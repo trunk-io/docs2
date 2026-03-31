@@ -1,0 +1,190 @@
+---
+title: "Go"
+description: "A guide for generating Trunk-compatible test reports for Go tests"
+---
+You can automatically [detect and manage flaky tests](/flaky-tests/detection) in your Go projects by integrating with Trunk. This document explains how to configure Go to output JUnit XML reports that can be uploaded to Trunk for analysis.
+
+### **Why an Extra Step for `go test`?**
+
+The standard Go test runner, `go test`, is excellent for executing tests and providing immediate feedback to developers. However, it does not natively produce test reports in the JUnit XML format that Trunk Flaky Tests requires for ingestion and analysis. Therefore, an additional tool is needed to convert the output of `go test` into this compatible format. This intermediate step ensures that Trunk can accurately process your test results and identify flaky tests.
+
+### Checklist
+
+By the end of this guide, you should achieve the following before proceeding to the [next steps](#next-step) to configure your CI provider.
+
+* [ ] Generate a compatible test report (JUnit XML).
+* [ ] Configure the report file path or glob
+* [ ] Disable retries for better detection accuracy
+* [ ] Test uploads locally
+
+After correctly generating reports following the above steps, you'll be ready to move on to the next steps to [configure uploads in CI](/flaky-tests/get-started/ci-providers).
+
+### Generating JUnit XML Reports from Go Tests
+
+Before integrating with Trunk, you need to generate a Trunk-compatible report. For Go, `go test` does not output JUnit XML by default, so you must use a tool to format it.
+
+<Tabs>
+
+<Tab title="go test + go-junit-report">
+
+Update your existing `go test` usage to generate json and use [**go-junit-report**](https://github.com/jstemmer/go-junit-report) to convert your standard Go testing output into JUnit XML.
+
+```
+go install github.com/jstemmer/go-junit-report/v2@latest
+```
+
+Then pipe `go test` into the `go-junit-report`:
+
+```
+go test -json 2>&1 | go-junit-report -parser gojson -out junit_report.xml
+```
+
+</Tab>
+
+<Tab title="gotestsum">
+
+Install gotestsum into your project:\
+\
+`go install gotest.tools/gotestsum@latest`\
+\
+Call `gotestsum` to both execute your tests and generate the junit.xml file
+
+```
+gotestsum [path-to-tests-to-run] --junitfile ./junit.xml
+```
+
+</Tab>
+
+</Tabs>
+
+Since `go test` doesn't directly output JUnit XML, you'll use a tool to convert its output. Here are two common options:
+
+#### Option 1: Using `gotestsum`
+
+* **What it is:** `gotestsum` is a Go test runner that wraps `go test`. It executes your tests (using `go test -json` for more structured input) and can format the results into JUnit XML, alongside other human-readable formats and test run summaries.
+* **Why choose this approach:** You might prefer `gotestsum` if you favor using a single command that serves as a wrapper to both execute your Go tests (by calling `go test` internally) and directly generate the JUnit XML report required for flaky test analysis.
+* **Installation:** Download from [releases](https://github.com/gotestyourself/gotestsum/releases) or install via `go install`:
+
+```bash
+go install gotest.tools/gotestsum@latest
+```
+
+* **Usage:**
+
+```bash
+gotestsum --junitfile ./junit-gotestsum.xml -- ./...
+# The '-- ./...' passes arguments directly to 'go test'.
+# Adjust './...' to target your specific packages if needed.
+```
+
+#### Option 2: Using `go-junit-report`
+
+* **What it is:** `go-junit-report` is a tool that converts the output of a standard `go test` command into JUnit XML. This is achieved by running `go test` and then piping its output to `go-junit-report` as a separate step.
+* **Why choose this approach:** You might prefer `go-junit-report` if you want to keep your `go test` command distinct and add a separate, explicit step for converting its output to JUnit XML, often suitable for a minimal setup focused purely on this conversion.
+* **Installation:**
+
+```bash
+go install github.com/jstemmer/go-junit-report/v2@latest
+```
+
+* **Usage:** For reliable report generation, use `go test -json` and pipe its output. The `-parser gojson` flag tells `go-junit-report` to expect this JSON stream:
+
+```bash
+go test -json ./... 2>&1 | go-junit-report -parser gojson -out report-go-junit.xml
+# Adjust './...' to target your specific packages.
+# 2>&1 ensures stderr (where build errors can appear) is also piped.
+```
+
+#### Report File Path
+
+The tools will write a JUnit test report to the file specified (e.g., `junit-gotestsum.xml` or `report-go-junit.xml`). You'll need this path when configuring uploads to Trunk.
+
+#### Disable Retries
+
+Regardless of the tool chosen, you need to disable automatic retries if you previously enabled them. Retries compromise the accurate detection of flaky tests.\
+\
+If you're using a package like [**retry**](https://pkg.go.dev/github.com/hashicorp/consul/sdk/testutil/retry), disable it to get more accurate results from Trunk.
+
+### Try It Locally
+
+<Tabs>
+
+<Tab title="Linux (x64)">
+
+```bash
+SKU="trunk-analytics-cli-x86_64-unknown-linux.tar.gz"
+curl -fL --retry 3 \
+  "https://github.com/trunk-io/analytics-cli/releases/latest/download/${SKU}" \
+  | tar -xz
+
+chmod +x trunk-analytics-cli
+./trunk-analytics-cli validate --junit-paths "./junit.xml"
+```
+
+</Tab>
+
+<Tab title="Linux (arm64)">
+
+```bash
+SKU="trunk-analytics-cli-aarch64-unknown-linux.tar.gz"
+curl -fL --retry 3 \
+  "https://github.com/trunk-io/analytics-cli/releases/latest/download/${SKU}" \
+  | tar -xz
+
+chmod +x trunk-analytics-cli
+./trunk-analytics-cli validate --junit-paths "./junit.xml"
+```
+
+</Tab>
+
+<Tab title="macOS (arm64)">
+
+```bash
+SKU="trunk-analytics-cli-aarch64-apple-darwin.tar.gz"
+curl -fL --retry 3 \
+  "https://github.com/trunk-io/analytics-cli/releases/latest/download/${SKU}" \
+  | tar -xz
+
+chmod +x trunk-analytics-cli
+./trunk-analytics-cli validate --junit-paths "./junit.xml"
+```
+
+</Tab>
+
+<Tab title="macOS (x64)">
+
+```bash
+SKU="trunk-analytics-cli-x86_64-apple-darwin.tar.gz"
+curl -fL --retry 3 \
+  "https://github.com/trunk-io/analytics-cli/releases/latest/download/${SKU}" \
+  | tar -xz
+
+chmod +x trunk-analytics-cli
+./trunk-analytics-cli validate --junit-paths "./junit.xml"
+```
+
+</Tab>
+
+</Tabs>
+
+### Test Upload
+
+Before modifying your CI jobs to automatically upload test results to Trunk, try uploading a single test run manually.
+
+You make an upload to Trunk using the following command:
+
+```sh
+./trunk-analytics-cli upload --junit-paths "./junit.xml" \
+    --org-url-slug <TRUNK_ORG_SLUG> \
+    --token <TRUNK_ORG_TOKEN>
+```
+
+You can find your Trunk organization slug and token in the settings or by following these [instructions](/flaky-tests/get-started/ci-providers/otherci#id-1.-store-a-trunk_token-secret-in-your-ci-system). After your upload, you can verify that Trunk has received and processed it successfully in the **Uploads** tab. Warnings will be displayed if the report has issues.
+
+<figure><picture><source srcset="https://577236045-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F61Ep9MrYBkJa0Yq3zS1s%2Fuploads%2Fgit-blob-8ce83f8ce288a56d53ef28e6e10aa0a9a00a8e73%2Fdata-uploads-dark.png?alt=media" media="(prefers-color-scheme: dark)" /><img src="https://577236045-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F61Ep9MrYBkJa0Yq3zS1s%2Fuploads%2Fgit-blob-3c7ab35af710be9d4e4bf0976a1d848436a04077%2Fdata-uploads-light.png?alt=media" alt="" /></picture><figcaption></figcaption></figure>
+
+### Next Steps
+
+Configure your CI to upload test runs to Trunk. Find the guides for your CI framework below:
+
+<table data-view="cards" data-full-width="false"><thead><tr><th></th><th data-hidden></th><th data-hidden data-card-target data-type="content-ref"></th><th data-hidden data-card-cover data-type="files"></th></tr></thead><tbody><tr><td><strong>Azure DevOps Pipelines</strong></td><td></td><td><a href="../ci-providers/azure-devops-pipelines">azure-devops-pipelines</a></td><td><a href="https://577236045-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F61Ep9MrYBkJa0Yq3zS1s%2Fuploads%2Fgit-blob-e25fd26aa79fb9b2eed0d2dcd87b1a5914dff23d%2Fazure.png?alt=media">azure.png</a></td></tr><tr><td><strong>BitBucket Pipelines</strong></td><td></td><td><a href="../ci-providers/bitbucket-pipelines">bitbucket-pipelines</a></td><td><a href="https://577236045-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F61Ep9MrYBkJa0Yq3zS1s%2Fuploads%2Fgit-blob-f7bb3441ba62da7dc26dd780ad0ea8b12c6a9d5b%2Fbitbucket.png?alt=media">bitbucket.png</a></td></tr><tr><td><strong>BuildKite</strong></td><td></td><td><a href="../ci-providers/buildkite">buildkite</a></td><td><a href="https://577236045-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F61Ep9MrYBkJa0Yq3zS1s%2Fuploads%2Fgit-blob-13bce185a370e3ad7386afc527575e6049f6c90c%2Fbuildkite.png?alt=media">buildkite.png</a></td></tr><tr><td><strong>CircleCI</strong></td><td></td><td><a href="../ci-providers/circleci">circleci</a></td><td><a href="https://577236045-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F61Ep9MrYBkJa0Yq3zS1s%2Fuploads%2Fgit-blob-29c2601d74f7bb842edccefda703e1c93cafe386%2Fcircle-ci.png?alt=media">circle-ci.png</a></td></tr><tr><td><strong>Drone CI</strong></td><td></td><td><a href="../ci-providers/droneci">droneci</a></td><td><a href="https://577236045-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F61Ep9MrYBkJa0Yq3zS1s%2Fuploads%2Fgit-blob-8e6723931dcb17d4c7c040feb2139b68e76ce9a9%2Fdrone.png?alt=media">drone.png</a></td></tr><tr><td><strong>GitHub Actions</strong></td><td></td><td><a href="../ci-providers/github-actions">github-actions</a></td><td><a href="https://577236045-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F61Ep9MrYBkJa0Yq3zS1s%2Fuploads%2Fgit-blob-39bf1729c8521770c91ff6f969a0cad8557eda90%2Fgithub.png?alt=media">github.png</a></td></tr><tr><td><strong>Gitlab</strong></td><td></td><td><a href="../ci-providers/gitlab">gitlab</a></td><td><a href="https://577236045-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F61Ep9MrYBkJa0Yq3zS1s%2Fuploads%2Fgit-blob-159f50caada873e4a221f14845fb411ddb134a3d%2Fgitlab.png?alt=media">gitlab.png</a></td></tr><tr><td><strong>Jenkins</strong></td><td></td><td><a href="../ci-providers/jenkins">jenkins</a></td><td><a href="https://577236045-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F61Ep9MrYBkJa0Yq3zS1s%2Fuploads%2Fgit-blob-f23f9fe36af0f5d1941285bfc528aa9a5fff1b1b%2Fjenkins.png?alt=media">jenkins.png</a></td></tr><tr><td><strong>Semaphore</strong></td><td></td><td><a href="../ci-providers/semaphoreci">semaphoreci</a></td><td><a href="https://577236045-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F61Ep9MrYBkJa0Yq3zS1s%2Fuploads%2Fgit-blob-f86249ac586cebdc0e2f7854126051b7e51a6e9c%2Fsemaphore.png?alt=media">semaphore.png</a></td></tr><tr><td><strong>TeamCity</strong></td><td></td><td><a href="https://github.com/trunk-io/docs/blob/main/flaky-tests/get-started/frameworks/broken-reference/README">https://github.com/trunk-io/docs/blob/main/flaky-tests/get-started/frameworks/broken-reference/README.md</a></td><td><a href="https://577236045-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F61Ep9MrYBkJa0Yq3zS1s%2Fuploads%2Fgit-blob-b3d36f21bb85001be0fa7ec1ba648f0c169202b7%2Fteamcity.png?alt=media">teamcity.png</a></td></tr><tr><td><strong>Travis CI</strong></td><td></td><td><a href="../ci-providers/travisci">travisci</a></td><td><a href="https://577236045-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F61Ep9MrYBkJa0Yq3zS1s%2Fuploads%2Fgit-blob-4d1125ee24d6189434ed3ca83f411a3dc6e1ca12%2Ftravis.png?alt=media">travis.png</a></td></tr><tr><td><strong>Other CI Providers</strong></td><td></td><td><a href="../ci-providers/otherci">otherci</a></td><td><a href="https://577236045-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F61Ep9MrYBkJa0Yq3zS1s%2Fuploads%2Fgit-blob-3d5eaefed10f481da930070b192d96463c765041%2Fother.png?alt=media">other.png</a></td></tr></tbody></table>

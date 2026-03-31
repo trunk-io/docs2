@@ -1,0 +1,238 @@
+---
+title: "API reference"
+description: "Public Trunk Merge Queue API. All requests should be authenticated."
+---
+The Trunk Merge Queue API lets you manage pull requests, configure queues, and monitor queue health programmatically. Use it to integrate merge queue operations into your CI/CD pipelines, build custom dashboards, or automate queue management across repositories.
+
+The API is an HTTP REST API hosted at `https://api.trunk.io/v1`. It returns JSON from all requests and uses standard HTTP response codes.
+
+All requests must be [authenticated](/setup-and-administration/apis#authentication) by providing the `x-api-token` header.
+
+## Endpoint summary
+
+| Endpoint                                                            | Method | Description                                                                                                                  |
+| ------------------------------------------------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| [`/submitPullRequest`](#post-submitpullrequest)                     | POST   | Submit a PR to the merge queue for testing and merging                                                                       |
+| [`/cancelPullRequest`](#post-cancelpullrequest)                     | POST   | Remove a PR from the merge queue                                                                                             |
+| [`/restartTestsOnPullRequest`](#post-restarttestsonpullrequest)     | POST   | Re-run tests on a PR currently in the queue                                                                                  |
+| [`/getSubmittedPullRequest`](#post-getsubmittedpullrequest)         | POST   | Check the status of a submitted PR                                                                                           |
+| [`/setImpactedTargets`](#post-setimpactedtargets)                   | POST   | Set impacted targets for a PR (used with [parallel queues](/merge-queue/optimizations/parallel-queues)) |
+| [`/getMergeQueueTestingDetails`](#post-getmergequeuetestingdetails) | POST   | Get details about in-progress merge queue testing                                                                            |
+| [`/createQueue`](#post-createqueue)                                 | POST   | Create a new merge queue for a branch                                                                                        |
+| [`/deleteQueue`](#post-deletequeue)                                 | POST   | Delete an empty merge queue                                                                                                  |
+| [`/getQueue`](#post-getqueue)                                       | POST   | Get queue state, configuration, and enqueued PRs                                                                             |
+| [`/updateQueue`](#post-updatequeue)                                 | POST   | Update queue configuration (mode, concurrency, batching, etc.)                                                               |
+| [`/getMergeQueueMetrics`](#prometheus-metrics)                      | GET    | Get Prometheus-format metrics for monitoring                                                                                 |
+
+## Common use cases
+
+**CI/CD automation** — Submit PRs to the queue, check their status, and restart tests automatically from your CI pipelines.
+
+**Queue management** — Create and configure queues for different branches, adjust concurrency and batching settings, or pause and drain queues during maintenance windows.
+
+**Monitoring dashboards** — Use the Prometheus metrics endpoint to build custom Grafana dashboards or feed queue health data into your existing observability stack.
+
+**PR status checks** — Query the status of submitted PRs to build custom notifications or gate downstream workflows.
+
+## Request format
+
+Most endpoints accept a JSON request body with these common fields:
+
+```json
+{
+  "repo": {
+    "host": "github.com",
+    "owner": "my-org",
+    "name": "my-repo"
+  },
+  "targetBranch": "main",
+  "pr": {
+    "number": 123
+  }
+}
+```
+
+| Field          | Type    | Required | Description                                         |
+| -------------- | ------- | -------- | --------------------------------------------------- |
+| `repo.host`    | string  | Yes      | Repository host (e.g., `github.com`)                |
+| `repo.owner`   | string  | Yes      | Repository owner or organization                    |
+| `repo.name`    | string  | Yes      | Repository name                                     |
+| `targetBranch` | string  | Yes      | The branch the merge queue targets                  |
+| `pr.number`    | integer | Varies   | The pull request number (required for PR endpoints) |
+
+## Examples
+
+### Submit a PR to the queue
+
+```bash
+curl -X POST https://api.trunk.io/v1/submitPullRequest \
+  -H "Content-Type: application/json" \
+  -H "x-api-token: $TRUNK_API_TOKEN" \
+  -d '{
+    "repo": {
+      "host": "github.com",
+      "owner": "my-org",
+      "name": "my-repo"
+    },
+    "targetBranch": "main",
+    "pr": {
+      "number": 123
+    }
+  }'
+```
+
+### Check PR status
+
+```bash
+curl -X POST https://api.trunk.io/v1/getSubmittedPullRequest \
+  -H "Content-Type: application/json" \
+  -H "x-api-token: $TRUNK_API_TOKEN" \
+  -d '{
+    "repo": {
+      "host": "github.com",
+      "owner": "my-org",
+      "name": "my-repo"
+    },
+    "targetBranch": "main",
+    "pr": {
+      "number": 123
+    }
+  }'
+```
+
+The response includes the PR state (`NOT_READY`, `PENDING`, `TESTING`, `TESTS_PASSED`, `MERGED`, `FAILED`, `CANCELLED`, or `PENDING_FAILURE`), priority information, and whether the PR is currently submitted to the queue.
+
+### Get queue state
+
+```bash
+curl -X POST https://api.trunk.io/v1/getQueue \
+  -H "Content-Type: application/json" \
+  -H "x-api-token: $TRUNK_API_TOKEN" \
+  -d '{
+    "repo": {
+      "host": "github.com",
+      "owner": "my-org",
+      "name": "my-repo"
+    },
+    "targetBranch": "main"
+  }'
+```
+
+The response includes the queue state (`RUNNING`, `PAUSED`, `DRAINING`, or `SWITCHING_MODES`), configuration settings, and a list of all enqueued pull requests with their current states.
+
+---
+
+## Pull request endpoints
+
+## POST /cancelPullRequest
+
+> Cancel a pull request in a merge queue.
+
+```json
+{"openapi":"3.1.0","info":{"title":"Trunk APIs","version":"1.0.0"},"servers":[{"url":"https://api.trunk.io/v1"}],"security":[{"ApiKeyAuth":[]}],"components":{"securitySchemes":{"ApiKeyAuth":{"type":"apiKey","in":"header","name":"x-api-token"}}},"paths":{"/cancelPullRequest":{"post":{"summary":"Cancel a pull request in a merge queue.","requestBody":{"content":{"application/json":{"schema":{"type":"object","properties":{"repo":{"type":"object","properties":{"host":{"type":"string"},"owner":{"type":"string"},"name":{"type":"string"}},"required":["host","owner","name"]},"pr":{"type":"object","properties":{"number":{"type":"integer","minimum":0,"maximum":4294967295}},"required":["number"]},"targetBranch":{"type":"string"}},"required":["repo","pr","targetBranch"]}}}},"responses":{"200":{"description":"OK","content":{"application/json":{}}},"400":{"description":"Bad Request","content":{"application/plain-text":{"schema":{"type":"string"}}}},"401":{"description":"Unauthorized","content":{"application/plain-text":{"schema":{"type":"string"}}}},"404":{"description":"Not Found","content":{"application/plain-text":{"schema":{"type":"string"}}}},"500":{"description":"Internal Server Error","content":{"application/plain-text":{"schema":{"type":"string"}}}}}}}}}
+```
+
+## POST /getSubmittedPullRequest
+
+> Get a submitted pull request from a merge queue.
+
+```json
+{"openapi":"3.1.0","info":{"title":"Trunk APIs","version":"1.0.0"},"servers":[{"url":"https://api.trunk.io/v1"}],"security":[{"ApiKeyAuth":[]}],"components":{"securitySchemes":{"ApiKeyAuth":{"type":"apiKey","in":"header","name":"x-api-token"}}},"paths":{"/getSubmittedPullRequest":{"post":{"summary":"Get a submitted pull request from a merge queue.","requestBody":{"content":{"application/json":{"schema":{"type":"object","properties":{"repo":{"type":"object","properties":{"host":{"type":"string"},"owner":{"type":"string"},"name":{"type":"string"}},"required":["host","owner","name"]},"pr":{"type":"object","properties":{"number":{"type":"integer","minimum":0,"maximum":4294967295}},"required":["number"]},"targetBranch":{"type":"string"}},"required":["repo","pr","targetBranch"]}}}},"responses":{"200":{"description":"OK","content":{"application/json":{"schema":{"type":"object","properties":{"id":{"type":"string"},"state":{"type":"string","enum":["NOT_READY","PENDING","TESTING","TESTS_PASSED","MERGED","FAILED","CANCELLED","PENDING_FAILURE"]},"readiness":{"type":"object","properties":{"hasImpactedTargets":{"type":"boolean"},"requiresImpactedTargets":{"type":"boolean"},"doesBaseBranchMatch":{"type":"boolean"},"gitHubMergeability":{"type":"string","enum":["UNSPECIFIED","IN_PROGRESS","MERGEABLE","NOT_MERGEABLE"]}},"required":["requiresImpactedTargets","doesBaseBranchMatch","gitHubMergeability"]},"stateChangedAt":{"type":"string"},"priorityValue":{"type":"number"},"priorityName":{"type":"string"},"usedDefaultPriorityName":{"type":"string"},"skipTheLine":{"type":"boolean"},"forceEnqueued":{"type":"boolean"},"isCurrentlySubmittedToQueue":{"type":"boolean"},"prNumber":{"type":"number"},"prTitle":{"type":"string"},"prSha":{"type":"string"},"prBaseBranch":{"type":"string"},"prAuthor":{"type":"string"}},"required":["stateChangedAt","priorityValue","priorityName","skipTheLine","forceEnqueued","isCurrentlySubmittedToQueue","prNumber","prTitle","prSha","prBaseBranch","prAuthor"]}}}},"400":{"description":"Bad Request","content":{"application/plain-text":{"schema":{"type":"string"}}}},"401":{"description":"Unauthorized","content":{"application/plain-text":{"schema":{"type":"string"}}}},"404":{"description":"Not Found","content":{"application/plain-text":{"schema":{"type":"string"}}}},"500":{"description":"Internal Server Error","content":{"application/plain-text":{"schema":{"type":"string"}}}}}}}}}
+```
+
+## POST /restartTestsOnPullRequest
+
+> Restart tests on a pull request in a merge queue.
+
+```json
+{"openapi":"3.1.0","info":{"title":"Trunk APIs","version":"1.0.0"},"servers":[{"url":"https://api.trunk.io/v1"}],"security":[{"ApiKeyAuth":[]}],"components":{"securitySchemes":{"ApiKeyAuth":{"type":"apiKey","in":"header","name":"x-api-token"}}},"paths":{"/restartTestsOnPullRequest":{"post":{"summary":"Restart tests on a pull request in a merge queue.","requestBody":{"content":{"application/json":{"schema":{"type":"object","properties":{"repo":{"type":"object","properties":{"host":{"type":"string"},"owner":{"type":"string"},"name":{"type":"string"}},"required":["host","owner","name"]},"pr":{"type":"object","properties":{"number":{"type":"integer","minimum":0,"maximum":4294967295}},"required":["number"]},"targetBranch":{"type":"string"}},"required":["repo","pr","targetBranch"]}}}},"responses":{"200":{"description":"OK","content":{"application/json":{}}},"400":{"description":"Bad Request","content":{"application/plain-text":{"schema":{"type":"string"}}}},"401":{"description":"Unauthorized","content":{"application/plain-text":{"schema":{"type":"string"}}}},"404":{"description":"Not Found","content":{"application/plain-text":{"schema":{"type":"string"}}}},"500":{"description":"Internal Server Error","content":{"application/plain-text":{"schema":{"type":"string"}}}}}}}}}
+```
+
+## POST /setImpactedTargets
+
+> Set impacted targets for a pull request.
+
+```json
+{"openapi":"3.1.0","info":{"title":"Trunk APIs","version":"1.0.0"},"servers":[{"url":"https://api.trunk.io/v1"}],"security":[{"ApiKeyAuth":[]}],"components":{"securitySchemes":{"ApiKeyAuth":{"type":"apiKey","in":"header","name":"x-api-token"}}},"paths":{"/setImpactedTargets":{"post":{"summary":"Set impacted targets for a pull request.","requestBody":{"content":{"application/json":{"schema":{"type":"object","properties":{"repo":{"type":"object","properties":{"host":{"type":"string"},"owner":{"type":"string"},"name":{"type":"string"}},"required":["host","owner","name"]},"pr":{"type":"object","properties":{"number":{"type":"integer","minimum":1,"maximum":4294967295},"sha":{"type":"string"}},"required":["number","sha"]},"targetBranch":{"type":"string"},"impactedTargets":{"anyOf":[{"type":"array","items":{"type":"string"}},{"type":"string","const":"ALL"}]}},"required":["repo","pr","targetBranch","impactedTargets"]}}}},"responses":{"200":{"description":"OK","content":{"application/json":{}}},"400":{"description":"Bad Request","content":{"application/plain-text":{"schema":{"type":"string"}}}},"401":{"description":"Unauthorized","content":{"application/plain-text":{"schema":{"type":"string"}}}},"404":{"description":"Not Found","content":{"application/plain-text":{"schema":{"type":"string"}}}},"500":{"description":"Internal Server Error","content":{"application/plain-text":{"schema":{"type":"string"}}}}}}}}}
+```
+
+## POST /submitPullRequest
+
+> Submit a pull request to a merge queue.
+
+```json
+{"openapi":"3.1.0","info":{"title":"Trunk APIs","version":"1.0.0"},"servers":[{"url":"https://api.trunk.io/v1"}],"security":[{"ApiKeyAuth":[]}],"components":{"securitySchemes":{"ApiKeyAuth":{"type":"apiKey","in":"header","name":"x-api-token"}}},"paths":{"/submitPullRequest":{"post":{"summary":"Submit a pull request to a merge queue.","requestBody":{"content":{"application/json":{"schema":{"type":"object","properties":{"repo":{"type":"object","properties":{"host":{"type":"string"},"owner":{"type":"string"},"name":{"type":"string"}},"required":["host","owner","name"]},"pr":{"type":"object","properties":{"number":{"type":"integer","minimum":0,"maximum":4294967295}},"required":["number"]},"targetBranch":{"type":"string"},"priority":{"anyOf":[{"type":"integer","minimum":0,"maximum":4294967295},{"type":"string"},{"type":"null"}]},"noBatch":{"type":"boolean"}},"required":["repo","pr","targetBranch"]}}}},"responses":{"200":{"description":"OK","content":{"application/json":{}}},"400":{"description":"Bad Request","content":{"application/plain-text":{"schema":{"type":"string"}}}},"401":{"description":"Unauthorized","content":{"application/plain-text":{"schema":{"type":"string"}}}},"404":{"description":"Not Found","content":{"application/plain-text":{"schema":{"type":"string"}}}},"500":{"description":"Internal Server Error","content":{"application/plain-text":{"schema":{"type":"string"}}}}}}}}}
+```
+
+## POST /getMergeQueueTestingDetails
+
+> Get details about testing that Merge Queue is performing
+
+```json
+{"openapi":"3.1.0","info":{"title":"Trunk APIs","version":"1.0.0"},"servers":[{"url":"https://api.trunk.io/v1"}],"security":[{"ApiKeyAuth":[]}],"components":{"securitySchemes":{"ApiKeyAuth":{"type":"apiKey","in":"header","name":"x-api-token"}}},"paths":{"/getMergeQueueTestingDetails":{"post":{"summary":"Get details about testing that Merge Queue is performing","requestBody":{"content":{"application/json":{"schema":{"type":"object","properties":{"repo":{"type":"object","properties":{"host":{"type":"string"},"owner":{"type":"string"},"name":{"type":"string"}},"required":["host","owner","name"]},"testRunId":{"type":"string"},"targetBranch":{"type":"string"}},"required":["repo","testRunId","targetBranch"]}}}},"responses":{"200":{"description":"OK","content":{"application/json":{"schema":{"type":"object","properties":{"requiredStatuses":{"type":"array","items":{"type":"string"}},"requiredStatusesSource":{"type":"string","enum":["TRUNK_CONFIG","REPO_PROVIDER_BRANCH_PROTECTION"]},"testBranch":{"type":"string"},"testBranchSha":{"type":"string"},"createdAt":{"type":"string"},"status":{"type":"string","enum":["IN_PROGRESS","FAILED","CANCELLED","SUCCEEDED"]},"checkSuites":{"type":"array","items":{"type":"object","properties":{"checkRuns":{"type":"array","items":{"type":"object","properties":{"name":{"type":"string"},"url":{"type":"string"},"status":{"type":"string","enum":["QUEUED","IN_PROGRESS","COMPLETED"]},"conclusion":{"type":"string","enum":["ACTION_REQUIRED","CANCELLED","FAILURE","NEUTRAL","SUCCESS","SKIPPED","STALE","TIMED_OUT"]}},"required":["name","url"]}}},"required":["checkRuns"]}},"statusChecks":{"type":"array","items":{"type":"object","properties":{"context":{"type":"string"},"url":{"type":"string"},"state":{"type":"string","enum":["ERROR","FAILURE","PENDING","SUCCESS"]}},"required":["context"]}},"testedPullRequests":{"type":"array","items":{"type":"object","properties":{"prNumber":{"type":"number"},"prUrl":{"type":"string"},"title":{"type":"string"}},"required":["prNumber","prUrl","title"]}},"impactedTargets":{"type":"array","items":{"type":"string"}},"dependentPrs":{"type":"array","items":{"type":"number"}}},"required":["requiredStatuses","testBranch","testBranchSha","checkSuites","statusChecks","testedPullRequests"]}}}},"400":{"description":"Bad Request","content":{"application/plain-text":{"schema":{"type":"string"}}}},"401":{"description":"Unauthorized","content":{"application/plain-text":{"schema":{"type":"string"}}}},"404":{"description":"Not Found","content":{"application/plain-text":{"schema":{"type":"string"}}}},"500":{"description":"Internal Server Error","content":{"application/plain-text":{"schema":{"type":"string"}}}}}}}}}
+```
+
+## Metrics endpoints
+
+### Prometheus metrics
+
+`GET /v1/getMergeQueueMetrics`
+
+Returns merge queue metrics in Prometheus text exposition format. Authenticate with the `x-api-token` header.
+
+| Parameter  | Required    | Description                                                                                                                                         |
+| ---------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `repo`     | No          | Repository in `owner/name` format. If omitted, returns metrics for all repositories in the organization. Must be provided together with `repoHost`. |
+| `repoHost` | Conditional | Repository host (e.g., `github.com`). Required if `repo` is specified.                                                                              |
+
+Response content type: `text/plain; version=0.0.4; charset=utf-8`
+
+See [Prometheus metrics endpoint](/merge-queue/administration/metrics#prometheus-metrics-endpoint) for the full list of available metrics, scrape configuration, and example queries.
+
+## Queue endpoints
+
+Use these endpoints to create, configure, and manage merge queues. Each queue targets a specific branch in your repository. For more on running multiple queues, see [parallel queues](/merge-queue/optimizations/parallel-queues).
+
+## POST /createQueue
+
+> Create a new merge queue.
+
+```json
+{"openapi":"3.1.0","info":{"title":"Trunk APIs","version":"1.0.0"},"servers":[{"url":"https://api.trunk.io/v1"}],"security":[{"ApiKeyAuth":[]}],"components":{"securitySchemes":{"ApiKeyAuth":{"type":"apiKey","in":"header","name":"x-api-token"}}},"paths":{"/createQueue":{"post":{"summary":"Create a new merge queue.","requestBody":{"content":{"application/json":{"schema":{"type":"object","properties":{"repo":{"type":"object","properties":{"host":{"type":"string"},"owner":{"type":"string"},"name":{"type":"string"}},"required":["host","owner","name"]},"targetBranch":{"type":"string"},"mode":{"type":"string","enum":["single","parallel"]},"concurrency":{"type":"integer","minimum":1,"maximum":4294967295}},"required":["repo","targetBranch"]}}}},"responses":{"200":{"description":"OK","content":{"application/json":{}}},"400":{"description":"Bad Request","content":{"application/plain-text":{"schema":{"type":"string"}}}},"401":{"description":"Unauthorized","content":{"application/plain-text":{"schema":{"type":"string"}}}},"404":{"description":"Not Found","content":{"application/plain-text":{"schema":{"type":"string"}}}},"500":{"description":"Internal Server Error","content":{"application/plain-text":{"schema":{"type":"string"}}}}}}}}}
+```
+
+## POST /deleteQueue
+
+> Delete the specified merge queue. The queue must be empty in order to be deleted.
+
+```json
+{"openapi":"3.1.0","info":{"title":"Trunk APIs","version":"1.0.0"},"servers":[{"url":"https://api.trunk.io/v1"}],"security":[{"ApiKeyAuth":[]}],"components":{"securitySchemes":{"ApiKeyAuth":{"type":"apiKey","in":"header","name":"x-api-token"}}},"paths":{"/deleteQueue":{"post":{"summary":"Delete the specified merge queue. The queue must be empty in order to be deleted.","requestBody":{"content":{"application/json":{"schema":{"type":"object","properties":{"repo":{"type":"object","properties":{"host":{"type":"string"},"owner":{"type":"string"},"name":{"type":"string"}},"required":["host","owner","name"]},"targetBranch":{"type":"string"}},"required":["repo","targetBranch"]}}}},"responses":{"200":{"description":"OK","content":{"application/json":{}}},"400":{"description":"Bad Request","content":{"application/plain-text":{"schema":{"type":"string"}}}},"401":{"description":"Unauthorized","content":{"application/plain-text":{"schema":{"type":"string"}}}},"404":{"description":"Not Found","content":{"application/plain-text":{"schema":{"type":"string"}}}},"500":{"description":"Internal Server Error","content":{"application/plain-text":{"schema":{"type":"string"}}}}}}}}}
+```
+
+<Warning>
+The queue must be empty before it can be deleted. Cancel or merge all enqueued PRs first.
+</Warning>
+
+## POST /getQueue
+
+> Get the merge queue.
+
+```json
+{"openapi":"3.1.0","info":{"title":"Trunk APIs","version":"1.0.0"},"servers":[{"url":"https://api.trunk.io/v1"}],"security":[{"ApiKeyAuth":[]}],"components":{"securitySchemes":{"ApiKeyAuth":{"type":"apiKey","in":"header","name":"x-api-token"}}},"paths":{"/getQueue":{"post":{"summary":"Get the merge queue.","requestBody":{"content":{"application/json":{"schema":{"type":"object","properties":{"repo":{"type":"object","properties":{"host":{"type":"string"},"owner":{"type":"string"},"name":{"type":"string"}},"required":["host","owner","name"]},"targetBranch":{"type":"string"}},"required":["repo","targetBranch"]}}}},"responses":{"200":{"description":"OK","content":{"application/json":{"schema":{"type":"object","properties":{"state":{"type":"string","enum":["RUNNING","PAUSED","DRAINING","SWITCHING_MODES"]},"branch":{"type":"string"},"concurrency":{"type":"number"},"testingTimeoutMins":{"type":"number"},"mode":{"type":"string","enum":["SINGLE","PARALLEL"]},"canOptimisticallyMerge":{"type":"boolean"},"pendingFailureDepth":{"type":"number"},"isBatching":{"type":"boolean"},"batchingMaxWaitTimeMins":{"type":"number"},"batchingMinSize":{"type":"number"},"createPrsForTestingBranches":{"type":"boolean"},"enqueuedPullRequests":{"type":"array","items":{"type":"object","properties":{"id":{"type":"string"},"state":{"type":"string","enum":["NOT_READY","PENDING","TESTING","TESTS_PASSED","MERGED","FAILED","CANCELLED","PENDING_FAILURE"]},"stateChangedAt":{"type":"string"},"priorityValue":{"type":"number"},"priorityName":{"type":"string"},"usedDefaultPriorityName":{"type":"string"},"skipTheLine":{"type":"boolean"},"prNumber":{"type":"number"},"prTitle":{"type":"string"},"prSha":{"type":"string"},"prBaseBranch":{"type":"string"},"prAuthor":{"type":"string"}},"required":["stateChangedAt","priorityValue","priorityName","skipTheLine","prNumber","prTitle","prSha","prBaseBranch","prAuthor"]}}},"required":["branch","concurrency","testingTimeoutMins","canOptimisticallyMerge","pendingFailureDepth","isBatching","batchingMaxWaitTimeMins","batchingMinSize","createPrsForTestingBranches","enqueuedPullRequests"]}}}},"400":{"description":"Bad Request","content":{"application/plain-text":{"schema":{"type":"string"}}}},"401":{"description":"Unauthorized","content":{"application/plain-text":{"schema":{"type":"string"}}}},"404":{"description":"Not Found","content":{"application/plain-text":{"schema":{"type":"string"}}}},"500":{"description":"Internal Server Error","content":{"application/plain-text":{"schema":{"type":"string"}}}}}}}}}
+```
+
+## POST /updateQueue
+
+> Update the merge queue.
+
+```json
+{"openapi":"3.1.0","info":{"title":"Trunk APIs","version":"1.0.0"},"servers":[{"url":"https://api.trunk.io/v1"}],"security":[{"ApiKeyAuth":[]}],"components":{"securitySchemes":{"ApiKeyAuth":{"type":"apiKey","in":"header","name":"x-api-token"}}},"paths":{"/updateQueue":{"post":{"summary":"Update the merge queue.","requestBody":{"content":{"application/json":{"schema":{"type":"object","properties":{"repo":{"type":"object","properties":{"host":{"type":"string"},"owner":{"type":"string"},"name":{"type":"string"}},"required":["host","owner","name"]},"targetBranch":{"type":"string","description":"The branch that the merge queue is targeting."},"state":{"type":"string","enum":["RUNNING","PAUSED","DRAINING"],"description":"The desired state of the merge queue. Valid values: RUNNING, PAUSED, DRAINING."},"concurrency":{"type":"integer","minimum":1,"maximum":4294967295,"description":"The number of PRs or batches of PRs the queue can test at once."},"bisectionConcurrency":{"type":"integer","minimum":1,"maximum":4294967295,"description":"The number of tests the merge queue can run when bisecting a batch to figure out what PR in the batch failed."},"testingTimeoutMinutes":{"type":"integer","minimum":1,"maximum":4294967295,"description":"The maximum number of minutes the merge queue will wait for tests to complete before timing out."},"pendingFailureDepth":{"type":"integer","minimum":1,"maximum":4294967295,"description":"When enabled, PRs that fail tests will wait for the specified number of PRs below them to finish testing before getting kicked from the queue. This works best with optimistic merging enabled."},"canOptimisticallyMerge":{"type":"boolean","description":"When enabled, a PR that passes tests will also cause any PR ahead of it in the queue to also get marked as passing, since tests have passed with those commits."},"batch":{"type":"boolean","description":"Enable or disable batching. When enabled, the merge queue will group PRs into batches for testing."},"batchingMaxWaitTimeMinutes":{"type":"integer","minimum":1,"maximum":4294967295,"description":"The maximum number of minutes the merge queue will wait to collect PRs into a batch before starting tests."},"batchingMinSize":{"type":"integer","minimum":1,"maximum":4294967295,"description":"The minimum number of PRs required to form a batch."},"mode":{"type":"string","enum":["single","parallel"],"description":"The queue mode. 'single' processes PRs one at a time. 'parallel' processes multiple PRs concurrently."},"commentsEnabled":{"type":"boolean","description":"Whether or not Merge Queue will post GitHub comments on PRs."},"commandsEnabled":{"type":"boolean","description":"Whether or not users are allowed to submit PRs to the merge queue by commenting `/trunk merge`."},"createPrsForTestingBranches":{"type":"boolean","description":"Whether or not the merge queue will create PRs for its testing branches, allowing CI to run on them."},"directMergeMode":{"type":"string","enum":["OFF","ALWAYS"],"description":"Allow PRs to merge directly into the target branch if they're up to date with the target branch when submitting them to the queue instead of running tests on them in the merge queue."},"optimizationMode":{"type":"string","enum":["OFF","BISECTION_SKIP_REDUNDANT_TESTS"],"description":"The optimization strategy for the merge queue. 'OFF' disables optimizations. 'BISECTION_SKIP_REDUNDANT_TESTS' uses bisection and skips redundant tests."},"mergeMethod":{"type":"string","enum":["MERGE_COMMIT","SQUASH","REBASE"],"description":"The Git merge method used when merging PRs into the target branch. Valid values: MERGE_COMMIT, SQUASH, REBASE."},"statusCheckEnabled":{"type":"boolean","description":"Post a GitHub status check on PRs with the status of the PR in the merge queue."},"requiredStatuses":{"type":"array","items":{"type":"string"},"description":"Allows setting the statuses that must pass when the merge queue performs tests in order for a PR to merge. Setting the statuses here will override GitHub branch protection settings or your `.trunk/trunk.yaml`."},"deleteRequiredStatuses":{"type":"boolean","description":"Removes a manually specified set of required statuses. After this, the statuses that must pass when the merge queue performs testing will be pulled from either GitHub branch protection settings or your `.trunk/trunk.yaml`."}},"required":["repo","targetBranch"]}}}},"responses":{"200":{"description":"OK","content":{"application/json":{}}},"400":{"description":"Bad Request","content":{"application/plain-text":{"schema":{"type":"string"}}}},"401":{"description":"Unauthorized","content":{"application/plain-text":{"schema":{"type":"string"}}}},"404":{"description":"Not Found","content":{"application/plain-text":{"schema":{"type":"string"}}}},"500":{"description":"Internal Server Error","content":{"application/plain-text":{"schema":{"type":"string"}}}}}}}}}
+```
+
+## Related resources
+
+* [CLI reference](/merge-queue/reference/merge-queue-cli-reference) — Command-line interface for merge queue operations
+* [Metrics and monitoring](/merge-queue/administration/metrics) — Dashboard analytics and Prometheus endpoint details
+* [Webhooks](/merge-queue/webhooks) — Event-driven notifications for queue activity
+* [Settings and configurations](/merge-queue/administration/advanced-settings) — Queue settings available in the Trunk web app
+* [Authentication](/setup-and-administration/apis#authentication) — API token setup and management
