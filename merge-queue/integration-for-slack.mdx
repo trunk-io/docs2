@@ -127,11 +127,11 @@ Yes, both connections are required. The GitHub connection links your PRs to your
 
 <summary><strong>What's the difference between personal notifications and channel notifications?</strong></summary>
 
-[Personal notifications](#personal-slack-notifications) are sent directly to you via Slack DM and only include updates about your own PRs.
+[Personal notifications](#personal-slack-notifications) are sent directly to you via Slack DM and only include updates about your own PRs. They are set up from the Trunk Slack app's Home tab.
 
-[Channel notifications](#channel-notifications) are sent to a shared team channel and include updates about all PRs in the merge queue.
+[Channel notifications](#channel-notifications) are sent to one or more shared team channels and include updates about all PRs in the merge queue. You can connect multiple channels per repository, each with different notification topics.
 
-You can use both simultaneously to stay informed personally while keeping your team updated. Learn more about setting up channel notifications.
+You can use both simultaneously to stay informed personally while keeping your team updated.
 
 </details>
 
@@ -139,15 +139,23 @@ You can use both simultaneously to stay informed personally while keeping your t
 
 <summary><strong>Can I customize which notifications I receive?</strong></summary>
 
-Yes, in **Settings** > **Account** > **Notifications**, you can toggle individual notification topics on or off based on your preferences. For example, you might only want to be notified when your PR fails or gets merged, rather than at every stage.
+Yes. For personal notifications, toggle topics on or off from the Trunk Slack app's **Home** tab. For channel notifications, configure topics per channel under **Settings > Repositories > [your repository] > Merge Queue** in the Trunk web app.
 
 </details>
 
 <details>
 
-<summary><strong>What happens if I disconnect my GitHub or Slack account?</strong></summary>
+<summary><strong>What happens if I disconnect my Slack account from my Trunk account?</strong></summary>
 
-Disconnecting either account will stop personal Slack notifications. You can reconnect at any time through **Settings** > **Account** > **Notifications**.
+You can unlink your account from the Trunk Slack app's Home tab using the **Unlink Account** button. Disconnecting stops personal Slack notifications. You can reconnect at any time by returning to the Home tab and clicking **Link Account**.
+
+</details>
+
+<details>
+
+<summary><strong>I don't see the Trunk app in my Slack sidebar. How do I add it?</strong></summary>
+
+The Trunk app must first be [installed at the organization level](#installing-the-trunk-slack-app) by a Slack workspace admin. After that, individual users can add it to their sidebar: in Slack, go to **Apps > Manage > Browse Apps**, search for "Trunk," and click **Add**.
 
 </details>
 
