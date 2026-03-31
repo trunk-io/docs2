@@ -8,32 +8,50 @@ Trunk Merge Queue integrates with Slack to send real-time notifications about qu
 For details on how Trunk collects, manages, and stores your data, see our [Security and Privacy](/setup-and-administration/security) page.
 </Info>
 
-<figure><img src="https://577236045-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F61Ep9MrYBkJa0Yq3zS1s%2Fuploads%2Fgit-blob-86e977ddacbcff410524d4cc24299ef20607133c%2FScreenshot%202025-10-21%20at%204.32.54%E2%80%AFPM.png?alt=media" alt="" /><figcaption></figcaption></figure>
+## Installing the Trunk Slack App
 
-After you have Merge Queue set up and running in your repository, you can configure Slack notifications to receive alerts for various queue events.
+Before you can set up channel notifications or personal DMs, a Slack workspace admin must install the Trunk Slack app for your organization. This is a one-time setup that enables all Slack integration features.
+
+### Steps to Install
+
+1. In the Trunk web app, navigate to **Settings > Organization > Slack**.
+2. Click **Add to Slack**.
+3. Review and approve the requested permissions on the Slack OAuth screen.
+4. You'll be redirected back to Trunk. The page will show your workspace as **Connected** along with the workspace name.
+
+### Managing the Connection
+
+Once connected, you can **Reconnect** (to reauthorize) or **Disconnect** the workspace from the same settings page.
+
+<Warning>
+**Migrating from legacy Slack integration?** If your organization previously connected Slack through the per-repo "Connect with Slack" flow, you still need to complete this new workspace-level installation to access multi-channel notifications and the new personal DM features. After installing, you can set up channel connections and personal notifications using the new workflows described below.
+</Warning>
 
 ## Channel Notifications
 
-Send merge queue updates to a shared team Slack channel to keep everyone informed about queue activity.
+Send merge queue updates to one or more shared Slack channels to keep your team informed about queue activity. Each channel can have its own set of enabled notification topics.
 
-### Enable Merge Queue Notifications
+### Connecting Slack Channels
 
-After you have Merge set up and running in your repository, you can set up your integration with Slack under **Merge Queue** tab **>** repository **> Settings >** **Connect with Slack**.
+<Info>
+**Prerequisite:** The Trunk Slack app must be [installed for your organization](#installing-the-trunk-slack-app) before you can connect channels.
+</Info>
 
-<figure><img src="https://577236045-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F61Ep9MrYBkJa0Yq3zS1s%2Fuploads%2Fgit-blob-8ed1c60dab586c7c89c64774e1f0f2b73db60275%2Fmerge-slack-connect.png?alt=media" alt="" /><figcaption></figcaption></figure>
+1. Navigate to **Settings > Repositories > [your repository] > Merge Queue**.
+2. Under **Slack Notifications**, click **Add Channel**.
+3. In the **Add Slack Channel** modal, select a channel from the dropdown.
+4. Toggle the notification topics you want enabled for that channel.
+5. Click **Connect**.
 
-1. Navigate to `Settings > Repositories > [your repository] > Merge Queue`
-2. Find the **Connect with Slack** setting and click **Connect** to install the Trunk Slack application
-3. Authorize the app to post to your desired channel
-4. You'll be redirected back to your settings page once authorization is complete
+You can connect **multiple channels**, each with a different set of enabled topics. For example, you might send all notifications to a `#merge-notifications` channel while only sending failure alerts to a `#merge-queue-failures` channel.
 
-### Configuring Channel Notification Preferences
+The channel list displays each connected channel along with a summary of how many notification topics are enabled (e.g., "6/9 enabled"). To remove an individual channel, click the trash icon next to it. To remove all channel connections for the repository, click **Disconnect**.
 
-After connecting to a Slack channel, you can customize which notifications you want to receive. By default, all Merge Queue notifications are enabled.
+### Managing Channel Notification Preferences
 
-<figure><img src="https://577236045-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F61Ep9MrYBkJa0Yq3zS1s%2Fuploads%2Fgit-blob-404d5d9ee9fe1d5c3605c070e22cab5fa2b98ac6%2Fmerge-slack-settings.png?alt=media" alt="" /><figcaption></figcaption></figure>
+Each connected channel has its own independent set of notification topics. You can expand any channel in the list to view and toggle its topics on or off. Changes take effect immediately.
 
-You can toggle individual notification types on or off. See Available Notification Topics below for descriptions of each notification type.
+See [Available Notification Topics](#available-notification-topics) below for descriptions of each notification type.
 
 <Info>
 **Tip:** Want to receive these notifications as personal DMs instead of in a shared channel? Check out our [Personal Slack Notifications](#personal-slack-notifications) setup guide.
