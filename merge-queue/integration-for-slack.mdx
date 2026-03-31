@@ -59,42 +59,33 @@ See [Available Notification Topics](#available-notification-topics) below for de
 
 ## Personal Slack Notifications
 
-Get direct messages in Slack about your PRs in the merge queue, keeping you informed without adding noise to team channels.
-
-Personal Slack notifications allow you to receive personalized Slack DMs when your PRs are queued, start testing, pass tests, get merged, or encounter issues. This keeps you up-to-date on the progress of your code through the merge queue without needing to check the web UI or monitor shared channels.
+Get direct messages in Slack about your PRs as they move through the merge queue — queued, testing, merged, failed, and more — without adding noise to team channels.
 
 ### Setting up Personal Notifications
 
-To receive personal Slack notifications, you'll need to connect both your GitHub and Slack accounts to Trunk and configure your notification preferences.
-
 <Info>
-**Note:** If your organization isn't already using merge queue Slack notifications to a shared channel, a Slack workspace admin may need to approve the Trunk Slack app before you can connect your personal account. See [Enable Merge Queue Notifications](#enable-merge-queue-notifications) for details on setting up the initial Slack integration.
+**Prerequisite:** The Trunk Slack app must be [installed for your organization](#installing-the-trunk-slack-app) before personal notifications can be configured. If the app hasn't been installed yet, the Home tab will display a warning directing a Slack admin to complete the installation.
 </Info>
 
-#### **Steps to Enable Personal Notifications**
+Personal notification setup is done from the **Trunk Slack app's Home tab** in Slack:
 
-1. **Navigate to User Settings**
-   * Go to **User Settings > Notifications** in the Trunk web app
-   * These settings are specific to you, so you can customize them however you prefer
-2. **Connect GitHub Account**
-   * Click **Connect GitHub** to begin the OAuth flow
-   * This verifies that you own your GitHub account and allows Trunk to link your PRs to your user profile
-3. **Connect Slack Account**
+1. Open the **Trunk** app in Slack. If you don't see it in your sidebar, add it via **Apps > Manage > Browse Apps** and search for "Trunk."
+2. Go to the **Home** tab.
+3. Click **Link Account** to connect your Trunk account to Slack.
+4. Connect your **GitHub account** from the Home tab. This is required for PR tracking and most notifications.
+5. Configure your notification preferences using the toggles on the Home tab.
 
-   * Click **Connect to Slack** to authorize the Trunk Slack app to send you direct messages
+### Using the Trunk Web UI
 
-   > **Important:** If your organization hasn't already installed the Trunk Slack app for channel notifications, a Slack workspace admin may need to approve the app before you can receive personal notifications.
-4. **Configure Notification Preferences**
-   * Enable the specific notifications you want to receive via Slack DM
-   * See Available Personal Notification Topics below for descriptions of each notification type
-5. **Manage Connections**
-   * You can disconnect your GitHub or Slack accounts at any time by clicking the respective **Disconnect** buttons in User Settings
+You can also start setup from the Trunk web app, which will redirect you to Slack to complete the process:
+
+1. Navigate to **Settings > Account > Notifications** in Trunk.
+2. Under **Connect your Slack workspace**, verify your workspace is connected. If not, click **Go to Slack settings** to install the app first.
+3. Click **Open in Slack** to jump to the Trunk app's Home tab, where you'll link your account and configure notifications.
 
 <Info>
-**Tip:** Want to receive these same notifications in a shared Slack channel instead? Check out our team [Channel Slack Notifications](#channel-notifications) setup guide.
+**Tip:** Want to send notifications to a shared team channel instead? Check out the [Channel Notifications](#channel-notifications) setup guide.
 </Info>
-
-<figure><img src="https://577236045-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2F61Ep9MrYBkJa0Yq3zS1s%2Fuploads%2FOm0UpayHGl4hM4Hxv9E3%2FSCR-20260202-negj.png?alt=media&#x26;token=b5eb17c0-ae91-45b2-a81c-4b80c6a68785" alt="" /><figcaption></figcaption></figure>
 
 ## Slack App Home Dashboard
 
