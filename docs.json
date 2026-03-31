@@ -223,7 +223,8 @@
               "flaky-tests/webhooks/slack-integration",
               "flaky-tests/webhooks/microsoft-teams-integration",
               "flaky-tests/webhooks/github-issues-integration",
-              "flaky-tests/webhooks/linear-integration"
+              "flaky-tests/webhooks/linear-integration",
+              "flaky-tests/webhooks/jira-integration"
             ]
           },
           {
