@@ -1,0 +1,73 @@
+---
+title: "Autofix flaky tests"
+description: "Automatically investigate flaky tests and raise fix pull requests"
+---
+
+Trunk can automatically investigate flaky tests in your codebase and raise fix pull requests with suggested solutions.
+
+### Prerequisites
+
+To use the Autofix Flaky Tests feature, you'll need:
+
+1. Beta access via waitlist (reach out to us on [Slack](https://slack.trunk.io))
+2. The "Investigate Flaky Tests" setting enabled in your workspace
+3. Active installation of the [Trunk GitHub App](/setup-and-administration/github-app-permissions)
+
+### Auto-Investigate Flaky Tests
+
+Once enabled, any time that Trunk [detects a flaky test](/flaky-tests/detection), Trunk analyzes the failure patterns, failure output, and git history of the test to provide a number of insights.
+
+Flaky tests can also be analyzed manually via the UI and via the [MCP server](/flaky-tests/use-mcp-server/mcp-tool-reference/fix-flaky-test).
+
+### Autofix with Cursor Automations
+
+Whenever an investigation is completed, Trunk will emit a [webhook](/flaky-tests/webhooks) for `test_case.investigation_completed`. Enable webhooks via [Svix](/flaky-tests/webhooks).
+
+You can then set up a [Cursor Automation](https://cursor.com/automations) to trigger when webhooks are received.
+
+<Accordion title="Recommended Cursor Automation Config">
+
+```json
+{
+  "name": "Autofix Flaky Tests v1",
+  "triggers": [
+    {
+      "webhook": {}
+    }
+  ],
+  "actions": [],
+  "prompts": [
+    {
+      "prompt": "Your task is to fix flaky tests in this repo using provided insights..."
+    }
+  ],
+  "memoryEnabled": true,
+  "scope": "private",
+  "gitConfig": {
+    "repo": "https://github.com/<repo>",
+    "repos": [
+      "https://github.com/<repo>"
+    ],
+    "branch": "main"
+  }
+}
+```
+
+</Accordion>
+
+We recommend the following conventions:
+
+* Version your Automation names for more clarity.
+* Configure the Svix endpoint with the Cursor Bearer token.
+* Webhooks are configured for your entire organization, so you will need to use [Svix transformations](https://docs.svix.com/transformations) or filter out events that are not for your intended repository.
+* Be specific about conventions and antipatterns for your repository. You will need to refine the Automation prompt to suit your needs.
+* If your CI setup allows it, prompt Cursor to run the tests to verify them.
+
+### What's next?
+
+* Continue to monitor your tests to confirm the flaky test fixes are effective
+* Investigations can be triggered and applied via [MCP](/flaky-tests/use-mcp-server/mcp-tool-reference/fix-flaky-test)
+
+<Info>
+**Coming soon.** Set up Claude Routines to autofix flaky tests
+</Info>

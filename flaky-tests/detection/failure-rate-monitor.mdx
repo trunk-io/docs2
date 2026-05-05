@@ -1,14 +1,15 @@
 ---
-title: "Threshold Monitor"
+title: "Failure Rate Monitor"
 description: "Detect flaky or broken tests based on failure rate over a configurable time window"
 ---
-The threshold monitor detects tests based on failure rate over a rolling time window. Unlike pass-on-retry, which looks for a specific pattern on a single commit, the threshold monitor identifies tests that fail too often over a period of time, even if no individual failure looks like a retry.
 
-You can create multiple threshold monitors with different configurations. This is how you tailor detection to different branches, test volumes, sensitivity levels, and detection types.
+The failure rate monitor detects tests based on failure rate over a rolling time window. Unlike pass-on-retry, which looks for a specific pattern on a single commit, the failure rate monitor identifies tests that fail too often over a period of time, even if no individual failure looks like a retry.
+
+You can create multiple failure rate monitors with different configurations. This is how you tailor detection to different branches, test volumes, sensitivity levels, and detection types.
 
 ## Detection Type
 
-Each threshold monitor has a **detection type** — either **flaky** or **broken** — which controls what status a test receives when the monitor flags it:
+Each failure rate monitor has a **detection type** — either **flaky** or **broken** — which controls what status a test receives when the monitor flags it:
 
 * **Flaky monitors** catch tests that fail intermittently (e.g., 20–50% failure rate). These are typically caused by timing issues, shared state, or non-deterministic behavior.
 * **Broken monitors** catch tests that fail consistently at a high rate (e.g., 80%+ failure rate). These usually indicate a real regression — something in the code or environment is genuinely broken and needs a fix.
@@ -23,7 +24,7 @@ The monitor periodically calculates the failure rate for each test within a time
 
 ### Example
 
-You configure a threshold monitor with:
+You configure a failure rate monitor with:
 
 | Setting              | Value   |
 | -------------------- | ------- |
@@ -82,9 +83,9 @@ The right minimum depends on how often a test actually runs on the branches you'
 
 How long (in hours) a flagged test can go without any runs before it's automatically resolved as stale. This clears out tests that have been deleted, renamed, or are no longer part of your test suite.
 
-When not set, flagged tests remain in their detected state indefinitely until they run enough times to recover through the normal threshold check. Setting a stale timeout (e.g., 24 hours) ensures abandoned tests don't clutter your test list.
+When not set, flagged tests remain in their detected state indefinitely until they run enough times to recover through the normal threshold check. Setting a stale timeout (e.g., 24 hours) keeps abandoned tests from cluttering your test list.
 
-A test resolved as stale is simply no longer being tracked by this monitor. If the test starts running again and exceeds the activation threshold, it will be re-flagged.
+A test resolved as stale is no longer being tracked by this monitor. If the test starts running again and exceeds the activation threshold, it will be re-flagged.
 
 <Info>
 Skipped tests count as not being run. If you have a stale timeout configured and a test starts being skipped rather than executed, the monitor will treat it as having no runs and resolve it as stale once the timeout elapses.
@@ -161,11 +162,11 @@ Tests that are still running but haven't accumulated enough runs to meet the min
 
 ## Muting
 
-You can temporarily mute a threshold monitor for a specific test case. See [Muting monitors](/flaky-tests/detection/..#muting-monitors) for details.
+You can temporarily mute a failure rate monitor for a specific test case. See [Muting monitors](/flaky-tests/detection#muting-monitors) for details.
 
 ## Recommended Configurations
 
-A common setup is to pair two threshold monitors — one to catch broken tests quickly and one to catch flaky tests over a longer window:
+A common setup is to pair two failure rate monitors — one to catch broken tests quickly and one to catch flaky tests over a longer window:
 
 | Monitor        | Detection type | Activation threshold | Window      | Purpose                                                                                |
 | -------------- | -------------- | -------------------- | ----------- | -------------------------------------------------------------------------------------- |
@@ -192,7 +193,7 @@ Failures on your stable branch are a strong signal. Tests should be passing befo
 
 On PR branches, tests are expected to fail — that's part of active development. Analyzing failure rate for flakiness on PRs is generally not productive because a new failing test is likely caused by the code change under review, not non-deterministic behavior. Pass-on-retry already handles real flakiness on PRs: if a test fails and then passes on retry within the same commit, it will be detected regardless of branch.
 
-If you do want a threshold monitor on PRs, scope it to catch **broken** tests rather than flaky ones — tests that are consistently failing at a high rate across many PRs, which may indicate a persistent regression or a broken test environment.
+If you do want a failure rate monitor on PRs, scope it to catch **broken** tests rather than flaky ones — tests that are consistently failing at a high rate across many PRs, which may indicate a persistent regression or a broken test environment.
 
 | Setting              | Suggested value                      | Why                                                                           |
 | -------------------- | ------------------------------------ | ----------------------------------------------------------------------------- |

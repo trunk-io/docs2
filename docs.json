@@ -96,7 +96,8 @@
               "merge-queue/using-the-queue/monitor-queue-status",
               "merge-queue/using-the-queue/handle-failed-pull-requests",
               "merge-queue/using-the-queue/stacked-pull-requests",
-              "merge-queue/using-the-queue/emergency-pull-requests"
+              "merge-queue/using-the-queue/emergency-pull-requests",
+              "merge-queue/using-the-queue/force-merge"
             ]
           },
           {
@@ -111,7 +112,8 @@
             "pages": [
               "merge-queue/administration",
               "merge-queue/administration/advanced-settings",
-              "merge-queue/administration/metrics"
+              "merge-queue/administration/metrics",
+              "merge-queue/administration/terraform"
             ]
           },
           {
@@ -198,8 +200,12 @@
             "pages": [
               "flaky-tests/detection",
               "flaky-tests/detection/pass-on-retry-monitor",
-              "flaky-tests/detection/threshold-monitor",
+              "flaky-tests/detection/failure-rate-monitor",
+              "flaky-tests/detection/failure-count-monitor",
               "flaky-tests/detection/flag-as-flaky",
+              "flaky-tests/test-labels",
+              "flaky-tests/autofix-flaky-tests",
+              "flaky-tests/autofix-ci-failures",
               "flaky-tests/infrastructure-failure-protection",
               "flaky-tests/the-importance-of-pr-test-results",
               "flaky-tests/quarantining",
@@ -239,8 +245,11 @@
               "flaky-tests/use-mcp-server/configuration/github-copilot-ide",
               "flaky-tests/use-mcp-server/configuration/claude-code-cli",
               "flaky-tests/use-mcp-server/configuration/gemini-cli",
+              "flaky-tests/use-mcp-server/configuration/bearer-auth",
               "flaky-tests/use-mcp-server/mcp-tool-reference",
-              "flaky-tests/use-mcp-server/mcp-tool-reference/get-root-cause-analysis",
+              "flaky-tests/use-mcp-server/mcp-tool-reference/fix-flaky-test",
+              "flaky-tests/use-mcp-server/mcp-tool-reference/investigate-ci-failure",
+              "flaky-tests/use-mcp-server/mcp-tool-reference/search-test",
               "flaky-tests/use-mcp-server/mcp-tool-reference/set-up-test-uploads"
             ]
           }
@@ -258,6 +267,7 @@
             "pages": [
               "setup-and-administration/managing-your-organization",
               "setup-and-administration/github-app-permissions",
+              "setup-and-administration/trunk-sudo-app",
               "setup-and-administration/support",
               "setup-and-administration/billing",
               "setup-and-administration/security"

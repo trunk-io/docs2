@@ -1,0 +1,78 @@
+---
+title: "Autofix CI failures"
+description: "Use Trunk and AI agents to automatically fix CI failures"
+---
+
+Trunk can return targeted information about CI failures, enabling AI agents and automation tools to analyze and fix issues automatically.
+
+### Prerequisites
+
+To use the Autofix CI Failures feature, you'll need to have:
+
+* Your repository set up to [upload test results to Trunk](/flaky-tests/get-started)
+
+### Cursor CI Autofix
+
+You can set up a [Cursor Automation](https://cursor.com/automations) to automatically fix CI failures by connecting to Trunk's CI failure investigation data via MCP. This is an extension of the Cursor `CI Autofix` template.
+
+Set up the Trunk MCP using [Bearer Authentication](/flaky-tests/use-mcp-server/configuration/bearer-auth).
+
+<Accordion title="Recommended Cursor Automation Prompt">
+
+```json
+{
+  "name": "CI Autofix v1",
+  "description": "Detect CI failures on main and automatically open PRs",
+  "triggers": [
+    {
+      "git": {
+        "ciCompleted": {
+          "repos": [
+            "https://github.com/<repo>"
+          ],
+          "condition": 1,
+          "ignoreBaseFailures": true
+        }
+      }
+    }
+  ],
+  "actions": [
+    {
+      "gitPr": {}
+    },
+    {
+      "mcp": {
+        "server": {
+          "name": "trunk"
+        }
+      }
+    }
+  ],
+  "prompts": [
+    {
+      "prompt": "Your task is to fix CI failures on PRs..."
+    }
+  ],
+  "memoryEnabled": true,
+  "scope": "team_editable_user",
+  "templateId": "ci-autofix"
+}
+```
+
+</Accordion>
+
+We recommend the following conventions:
+
+* Version your Automation names for more clarity (e.g., "CI Autofix v1")
+* Refine the prompt to avoid scanning GitHub logs in order to save time and tokens
+* Be specific about your repository's conventions and common failure patterns
+
+<Info>
+Currently Cursor will create a pull request with a base of `main`. You will need to adjust the pull request base if you want to merge the fix into your PR.
+</Info>
+
+### Claude Code Routines
+
+<Info>
+**Coming soon.** Set up Claude Routines to autofix CI failures
+</Info>
