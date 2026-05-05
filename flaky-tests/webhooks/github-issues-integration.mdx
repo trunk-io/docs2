@@ -59,7 +59,7 @@ Transformations are custom code snippets you can write to customize the GitHub i
 
 1. In the endpoint configuration view, navigate to the **Advanced** tab. Under **Transformation**, toggle the **Enabled** switch.
 2. Click **Edit transformation** to update your transformation code, and click **Save** to update the transformation.
-3. You can test the transformation by selecting the `test_case.status_changed` payload and clicking **Run Test**. This will test the transformation but not send a message. You will learn to send a test message in [step 5](#id-5.-test-your-webhook).
+3. You can test the transformation by selecting the `v2.test_case.status_changed` payload and clicking **Run Test**. This will test the transformation but not send a message. You will learn to send a test message in [step 5](#id-5.-test-your-webhook).
 
 The generated webhook template contains several configurable constants out of the box:
 
@@ -183,7 +183,7 @@ You can uncomment the code block on lines 31-35 or use a snippet similar to:
 You can create test issues by delivering a mock webhook. You can do this by:
 
 1. In the endpoint configuration view, navigate to the **Testing** tab and select a **Send event**
-2. Under **Subscribed events,** select `test_case.status_changed`as the event type to send.
+2. Under **Subscribed events,** select `v2.test_case.status_changed`as the event type to send.
 3. Click **Send Example** to test your webhook
 
 ### 6. Monitoring webhooks
@@ -202,7 +202,7 @@ You can see a list of past delivery attempts in the **Message Attempts** modal. 
 
 A GitHub Issue will now be created when a test's health status changes. You can further modify your transformation script to customize your issues.
 
-[See the Trunk webhook event catalog](https://www.svix.com/event-types/us/org_2eQPL41Ew5XSHxiXZIamIUIXg8H/#test_case.status_changed)
+[See the Trunk webhook event catalog](https://www.svix.com/event-types/us/org_2eQPL41Ew5XSHxiXZIamIUIXg8H/#v2.test_case.status_changed)
 
 [Learn more about consuming webhooks in the Svix docs](https://docs.svix.com/receiving/introduction)
 
