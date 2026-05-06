@@ -36,6 +36,8 @@ All requests must be [authenticated](/setup-and-administration/apis#authenticati
 
 ## Request format
 
+Request bodies must not exceed 20 MiB.
+
 Most endpoints accept a JSON request body with these common fields:
 
 ```json
@@ -163,6 +165,10 @@ The response includes the queue state (`RUNNING`, `PAUSED`, `DRAINING`, or `SWIT
 ```json
 {"openapi":"3.1.0","info":{"title":"Trunk APIs","version":"1.0.0"},"servers":[{"url":"https://api.trunk.io/v1"}],"security":[{"ApiKeyAuth":[]}],"components":{"securitySchemes":{"ApiKeyAuth":{"type":"apiKey","in":"header","name":"x-api-token"}}},"paths":{"/submitPullRequest":{"post":{"summary":"Submit a pull request to a merge queue.","requestBody":{"content":{"application/json":{"schema":{"type":"object","properties":{"repo":{"type":"object","properties":{"host":{"type":"string"},"owner":{"type":"string"},"name":{"type":"string"}},"required":["host","owner","name"]},"pr":{"type":"object","properties":{"number":{"type":"integer","minimum":0,"maximum":4294967295}},"required":["number"]},"targetBranch":{"type":"string"},"priority":{"anyOf":[{"type":"integer","minimum":0,"maximum":4294967295},{"type":"string"},{"type":"null"}]},"noBatch":{"type":"boolean"}},"required":["repo","pr","targetBranch"]}}}},"responses":{"200":{"description":"OK","content":{"application/json":{}}},"400":{"description":"Bad Request","content":{"application/plain-text":{"schema":{"type":"string"}}}},"401":{"description":"Unauthorized","content":{"application/plain-text":{"schema":{"type":"string"}}}},"404":{"description":"Not Found","content":{"application/plain-text":{"schema":{"type":"string"}}}},"500":{"description":"Internal Server Error","content":{"application/plain-text":{"schema":{"type":"string"}}}}}}}}}
 ```
+
+<Warning>
+Large monorepos can produce target lists that exceed the 20 MiB request body limit. If you hit this limit, send `"ALL"` as the `impactedTargets` value to mark the PR as impacting every target.
+</Warning>
 
 ## POST /getMergeQueueTestingDetails
 
