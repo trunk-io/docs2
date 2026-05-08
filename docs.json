@@ -186,6 +186,7 @@
               "flaky-tests/get-started/ci-providers/droneci",
               "flaky-tests/get-started/ci-providers/github-actions",
               "flaky-tests/get-started/ci-providers/gitlab",
+              "flaky-tests/get-started/ci-providers/google-cloud-build",
               "flaky-tests/get-started/ci-providers/jenkins",
               "flaky-tests/get-started/ci-providers/otherci",
               "flaky-tests/get-started/ci-providers/semaphoreci",
