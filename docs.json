@@ -133,10 +133,12 @@
             "group": "Overview",
             "pages": [
               "flaky-tests/overview",
-              "flaky-tests/get-started",
-              "flaky-tests/managing-detected-flaky-tests",
               "flaky-tests/dashboard"
             ]
+          },
+          {
+            "group": "Getting Started",
+            "pages": ["flaky-tests/get-started"]
           },
           {
             "group": "Test Frameworks",
@@ -194,26 +196,32 @@
             ]
           },
           {
-            "group": "Detection & Operations",
+            "group": "Flaky test detection",
             "pages": [
               "flaky-tests/detection",
               "flaky-tests/detection/pass-on-retry-monitor",
               "flaky-tests/detection/threshold-monitor",
               "flaky-tests/detection/flag-as-flaky",
-              "flaky-tests/infrastructure-failure-protection",
               "flaky-tests/the-importance-of-pr-test-results",
-              "flaky-tests/quarantining",
-              "flaky-tests/quarantine-service-availability",
-              "flaky-tests/github-pull-request-comments"
+              "flaky-tests/infrastructure-failure-protection"
             ]
           },
           {
-            "group": "Ticketing Integrations",
+            "group": "Flaky test management",
             "pages": [
+              "flaky-tests/managing-detected-flaky-tests",
+              "flaky-tests/github-pull-request-comments",
               "flaky-tests/ticketing-integrations",
               "flaky-tests/ticketing-integrations/jira-integration",
               "flaky-tests/ticketing-integrations/linear-integration",
               "flaky-tests/ticketing-integrations/other-ticketing-platforms"
+            ]
+          },
+          {
+            "group": "Quarantining",
+            "pages": [
+              "flaky-tests/quarantining",
+              "flaky-tests/quarantine-service-availability"
             ]
           },
           {
@@ -227,12 +235,10 @@
             ]
           },
           {
-            "group": "APIs & CLI",
-            "pages": ["flaky-tests/flaky-tests", "flaky-tests/uploader"]
-          },
-          {
-            "group": "MCP Server",
+            "group": "Reference",
             "pages": [
+              "flaky-tests/uploader",
+              "flaky-tests/flaky-tests",
               "flaky-tests/use-mcp-server",
               "flaky-tests/use-mcp-server/configuration",
               "flaky-tests/use-mcp-server/configuration/cursor-ide",
