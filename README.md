@@ -1,55 +1,79 @@
-# Mintlify Starter Kit
+# Trunk Documentation
 
-Use the starter kit to get your docs deployed and ready to customize.
+The Mintlify-powered version of [docs.trunk.io](https://docs.trunk.io). Pages live as `.mdx` files under topic directories (`flaky-tests/`, `merge-queue/`, `setup-and-administration/`), with site configuration in `docs.json`.
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
+## Prerequisites
 
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
+- Node.js ≥ 19
+- The [Mintlify CLI](https://www.npmjs.com/package/mint) (`mint`). Tested with `4.2.559`.
 
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
+## Local development
 
-## AI-assisted writing
+Clone and enter the repo:
 
-Set up your AI coding tool to work with Mintlify:
-
-```bash
-npx skills add https://mintlify.com/docs
+```
+git clone git@github.com:trunk-io/docs2.git
+cd docs2
 ```
 
-This command installs Mintlify's documentation skill for your configured AI tools like Claude Code, Cursor, Windsurf, and others. The skill includes component reference, writing standards, and workflow guidance.
-
-See the [AI tools guides](/ai-tools) for tool-specific setup.
-
-## Development
-
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
+Install the CLI globally if you haven't already:
 
 ```
 npm i -g mint
 ```
 
-Run the following command at the root of your documentation, where your `docs.json` is located:
+Start the dev server from the repo root (where `docs.json` lives):
 
 ```
 mint dev
 ```
 
-View your local preview at `http://localhost:3000`.
+Open `http://localhost:3000`. If `:3000` is taken, the CLI auto-picks the next free port — watch the startup log for the actual URL. Pin a specific port with `mint dev --port 3005`.
+
+### Enabling local search
+
+Search in `mint dev` proxies to Mintlify's hosted search service and requires a CLI login:
+
+```
+mint login
+```
+
+The site itself renders fine without authenticating; only the search box needs it. _(Login flow details — browser vs. terminal, SSO behavior — to be filled in after first successful run.)_
+
+## Useful commands
+
+| Command | Purpose |
+| --- | --- |
+| `mint dev` | Local preview server |
+| `mint validate` | Strict-mode build check; non-zero exit on warnings/errors. Good for CI. |
+| `mint broken-links` | Link checker across the docs tree |
+| `mint a11y` | Accessibility check |
+| `mint status` | Show current auth state |
+| `mint login` / `mint logout` | Manage CLI session |
+| `mint version` | Show installed CLI version |
+| `mint update` | Update the CLI to the latest version |
 
 ## Publishing changes
 
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
+Mintlify's GitHub app watches the default branch — merging to `main` deploys to production automatically. The app is installed and managed from the [Mintlify dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
 
-## Need help?
+## Troubleshooting
 
-### Troubleshooting
+- **Dev server won't start or behaves oddly:** check `mint version`, then run `mint update` if you're behind.
+- **404 on every page:** confirm you're running `mint dev` from the directory containing `docs.json` (the repo root).
+- **Search shows "Login into CLI to enable search":** run `mint login`. The rest of the site still works without it.
 
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
+## AI-assisted writing
 
-### Resources
-- [Mintlify documentation](https://mintlify.com/docs)
+Mintlify ships a documentation skill for Claude Code, Cursor, Windsurf, and similar tools:
+
+```
+npx skills add https://mintlify.com/docs
+```
+
+It includes component reference, writing standards, and workflow guidance.
+
+## Resources
+
+- [Mintlify docs](https://mintlify.com/docs)
+- [Mintlify CLI on npm](https://www.npmjs.com/package/mint)
