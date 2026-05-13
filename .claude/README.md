@@ -77,11 +77,11 @@ The flow is **research → write → verify**:
 **When:** Given a draft notes file, trunk2 PR numbers, Linear ticket IDs, a deploy tag, or Slite links — anything that says "document this feature."
 
 **What it does:** Full 9-phase pipeline:
-1. Overlap detection (Phase 0) — refuses to proceed if another PR covers the same topic
+1. Overlap detection (Phase 0) — checks GitHub for existing or conflicting docs PRs **and** Linear for existing planning tickets before starting work; asks the user if anything matches
 2. Research across Linear, Slite, Slack, trunk2 PR diffs, and existing docs
 3. Drafts new content or in-place edits, updating `docs.json` if adding pages
 4. Creates a branch, commits, opens a **draft** PR with author tags
-5. Updates Linear and writes a Slack post draft
+5. Updates Linear (links the existing ticket from Phase 0 or creates a new one) and writes a Slack post draft
 6. Invokes `/verify-docs-pr` to check whether the feature is actually live in prod
 
 **Inputs:** Trunk2 PR refs, Linear ticket IDs, a deploy tag, Slite links, or an optional `.claude/drafts/<topic>.md` file for batch workflows.
