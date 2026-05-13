@@ -1,0 +1,6 @@
+# Per-machine permission overrides (each contributor curates their own)
+settings.local.json
+
+# Scratch space written by skills (sources.md, slack.md, report.html, etc.)
+tmp/*
+!tmp/.gitkeep
