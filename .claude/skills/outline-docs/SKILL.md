@@ -177,7 +177,7 @@ Post-Checklist:
 [ ] Add frontmatter description (if page is a top-level overview)
 [ ] Verify all links to related pages are correct
 [ ] Run: trunk check
-[ ] Use /review-docs skill to review content and get feedback
+[ ] Fill in TODOs, run `trunk check` for linting, and request review on the PR
 ```
 
 Then, on the user's behalf, automatically run:
@@ -340,6 +340,6 @@ After writing the file, the user should complete these steps:
 
 4. **Run validation** — Execute `trunk check` to check for linting issues.
 
-5. **Review content** — Use the `/review-docs` skill to review the page content and get feedback before merging.
+5. **Review content** — Fill in every `<!-- TODO -->` block, then rely on `trunk check` for linting and the normal PR review flow for editorial feedback. Run `/docs-research` if you discover the topic overlaps an existing page and you need to reconsider placement.
 
 If any tool reports errors or review identifies issues, fix them before merging.

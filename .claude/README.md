@@ -9,18 +9,26 @@ Claude Code configuration for the Trunk docs (Mintlify) repo. Skills are documen
 ├── agents/                       # Subagent definitions (spawned via the Agent tool)
 │   └── doc-researcher.md         # Gathers Linear/PR/Slite/docs context before writing
 ├── skills/                       # User-invoked workflows (triggered via /skill-name)
+│   ├── docs-research/            # Audit existing docs to find gaps and placement
 │   ├── outline-docs/             # Scaffold a new docs page from scratch
-│   ├── write-docs/               # Notes → PR pipeline (9 phases)
-│   ├── review-docs/              # Pre-PR review of local changes
-│   ├── draft-docs/               # Generate notes files from trunk2 context
-│   ├── verify-docs-pr/           # Verify a docs PR's feature is live in prod
-│   └── docs-review/              # Audit live docs.trunk.io pages
-├── drafts/                       # Input notes files for write-docs
+│   ├── write-docs/               # Trunk2 context → PR pipeline (9 phases)
+│   └── verify-docs-pr/           # Verify a docs PR's feature is live in prod
+├── drafts/                       # Optional input notes files for write-docs
 │   └── TEMPLATE.md               # Scaffold for new draft notes
 ├── tmp/                          # Scratch outputs (gitignored)
 ├── settings.json                 # Shared permissions (committed)
 └── settings.local.json           # Per-machine overrides (gitignored)
 ```
+
+## Mental model
+
+The flow is **research → write → verify**:
+
+| Phase | Skill |
+|---|---|
+| Research | `/docs-research` (existing-coverage audit) + `doc-researcher` agent (Linear/PR/Slite context) |
+| Write | `/outline-docs` (blank-page scaffold) or `/write-docs` (full PR pipeline) |
+| Verify | `/verify-docs-pr` (is the feature actually live in prod?) |
 
 ## Agents vs. Skills
 
@@ -34,6 +42,23 @@ Claude Code configuration for the Trunk docs (Mintlify) repo. Skills are documen
 | Skill | `/skill-name` | Main conversation | Multi-step workflows with user checkpoints |
 
 ## Skill reference
+
+### `/docs-research`
+
+**When:** Before writing a new doc (or right after a deploy) to audit existing coverage, find gaps, and decide where new content should live.
+
+**What it does:** Five-phase audit:
+1. Maps the relevant product-area group in `docs.json` and lists candidate `.mdx` files
+2. Searches existing docs (hosted search + local grep) for the topic and synonyms
+3. Classifies each hit as `covered`, `partial`, or `adjacent`
+4. Recommends placement for new content — defaulting to extending an existing page over creating a new one
+5. Generates a structured report with existing coverage, gaps, suggested placement, and cross-links to add
+
+**Inputs:** A topic / feature name / product area. Optional: a feature description, PR body, or Linear ticket. `full` for a site-wide audit.
+
+**Outputs:** A research report that feeds directly into `/outline-docs` or `/write-docs`.
+
+---
 
 ### `/outline-docs`
 
@@ -59,40 +84,11 @@ Claude Code configuration for the Trunk docs (Mintlify) repo. Skills are documen
 5. Updates Linear and writes a Slack post draft
 6. Invokes `/verify-docs-pr` to check whether the feature is actually live in prod
 
-**Inputs:** A `.claude/drafts/<topic>.md` file (preferred), or raw PR/ticket references.
+**Inputs:** Trunk2 PR refs, Linear ticket IDs, a deploy tag, Slite links, or an optional `.claude/drafts/<topic>.md` file for batch workflows.
 
 **Outputs:** Branch, draft PR, Linear update, Slack post in `tmp/<topic>/slack.md`.
 
-**Discipline:** One draft = one PR. Always opens as draft for human review.
-
----
-
-### `/review-docs`
-
-**When:** Docs changes are ready locally and you want a structural review before opening a PR.
-
-**What it does:** Five-phase review:
-1. Identifies changed `.mdx` files via `git diff main...HEAD`
-2. **Audits `docs.json` redirects** for stale or missing entries when files have been moved or deleted
-3. Runs `trunk fmt` and `trunk check`
-4. Reads sibling pages in the same product area to establish a style baseline
-5. Reviews each file for repetition, structural completeness, logic errors, and Trunk style consistency
-
-**Inputs:** Optional file path (single-file mode), otherwise the full branch diff.
-
-**Outputs:** A structured report. Offers to apply mechanical fixes directly.
-
----
-
-### `/draft-docs`
-
-**When:** After a trunk2 deploy, or anytime you want to pre-populate drafts from PR / Linear / deploy-tag context.
-
-**What it does:** Reads trunk2 PRs, Linear tickets, and Slack/Slite context. Classifies which PRs need docs. For each, generates a `<featurename>.md` notes file in `.claude/drafts/` containing: feature summary, target pages, gap analysis, code references, and "what changed" prose.
-
-**Inputs:** A deploy tag, `latest`, PR numbers, Linear IDs, or a freeform feature description.
-
-**Outputs:** One notes file per documentable feature, written directly to `.claude/drafts/` for processing by `/write-docs`.
+**Discipline:** One feature = one PR. Always opens as draft for human review.
 
 ---
 
@@ -107,20 +103,6 @@ Claude Code configuration for the Trunk docs (Mintlify) repo. Skills are documen
 **Outputs:** PR comment, Linear comment, title prefix update, draft state.
 
 **Auto-invoked:** by `/write-docs` Phase 4 after PR creation.
-
----
-
-### `/docs-review`
-
-**When:** Auditing existing docs.trunk.io pages for accuracy, naming consistency, AI-readability, or running a site-wide quality pass.
-
-**What it does:** Reads local `.mdx` files and reviews them for: factual accuracy against the code, naming consistency, structural issues, and AI-friendliness (clear hierarchy, scannable headers, no ambiguous pronouns). Reports findings.
-
-**Inputs:** A page path or glob, a product area name, `full` for a site-wide pass, or no arg to ask.
-
-**Outputs:** A structured audit report.
-
-**vs. `/review-docs`:** `/review-docs` is pre-PR diff review on your local branch. `/docs-review` audits already-published pages for ongoing quality.
 
 ---
 
@@ -142,12 +124,12 @@ Subagent (not a slash command). Spawned via the `Agent` tool with `subagent_type
 
 ## Drafts
 
-`drafts/` holds input notes files that feed into `/write-docs`. Each file represents one documentable feature; processing it produces one PR.
+`drafts/` is optional scratch space for batch workflows. `/write-docs` accepts trunk2 PR / Linear / deploy-tag refs directly, so most invocations skip drafts entirely. Use a draft file when you want to curate notes by hand before processing — for example, post-deploy when several features ship and you want to triage which ones need docs first.
 
-- **`TEMPLATE.md`** — scaffold for new drafts. Don't edit this; copy it.
-- **`<featurename>.md`** — one per feature. Generated either manually or by `/draft-docs`.
+- **`TEMPLATE.md`** — scaffold for new drafts. Don't edit; copy it.
+- **`<featurename>.md`** — one per feature. Author manually, then run `/write-docs <featurename>`.
 
-Drafts are inputs, not outputs. Never modify or delete a draft mid-pipeline — it's the source of truth for what was requested.
+If you do use a draft file, treat it as input: never modify or delete it mid-pipeline.
 
 ## Tmp
 
@@ -168,11 +150,9 @@ Everything under `tmp/` is gitignored except `.gitkeep`.
 
 Generic versions of these skills live in `~/Developer/gutils/claude-code/skills/trunk/` (the canonical personal-use copy). The versions in this directory are **project-tuned for Mintlify**:
 
+- `docs-research` — audits `docs.json` groups, reads `.mdx` files, defaults to extending existing pages over creating new ones
 - `outline-docs` — uses `.mdx`, updates `docs.json` nav, generates Mintlify callouts
-- `review-docs` — audits `docs.json` redirects, expects Mintlify callout components, no GitBook syntax
 - `write-docs` — updates `docs.json` instead of `summary.md`
 - `verify-docs-pr` — hardcoded to `trunk-io/docs2`
-- `draft-docs` — outputs directly to `.claude/drafts/` (no copy step needed)
-- `docs-review` — reviews `.mdx` files
 
 When updating one of these skills, decide whether the change is generic (also update gutils) or project-specific (only update here). Intentional drift between the two is fine and expected.

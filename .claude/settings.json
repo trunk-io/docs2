@@ -87,10 +87,8 @@
 
       "Skill(write-docs)",
       "Skill(outline-docs)",
-      "Skill(review-docs)",
-      "Skill(draft-docs)",
+      "Skill(docs-research)",
       "Skill(verify-docs-pr)",
-      "Skill(docs-review)",
       "Skill(schedule)"
     ]
   }
