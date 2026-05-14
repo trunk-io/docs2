@@ -46,7 +46,7 @@ Things to look out for:
 **Best for:** Teams who need different CI behavior for merge queue testing versus pull request review.
 </Info>
 
-When a pull request enters the queue, Trunk creates a `trunk-merge/*` branch and pushes to it. You configure specific CI jobs to run on these branches.
+When a pull request enters the queue, Trunk creates a branch under `trunk-merge/` and pushes to it. You configure specific CI jobs to run on these branches.
 
 **Advantages:**
 
@@ -92,8 +92,8 @@ Trunk Merge Queue needs permission to push to your protected branch. Configure t
 
 Trunk Merge Queue creates temporary branches to test pull requests before merging them:
 
-* `trunk-temp/*` - Temporary testing branches
-* `trunk-merge/*` - Merge testing branches
+* `trunk-temp/**/*` - Temporary testing branches
+* `trunk-merge/**/*` - Merge testing branches
 
 <Warning>
 **Trunk needs unrestricted access** to create, push to, and delete these branches. If your branch protection rules apply to these branches, Merge Queue cannot function.
@@ -103,12 +103,12 @@ Trunk Merge Queue creates temporary branches to test pull requests before mergin
 
 1. Go to **Settings > Branches** in your repository
 2. Review all Classic branch protection rules
-3. Check for wildcard patterns like `*/*`, `**/*`, or similar that would match `trunk-temp/*` or `trunk-merge/*`
+3. Check for wildcard patterns like `*/*`, `**/*`, or similar that would match `trunk-temp/**/*` or `trunk-merge/**/*`
 4. If you find matching rules, either:
    * **Option A:** Remove the wildcard rules and create more specific rules for your actual branches
    * **Option B:** Add the `trunk-io` bot to the bypass list for those rules
 
-**Example of a problematic rule:** A branch protection rule with pattern `*/*` would protect all branches including `trunk-temp/*` and `trunk-merge/*`.
+**Example of a problematic rule:** A branch protection rule with pattern `*/*` would protect all branches including `trunk-temp/**/*` and `trunk-merge/**/*`.
 
 **What happens if these branches are protected:** Merge Queue will encounter GitHub permission errors and display messages like "Permission denied on trunk-merge/\* branch."
 
