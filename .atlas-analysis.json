@@ -1,0 +1,107 @@
+{
+  "projectType": "saas",
+  "projectName": "Trunk",
+  "projectDescription": "Trunk enables continuous delivery by eliminating flaky tests and serialized merge queues that bottleneck software teams at scale.",
+  "theme": "aspen",
+  "primaryColor": "#838484",
+  "lightColor": "#151516",
+  "darkColor": "#c8c8c8",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Overview",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "setup-and-administration/connecting-to-trunk"
+            ]
+          },
+          {
+            "group": "Administration",
+            "pages": [
+              "setup-and-administration/managing-your-organization",
+              "setup-and-administration/github-app-permissions",
+              "setup-and-administration/security",
+              "setup-and-administration/billing"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Flaky Tests",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "flaky-tests/overview",
+              "flaky-tests/get-started"
+            ]
+          },
+          {
+            "group": "Features",
+            "pages": [
+              "flaky-tests/detection",
+              "flaky-tests/quarantining",
+              "flaky-tests/github-pull-request-comments",
+              "flaky-tests/ticketing-integrations",
+              "flaky-tests/webhooks"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Merge Queue",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "merge-queue/overview",
+              "merge-queue/set-up-trunk-merge"
+            ]
+          },
+          {
+            "group": "Features",
+            "pages": [
+              "merge-queue/optimizations",
+              "merge-queue/using-the-queue",
+              "merge-queue/reference"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "APIs",
+            "pages": [
+              "setup-and-administration/apis"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Flaky test detection using branch-aware analysis and stack trace embeddings",
+    "Automatic quarantine of flaky tests to prevent CI pipeline failures",
+    "Parallel merge queue with independent lanes for non-overlapping PRs",
+    "Intelligent batching of up to 100 PRs per CI run with auto-bisection",
+    "Anti-flake protection in merge queue with optimistic merging",
+    "GitHub PR comments with test failure context and quarantine status",
+    "Jira and Linear ticketing integrations for flaky test tracking",
+    "Webhooks and full REST API for both Flaky Tests and Merge Queue",
+    "AI-powered flaky test repair via MCP integration (Claude, Codex, Cursor)",
+    "SOC 2 Type II certified with no access to source code or secrets"
+  ],
+  "publicApiSurface": [
+    "POST /v1/metrics/trackEvents",
+    "GET /flaky-tests (quarantined tests API)",
+    "Merge Queue REST API",
+    "Webhooks: v2.test_case.status_changed",
+    "Trunk Analytics CLI (test result uploader)",
+    "x-api-token header authentication"
+  ]
+}

@@ -1,0 +1,139 @@
+---
+title: "Jenkins"
+description: "Configure Flaky Tests using Jenkins"
+---
+Trunk Flaky Tests integrates with your CI by adding a step in your Jenkins Pipelines to upload tests with the [Trunk Analytics CLI](../../reference/cli-reference).
+
+<Warning>
+**Not using GitHub for source control?**
+
+Flaky Test support for source control providers like GitLab and BitBucket is still experimental. If you're using a source control provider other than GitHub, [**contact us**](mailto:support@trunk.io) **to get started**.&#x20;
+</Warning>
+
+Before you start on these steps, see the [Test Frameworks](../frameworks/) docs for instructions on producing a Trunk-compatible output for your test framework.&#x20;
+
+### Checklist
+
+By the end of this guide, you should achieve the following.
+
+* [ ] Get your Trunk organization slug and token
+* [ ] Set your slug and token as a variable in CI
+* [ ] Configure your CI to upload to Trunk
+* [ ] Validate your uploads in Trunk
+
+After completing these checklist items, you'll be integrated with Trunk.&#x20;
+
+### Trunk Organization Slug and Token
+
+Before setting up uploads to Trunk, you must sign in to [app.trunk.io](https://app.trunk.io/login?intent=flaky%20tests) and obtain your Trunk organization slug and token.
+
+#### Trunk Slug
+
+You can find your organization slug under **Settings > Organization > Manage > Organization Name > Slug**. You'll save this as a variable in CI in a later step.
+
+#### Trunk Token
+
+You can find your token under **Settings > Organization > Manage > Organization API Token > View Organization API Token > View**. Since this is a secret, do not leak it publicly. Ensure you get your _organization token_, not your project/repo token.
+
+### Add the Trunk Token as a Secret
+
+Store the Trunk slug and API token obtained in the previous step in your Jenkins as new credentials named `TRUNK_ORG_SLUG` and `TRUNK_TOKEN` respectively.
+
+### Upload to Trunk
+
+Add an `Upload Test Results` step after running tests in each of your CI jobs that run tests. This should be minimally all jobs that run on pull requests, as well as from jobs that run on your main or [stable branches](../../detection/), for example, `main`, `master`, or `develop`.
+
+<Danger>
+It is important to upload test results from CI runs on [**stable branches**](../../detection/), such as `main`, `master`, or `develop`. This will give you a stronger signal about the health of your code and tests.
+
+Trunk can also detect test flakes on PR and merge branches. To best detect flaky tests, it is recommended to upload test results from stable, PR, and merge branch CI runs.
+
+[Learn more about detection](../../detection/)
+</Danger>
+
+#### Example Jenkins Pipeline
+
+The following is an example of a Jenkins pipeline step to upload test results after your tests run. Note: you must either run `trunk` from the repo root when uploading test results or pass a `--repo-root` argument.
+
+To find out how to produce the report files the uploader needs, see the instructions for your test framework in the [Test Frameworks](../frameworks/) docs
+
+<CodeGroup>
+```groovy XML
+pipeline {
+  environment {
+    TRUNK_TOKEN = credentials('TRUNK_TOKEN')
+  }
+  stages {
+    stage('Run Tests'){
+      ...
+    }
+    stage('Upload Test Results'){
+      sh 'curl -fL --retry 3 "https://github.com/trunk-io/analytics-cli/releases/latest/download/trunk-analytics-cli-x86_64-unknown-linux.tar.gz" | tar -xz && chmod +x trunk-analytics-cli'
+      sh './trunk-analytics-cli upload --junit-paths "<XML_GLOB_PATH>" --org-url-slug <TRUNK_ORG_SLUG> --token $TRUNK_TOKEN'
+    }
+  }
+}
+```
+```yaml Bazel
+pipeline {
+  environment {
+    TRUNK_TOKEN = credentials('TRUNK_TOKEN')
+  }
+  stages {
+    stage('Run Tests'){
+      ...
+    }
+    stage('Upload Test Results'){
+      sh 'curl -fL --retry 3 "https://github.com/trunk-io/analytics-cli/releases/latest/download/trunk-analytics-cli-x86_64-unknown-linux.tar.gz" | tar -xz && chmod +x trunk-analytics-cli'
+      sh './trunk-analytics-cli upload --bazel-bep-path <BEP_JSON_PATH> --org-url-slug <TRUNK_ORG_SLUG> --token $TRUNK_TOKEN'
+    }
+  }
+}
+```
+```yaml XCode
+pipeline {
+  environment {
+    TRUNK_TOKEN = credentials('TRUNK_TOKEN')
+  }
+  stages {
+    stage('Run Tests'){
+      ...
+    }
+    stage('Upload Test Results'){
+      sh 'curl -fL --retry 3 "https://github.com/trunk-io/analytics-cli/releases/latest/download/trunk-analytics-cli-x86_64-unknown-linux.tar.gz" | tar -xz && chmod +x trunk-analytics-cli'
+      sh './trunk-analytics-cli upload --xcresult-path <XCRESULT_PATH> --org-url-slug <TRUNK_ORG_SLUG> --token $TRUNK_TOKEN'
+    }
+  }
+}
+```
+```groovy RSpec plugin
+pipeline {
+  environment {
+    TRUNK_ORG_SLUG = credentials('TRUNK_ORG_SLUG')
+    TRUNK_TOKEN = credentials('TRUNK_TOKEN')
+  }
+  stages {
+    stage('Run Tests and Upload Results to Trunk.io'){
+      sh 'TRUNK_ORG_URL_SLUG=$TRUNK_ORG_SLUG TRUNK_API_TOKEN=$TRUNK_TOKEN bundle exec rspec'
+    }
+  }
+}
+```
+</CodeGroup>
+
+
+<Info>
+The examples above use the Linux x64 binary. If your CI runs on a different platform, see the [Trunk Analytics CLI](../../reference/cli-reference#manual-download) page for all available platform downloads.
+</Info>
+
+See the [uploader.md](../../reference/cli-reference.md "mention") for all available command line arguments and usage.
+
+#### Stale files
+
+Ensure you report every test run in CI and **clean up stale files** produced by your test framework. If you're reusing test runners and using a glob like `**/junit.xml` to upload tests, stale files not cleaned up will be included in the current test run, throwing off detection of flakiness. You should clean up all your results files after every upload step.
+
+<Tip>
+**Have questions?**
+
+Join us and 1500+ fellow engineers [on Slack](https://slack.trunk.io/) to get help with Trunk.
+</Tip>

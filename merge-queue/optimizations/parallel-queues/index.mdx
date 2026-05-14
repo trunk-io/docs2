@@ -1,0 +1,87 @@
+---
+title: "Parallel queues"
+description: "Create dynamic parallel queues to reduce queue time"
+---
+
+Normally, a merge queue behaves by enqueueing all submitted pull requests into a single line. Under this mode of operation, every pull request is [predictively tested ](/broken/pages/BAKgbuxqWos5o4kna99T)against the pull requests ahead of it. While this guarantees the correctness of the protected branch at all times, under a high submission load, the wait time for an item in the queue can be negatively impacted.
+
+A regular merge queue operates like a grocery store with only a single checkout lane. When a lot of folks are trying to checkout at the same time - the line will grow (sometimes intolerably). With a dynamic parallel queue, trunk merge creates additional checkout lanes in real-time while still guaranteeing that the protected branch doesn't break.​
+
+<Frame caption="track impacted code of each pull request to create dynamic queues">
+<iframe allow="autoplay; fullscreen; picture-in-picture; display-capture; clipboard-write" allowfullscreen="" allowtransparency="true" referrerpolicy="no-referrer-when-downgrade" class="vidyard-iframe-XeTFxCCLuDUU3kip2RnykW" frameborder="0" height="100%" width="100%" scrolling="no" src="https://play.vidyard.com/XeTFxCCLuDUU3kip2RnykW?disable_popouts=1&amp;disable_analytics=0&amp;preload=auto&amp;disable_larger_player=false&amp;theater_button=0&amp;pip_button=0&amp;controller=hubs&amp;action=show&amp;type=inline&amp;v=4.3.20" title="trunk.io merge queue // parallel queues" spellcheck="false"></iframe>
+</Frame>
+
+For example, the following four pull requests:
+
+* PR A with impacted target list `[ frontend ]`
+* PR B with impacted target list `[ backend ]`
+* PR C with impacted target list `[ frontend, backend]`
+* PR D with impacted target list `[ docs]`
+
+Without parallelization, the PRs **A**, **B**, **C**, and **D** would all be tested in a single predictive path **A** \<- **B** \<- **C** \<- **D**. Using the impacted target information we can instead build three dynamically provisioned queues and the predictive testing can yield higher throughput - which means your pull request spends less time in the queue stuck testing with unrelated code changes.
+
+<Frame caption="Three Dynamic Parallel Queues">
+<img src="/assets/file.excalidraw_(6).svg" alt="Three Dynamic Parallel Queues" class="gitbook-drawing"/>
+</Frame>
+
+#### **How does it work?**
+
+To run in parallel mode, each pull request needs to be inspected for its impacted targets. This is a fancy way of saying that each pull request needs to report what parts of the codebase are changing.
+
+In the example above, the pull requests **A**, **B**, and **D** can be tested in isolation since they affect distinct targets - `backend`, `frontend` and `docs`. The **C** pull request affects both `frontend` and `backend` and would be tested predictively with the changes in both **A** and **B**.
+
+To understand the interactions or dependent changes between pull requests, Trunk Merge Queue provides an API for posting the list of **impacted targets** that result from code changes in every PR. When Trunk Merge Queue is running in parallel mode, pull requests will not be processed until the list of impacted targets are uploaded.
+
+#### **What are Impacted Targets?**
+
+Impacted targets are metadata that describe the logical changes of a pull request. An impacted target is a string that can be as expressive as a Bazel target or the name of a file folder. Calculating impacted targets with a purpose-built build system will provide absolute correctness for the merge queue, but more lightweight glob or folder-based approaches can also work with fewer guarantees around correctness.
+
+#### **Posting impacted targets from your pull requests**
+
+We ship several pre-built solutions for popular build systems to automatically calculate and post the impacted targets of a pull request. If you are using another build system, we would be happy to work with you to add support for your specific build system.
+
+<Columns cols={2}>
+  <Card
+    title="Bazel"
+    href="./bazel"
+    img="/assets/bazel-dark.png"
+  />
+  <Card
+    title="Nx"
+    href="./nx"
+    img="/assets/NX.png"
+  />
+  <Card
+    title="Other"
+    href="./api"
+    img="/assets/Group_1277.png"
+  />
+</Columns>
+
+**Enable Parallel Modes**\
+Merge can be swapped between `Single` and `Parallel` mode at any time. If there are no PRs in the merge queue when switching, the switch will be immediate. If there are PRs in the queue, then Merge will go into the `Switching Modes` state, where it'll wait for all currently testing PRs to merge before switching modes. During this time, PRs will not be able to enter the queue.
+
+Switching modes can be done from the `Merge Queue Mode` section of the `Settings > Repositories > repo name > Merge` panel
+
+<Frame caption="enabling parallel mode">
+![](/assets/enable-parallel-mode)
+</Frame>
+
+**Find your Trunk API Token**
+
+#### Store your Organization Token as a GitHub Secret
+
+### Monitoring Parallel Queue Performance
+
+Once you've enabled parallel mode and configured impacted targets, you can analyze how well the parallel workflow performs for different parts of your codebase.
+
+The Health dashboard allows you to filter all metrics by impacted targets, so you can:
+
+* Compare merge times between different targets (e.g., frontend vs backend)
+* Identify which targets experience the most failures
+* Optimize queue configuration for your highest-priority code paths
+* Demonstrate the value of parallel mode to engineering leadership
+
+<Info>
+See [Filter Metrics by Impacted Targets ](../../administration/metrics#filter-metrics-by-impacted-targets)for detailed guidance on using this feature.
+</Info>

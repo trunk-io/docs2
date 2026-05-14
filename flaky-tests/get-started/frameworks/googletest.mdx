@@ -1,0 +1,168 @@
+---
+title: "GoogleTest"
+description: "A guide for generating Trunk-compatible test reports for GoogleTest"
+---
+You can automatically [detect and manage flaky tests](../../detection/) in your GoogleTest projects by integrating with Trunk. This document explains how to configure GoogleTest to output JUnit XML reports that can be uploaded to Trunk for analysis.
+
+### Checklist
+
+By the end of this guide, you should achieve the following before proceeding to the [next steps](./googletest#next-step) to configure your CI provider.
+
+* [ ] Generate a compatible test report
+* [ ] Configure the report file path or glob
+* [ ] Disable retries for better detection accuracy
+* [ ] Test uploads locally
+
+After correctly generating reports following the above steps, you'll be ready to move on to the next steps to [configure uploads in CI](../ci-providers/).
+
+### Generating Reports
+
+Before you can integrate with Trunk, you need to generate a Trunk-compatible report. For GoogleTest, the built in XML reporter will work. You can use the [`--gtest_output=xml`](https://google.github.io/googletest/advanced.html#generating-an-xml-report) argument when you run your built test project:
+
+```shell
+./build/run_test --gtest_output=xml
+```
+
+#### Report File Path
+
+By default, the JUnit report will be written to a `test_detail.xml` file.
+
+You can specify a custom directory and filename with:
+
+```bash
+--gtest_output=xml:<path/to/file.xml>
+```
+
+For example, the following argument writes a JUnit report to `./junit.xml`:
+
+```bash
+--gtest_output=xml:junit.xml
+```
+
+#### Disable Retries
+
+You need to disable automatic retries if you previously enabled them. Retries compromise the accurate detection of flaky tests.
+
+Omit the[ ](https://docs.pytest.org/en/stable/how-to/cache.html)[`--gtest_repeat`](https://google.github.io/googletest/advanced.html#repeating-the-tests) argument if you've previously configured your CI with these options to disable retries.
+
+### Try It Locally
+
+#### **The Validate Command**
+
+<CodeGroup>
+```bash Linux (x64)
+SKU="trunk-analytics-cli-x86_64-unknown-linux.tar.gz"
+curl -fL --retry 3 \
+  "https://github.com/trunk-io/analytics-cli/releases/latest/download/${SKU}" \
+  | tar -xz
+
+chmod +x trunk-analytics-cli
+./trunk-analytics-cli validate --junit-paths "./junit.xml"
+```
+```bash Linux (arm64)
+SKU="trunk-analytics-cli-aarch64-unknown-linux.tar.gz"
+curl -fL --retry 3 \
+  "https://github.com/trunk-io/analytics-cli/releases/latest/download/${SKU}" \
+  | tar -xz
+
+chmod +x trunk-analytics-cli
+./trunk-analytics-cli validate --junit-paths "./junit.xml"
+```
+```bash macOS (arm64)
+SKU="trunk-analytics-cli-aarch64-apple-darwin.tar.gz"
+curl -fL --retry 3 \
+  "https://github.com/trunk-io/analytics-cli/releases/latest/download/${SKU}" \
+  | tar -xz
+
+chmod +x trunk-analytics-cli
+./trunk-analytics-cli validate --junit-paths "./junit.xml"
+```
+```bash macOS (x64)
+SKU="trunk-analytics-cli-x86_64-apple-darwin.tar.gz"
+curl -fL --retry 3 \
+  "https://github.com/trunk-io/analytics-cli/releases/latest/download/${SKU}" \
+  | tar -xz
+
+chmod +x trunk-analytics-cli
+./trunk-analytics-cli validate --junit-paths "./junit.xml"
+```
+</CodeGroup>
+
+#### Test Upload
+
+Before modifying your CI jobs to automatically upload test results to Trunk, try uploading a single test run manually.
+
+You make an upload to Trunk using the following command:
+
+```sh
+./trunk-analytics-cli upload --junit-paths "./junit.xml" \
+    --org-url-slug <TRUNK_ORG_SLUG> \
+    --token <TRUNK_ORG_TOKEN>
+```
+
+### Next Steps
+
+Configure your CI to upload test runs to Trunk. Find the guides for your CI framework below:
+
+<Columns cols={3}>
+  <Card
+    title="Azure DevOps Pipelines"
+    href="../ci-providers/azure-devops-pipelines"
+    img="/assets/azure.png"
+  />
+  <Card
+    title="BitBucket Pipelines"
+    href="../ci-providers/bitbucket-pipelines"
+    img="/assets/bitbucket.png"
+  />
+  <Card
+    title="BuildKite"
+    href="../ci-providers/buildkite"
+    img="/assets/buildkite.png"
+  />
+  <Card
+    title="CircleCI"
+    href="../ci-providers/circleci"
+    img="/assets/circle-ci.png"
+  />
+  <Card
+    title="Drone CI"
+    href="../ci-providers/droneci"
+    img="/assets/drone.png"
+  />
+  <Card
+    title="GitHub Actions"
+    href="../ci-providers/github-actions"
+    img="/assets/github.png"
+  />
+  <Card
+    title="GitLab"
+    href="../ci-providers/gitlab"
+    img="/assets/gitlab.png"
+  />
+  <Card
+    title="Jenkins"
+    href="../ci-providers/jenkins"
+    img="/assets/jenkins.png"
+  />
+  <Card
+    title="Semaphore"
+    href="../ci-providers/semaphoreci"
+    img="/assets/semaphore.png"
+  />
+  <Card
+    title="TeamCity"
+    href="./broken-reference/"
+    img="/assets/teamcity.png"
+  />
+  <Card
+    title="Travis CI"
+    href="../ci-providers/travisci"
+    img="/assets/travis.png"
+  />
+  <Card
+    title="Other CI Providers"
+    href="../ci-providers/otherci"
+    img="/assets/other.png"
+  />
+</Columns>

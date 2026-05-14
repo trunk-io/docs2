@@ -1,0 +1,182 @@
+---
+title: "RSpec"
+description: "A guide for generating Trunk-compatible test reports for RSpec using Trunk's RSpec plugin"
+---
+You can automatically [detect and manage flaky tests](../../../detection/) in your projects running RSpec by integrating with Trunk. This document explains how to use Trunk's RSpec plugin to upload test results to Trunk.
+
+### Checklist
+
+By the end of this guide, you should achieve the following before proceeding to the [next steps](./#next-step) to configure your CI provider.
+
+- [ ] Set up and installed Trunk's RSpec plugin
+- [ ] Disable retries for better detection accuracy
+- [ ] Test uploads locally
+
+<Info>
+Using the plugin is the best way to accurately detect flaky RSpec tests.
+
+You can also [manually generate and upload](./manual-uploads) test results in RSpec, however, **manual RSpec uploads are not recommended.**
+</Info>
+
+### Installing the plugin
+
+Trunk detects flaky tests by analyzing test results automatically uploaded from your CI jobs. You can do this for your Rspec tests using Trunk's RSpec plugin.
+
+To install the plugin in your project, add the `rspec_trunk_flaky_tests` gem to your `Gemfile`:
+
+```shell title="Gemfile"
+gem "rspec_trunk_flaky_tests"
+```
+
+Install the plugin:
+
+```sh
+bundle install
+```
+
+Then, load the plugin in `spec_helper.rb`:
+
+```shell title="spec/spec_helper.rb"
+require "trunk_spec_helper"
+```
+
+#### Disable Retries
+
+You need to disable automatic retries if you previously enabled them. Retries compromise the accurate detection of flaky tests.
+
+If you have a step in CI to rerun failed tests with the `--only-failures` option, or you're using a package like [rspec-retry](https://github.com/NoRedInk/rspec-retry), remember to disable them.
+
+#### Versions and Updating the Plugin
+
+You can find the Gem for `rspec_trunk_flaky_tests` [here](https://rubygems.org/gems/rspec_trunk_flaky_tests), along with its version history. This plugin is periodically updated with improved support and bug fixes. If you're encountering something unexpected, first try:
+
+```
+bundle update rspec_trunk_flaky_tests
+```
+
+### Environment Variables
+
+These optional environment variables can be set in your project to change the behavior of the RSpec plugin.
+
+#### Repository metadata variables:
+
+| Argument                       | Description                                            |
+| ------------------------------ | ------------------------------------------------------ |
+| `TRUNK_REPO_ROOT`              | Path to repository root                                |
+| `TRUNK_REPO_URL`               | Repository URL (e.g., https://github.com/org/repo.git) |
+| `TRUNK_REPO_HEAD_SHA`          | HEAD commit SHA                                        |
+| `TRUNK_REPO_HEAD_BRANCH`       | HEAD branch name                                       |
+| `TRUNK_REPO_HEAD_COMMIT_EPOCH` | HEAD commit timestamp (seconds since epoch)            |
+| `TRUNK_REPO_HEAD_AUTHOR_NAME`  | HEAD commit author name                                |
+
+#### Configuration variables:
+
+| Argument                          | Description                                               |
+| --------------------------------- | --------------------------------------------------------- |
+| `TRUNK_CODEOWNERS_PATH`           | Path to CODEOWNERS file                                   |
+| `TRUNK_VARIANT`                   | Variant name for test results (e.g., 'linux', 'pr-123')   |
+| `TRUNK_DISABLE_QUARANTINING`      | Set to 'true' to disable quarantining                     |
+| `TRUNK_ALLOW_EMPTY_TEST_RESULTS`  | Set to 'true' to allow empty results                      |
+| `TRUNK_DRY_RUN`                   | Set to 'true' to save bundle locally instead of uploading |
+| `TRUNK_USE_UNCLONED_REPO`         | Set to 'true' for uncloned repo mode                      |
+| `TRUNK_LOCAL_UPLOAD_DIR`          | Directory to save test results locally (disables upload)  |
+| `DISABLE_RSPEC_TRUNK_FLAKY_TESTS` | Set to 'true' to completely disable Trunk                 |
+
+### Try It Locally
+
+#### Test Upload
+
+Before modifying your CI jobs to automatically upload test results to Trunk, try uploading a single test run manually.
+
+You make an upload to Trunk using the following command:
+
+```sh
+TRUNK_ORG_URL_SLUG=<TRUNK_ORG_URL_SLUG> \
+TRUNK_API_TOKEN=<TRUNK_ORG_TOKEN> \
+bundle exec rspec
+```
+
+You can find your Trunk organization URL slug and token in the **Settings** or by following these [instructions](/flaky-tests/get-started/ci-providers/otherci#id-1.-store-a-trunk_token-secret-in-your-ci-system).
+
+After your upload, you can verify that Trunk has received and processed it successfully in the **Uploads** tab. Warnings will be displayed if the test report uploaded by the plugin has issues.
+
+<Frame>
+<img className="block dark:hidden" src="/assets/data-uploads-light.png" alt="" />
+<img className="hidden dark:block" src="/assets/data-uploads-dark.png" alt="" />
+</Frame>
+
+<Info>
+You do not need to download the `trunk-analytics-cli` when using the Trunk RSpec plugin. Uploads are handled for you as long as you have set `TRUNK_ORG_URL_SLUG` and `TRUNK_API_TOKEN`.
+</Info>
+
+### Next Steps
+
+Configure your CI to upload test runs to Trunk. Find the guides for your CI framework below:
+
+<Columns cols={3}>
+  <Card
+    title="Atlassian Bamboo"
+    href="/flaky-tests/get-started/ci-providers/atlassian-bamboo"
+    img="/assets/atlassian-bamboo.png"
+  />
+  <Card
+    title="Azure DevOps Pipelines"
+    href="/flaky-tests/get-started/ci-providers/azure-devops-pipelines"
+    img="/assets/azure.png"
+  />
+  <Card
+    title="BitBucket Pipelines"
+    href="/flaky-tests/get-started/ci-providers/bitbucket-pipelines"
+    img="/assets/bitbucket.png"
+  />
+  <Card
+    title="BuildKite"
+    href="/flaky-tests/get-started/ci-providers/buildkite"
+    img="/assets/buildkite.png"
+  />
+  <Card
+    title="CircleCI"
+    href="/flaky-tests/get-started/ci-providers/circleci"
+    img="/assets/circle-ci.png"
+  />
+  <Card
+    title="Drone CI"
+    href="/flaky-tests/get-started/ci-providers/droneci"
+    img="/assets/drone.png"
+  />
+  <Card
+    title="GitHub Actions"
+    href="/flaky-tests/get-started/ci-providers/github-actions"
+    img="/assets/github.png"
+  />
+  <Card
+    title="GitLab"
+    href="/flaky-tests/get-started/ci-providers/gitlab"
+    img="/assets/gitlab.png"
+  />
+  <Card
+    title="Jenkins"
+    href="/flaky-tests/get-started/ci-providers/jenkins"
+    img="/assets/jenkins.png"
+  />
+  <Card
+    title="Semaphore"
+    href="/flaky-tests/get-started/ci-providers/semaphoreci"
+    img="/assets/semaphore.png"
+  />
+  <Card
+    title="TeamCity"
+    href="./broken-reference/"
+    img="/assets/teamcity.png"
+  />
+  <Card
+    title="Travis CI"
+    href="/flaky-tests/get-started/ci-providers/travisci"
+    img="/assets/travis.png"
+  />
+  <Card
+    title="Other CI Providers"
+    href="/flaky-tests/get-started/ci-providers/otherci"
+    img="/assets/other.png"
+  />
+</Columns>

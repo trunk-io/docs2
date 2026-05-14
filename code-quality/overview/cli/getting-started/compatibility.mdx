@@ -1,0 +1,66 @@
+---
+title: "Compatibility"
+---
+### Linux
+
+Trunk will run on most Linux flavors, including Ubuntu, Arch, and others. We do require glibc version 2.19 or later. Alpine Linux is not supported.
+
+### macOS
+
+Trunk will run on macOS version 10.15 or later.
+
+### Windows
+
+Trunk only supports Windows with the following versions and above:
+
+| Tool | Where to Modify | Minimum Required Version |
+|---|---|---|
+| CLI | `cli` `version` in `.trunk/trunk.yaml` | `1.13.0` |
+| Plugins | `ref` for the `trunk` plugin in `.trunk/trunk.yaml` | `v1.0.0` |
+| VSCode | Reload VSCode to update | `3.4.4` |
+
+You will also need to install [C and C++ runtime libraries](https://aka.ms/vs/17/release/vc_redist.x64.exe) to run some linters.
+
+#### Getting in touch
+
+Thank you for being a beta tester of Trunk Check on Windows! We are actively working to improve the experience. If you have any feedback or questions, please contact us directly on [Slack](https://slack.trunk.io/).
+
+If you want to override a repo-wide setting just for your Windows machine, you can modify your [`.trunk/user.yaml`](./configuration/per-user-overrides).
+
+#### Supported features
+
+We intend to bring full feature support to Windows for Trunk. Currently, the following features are supported:
+
+* [Trunk Code Quality](./code-quality)
+* Non-interactive [Trunk Actions](./actions/) and [git-hooks](./actions/git-hooks)
+* [VSCode](../../ide-integration/vscode)
+
+### Plugin compatibility
+
+<Info>
+This section was last updated for Plugins v1.2.0
+</Info>
+
+Trunk runs most linters on all platforms. However, some linters are not yet supported on Windows. For a full list of all linters, see our [Plugins repo](https://github.com/trunk-io/plugins).
+
+| Linter | Plans for Support |
+|---|---|
+| ansible-lint | Only supported on WSL |
+| clang-format | Long-term plans for LLVM linter support |
+| clang-tidy | Long-term plans for LLVM linter support |
+| detekt-gradle | Long-term plans for support |
+| include-what-you-use | Long-term plans for LLVM linter support |
+| nixpkgs-fmt | Long-term plans for support |
+| perlcritic | No immediate plans for support |
+| perltidy | No immediate plans for support |
+| scalafmt | No download available for Windows |
+| semgrep | No download available for Windows |
+| shellcheck | No download available for Windows |
+| stringslint | Only supported on MacOS |
+| swiftformat | Only supported on MacOS |
+| swiftlint | Only supported on MacOS |
+| taplo | No download available for Windows |
+
+### Backward compatibility
+
+We generally strive to maintain backward compatibility between the [Trunk Launcher](./install#the-trunk-launcher) and the Trunk binary, but you may need to occasionally upgrade the launcher to support the newest version of Trunk.

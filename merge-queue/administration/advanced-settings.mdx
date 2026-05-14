@@ -1,0 +1,370 @@
+---
+title: "Settings and configurations"
+description: "Explanation of settings for states, timeouts, concurrency, and branch protection."
+---
+All of the following settings are specific to individual Merge Queues and can be accessed in two ways:
+
+* From the **Settings** menu: Navigate to `Settings > Repositories > Repo-Name > Merge Queue`
+* From the **Merge Queue** tab: Select your repository, then click the **Settings** tab
+
+<Info>
+Note that you must be an Organization admin to adjust any of these settings.
+</Info>
+
+***
+
+## Merge Queue state
+
+You can change the state of your Merge Queue to control whether new PRs can enter the queue and whether tested PRs will merge. PRs already testing will always complete their tests regardless of state. Below are the possible states:
+
+| State | Will PRs Enter the Queue? | Will PRs Merge After Testing? | Example use case |
+|-------|--------------------------|-------------------------------|------------------|
+| `Running` | Yes ✅ | Yes ✅ | **Everyday merging**: protect your mainline and merges successful PRs. |
+| `Paused` | No ❌ | No ❌ | **CI failure recovery**: stop merges and testing in the queue until failure is resolved. |
+| `Draining` | No ❌ | Yes ✅ | **Code freeze**: merge PRs currently in the queue but don't start testing additional PRs. |
+
+
+**Note:** The Merge Queue may automatically enter a `Switching Modes` state, which functions exactly like `Draining`. This occurs when you switch the queue mode while PRs are still being tested.
+
+### When to change merge queue state?
+
+The `Running` state is the default state of your merge queue, and will be the normal, day-to-day state of your queue.
+
+`Paused` is useful for CI incident response and failure recovery. For example, if there is a test infrastructure outage, a queue can be `Paused` until recovery is complete. The ordering of PRs in the queue is preserved, but no PRs are tested or merged.
+
+`Draining` is useful for managing events like code freezes. PRs currently in the queue will be tested and merged, but no new PRs will start testing.
+
+***
+
+## Multiple queues per repository
+
+You can create multiple merge queues within a single repository, with each queue targeting a different branch. This is useful for teams that maintain separate branches for different environments (e.g., `main`, `staging`, `release/v2`).
+
+A branch can only be associated with one queue. Attempting to create a second queue against the same branch returns the error `A merge queue already exists for branch "<branch>" in this repository`.
+
+Each queue operates independently. PRs submitted to one queue don't interact with PRs in another queue for the same repo, and every queue has its own settings, including merge method, required statuses, batching, and concurrency.
+
+### Creating additional queues
+
+1. Navigate to **Merge Queue** and click **New Queue** at the top right
+2. Select the same repository and enter a different target branch
+3. Click **Create Queue**
+
+### Navigating between queues
+
+The Merge Queue dashboard groups queues by repository:
+
+* **Single-queue repos**: The repository row is itself a link that goes directly to the queue.
+* **Multi-queue repos**: The repository row expands inline to list each queue with its target branch label. Click any queue to open it.
+
+In the Settings page, when a repository has more than one queue, a **Merge Queues** selector appears so you can switch between queues. The currently selected branch is shown next to the **Merge Queue Settings** heading.
+
+***
+
+## Merge Queue mode
+
+> Merge Queues operate in one of two modes, **Single** (default) or [**Parallel**](../optimizations/parallel-queues/)**.**
+
+**Single Queue** processes all pull requests in one line, testing each PR predictively against all changes ahead of it. Multiple PRs can be tested and merged simultaneously based on your [Testing Concurrency](./advanced-settings#testing-concurrency) and [Batching](./advanced-settings#batching) settings.
+
+**Parallel Queues** dynamically creates multiple independent testing lanes based on each PR's impacted targets (the parts of the codebase it changes). PRs affecting different parts of the code can be tested in separate lanes, reducing wait times for repositories with distinct, independently-testable components.
+
+**Requirements for Parallel mode:**
+
+* Requires configuring a workflow to calculate and upload impacted targets for each PR
+* The queue will wait for impacted targets before processing PRs
+
+Read more about [Trunk's implementation of Parallel merge queues](../optimizations/parallel-queues/), supported build systems ([Bazel](../../flaky-tests/get-started/frameworks/bazel), [Nx](../optimizations/parallel-queues/nx), or [custom AP](../optimizations/parallel-queues/api)I), and [what impacted targets are](../optimizations/parallel-queues/#what-are-impacted-targets).
+
+***
+
+## Merge Method
+
+Choose how your PRs get merged into the target branch. Options are Squash (default), Merge Commit, or Rebase.
+
+<Frame>
+![](/assets/SCR-20260202-obcl.png)
+</Frame>
+
+### Available Methods
+
+**Squash** (default)
+
+* Combines all commits from the PR into a single commit on the target branch
+* Creates a clean, linear history with one commit per feature
+* The commit message is generated from the PR's title and description
+* Best for: Teams that prefer a clean history with one commit per logical change
+
+**Merge Commit**
+
+* Preserves all individual commits from the PR
+* Creates an additional merge commit to mark the integration
+* Maintains complete commit history from feature branches
+* Best for: Teams that want to preserve detailed development history and commit attribution
+
+**Rebase**
+
+* Replays all commits from the PR on top of the target branch
+* Creates a linear history without merge commits
+* Each commit from the PR appears individually in the target branch's history
+* Best for: Teams that want a linear history while preserving individual commits
+
+### Changing the Merge Method
+
+You can change your merge method at any time:
+
+1. Navigate to **Merge Queue** tab **>** repository **> Settings**
+2. Find the **Merge Method** dropdown
+3. Select your preferred method: Squash, Merge Commit, or Rebase
+4. The new method will apply to all PRs merged after the change
+
+<Info>
+**Note:** Changing the merge method only affects future merges. PRs already merged will retain their original merge method.
+</Info>
+
+### Considerations
+
+* **Commit History Style**: Choose the method that matches your team's Git workflow preferences
+* **Traceability**: Merge commits and rebase preserve more commit-level detail than squash
+* **Repository Size**: Squash merging can help keep repository history more concise
+* **Existing Workflows**: Match your existing GitHub merge button preferences for consistency across your team
+
+The merge method is configured per repository, so different repositories in your organization can use different methods based on their needs.
+
+### Custom merge commit titles
+
+You can override the merge commit title on a per-PR basis by adding a `merge-commit-title:` directive on its own line anywhere in the PR body:
+
+```
+merge-commit-title: feat(auth): add OAuth2 login flow [PROJ-123]
+```
+
+When present, Trunk uses this title for the merge commit instead of the default GitHub-generated title. The commit body follows the usual behavior for the configured merge method. When the directive is not present, the default behavior is preserved.
+
+See [Submit and cancel pull requests](../using-the-queue/reference#custom-merge-commit-titles) for more details and examples.
+
+***
+
+## Testing concurrency
+
+> Testing concurrency can be set to any value, options are **5 (average)**, **25 (high)**, **50 (very high),** and **Custom**.
+
+Configure how many PRs may be tested in parallel. A larger number may increase throughput since more PRs are tested in parallel, but at the expense of CI since more jobs are running in parallel. When the queue is at capacity, PRs will still be submitted to it, but they will not begin testing until a PR leaves the queue.
+
+<Info>
+If your testing workload contains some flaky tests, a deeper queue (i.e., a higher concurrency) may struggle. Running Merge in Parallel mode can help with this, as it will reduce the average depth of your merge queue since all PRs won't be queued directly behind each other.
+</Info>
+
+For example, assuming a concurrency of 3:
+
+* At 12:00, Alice submits PR 1000 to the Merge Queue, and it starts testing.
+* At 12:05, Bob submits PR 888 to the Merge Queue, and it starts testing.
+* At 12:10, Charlie submits PR 777 to the Merge Queue, and it starts testing.
+* At 12:15, Alice submits PR 1001 to the Merge Queue. Tests do not start because the Merge Queue is at its concurrency limit.
+
+***
+
+## Timeout for tests to complete
+
+> Select the number of hours from the dropdown, default is **5 hours**.
+
+Configure how long a PR's test can run before auto-cancelling while testing in the Merge Queue. If a long-running test is detected, Merge will automatically cancel the test.
+
+For example, assuming a timeout of 4 hours:
+
+* At 3:00, Bob submits PR 456 to the Merge Queue.
+* At 3:05, PR 456 starts testing using Bob's CI system.
+* At 7:05, Trunk cancels PR 456 since PR 456 is still testing.
+
+***
+
+## Required Status Checks
+
+> Configure which CI status checks must pass before a PR can merge through the queue.
+
+There are three ways to tell Merge Queue which status checks to wait on while testing a PR:
+
+1. **GitHub branch protection rules** (default) — Trunk infers required statuses from the protected branch's required status checks.
+2. **Trunk UI override** — Configure required statuses directly in the Trunk UI.
+3. **`.trunk/trunk.yaml` override** — Declare required statuses in `merge.required_statuses`.
+
+All three work regardless of which testing mode you chose (Draft PR or Push-Triggered).
+
+<Info>
+**These checks are what Merge Queue waits on while a PR is already in the queue and testing. They do not control which PRs are admitted into the queue.**
+</Info>
+
+**When to override the default:**
+
+* **Different checks for the queue** - Your branch protection requires checks that shouldn't gate the merge queue (e.g., code coverage reports, deployment previews)
+* **Stricter queue requirements** - You want the merge queue to require additional checks beyond what branch protection enforces
+* **Multiple queues** - Each queue can have its own set of required statuses
+* **No GitHub branch protection** - You don't use branch protection rules and need to tell Merge Queue what to wait on
+
+### Configure in the Trunk UI
+
+1. Navigate to **Settings** > **Repositories** > your repository > **Merge Queue**
+2. Find the **Required Status Checks** section
+3. Use the CI job selector to choose which status checks must pass. The selector shows CI jobs that have been seen on recent PRs.
+4. Selected statuses override the GitHub branch protection defaults for the merge queue
+
+<Info>
+When required statuses are configured in Trunk, only those statuses are required for the merge queue. When not configured, Trunk falls back to your GitHub branch protection required checks.
+</Info>
+
+### Configure in `.trunk/trunk.yaml`
+
+Alternatively, declare required statuses in your `.trunk/trunk.yaml` file at the root of your repository:
+
+```yaml
+version: 0.1
+merge:
+  required_statuses:
+    - Unit Tests
+    - Integration Tests
+```
+
+The status check names must exactly match the CI job names that report status to GitHub.
+
+***
+
+## Optimistic Merge Queue
+
+> Toggle this feature **Enabled** or **Disabled**. Default is **Disabled**.
+
+[**Optimistic Merging**](../optimizations/optimistic-merging) allows multiple PRs to merge together at once when testing completes out of order. When [Testing Concurrency](./advanced-settings#testing-concurrency) allows multiple PRs to test simultaneously, a PR later in the queue may finish before PRs ahead of it. Since that PR's tests include all the changes ahead of it, the system can safely merge all verified PRs together instead of waiting for each one individually, reducing merge time.
+
+***
+
+## Direct Merge to Main
+
+Merge PRs immediately when they're already based on the tip of main and the queue is empty, skipping redundant testing.
+
+* **Default:** Enabled
+* **Trigger conditions:** PR is up-to-date with main + queue is empty + tests passed
+* **Benefit:** Eliminates 5-30 minutes of wait time for up-to-date PRs
+* **Best for:** Teams that keep PRs current with main before merging
+
+Toggle this setting in **Settings** > **Repositories** > your repository > **Merge Queue**. Learn more in [Direct Merge to Main](../optimizations/direct-merge-to-main).
+
+***
+
+## Pending Failure Depth
+
+> Pending Failure Depth can be set to any value, options are **0** (default), **1**, **2**, **3**, and **Custom**.
+
+[**Pending Failure Depth**](../optimizations/pending-failure-depth) controls how many levels of successor test runs the system waits on before transitioning a failed group out of the Pending Failure state. When combined with [optimistic merging](../optimizations/optimistic-merging), this allows a passing successor to retroactively clear a failure caused by a transient issue (flake).
+
+When set to **0** (default), the successor check is skipped and groups transition as soon as predecessor groups finish testing. When set to a value greater than 0, the system additionally waits for that many successor levels to finish testing before transitioning.
+
+***
+
+## Draft pull request creation
+
+> Toggle this feature **Enabled** or **Disabled**. Default is **Enabled**.
+
+[**Draft PR Creation**](../getting-started/configure-branch-protection#draft-pr-mode-recommended---default) determines whether Trunk Merge Queue creates draft PRs or push-triggered branches when testing changes. When enabled (default), the queue creates draft PRs to trigger your existing PR-based CI checks. When disabled, the queue creates `trunk-merge/` branches instead, requiring you to configure push-triggered workflows to run your required status checks.
+
+***
+
+## GitHub comments
+
+> Toggle this feature **Enabled** or **Disabled**. Default is **Enabled**.
+
+When enabled, Trunk posts comments on pull requests with merge queue status updates and instructions (e.g., "To merge this pull request, check the box to the left or comment `/trunk merge`").
+
+**When to disable:**
+
+* **Testing and evaluation** - Validate the merge queue works with your CI setup without notifying your development team. Once configured and ready, re-enable comments to roll out to developers.
+* **Custom tooling** - You're building your own bot or integration that will provide merge queue instructions to developers, making Trunk's default comments redundant.
+
+<Frame>
+![](/assets/merge-github-comment_(1).png)
+</Frame>
+
+***
+
+## GitHub Statuses
+
+> Toggle this feature **Enabled** or **Disabled**. Default is **Enabled**.
+
+When enabled, Trunk posts a GitHub check on PRs that are in the merge queue. The check appears in the PR's Checks section with the name `Trunk Merge Queue (<branch>)` (for example, `Trunk Merge Queue (main)` for a queue on `main`) and updates as the PR moves through the queue, from queued to testing to a final outcome.
+
+Each check includes a **Details** link that goes directly to the PR's page in the Trunk dashboard. This gives developers visibility into their PR's queue position without leaving GitHub.
+
+**When to enable:**
+
+* **Team adoption** - Makes the merge queue visible in developers' existing GitHub workflow
+* **Status-based automation** - Other tools or workflows can react to the queue check
+
+See [GitHub status check](../using-the-queue/monitor-queue-status#github-status-check) for details on each status value.
+
+***
+
+## GitHub commands
+
+> Toggle this feature **Enabled** or **Disabled**. Default is **Enabled**.
+
+Whether or not GitHub slash commands like `/trunk merge` are enabled for this merge queue.
+
+**When to disable:**
+
+* **API-only workflows** - You want all queue submissions to go through the public API (e.g., via a bot or custom automation) rather than individual developer commands.
+* **Holding pattern** - You're temporarily restricting queue submissions while investigating issues, performing maintenance, or coordinating with your team. (Note: Consider using the Paused or Draining queue state if you want to stop all new PRs from entering the queue.)
+
+***
+
+## Connect with Slack
+
+[Connect Trunk Merge Queue to Slack](../integration-for-slack) to receive real-time notifications about queue activity. After [installing the Trunk Slack app](../integration-for-slack#installing-the-trunk-slack-app) for your organization, you can route notifications to **multiple Slack channels** per repository, each with its own set of enabled topics. Individual users can also receive **personal DMs** about their PRs.
+
+**Available notifications include:**
+
+* Pull requests submitted to or removed from the queue
+* Testing status updates (ready, in progress, passed, failed)
+* Successful merges
+* Queue configuration changes (pausing, mode changes, concurrency adjustments)
+* Pull request cancellations
+
+***
+
+## Batching
+
+> Toggle this feature **Enabled** or **Disabled**. Default is **Disabled**.
+
+[**Batching**](../optimizations/batching) tests multiple pull requests as a single unit instead of individually, dramatically reducing CI costs.
+
+### Bisection Testing Concurrency
+
+Configure how many PRs can be tested simultaneously during batch failure isolation (bisection). This setting is independent from the main Testing Concurrency and only applies when batches fail and need to be split to identify the failing PR.
+
+**Default:** Same as Testing Concurrency (automatically mirrors your main concurrency setting)
+
+**Recommended:** Set 2-5x higher than your main Testing Concurrency for faster failure isolation
+
+#### How to Configure
+
+1. Navigate to **Settings** > **Repositories** > your repository > **Merge Queue** > **Batching**
+2. Make sure **Batching** is enabled
+3. Set **Bisection Testing Concurrency** to your desired value
+4. Monitor CI resource usage and adjust as needed
+
+For detailed guidance on using this setting effectively, see [Bisection Testing Concurrency in the Batching](../optimizations/batching#bisection-testing-concurrency) documentation.
+
+***
+
+## Delete Merge Integration
+
+<Danger>
+CAUTION: Any queued merge requests will not be merged and all data will be lost.
+
+**Before deleting:** Make sure all important PRs in the queue are either merged manually or that you're prepared to resubmit them to a new queue.
+</Danger>
+
+This setting will delete the Merge Queue configuration and any queued merge requests will not be merged and all data will be lost.
+
+**When to use this:**
+
+* **Switching target branches** - If you need to change which branch the queue merges into (e.g., switching from a test branch during POC to `main` for production use), you must delete the current queue and create a new one pointing to your desired branch.
+* **Removing Merge Queue** - You're decommissioning Merge Queue for this repository entirely.
+* **Starting fresh** - You want to reset all configuration.

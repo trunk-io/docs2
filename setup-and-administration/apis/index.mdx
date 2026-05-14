@@ -1,0 +1,22 @@
+---
+title: "API Reference"
+description: "Trunk APIs for building custom integrations."
+---
+## REST API Overview
+
+Trunk provides HTTP REST APIs for each of our features. The APIs use status codes to indicate the success or failure of requests, return JSON from all requests, and use standard HTTP response codes. All API requests must be authenticated.
+
+## Available APIs
+
+* [Flaky Tests](../../flaky-tests/reference/api-reference): for accessing information like quarantined tests in your repo.
+* [Merge API](../../merge-queue/reference/merge) : for controlling the Trunk Merge Queue.
+
+## Authentication
+
+Authenticate to the API with an API token using the header `x-api-token`.
+
+### Finding your API token
+
+You can find your API token in the [Trunk App](https://app.trunk.io).
+
+

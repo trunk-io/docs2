@@ -1,0 +1,1800 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "name": "Trunk Platform Documentation",
+  "theme": "aspen",
+  "colors": {
+    "primary": "#346DDB",
+    "light": "#346DDB",
+    "dark": "#346DDB"
+  },
+  "favicon": "favicon.svg",
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "background": {
+    "decoration": "gradient"
+  },
+  "fonts": {
+    "heading": {
+      "family": "Neue",
+      "source": "https://trunk.io/_next/static/media/neue_medium-s.p.a1f08070.woff2",
+      "format": "woff2"
+    },
+    "body": {
+      "family": "Neue",
+      "source": "https://trunk.io/_next/static/media/neue_regular-s.p.b8e8b595.woff2",
+      "format": "woff2"
+    }
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Log in",
+        "href": "https://app.trunk.io/login"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Get a demo",
+      "href": "https://calendly.com/trunk/demo"
+    }
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Overview",
+        "pages": [
+          "index"
+        ]
+      },
+      {
+        "tab": "Merge Queue",
+        "groups": [
+          {
+            "group": "Merge Queue",
+            "pages": [
+              "merge-queue/merge-queue",
+              {
+                "group": "Getting Started",
+                "root": "merge-queue/getting-started/index",
+                "pages": [
+                  "merge-queue/getting-started/install-and-create-your-queue",
+                  "merge-queue/getting-started/configure-branch-protection",
+                  "merge-queue/getting-started/configure-ci-status-checks",
+                  "merge-queue/getting-started/test-your-setup"
+                ]
+              },
+              "merge-queue/migrating-from-github-merge-queue",
+              {
+                "group": "Optimizations",
+                "root": "merge-queue/optimizations/index",
+                "pages": [
+                  "merge-queue/optimizations/predictive-testing",
+                  "merge-queue/optimizations/anti-flake-protection",
+                  {
+                    "group": "Parallel queues",
+                    "root": "merge-queue/optimizations/parallel-queues/index",
+                    "pages": [
+                      "merge-queue/optimizations/parallel-queues/bazel",
+                      "merge-queue/optimizations/parallel-queues/nx",
+                      "merge-queue/optimizations/parallel-queues/api"
+                    ]
+                  },
+                  "merge-queue/optimizations/batching",
+                  "merge-queue/optimizations/priority-merging",
+                  "merge-queue/optimizations/optimistic-merging",
+                  "merge-queue/optimizations/pending-failure-depth",
+                  "merge-queue/optimizations/direct-merge-to-main"
+                ]
+              },
+              {
+                "group": "Using the Queue",
+                "root": "merge-queue/using-the-queue/index",
+                "pages": [
+                  "merge-queue/using-the-queue/reference",
+                  "merge-queue/using-the-queue/monitor-queue-status",
+                  "merge-queue/using-the-queue/handle-failed-pull-requests",
+                  "merge-queue/using-the-queue/emergency-pull-requests",
+                  "merge-queue/using-the-queue/force-merge"
+                ]
+              },
+              "merge-queue/integration-for-slack",
+              "merge-queue/chrome-extension",
+              "merge-queue/webhooks",
+              {
+                "group": "Administration",
+                "root": "merge-queue/administration/index",
+                "pages": [
+                  "merge-queue/administration/advanced-settings",
+                  "merge-queue/administration/terraform",
+                  "merge-queue/administration/metrics"
+                ]
+              },
+              {
+                "group": "Reference",
+                "root": "merge-queue/reference/index",
+                "pages": [
+                  "merge-queue/reference/merge-queue-cli-reference",
+                  {
+                    "group": "API reference",
+                    "root": "/merge-queue/reference/merge",
+                    "openapi": {
+                      "directory": "/merge-queue/reference/merge",
+                      "source": "/openapi.json"
+                    },
+                    "pages": [
+                      {
+                        "group": "Pull Request Endpoints",
+                        "pages": [
+                          "POST /cancelPullRequest",
+                          "POST /getSubmittedPullRequest",
+                          "POST /restartTestsOnPullRequest",
+                          "POST /setImpactedTargets",
+                          "POST /submitPullRequest",
+                          "POST /getMergeQueueTestingDetails"
+                        ]
+                      },
+                      {
+                        "group": "Metrics Endpoints",
+                        "pages": [
+                          "GET /getMergeQueueMetrics"
+                        ]
+                      },
+                      {
+                        "group": "Queue Endpoints",
+                        "pages": [
+                          "POST /createQueue",
+                          "POST /deleteQueue",
+                          "POST /getQueue",
+                          "POST /updateQueue"
+                        ]
+                      }
+                    ]
+                  },
+                  "merge-queue/reference/common-problems",
+                  "merge-queue/reference/troubleshooting"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Flaky Tests",
+        "groups": [
+          {
+            "group": "Flaky Tests",
+            "pages": [
+              {
+                "group": "Overview",
+                "root": "flaky-tests/overview",
+                "pages": [
+                  "flaky-tests/dashboard"
+                ]
+              },
+              {
+                "group": "Getting Started",
+                "root": "flaky-tests/get-started/index",
+                "pages": [
+                  {
+                    "group": "Test frameworks",
+                    "root": "flaky-tests/get-started/frameworks/index",
+                    "pages": [
+                      "flaky-tests/get-started/frameworks/android",
+                      "flaky-tests/get-started/frameworks/bazel",
+                      "flaky-tests/get-started/frameworks/behave",
+                      "flaky-tests/get-started/frameworks/rust",
+                      "flaky-tests/get-started/frameworks/cypress",
+                      "flaky-tests/get-started/frameworks/dart-test",
+                      "flaky-tests/get-started/frameworks/gotestsum",
+                      "flaky-tests/get-started/frameworks/googletest",
+                      "flaky-tests/get-started/frameworks/gradle",
+                      "flaky-tests/get-started/frameworks/jasmine",
+                      "flaky-tests/get-started/frameworks/jest",
+                      "flaky-tests/get-started/frameworks/karma",
+                      "flaky-tests/get-started/frameworks/kotest",
+                      "flaky-tests/get-started/frameworks/maven",
+                      "flaky-tests/get-started/frameworks/minitest",
+                      "flaky-tests/get-started/frameworks/mocha",
+                      "flaky-tests/get-started/frameworks/nightwatch",
+                      "flaky-tests/get-started/frameworks/nunit",
+                      "flaky-tests/get-started/frameworks/pest",
+                      "flaky-tests/get-started/frameworks/phpunit",
+                      "flaky-tests/get-started/frameworks/playwright",
+                      "flaky-tests/get-started/frameworks/pytest",
+                      "flaky-tests/get-started/frameworks/robot-framework",
+                      {
+                        "group": "RSpec",
+                        "root": "flaky-tests/get-started/frameworks/rspec/index",
+                        "pages": [
+                          "flaky-tests/get-started/frameworks/rspec/manual-uploads"
+                        ]
+                      },
+                      "flaky-tests/get-started/frameworks/swift-testing",
+                      "flaky-tests/get-started/frameworks/testplan",
+                      "flaky-tests/get-started/frameworks/vitest",
+                      "flaky-tests/get-started/frameworks/xctest",
+                      "flaky-tests/get-started/frameworks/other-test-frameworks"
+                    ]
+                  },
+                  {
+                    "group": "CI Providers",
+                    "root": "flaky-tests/get-started/ci-providers/index",
+                    "pages": [
+                      "flaky-tests/get-started/ci-providers/atlassian-bamboo",
+                      "flaky-tests/get-started/ci-providers/azure-devops-pipelines",
+                      "flaky-tests/get-started/ci-providers/bitbucket-pipelines",
+                      "flaky-tests/get-started/ci-providers/buildkite",
+                      "flaky-tests/get-started/ci-providers/circleci",
+                      "flaky-tests/get-started/ci-providers/droneci",
+                      "flaky-tests/get-started/ci-providers/github-actions",
+                      "flaky-tests/get-started/ci-providers/gitlab",
+                      "flaky-tests/get-started/ci-providers/google-cloud-build",
+                      "flaky-tests/get-started/ci-providers/jenkins",
+                      "flaky-tests/get-started/ci-providers/semaphoreci",
+                      "flaky-tests/get-started/ci-providers/travisci",
+                      "flaky-tests/get-started/ci-providers/otherci"
+                    ]
+                  },
+                  "flaky-tests/get-started/multiple-repositories"
+                ]
+              },
+              {
+                "group": "Flaky test detection",
+                "root": "flaky-tests/detection/index",
+                "pages": [
+                  "flaky-tests/detection/pass-on-retry-monitor",
+                  "flaky-tests/detection/failure-rate-monitor",
+                  "flaky-tests/detection/failure-count-monitor",
+                  "flaky-tests/detection/flag-as-flaky",
+                  "flaky-tests/detection/the-importance-of-pr-test-results",
+                  "flaky-tests/detection/infrastructure-failure-protection"
+                ]
+              },
+              {
+                "group": "Flaky test management",
+                "root": "flaky-tests/management/index",
+                "pages": [
+                  "flaky-tests/management/managing-detected-flaky-tests",
+                  "flaky-tests/management/test-labels",
+                  "flaky-tests/management/github-pull-request-comments",
+                  {
+                    "group": "Ticketing",
+                    "root": "flaky-tests/management/ticketing/index",
+                    "pages": [
+                      "flaky-tests/management/ticketing/jira-integration",
+                      "flaky-tests/management/ticketing/linear-integration",
+                      "flaky-tests/management/ticketing/other-ticketing-platforms"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "Quarantining",
+                "root": "flaky-tests/quarantining/index",
+                "pages": [
+                  "flaky-tests/quarantining/quarantine-service-availability"
+                ]
+              },
+              {
+                "group": "Webhooks",
+                "root": "flaky-tests/webhooks/index",
+                "pages": [
+                  "flaky-tests/webhooks/slack-integration",
+                  "flaky-tests/webhooks/microsoft-teams-integration",
+                  "flaky-tests/webhooks/github-issues-integration",
+                  "flaky-tests/webhooks/linear-integration",
+                  "flaky-tests/webhooks/jira-integration"
+                ]
+              },
+              {
+                "group": "Agents",
+                "root": "flaky-tests/agents/index",
+                "pages": [
+                  "flaky-tests/agents/autofix-flaky-tests",
+                  "flaky-tests/agents/autofix-ci-failures",
+                  "links/mcp-reference"
+                ]
+              },
+              {
+                "group": "Reference",
+                "root": "flaky-tests/reference/index",
+                "pages": [
+                  "flaky-tests/reference/cli-reference",
+                  {
+                    "group": "API reference",
+                    "root": "flaky-tests/reference/api-reference",
+                    "openapi": {
+                      "directory": "/flaky-tests/reference/api-reference",
+                      "source": "/openapi.json"
+                    },
+                    "pages": [
+                      "POST /flaky-tests/get-test-details",
+                      "POST /flaky-tests/link-ticket-to-test-case",
+                      "POST /flaky-tests/list-failing-tests",
+                      "POST /flaky-tests/list-unhealthy-tests",
+                      "POST /flaky-tests/list-quarantined-tests"
+                    ]
+                  },
+                  {
+                    "group": "MCP reference",
+                    "root": "flaky-tests/reference/mcp-reference/index",
+                    "pages": [
+                      {
+                        "group": "Configuration",
+                        "root": "flaky-tests/reference/mcp-reference/configuration/index",
+                        "pages": [
+                          "flaky-tests/reference/mcp-reference/configuration/cursor-ide",
+                          "flaky-tests/reference/mcp-reference/configuration/github-copilot-ide",
+                          "flaky-tests/reference/mcp-reference/configuration/claude-code-cli",
+                          "flaky-tests/reference/mcp-reference/configuration/claude-code-plugin",
+                          "flaky-tests/reference/mcp-reference/configuration/gemini-cli",
+                          "flaky-tests/reference/mcp-reference/configuration/bearer-auth"
+                        ]
+                      },
+                      "flaky-tests/reference/mcp-reference/search-test",
+                      "flaky-tests/reference/mcp-reference/fix-flaky-test",
+                      "flaky-tests/reference/mcp-reference/set-up-test-uploads",
+                      "flaky-tests/reference/mcp-reference/investigate-ci-failure"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Setup & Administration",
+        "groups": [
+          {
+            "group": "Setup & Administration",
+            "pages": [
+              "setup-and-administration/connecting-to-trunk",
+              "setup-and-administration/managing-your-organization",
+              "setup-and-administration/github-app-permissions",
+              "setup-and-administration/trunk-sudo-app",
+              "setup-and-administration/support",
+              "setup-and-administration/billing",
+              "setup-and-administration/security",
+              {
+                "group": "API Reference",
+                "root": "setup-and-administration/apis/index",
+                "pages": [
+                  "links/flaky-tests-api",
+                  "links/merge-queue-api",
+                  "setup-and-administration/apis/webhooks"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Code Quality CLI",
+        "groups": [
+          {
+            "group": "Code Quality CLI",
+            "pages": [
+              {
+                "group": "Overview",
+                "root": "code-quality/overview/index",
+                "pages": [
+                  "code-quality/overview/initialize-trunk",
+                  "code-quality/overview/deal-with-existing-issues",
+                  "code-quality/overview/prevent-new-issues/index",
+                  {
+                    "group": "IDE integrations",
+                    "root": "code-quality/overview/ide-integration/index",
+                    "pages": [
+                      "code-quality/overview/ide-integration/vscode",
+                      "code-quality/overview/ide-integration/openai-codex-support",
+                      "code-quality/overview/ide-integration/neovim",
+                      "code-quality/overview/ide-integration/github-codespaces"
+                    ]
+                  },
+                  {
+                    "group": "Code Quality CLI",
+                    "root": "code-quality/overview/getting-started/index",
+                    "pages": [
+                      "code-quality/overview/getting-started/code-quality",
+                      "code-quality/overview/getting-started/install",
+                      "code-quality/overview/getting-started/tools",
+                      {
+                        "group": "Actions",
+                        "root": "code-quality/overview/getting-started/actions/index",
+                        "pages": [
+                          "code-quality/overview/getting-started/actions/git-hooks"
+                        ]
+                      },
+                      "code-quality/overview/getting-started/announce",
+                      "code-quality/overview/getting-started/compatibility",
+                      "code-quality/overview/getting-started/caching",
+                      {
+                        "group": "Commands reference",
+                        "root": "code-quality/overview/getting-started/commands-reference/index",
+                        "pages": [
+                          "code-quality/overview/getting-started/commands-reference/code-quality",
+                          "code-quality/overview/getting-started/commands-reference/actions"
+                        ]
+                      },
+                      {
+                        "group": "Configuration",
+                        "root": "code-quality/overview/getting-started/configuration/index",
+                        "pages": [
+                          {
+                            "group": "Plugins",
+                            "root": "code-quality/overview/getting-started/configuration/plugins/index",
+                            "pages": [
+                              "code-quality/overview/getting-started/configuration/plugins/external-repositories",
+                              "code-quality/overview/getting-started/configuration/plugins/exported-configs"
+                            ]
+                          },
+                          "code-quality/overview/getting-started/configuration/runtimes",
+                          "code-quality/overview/getting-started/configuration/tools",
+                          {
+                            "group": "Lint",
+                            "root": "code-quality/overview/getting-started/configuration/lint/index",
+                            "pages": [
+                              "code-quality/overview/getting-started/configuration/lint/definitions",
+                              "code-quality/overview/getting-started/configuration/lint/commands",
+                              "code-quality/overview/getting-started/configuration/lint/output",
+                              "code-quality/overview/getting-started/configuration/lint/output-parsing",
+                              "code-quality/overview/getting-started/configuration/lint/files-and-caching",
+                              "code-quality/overview/getting-started/configuration/lint/dependencies",
+                              "code-quality/overview/getting-started/configuration/lint/auto-enable"
+                            ]
+                          },
+                          {
+                            "group": "Actions",
+                            "root": "code-quality/overview/getting-started/configuration/actions/index",
+                            "pages": [
+                              "code-quality/overview/getting-started/configuration/actions/notifications",
+                              "code-quality/overview/getting-started/configuration/actions/logging-and-troubleshooting"
+                            ]
+                          },
+                          "code-quality/overview/getting-started/configuration/merge",
+                          "code-quality/overview/getting-started/configuration/telemetry",
+                          "code-quality/overview/getting-started/configuration/per-user-overrides"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "group": "Linters",
+                    "root": "code-quality/overview/linters/index",
+                    "pages": [
+                      {
+                        "group": "Supported linters",
+                        "root": "code-quality/overview/linters/supported/index",
+                        "pages": [
+                          "code-quality/overview/linters/supported/actionlint",
+                          "code-quality/overview/linters/supported/ansible-lint",
+                          "code-quality/overview/linters/supported/autopep8",
+                          "code-quality/overview/linters/supported/bandit",
+                          "code-quality/overview/linters/supported/biome",
+                          "code-quality/overview/linters/supported/black",
+                          "code-quality/overview/linters/supported/brakeman",
+                          "code-quality/overview/linters/supported/buf",
+                          "code-quality/overview/linters/supported/buildifier",
+                          "code-quality/overview/linters/supported/cfnlint",
+                          "code-quality/overview/linters/supported/checkov",
+                          "code-quality/overview/linters/supported/circleci",
+                          "code-quality/overview/linters/supported/clang-format",
+                          "code-quality/overview/linters/supported/clang-tidy",
+                          "code-quality/overview/linters/supported/clippy",
+                          "code-quality/overview/linters/supported/cmake-format",
+                          "code-quality/overview/linters/supported/codespell",
+                          "code-quality/overview/linters/supported/cspell",
+                          "code-quality/overview/linters/supported/cue-fmt",
+                          "code-quality/overview/linters/supported/dart",
+                          "code-quality/overview/linters/supported/deno",
+                          "code-quality/overview/linters/supported/detekt",
+                          "code-quality/overview/linters/supported/djlint",
+                          "code-quality/overview/linters/supported/dotenv-linter",
+                          "code-quality/overview/linters/supported/dotnet-format",
+                          "code-quality/overview/linters/supported/dustilock",
+                          "code-quality/overview/linters/supported/eslint",
+                          "code-quality/overview/linters/supported/flake8",
+                          "code-quality/overview/linters/supported/git-diff-check",
+                          "code-quality/overview/linters/supported/gitleaks",
+                          "code-quality/overview/linters/supported/gofmt",
+                          "code-quality/overview/linters/supported/gofumpt",
+                          "code-quality/overview/linters/supported/goimports",
+                          "code-quality/overview/linters/supported/gokart",
+                          "code-quality/overview/linters/supported/golangci-lint",
+                          "code-quality/overview/linters/supported/golines",
+                          "code-quality/overview/linters/supported/google-java-format",
+                          "code-quality/overview/linters/supported/graphql-schema-linter",
+                          "code-quality/overview/linters/supported/hadolint",
+                          "code-quality/overview/linters/supported/haml-lint",
+                          "code-quality/overview/linters/supported/isort",
+                          "code-quality/overview/linters/supported/iwyu",
+                          "code-quality/overview/linters/supported/ktlint",
+                          "code-quality/overview/linters/supported/kube-linter",
+                          "code-quality/overview/linters/supported/markdown-link-check",
+                          "code-quality/overview/linters/supported/markdown-table-prettify",
+                          "code-quality/overview/linters/supported/markdownlint",
+                          "code-quality/overview/linters/supported/markdownlint-cli2",
+                          "code-quality/overview/linters/supported/mypy",
+                          "code-quality/overview/linters/supported/nancy",
+                          "code-quality/overview/linters/supported/nixpkgs-fmt",
+                          "code-quality/overview/linters/supported/opa",
+                          "code-quality/overview/linters/supported/osv-scanner",
+                          "code-quality/overview/linters/supported/oxipng",
+                          "code-quality/overview/linters/supported/perlcritic",
+                          "code-quality/overview/linters/supported/perltidy",
+                          "code-quality/overview/linters/supported/php-cs-fixer",
+                          "code-quality/overview/linters/supported/phpstan",
+                          "code-quality/overview/linters/supported/pmd",
+                          "code-quality/overview/linters/supported/pragma-once",
+                          "code-quality/overview/linters/supported/pre-commit-hooks",
+                          "code-quality/overview/linters/supported/prettier",
+                          "code-quality/overview/linters/supported/prisma",
+                          "code-quality/overview/linters/supported/psscriptanalyzer",
+                          "code-quality/overview/linters/supported/pylint",
+                          "code-quality/overview/linters/supported/pyright",
+                          "code-quality/overview/linters/supported/regal",
+                          "code-quality/overview/linters/supported/remark-lint",
+                          "code-quality/overview/linters/supported/renovate",
+                          "code-quality/overview/linters/supported/rome",
+                          "code-quality/overview/linters/supported/rubocop",
+                          "code-quality/overview/linters/supported/ruff",
+                          "code-quality/overview/linters/supported/rufo",
+                          "code-quality/overview/linters/supported/rustfmt",
+                          "code-quality/overview/linters/supported/scalafmt",
+                          "code-quality/overview/linters/supported/semgrep",
+                          "code-quality/overview/linters/supported/shellcheck",
+                          "code-quality/overview/linters/supported/shfmt",
+                          "code-quality/overview/linters/supported/sort-package-json",
+                          "code-quality/overview/linters/supported/sourcery",
+                          "code-quality/overview/linters/supported/sql-formatter",
+                          "code-quality/overview/linters/supported/sqlfluff",
+                          "code-quality/overview/linters/supported/sqlfmt",
+                          "code-quality/overview/linters/supported/squawk",
+                          "code-quality/overview/linters/supported/standardrb",
+                          "code-quality/overview/linters/supported/stringslint",
+                          "code-quality/overview/linters/supported/stylelint",
+                          "code-quality/overview/linters/supported/stylua",
+                          "code-quality/overview/linters/supported/svgo",
+                          "code-quality/overview/linters/supported/swiftformat",
+                          "code-quality/overview/linters/supported/swiftlint",
+                          "code-quality/overview/linters/supported/taplo",
+                          "code-quality/overview/linters/supported/terraform",
+                          "code-quality/overview/linters/supported/terragrunt",
+                          "code-quality/overview/linters/supported/terrascan",
+                          "code-quality/overview/linters/supported/tflint",
+                          "code-quality/overview/linters/supported/tfsec",
+                          "code-quality/overview/linters/supported/tofu",
+                          "code-quality/overview/linters/supported/trivy",
+                          "code-quality/overview/linters/supported/trufflehog",
+                          "code-quality/overview/linters/supported/txtpbfmt",
+                          "code-quality/overview/linters/supported/vale",
+                          "code-quality/overview/linters/supported/yamllint",
+                          "code-quality/overview/linters/supported/yapf"
+                        ]
+                      },
+                      "code-quality/overview/linters/run-linters",
+                      "code-quality/overview/linters/manage-linters",
+                      "code-quality/overview/linters/configure-linters",
+                      "code-quality/overview/linters/ignoring-issues-and-files",
+                      "code-quality/overview/linters/custom-linters",
+                      "code-quality/overview/linters/shared-configs",
+                      "code-quality/overview/linters/upgrades"
+                    ]
+                  },
+                  "code-quality/overview/debugging",
+                  "code-quality/overview/licensing"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "global": {
+      "anchors": [
+        {
+          "href": "https://app.trunk.io",
+          "icon": "play",
+          "anchor": "Open app"
+        },
+        {
+          "href": "https://slack.trunk.io",
+          "icon": "slack",
+          "anchor": "Slack community"
+        },
+        {
+          "href": "https://trunk.io/changelog",
+          "icon": "bullhorn",
+          "anchor": "Changelog"
+        },
+        {
+          "href": "https://features.trunk.io",
+          "icon": "circle-star",
+          "anchor": "Feature requests"
+        }
+      ]
+    }
+  },
+  "contextual": {
+    "options": [
+      "copy",
+      "view",
+      "chatgpt",
+      "claude"
+    ]
+  },
+  "footer": {
+    "socials": {
+      "x": "https://x.com/trunk_io",
+      "github": "https://github.com/trunk-io"
+    },
+    "links": [
+      {
+        "items": [
+          {
+            "href": "https://app.trunk.io",
+            "label": "Open app"
+          },
+          {
+            "href": "https://slack.trunk.io",
+            "label": "Slack community"
+          },
+          {
+            "href": "https://trunk.io/changelog",
+            "label": "Changelog"
+          },
+          {
+            "href": "https://features.trunk.io",
+            "label": "Feature requests"
+          }
+        ]
+      }
+    ]
+  },
+  "seo": {
+    "metatags": {
+      "robots": "noindex"
+    }
+  },
+  "redirects": [
+    {
+      "source": "/adminstration",
+      "destination": "/setup-and-administration/managing-your-organization"
+    },
+    {
+      "source": "/check",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/check/cli",
+      "destination": "/code-quality/overview/cli/getting-started"
+    },
+    {
+      "source": "/check/configuration",
+      "destination": "/code-quality/overview/cli/getting-started/configuration"
+    },
+    {
+      "source": "/check/get-started",
+      "destination": "/code-quality/overview/setup-and-installation"
+    },
+    {
+      "source": "/check/usage",
+      "destination": "/code-quality/overview/cli/getting-started"
+    },
+    {
+      "source": "/check/performance",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/check/supported-linters",
+      "destination": "/code-quality/overview/linters/supported"
+    },
+    {
+      "source": "/check/tools/configuration",
+      "destination": "/code-quality/overview/cli/getting-started/configuration"
+    },
+    {
+      "source": "/check/under-the-hood",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/check/github-integration",
+      "destination": "/code-quality/overview/setup-and-installation/github-integration"
+    },
+    {
+      "source": "/check/configuration/supported",
+      "destination": "/code-quality/overview/linters/supported"
+    },
+    {
+      "source": "/check/configuration/supported/ansible-lint",
+      "destination": "/code-quality/overview/linters/supported/ansible-lint"
+    },
+    {
+      "source": "/check/configuration/supported/codespell",
+      "destination": "/code-quality/overview/linters/supported/codespell"
+    },
+    {
+      "source": "/check/configuration/supported/cspell",
+      "destination": "/code-quality/overview/linters/supported/cspell"
+    },
+    {
+      "source": "/check/configuration/supported/gitleaks",
+      "destination": "/code-quality/overview/linters/supported/gitleaks"
+    },
+    {
+      "source": "/check/configuration/supported/git-diff-check",
+      "destination": "/code-quality/overview/linters/supported/git-diff-check"
+    },
+    {
+      "source": "/check/configuration/supported/pre-commit-hooks",
+      "destination": "/code-quality/overview/linters/supported/pre-commit-hooks"
+    },
+    {
+      "source": "/check/configuration/supported/pmd",
+      "destination": "/code-quality/overview/linters/supported/pmd"
+    },
+    {
+      "source": "/check/configuration/supported/shellcheck",
+      "destination": "/code-quality/overview/linters/supported/shellcheck"
+    },
+    {
+      "source": "/check/configuration/supported/shfmt",
+      "destination": "/code-quality/overview/linters/supported/shfmt"
+    },
+    {
+      "source": "/check/configuration/supported/buildifier",
+      "destination": "/code-quality/overview/linters/supported/buildifier"
+    },
+    {
+      "source": "/check/configuration/supported/iwyu",
+      "destination": "/code-quality/overview/linters/supported/iwyu"
+    },
+    {
+      "source": "/check/configuration/supported/pragma-once",
+      "destination": "/code-quality/overview/linters/supported/pragma-once"
+    },
+    {
+      "source": "/check/configuration/supported/dotnet-format",
+      "destination": "/code-quality/overview/linters/supported/dotnet-format"
+    },
+    {
+      "source": "/check/configuration/supported/circleci",
+      "destination": "/code-quality/overview/linters/supported/circleci"
+    },
+    {
+      "source": "/check/configuration/supported/cfnlint",
+      "destination": "/code-quality/overview/linters/supported/cfnlint"
+    },
+    {
+      "source": "/check/configuration/supported/checkov",
+      "destination": "/code-quality/overview/linters/supported/checkov"
+    },
+    {
+      "source": "/check/configuration/supported/stylelint",
+      "destination": "/code-quality/overview/linters/supported/stylelint"
+    },
+    {
+      "source": "/check/configuration/supported/prettier",
+      "destination": "/code-quality/overview/linters/supported/prettier"
+    },
+    {
+      "source": "/check/configuration/supported/cue-fmt",
+      "destination": "/code-quality/overview/linters/supported/cue-fmt"
+    },
+    {
+      "source": "/check/configuration/supported/hadolint",
+      "destination": "/code-quality/overview/linters/supported/hadolint"
+    },
+    {
+      "source": "/check/configuration/supported/dotenv-linter",
+      "destination": "/code-quality/overview/linters/supported/dotenv-linter"
+    },
+    {
+      "source": "/check/configuration/supported/actionlint",
+      "destination": "/code-quality/overview/linters/supported/actionlint"
+    },
+    {
+      "source": "/check/configuration/supported/gofmt",
+      "destination": "/code-quality/overview/linters/supported/gofmt"
+    },
+    {
+      "source": "/check/configuration/supported/gofumpt",
+      "destination": "/code-quality/overview/linters/supported/gofumpt"
+    },
+    {
+      "source": "/check/configuration/supported/goimports",
+      "destination": "/code-quality/overview/linters/supported/goimports"
+    },
+    {
+      "source": "/check/configuration/supported/gokart",
+      "destination": "/code-quality/overview/linters/supported/gokart"
+    },
+    {
+      "source": "/check/configuration/supported/golangci-lint",
+      "destination": "/code-quality/overview/linters/supported/golangci-lint"
+    },
+    {
+      "source": "/check/configuration/supported/golines",
+      "destination": "/code-quality/overview/linters/supported/golines"
+    },
+    {
+      "source": "/check/configuration/supported/semgrep",
+      "destination": "/code-quality/overview/linters/supported/semgrep"
+    },
+    {
+      "source": "/check/configuration/supported/graphql-schema-linter",
+      "destination": "/code-quality/overview/linters/supported/graphql-schema-linter"
+    },
+    {
+      "source": "/check/configuration/supported/haml-lint",
+      "destination": "/code-quality/overview/linters/supported/haml-lint"
+    },
+    {
+      "source": "/check/configuration/supported/djlint",
+      "destination": "/code-quality/overview/linters/supported/djlint"
+    },
+    {
+      "source": "/check/configuration/supported/google-java-format",
+      "destination": "/code-quality/overview/linters/supported/google-java-format"
+    },
+    {
+      "source": "/check/configuration/supported/deno",
+      "destination": "/code-quality/overview/linters/supported/deno"
+    },
+    {
+      "source": "/check/configuration/supported/eslint",
+      "destination": "/code-quality/overview/linters/supported/eslint"
+    },
+    {
+      "source": "/check/configuration/supported/rome",
+      "destination": "/code-quality/overview/linters/supported/rome"
+    },
+    {
+      "source": "/check/configuration/supported/detekt",
+      "destination": "/code-quality/overview/linters/supported/detekt"
+    },
+    {
+      "source": "/check/configuration/supported/ktlint",
+      "destination": "/code-quality/overview/linters/supported/ktlint"
+    },
+    {
+      "source": "/check/configuration/supported/kube-linter",
+      "destination": "/code-quality/overview/linters/supported/kube-linter"
+    },
+    {
+      "source": "/check/configuration/supported/stylua",
+      "destination": "/code-quality/overview/linters/supported/stylua"
+    },
+    {
+      "source": "/check/configuration/supported/markdownlint",
+      "destination": "/code-quality/overview/linters/supported/markdownlint"
+    },
+    {
+      "source": "/check/configuration/supported/remark-lint",
+      "destination": "/code-quality/overview/linters/supported/remark-lint"
+    },
+    {
+      "source": "/check/configuration/supported/markdown-link-check",
+      "destination": "/code-quality/overview/linters/supported/markdown-link-check"
+    },
+    {
+      "source": "/check/configuration/supported/nixpkgs-fmt",
+      "destination": "/code-quality/overview/linters/supported/nixpkgs-fmt"
+    },
+    {
+      "source": "/check/configuration/supported/sort-package-json",
+      "destination": "/code-quality/overview/linters/supported/sort-package-json"
+    },
+    {
+      "source": "/check/configuration/supported/perlcritic",
+      "destination": "/code-quality/overview/linters/supported/perlcritic"
+    },
+    {
+      "source": "/check/configuration/supported/perltidy",
+      "destination": "/code-quality/overview/linters/supported/perltidy"
+    },
+    {
+      "source": "/check/configuration/supported/oxipng",
+      "destination": "/code-quality/overview/linters/supported/oxipng"
+    },
+    {
+      "source": "/check/configuration/supported/prisma",
+      "destination": "/code-quality/overview/linters/supported/prisma"
+    },
+    {
+      "source": "/check/configuration/supported/buf",
+      "destination": "/code-quality/overview/linters/supported/buf"
+    },
+    {
+      "source": "/check/configuration/supported/clang-format",
+      "destination": "/code-quality/overview/linters/supported/clang-format"
+    },
+    {
+      "source": "/check/configuration/supported/clang-tidy",
+      "destination": "/code-quality/overview/linters/supported/clang-tidy"
+    },
+    {
+      "source": "/check/configuration/supported/autopep8",
+      "destination": "/code-quality/overview/linters/supported/autopep8"
+    },
+    {
+      "source": "/check/configuration/supported/bandit",
+      "destination": "/code-quality/overview/linters/supported/bandit"
+    },
+    {
+      "source": "/check/configuration/supported/black",
+      "destination": "/code-quality/overview/linters/supported/black"
+    },
+    {
+      "source": "/check/configuration/supported/flake8",
+      "destination": "/code-quality/overview/linters/supported/flake8"
+    },
+    {
+      "source": "/check/configuration/supported/isort",
+      "destination": "/code-quality/overview/linters/supported/isort"
+    },
+    {
+      "source": "/check/configuration/supported/mypy",
+      "destination": "/code-quality/overview/linters/supported/mypy"
+    },
+    {
+      "source": "/check/configuration/supported/pylint",
+      "destination": "/code-quality/overview/linters/supported/pylint"
+    },
+    {
+      "source": "/check/configuration/supported/pyright",
+      "destination": "/code-quality/overview/linters/supported/pyright"
+    },
+    {
+      "source": "/check/configuration/supported/yapf",
+      "destination": "/code-quality/overview/linters/supported/yapf"
+    },
+    {
+      "source": "/check/configuration/supported/ruff",
+      "destination": "/code-quality/overview/linters/supported/ruff"
+    },
+    {
+      "source": "/check/configuration/supported/sourcery",
+      "destination": "/code-quality/overview/linters/supported/sourcery"
+    },
+    {
+      "source": "/check/configuration/supported/renovate",
+      "destination": "/code-quality/overview/linters/supported/renovate"
+    },
+    {
+      "source": "/check/configuration/supported/brakeman",
+      "destination": "/code-quality/overview/linters/supported/brakeman"
+    },
+    {
+      "source": "/check/configuration/supported/rubocop",
+      "destination": "/code-quality/overview/linters/supported/rubocop"
+    },
+    {
+      "source": "/check/configuration/supported/rufo",
+      "destination": "/code-quality/overview/linters/supported/rufo"
+    },
+    {
+      "source": "/check/configuration/supported/standardrb",
+      "destination": "/code-quality/overview/linters/supported/standardrb"
+    },
+    {
+      "source": "/check/configuration/supported/clippy",
+      "destination": "/code-quality/overview/linters/supported/clippy"
+    },
+    {
+      "source": "/check/configuration/supported/rustfmt",
+      "destination": "/code-quality/overview/linters/supported/rustfmt"
+    },
+    {
+      "source": "/check/configuration/supported/scalafmt",
+      "destination": "/code-quality/overview/linters/supported/scalafmt"
+    },
+    {
+      "source": "/check/configuration/supported/dustilock",
+      "destination": "/code-quality/overview/linters/supported/dustilock"
+    },
+    {
+      "source": "/check/configuration/supported/nancy",
+      "destination": "/code-quality/overview/linters/supported/nancy"
+    },
+    {
+      "source": "/check/configuration/supported/osv-scanner",
+      "destination": "/code-quality/overview/linters/supported/osv-scanner"
+    },
+    {
+      "source": "/check/configuration/supported/tfsec",
+      "destination": "/code-quality/overview/linters/supported/tfsec"
+    },
+    {
+      "source": "/check/configuration/supported/trivy",
+      "destination": "/code-quality/overview/linters/supported/trivy"
+    },
+    {
+      "source": "/check/configuration/supported/trufflehog",
+      "destination": "/code-quality/overview/linters/supported/trufflehog"
+    },
+    {
+      "source": "/check/configuration/supported/terrascan",
+      "destination": "/code-quality/overview/linters/supported/terrascan"
+    },
+    {
+      "source": "/check/configuration/supported/sqlfluff",
+      "destination": "/code-quality/overview/linters/supported/sqlfluff"
+    },
+    {
+      "source": "/check/configuration/supported/sqlfmt",
+      "destination": "/code-quality/overview/linters/supported/sqlfmt"
+    },
+    {
+      "source": "/check/configuration/supported/sql-formatter",
+      "destination": "/code-quality/overview/linters/supported/sql-formatter"
+    },
+    {
+      "source": "/check/configuration/supported/svgo",
+      "destination": "/code-quality/overview/linters/supported/svgo"
+    },
+    {
+      "source": "/check/configuration/supported/stringslint",
+      "destination": "/code-quality/overview/linters/supported/stringslint"
+    },
+    {
+      "source": "/check/configuration/supported/swiftlint",
+      "destination": "/code-quality/overview/linters/supported/swiftlint"
+    },
+    {
+      "source": "/check/configuration/supported/swiftformat",
+      "destination": "/code-quality/overview/linters/supported/swiftformat"
+    },
+    {
+      "source": "/check/configuration/supported/terraform",
+      "destination": "/code-quality/overview/linters/supported/terraform"
+    },
+    {
+      "source": "/check/configuration/supported/tflint",
+      "destination": "/code-quality/overview/linters/supported/tflint"
+    },
+    {
+      "source": "/check/configuration/supported/terragrunt",
+      "destination": "/code-quality/overview/linters/supported/terragrunt"
+    },
+    {
+      "source": "/check/configuration/supported/txtpbfmt",
+      "destination": "/code-quality/overview/linters/supported/txtpbfmt"
+    },
+    {
+      "source": "/check/configuration/supported/taplo",
+      "destination": "/code-quality/overview/linters/supported/taplo"
+    },
+    {
+      "source": "/check/configuration/supported/yamllint",
+      "destination": "/code-quality/overview/linters/supported/yamllint"
+    },
+    {
+      "source": "/check/configuration/supported/biome",
+      "destination": "/code-quality/overview/linters/supported/biome"
+    },
+    {
+      "source": "/check/configuration/supported/markdown-table-prettify",
+      "destination": "/code-quality/overview/linters/supported/markdown-table-prettify"
+    },
+    {
+      "source": "/check/configuration/supported/psscriptanalyzer",
+      "destination": "/code-quality/overview/linters/supported/psscriptanalyzer"
+    },
+    {
+      "source": "/check/configuration/supported/cmake-format",
+      "destination": "/code-quality/overview/linters/supported/cmake-format"
+    },
+    {
+      "source": "/check/configuration/supported/dart",
+      "destination": "/code-quality/overview/linters/supported/dart"
+    },
+    {
+      "source": "/check/configuration/supported/opa",
+      "destination": "/code-quality/overview/linters/supported/opa"
+    },
+    {
+      "source": "/check/configuration/supported/phpstan",
+      "destination": "/code-quality/overview/linters/supported/phpstan"
+    },
+    {
+      "source": "/check/configuration/supported/regal",
+      "destination": "/code-quality/overview/linters/supported/regal"
+    },
+    {
+      "source": "/check/configuration/supported/tofu",
+      "destination": "/code-quality/overview/linters/supported/tofu"
+    },
+    {
+      "source": "/check/configuration/supported/vale",
+      "destination": "/code-quality/overview/linters/supported/vale"
+    },
+    {
+      "source": "/check/configuration/supported/php-cs-fixer",
+      "destination": "/code-quality/overview/linters/supported/php-cs-fixer"
+    },
+    {
+      "source": "/cli/windows-beta",
+      "destination": "/code-quality/overview/cli/getting-started/compatibility"
+    },
+    {
+      "source": "/docs",
+      "destination": "/welcome"
+    },
+    {
+      "source": "/docs/actions-config",
+      "destination": "/code-quality/overview/cli/getting-started/configuration/actions"
+    },
+    {
+      "source": "/docs/actions-git-hooks",
+      "destination": "/code-quality/overview/cli/getting-started/configuration/actions"
+    },
+    {
+      "source": "/docs/actions",
+      "destination": "/code-quality/overview/cli/getting-started/configuration/actions"
+    },
+    {
+      "source": "/docs/check-cli",
+      "destination": "/code-quality/overview/cli/getting-started"
+    },
+    {
+      "source": "/docs/check-config",
+      "destination": "/code-quality/overview/cli/getting-started/configuration"
+    },
+    {
+      "source": "/docs/check-custom-linters",
+      "destination": "/code-quality/overview/linters/supported"
+    },
+    {
+      "source": "/docs/check-debugging",
+      "destination": "/code-quality/overview/debugging"
+    },
+    {
+      "source": "/docs/check-get-started",
+      "destination": "/code-quality/overview/setup-and-installation"
+    },
+    {
+      "source": "/docs/check-github-integration",
+      "destination": "/code-quality/overview/deal-with-existing-issues"
+    },
+    {
+      "source": "/docs/check-supported-linters",
+      "destination": "/code-quality/overview/linters/supported"
+    },
+    {
+      "source": "/docs/check",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/docs/check/github-integration",
+      "destination": "/code-quality/overview/setup-and-installation/github-integration"
+    },
+    {
+      "source": "/docs/cli",
+      "destination": "/code-quality/overview/cli/getting-started"
+    },
+    {
+      "source": "/docs/code-quality",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/docs/get-started",
+      "destination": "/welcome"
+    },
+    {
+      "source": "/docs/getting-started",
+      "destination": "/welcome"
+    },
+    {
+      "source": "/docs/github-app-permissions",
+      "destination": "/setup-and-administration/github-app-permissions"
+    },
+    {
+      "source": "/docs/github-codespaces",
+      "destination": "/code-quality/overview/ide-integration/github-codespaces"
+    },
+    {
+      "source": "/docs/ignoring-issues",
+      "destination": "/code-quality/overview/deal-with-existing-issues"
+    },
+    {
+      "source": "/docs/initialize-trunk-in-a-git-repo",
+      "destination": "/code-quality/overview/cli/getting-started"
+    },
+    {
+      "source": "/docs/install",
+      "destination": "/code-quality/overview/cli/getting-started/install"
+    },
+    {
+      "source": "/docs/merge-get-started",
+      "destination": "/merge-queue/getting-started"
+    },
+    {
+      "source": "/docs/merge-getting-started",
+      "destination": "/merge-queue/getting-started"
+    },
+    {
+      "source": "/docs/merge",
+      "destination": "/merge-queue/merge-queue"
+    },
+    {
+      "source": "/docs/overview",
+      "destination": "/welcome"
+    },
+    {
+      "source": "/docs/plugins",
+      "destination": "/code-quality/overview/linters"
+    },
+    {
+      "source": "/docs/reference-trunk-yaml",
+      "destination": "/code-quality/overview/cli/getting-started/configuration"
+    },
+    {
+      "source": "/docs/shell-hooks",
+      "destination": "/code-quality/overview/cli/getting-started/configuration/tools"
+    },
+    {
+      "source": "/docs/tools",
+      "destination": "/code-quality/overview/cli/getting-started/configuration/tools"
+    },
+    {
+      "source": "/docs/trunk-app-for-slack",
+      "destination": "/merge-queue/integration-for-slack"
+    },
+    {
+      "source": "/docs/vscode",
+      "destination": "/code-quality/overview/ide-integration/vscode"
+    },
+    {
+      "source": "/docs/what-is-trunk",
+      "destination": "/welcome"
+    },
+    {
+      "source": "/docs/windows-beta",
+      "destination": "/code-quality/overview/cli/getting-started/compatibility"
+    },
+    {
+      "source": "/flaky-tests/generating-junit-reports",
+      "destination": "/flaky-tests/get-started/frameworks"
+    },
+    {
+      "source": "/get-started",
+      "destination": "/welcome"
+    },
+    {
+      "source": "/merge-graph",
+      "destination": "/merge-queue/merge-queue"
+    },
+    {
+      "source": "/merge-graph/configuration",
+      "destination": "/merge-queue/merge-queue"
+    },
+    {
+      "source": "/merge-graph/set-up-trunk-merge",
+      "destination": "/merge-queue/merge-queue"
+    },
+    {
+      "source": "/merge/getting-started",
+      "destination": "/merge-queue/getting-started"
+    },
+    {
+      "source": "/reference/reference-trunk-yaml",
+      "destination": "/code-quality/overview/cli/getting-started/configuration"
+    },
+    {
+      "source": "/reference/trunk-yaml",
+      "destination": "/code-quality/overview/cli/getting-started/configuration"
+    },
+    {
+      "source": "/test-analytics",
+      "destination": "/flaky-tests/overview"
+    },
+    {
+      "source": "/test-analytics/ci-providers",
+      "destination": "/flaky-tests/get-started/ci-providers"
+    },
+    {
+      "source": "/test-analytics/ci-providers/buildkite-quickstart",
+      "destination": "/flaky-tests/get-started/ci-providers/buildkite"
+    },
+    {
+      "source": "/test-analytics/ci-providers/circleci-quickstart",
+      "destination": "/flaky-tests/get-started/ci-providers/circleci"
+    },
+    {
+      "source": "/test-analytics/ci-providers/github-actions-quickstart",
+      "destination": "/flaky-tests/get-started/ci-providers/github-actions"
+    },
+    {
+      "source": "/test-analytics/ci-providers/gitlab",
+      "destination": "/flaky-tests/get-started/ci-providers/gitlab"
+    },
+    {
+      "source": "/test-analytics/ci-providers/other-ci-providers-quickstart",
+      "destination": "/flaky-tests/get-started/ci-providers/otherci"
+    },
+    {
+      "source": "/test-analytics/ci-providers/semaphore-ci-quickstart",
+      "destination": "/flaky-tests/get-started/ci-providers/semaphoreci"
+    },
+    {
+      "source": "/test-analytics/frameworks",
+      "destination": "/flaky-tests/get-started/frameworks"
+    },
+    {
+      "source": "/test-analytics/frameworks/android",
+      "destination": "/flaky-tests/get-started/frameworks/android"
+    },
+    {
+      "source": "/test-analytics/frameworks/cargo-nextest",
+      "destination": "/flaky-tests/get-started/frameworks/rust"
+    },
+    {
+      "source": "/test-analytics/frameworks/cypress",
+      "destination": "/flaky-tests/get-started/frameworks/cypress"
+    },
+    {
+      "source": "/test-analytics/frameworks/jasmine",
+      "destination": "/flaky-tests/get-started/frameworks/jasmine"
+    },
+    {
+      "source": "/test-analytics/frameworks/jest",
+      "destination": "/flaky-tests/get-started/frameworks/jest"
+    },
+    {
+      "source": "/test-analytics/frameworks/minitest",
+      "destination": "/flaky-tests/get-started/frameworks/minitest"
+    },
+    {
+      "source": "/test-analytics/frameworks/mocha",
+      "destination": "/flaky-tests/get-started/frameworks/mocha"
+    },
+    {
+      "source": "/test-analytics/frameworks/playwright",
+      "destination": "/flaky-tests/get-started/frameworks/playwright"
+    },
+    {
+      "source": "/test-analytics/frameworks/pytest",
+      "destination": "/flaky-tests/get-started/frameworks/pytest"
+    },
+    {
+      "source": "/test-analytics/frameworks/rspec",
+      "destination": "/flaky-tests/get-started/frameworks"
+    },
+    {
+      "source": "/test-analytics/frameworks/swift-testing",
+      "destination": "/flaky-tests/get-started/frameworks/swift-testing"
+    },
+    {
+      "source": "/test-analytics/frameworks/xctest",
+      "destination": "/flaky-tests/get-started/frameworks/xctest"
+    },
+    {
+      "source": "/test-analytics/github-pull-request-comments",
+      "destination": "/flaky-tests/management/github-pull-request-comments"
+    },
+    {
+      "source": "/runtimes",
+      "destination": "/code-quality/overview/cli/getting-started/configuration/runtimes"
+    },
+    {
+      "source": "/plugins",
+      "destination": "/code-quality/overview/linters"
+    },
+    {
+      "source": "/ci/get-started/github-integration",
+      "destination": "/code-quality/overview/setup-and-installation/github-integration"
+    },
+    {
+      "source": "/code-quality/usage",
+      "destination": "/code-quality/overview/initialize-trunk"
+    },
+    {
+      "source": "/code-quality/ci/get-started",
+      "destination": "/code-quality/overview/setup-and-installation"
+    },
+    {
+      "source": "/code-quality/ci/get-started/github-integration",
+      "destination": "/code-quality/overview/setup-and-installation/github-integration"
+    },
+    {
+      "source": "/code-quality/configuration/debugging",
+      "destination": "/code-quality/overview/debugging"
+    },
+    {
+      "source": "/check/check-cloud-ci-integration/get-started/github-integration",
+      "destination": "/code-quality/overview/setup-and-installation/github-integration"
+    },
+    {
+      "source": "/tools",
+      "destination": "/code-quality/overview/cli/getting-started/configuration/tools"
+    },
+    {
+      "source": "/flaky-tests/ci-providers/buildkite-quickstart",
+      "destination": "/flaky-tests/get-started/ci-providers/buildkite"
+    },
+    {
+      "source": "/flaky-tests/ci-providers/circleci-quickstart",
+      "destination": "/flaky-tests/get-started/ci-providers/circleci"
+    },
+    {
+      "source": "/flaky-tests/ci-providers/droneci",
+      "destination": "/flaky-tests/get-started/ci-providers/droneci"
+    },
+    {
+      "source": "/flaky-tests/ci-providers/github-actions-quickstart",
+      "destination": "/flaky-tests/get-started/ci-providers/github-actions"
+    },
+    {
+      "source": "/flaky-tests/ci-providers/gitlab",
+      "destination": "/flaky-tests/get-started/ci-providers/gitlab"
+    },
+    {
+      "source": "/flaky-tests/ci-providers/other-ci-providers-quickstart",
+      "destination": "/flaky-tests/get-started/ci-providers/otherci"
+    },
+    {
+      "source": "/flaky-tests/ci-providers/semaphore-ci-quickstart",
+      "destination": "/flaky-tests/get-started/ci-providers/semaphoreci"
+    },
+    {
+      "source": "/flaky-tests/ci-providers/travisci",
+      "destination": "/flaky-tests/get-started/ci-providers/travisci"
+    },
+    {
+      "source": "/flaky-tests/frameworks/android",
+      "destination": "/flaky-tests/get-started/frameworks/android"
+    },
+    {
+      "source": "/flaky-tests/frameworks/bazel",
+      "destination": "/flaky-tests/get-started/frameworks/bazel"
+    },
+    {
+      "source": "/flaky-tests/frameworks/cargo-nextest",
+      "destination": "/flaky-tests/get-started/frameworks/rust"
+    },
+    {
+      "source": "/flaky-tests/frameworks/cypress",
+      "destination": "/flaky-tests/get-started/frameworks/cypress"
+    },
+    {
+      "source": "/flaky-tests/frameworks/go-junit-report",
+      "destination": "/flaky-tests/get-started/frameworks/gotestsum"
+    },
+    {
+      "source": "/flaky-tests/frameworks/gotestsum",
+      "destination": "/flaky-tests/get-started/frameworks/gotestsum"
+    },
+    {
+      "source": "/flaky-tests/frameworks/jasmine",
+      "destination": "/flaky-tests/get-started/frameworks/jasmine"
+    },
+    {
+      "source": "/flaky-tests/frameworks/jest",
+      "destination": "/flaky-tests/get-started/frameworks/jest"
+    },
+    {
+      "source": "/flaky-tests/frameworks/karma",
+      "destination": "/flaky-tests/get-started/frameworks/karma"
+    },
+    {
+      "source": "/flaky-tests/frameworks/maven",
+      "destination": "/flaky-tests/get-started/frameworks/maven"
+    },
+    {
+      "source": "/flaky-tests/frameworks/minitest",
+      "destination": "/flaky-tests/get-started/frameworks/minitest"
+    },
+    {
+      "source": "/flaky-tests/frameworks/mocha",
+      "destination": "/flaky-tests/get-started/frameworks/mocha"
+    },
+    {
+      "source": "/flaky-tests/frameworks/phpunit",
+      "destination": "/flaky-tests/get-started/frameworks/phpunit"
+    },
+    {
+      "source": "/flaky-tests/frameworks/playwright",
+      "destination": "/flaky-tests/get-started/frameworks/playwright"
+    },
+    {
+      "source": "/flaky-tests/frameworks/pytest",
+      "destination": "/flaky-tests/get-started/frameworks/pytest"
+    },
+    {
+      "source": "/flaky-tests/frameworks/rspec",
+      "destination": "/flaky-tests/get-started/frameworks"
+    },
+    {
+      "source": "/flaky-tests/frameworks/swift-testing",
+      "destination": "/flaky-tests/get-started/frameworks/swift-testing"
+    },
+    {
+      "source": "/flaky-tests/frameworks/vitest",
+      "destination": "/flaky-tests/get-started/frameworks/vitest"
+    },
+    {
+      "source": "/flaky-tests/frameworks/xctest",
+      "destination": "/flaky-tests/get-started/frameworks/xctest"
+    },
+    {
+      "source": "/administration",
+      "destination": "/setup-and-administration/managing-your-organization"
+    },
+    {
+      "source": "/apis/api",
+      "destination": "/setup-and-administration/apis"
+    },
+    {
+      "source": "/apis",
+      "destination": "/setup-and-administration/apis"
+    },
+    {
+      "source": "/cli/configuration",
+      "destination": "/code-quality/overview/cli/getting-started/configuration"
+    },
+    {
+      "source": "/cli/configuration/actions",
+      "destination": "/code-quality/overview/cli/getting-started/configuration/actions"
+    },
+    {
+      "source": "/cli/configuration/lint",
+      "destination": "/code-quality/overview/cli/getting-started/configuration/lint"
+    },
+    {
+      "source": "/cli/configuration/plugins",
+      "destination": "/code-quality/overview/cli/getting-started/configuration/plugins"
+    },
+    {
+      "source": "/cli/commands-reference",
+      "destination": "/code-quality/overview/cli/getting-started/commands-reference"
+    },
+    {
+      "source": "/cli/getting-started/actions",
+      "destination": "/code-quality/overview/cli/getting-started/actions"
+    },
+    {
+      "source": "/cli/getting-started",
+      "destination": "/code-quality/overview/cli/getting-started"
+    },
+    {
+      "source": "/cli",
+      "destination": "/code-quality/overview/cli/getting-started"
+    },
+    {
+      "source": "/merge-queue/parallel-queues",
+      "destination": "/merge-queue/optimizations/parallel-queues"
+    },
+    {
+      "source": "/code-quality/linters/supported/sqlfluff",
+      "destination": "/code-quality/overview/linters/supported/sqlfluff"
+    },
+    {
+      "source": "/code-quality/linters/supported/sourcery",
+      "destination": "/code-quality/overview/linters/supported/sourcery"
+    },
+    {
+      "source": "/administration/github-app-permissions",
+      "destination": "/setup-and-administration/github-app-permissions"
+    },
+    {
+      "source": "/administration/billing",
+      "destination": "/setup-and-administration/billing"
+    },
+    {
+      "source": "/apis/flaky-tests",
+      "destination": "/setup-and-administration/apis"
+    },
+    {
+      "source": "/cli/configuration/lint/dependencies",
+      "destination": "/code-quality/overview/cli/getting-started/configuration/lint/dependencies"
+    },
+    {
+      "source": "/cli/configuration/lint/output-parsing",
+      "destination": "/code-quality/overview/cli/getting-started/configuration/lint/output-parsing"
+    },
+    {
+      "source": "/cli/configuration/lint/commands",
+      "destination": "/code-quality/overview/cli/getting-started/configuration/lint/commands"
+    },
+    {
+      "source": "/cli/configuration/tools",
+      "destination": "/code-quality/overview/cli/getting-started/configuration/tools"
+    },
+    {
+      "source": "/cli/configuration/plugins/exported-configs",
+      "destination": "/code-quality/overview/cli/getting-started/configuration/plugins/exported-configs"
+    },
+    {
+      "source": "/cli/getting-started/actions/git-hooks",
+      "destination": "/code-quality/overview/cli/getting-started/actions/git-hooks"
+    },
+    {
+      "source": "/cli/install",
+      "destination": "/code-quality/overview/cli/getting-started/install"
+    },
+    {
+      "source": "/merge-queue/command-line",
+      "destination": "/merge-queue/reference/merge-queue-cli-reference"
+    },
+    {
+      "source": "/merge-queue/optimistic-merging",
+      "destination": "/merge-queue/optimizations/optimistic-merging"
+    },
+    {
+      "source": "/merge-queue",
+      "destination": "/merge-queue/merge-queue"
+    },
+    {
+      "source": "/code-quality/overview",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/code-quality",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/flaky-tests",
+      "destination": "/flaky-tests/overview"
+    },
+    {
+      "source": "/flaky-tests/use-mcp-server/mcp-tool-reference",
+      "destination": "/flaky-tests/reference/mcp-reference"
+    },
+    {
+      "source": "/flaky-tests/autofix-ci-failures",
+      "destination": "/flaky-tests/agents/autofix-ci-failures"
+    },
+    {
+      "source": "/flaky-tests/autofix-flaky-tests",
+      "destination": "/flaky-tests/agents/autofix-flaky-tests"
+    },
+    {
+      "source": "/flaky-tests/infrastructure-failure-protection",
+      "destination": "/flaky-tests/detection/infrastructure-failure-protection"
+    },
+    {
+      "source": "/flaky-tests/managing-detected-flaky-tests",
+      "destination": "/flaky-tests/management/managing-detected-flaky-tests"
+    },
+    {
+      "source": "/flaky-tests/quarantine-service-availability",
+      "destination": "/flaky-tests/quarantining/quarantine-service-availability"
+    },
+    {
+      "source": "/flaky-tests/quarantining",
+      "destination": "/flaky-tests/quarantining"
+    },
+    {
+      "source": "/flaky-tests/test-collections",
+      "destination": "/flaky-tests/get-started/test-collections"
+    },
+    {
+      "source": "/flaky-tests/test-labels",
+      "destination": "/flaky-tests/management/test-labels"
+    },
+    {
+      "source": "/flaky-tests/the-importance-of-pr-test-results",
+      "destination": "/flaky-tests/detection/the-importance-of-pr-test-results"
+    },
+    {
+      "source": "/flaky-tests/ticketing-integrations",
+      "destination": "/flaky-tests/management/ticketing"
+    },
+    {
+      "source": "/flaky-tests/uploader",
+      "destination": "/flaky-tests/reference/cli-reference"
+    },
+    {
+      "source": "/flaky-tests/ticketing-integrations/jira-integration",
+      "destination": "/flaky-tests/management/ticketing/jira-integration"
+    },
+    {
+      "source": "/flaky-tests/ticketing-integrations/linear-integration",
+      "destination": "/flaky-tests/management/ticketing/linear-integration"
+    },
+    {
+      "source": "/flaky-tests/use-mcp-server",
+      "destination": "/flaky-tests/reference/mcp-reference"
+    },
+    {
+      "source": "/flaky-tests/use-mcp-server/investigate-ci-failures",
+      "destination": "/flaky-tests/reference/mcp-reference/investigate-ci-failure"
+    },
+    {
+      "source": "/merge-queue/set-up-trunk-merge",
+      "destination": "/merge-queue/getting-started"
+    },
+    {
+      "source": "/merge-queue/concepts-and-optimizations",
+      "destination": "/merge-queue/optimizations"
+    },
+    {
+      "source": "/merge-queue/concepts-and-optimizations/parallel-queues",
+      "destination": "/merge-queue/optimizations/parallel-queues"
+    },
+    {
+      "source": "/merge-queue/concepts-and-optimizations/optimistic-merging",
+      "destination": "/merge-queue/optimizations/optimistic-merging"
+    },
+    {
+      "source": "/merge-queue/concepts-and-optimizations/batch-merging",
+      "destination": "/merge-queue/optimizations/batching"
+    },
+    {
+      "source": "/merge-queue/concepts-and-optimizations/batching",
+      "destination": "/merge-queue/optimizations/batching"
+    },
+    {
+      "source": "/merge-queue/concepts-and-optimizations/pending-failure-depth",
+      "destination": "/merge-queue/optimizations/pending-failure-depth"
+    },
+    {
+      "source": "/merge-queue/concepts-and-optimizations/predictive-testing",
+      "destination": "/merge-queue/optimizations/predictive-testing"
+    },
+    {
+      "source": "/merge-queue/concepts/parallel-queues",
+      "destination": "/merge-queue/optimizations/parallel-queues"
+    },
+    {
+      "source": "/merge-queue/concepts/optimistic-merging",
+      "destination": "/merge-queue/optimizations/optimistic-merging"
+    },
+    {
+      "source": "/merge-queue/concepts/batch-merging",
+      "destination": "/merge-queue/optimizations/batching"
+    },
+    {
+      "source": "/merge-queue/concepts/pending-failure-depth",
+      "destination": "/merge-queue/optimizations/pending-failure-depth"
+    },
+    {
+      "source": "/merge-queue/concepts/predictive-testing",
+      "destination": "/merge-queue/optimizations/predictive-testing"
+    },
+    {
+      "source": "/merge-queue/managing-merge-queue/advanced-settings",
+      "destination": "/merge-queue/optimizations"
+    },
+    {
+      "source": "/merge-queue/managing-merge-queue/reference",
+      "destination": "/merge-queue/using-the-queue/reference"
+    },
+    {
+      "source": "/merge-queue/set-up-trunk-merge/branch-protection-and-required-status-checks",
+      "destination": "/merge-queue/getting-started/configure-branch-protection"
+    },
+    {
+      "source": "/merge-queue/set-up-trunk-merge/integration-for-slack",
+      "destination": "/merge-queue/integration-for-slack"
+    },
+    {
+      "source": "/merge-queue/managing-merge-queue/metrics",
+      "destination": "/merge-queue/administration/metrics"
+    },
+    {
+      "source": "/merge-queue/webhooks",
+      "destination": "/merge-queue/webhooks"
+    },
+    {
+      "source": "/merge-queue/concepts-and-optimizations/pr-prioritization",
+      "destination": "/merge-queue/optimizations/priority-merging"
+    },
+    {
+      "source": "/merge-queue/managing-merge-queue",
+      "destination": "/merge-queue/using-the-queue/reference"
+    },
+    {
+      "source": "/merge-queue/managing-merge-queue/using-the-webapp",
+      "destination": "/merge-queue/using-the-queue/reference"
+    },
+    {
+      "source": "/merge-queue/references/apis/merge",
+      "destination": "/merge-queue/reference/merge"
+    }
+  ]
+}

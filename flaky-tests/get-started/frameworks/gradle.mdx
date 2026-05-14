@@ -1,0 +1,180 @@
+---
+title: "Gradle"
+description: "A guide for generating Trunk-compatible test reports for Gradle"
+---
+You can automatically [detect and manage flaky tests](../../detection/) in your Gradle projects by integrating with Trunk. This document explains how to configure Gradle to output JUnit XML reports that can be uploaded to Trunk for analysis.
+
+### Checklist
+
+By the end of this guide, you should achieve the following before proceeding to the [next steps](./gradle#next-step) to configure your CI provider.
+
+* [ ] Generate a compatible test report
+* [ ] Configure the report file path or glob
+* [ ] Disable retries for better detection accuracy
+* [ ] Test uploads locally
+
+After correctly generating reports following the above steps, you'll be ready to move on to the next steps to [configure uploads in CI](../ci-providers/).
+
+### Generating Reports
+
+Tests run with Gradle will generate JUnit XML reports by default and are compatible with Trunk. You can further [configure reporting behavior](https://docs.gradle.org/8.10.2/userguide/java_testing.html#test_reporting) in your `build.gradle.kts` or `build.gradle`.
+
+#### Report File Path
+
+By default, Android projects will produce a directory with JUnit XML reports under `./app/build/test-results/test`. You can locate these files with the glob `"./app/build/test-results/test/*.xml"`.
+
+If you wish to override the default test result path, you can do so in the `build.gradle.kts` or `build.gradle` files:
+
+<Tabs>
+<Tab title="Groovy">
+```groovy title="build.gradle"
+java.testResultsDir = layout.buildDirectory.dir("junit-reports")
+```
+</Tab>
+<Tab title="Kotlin">
+```kotlin title="build.gradle.kts"
+java.testResultsDir = layout.buildDirectory.dir("junit-reports")
+```
+</Tab>
+</Tabs>
+
+This example will write report files to `"./app/build/junit-reports/test/*.xml"`
+
+#### Disable Retries
+
+You need to disable automatic retries if you previously enabled them. Retries compromise the accurate detection of flaky tests. You should disable retries for accurate detection and use the [Quarantining](../../quarantining/) feature to stop flaky tests from failing your CI jobs.
+
+If you've enabled retries using a plugin like the [test-retry-gradle-plugin](https://github.com/gradle/test-retry-gradle-plugin), disable it when running tests for Trunk Flaky Tests.
+
+### Try It Locally
+
+#### The Validate Command
+
+You can validate your test reports using the [Trunk Analytics CLI](../../reference/cli-reference). If you don't have it installed already, you can install and run the `validate` command like this:
+
+<CodeGroup>
+```bash Linux (x64)
+SKU="trunk-analytics-cli-x86_64-unknown-linux.tar.gz"
+curl -fL --retry 3 \
+  "https://github.com/trunk-io/analytics-cli/releases/latest/download/${SKU}" \
+  | tar -xz
+
+chmod +x trunk-analytics-cli
+./trunk-analytics-cli validate --junit-paths "./app/build/junit-reports/*.xml"
+```
+```bash Linux (arm64)
+SKU="trunk-analytics-cli-aarch64-unknown-linux.tar.gz"
+curl -fL --retry 3 \
+  "https://github.com/trunk-io/analytics-cli/releases/latest/download/${SKU}" \
+  | tar -xz
+
+chmod +x trunk-analytics-cli
+./trunk-analytics-cli validate --junit-paths "./app/build/junit-reports/*.xml"
+```
+```bash macOS (arm64)
+SKU="trunk-analytics-cli-aarch64-apple-darwin.tar.gz"
+curl -fL --retry 3 \
+  "https://github.com/trunk-io/analytics-cli/releases/latest/download/${SKU}" \
+  | tar -xz
+
+chmod +x trunk-analytics-cli
+./trunk-analytics-cli validate --junit-paths "./app/build/junit-reports/*.xml"
+```
+```bash macOS (x64)
+SKU="trunk-analytics-cli-x86_64-apple-darwin.tar.gz"
+curl -fL --retry 3 \
+  "https://github.com/trunk-io/analytics-cli/releases/latest/download/${SKU}" \
+  | tar -xz
+
+chmod +x trunk-analytics-cli
+./trunk-analytics-cli validate --junit-paths "./app/build/junit-reports/*.xml"
+```
+</CodeGroup>
+
+**This will not upload anything to Trunk**. To improve detection accuracy, you should **address all errors and warnings** before proceeding to the next steps.
+
+#### Test Upload
+
+Before modifying your CI jobs to automatically upload test results to Trunk, try uploading a single test run manually.
+
+You make an upload to Trunk using the following command:
+
+```sh
+./trunk-analytics-cli upload --junit-paths "./app/build/junit-reports/test/" \
+    --org-url-slug <TRUNK_ORG_SLUG> \
+    --token <TRUNK_ORG_TOKEN>
+```
+
+You can find your Trunk organization slug and token in the settings or by following these [instructions](/flaky-tests/get-started/ci-providers/otherci#id-1.-store-a-trunk_token-secret-in-your-ci-system). After your upload, you can verify that Trunk has received and processed it successfully in the **Uploads** tab. Warnings will be displayed if the report has issues.
+
+<Frame>
+<img className="block dark:hidden" src="/assets/data-uploads-light.png" alt="" />
+<img className="hidden dark:block" src="/assets/data-uploads-dark.png" alt="" />
+</Frame>
+
+### Next Steps
+
+Configure your CI to upload test runs to Trunk. Find the guides for your CI framework below:
+
+<Columns cols={3}>
+  <Card
+    title="Azure DevOps Pipelines"
+    href="../ci-providers/azure-devops-pipelines"
+    img="/assets/azure.png"
+  />
+  <Card
+    title="BitBucket Pipelines"
+    href="../ci-providers/bitbucket-pipelines"
+    img="/assets/bitbucket.png"
+  />
+  <Card
+    title="BuildKite"
+    href="../ci-providers/buildkite"
+    img="/assets/buildkite.png"
+  />
+  <Card
+    title="CircleCI"
+    href="../ci-providers/circleci"
+    img="/assets/circle-ci.png"
+  />
+  <Card
+    title="Drone CI"
+    href="../ci-providers/droneci"
+    img="/assets/drone.png"
+  />
+  <Card
+    title="GitHub Actions"
+    href="../ci-providers/github-actions"
+    img="/assets/github.png"
+  />
+  <Card
+    title="GitLab"
+    href="../ci-providers/gitlab"
+    img="/assets/gitlab.png"
+  />
+  <Card
+    title="Jenkins"
+    href="../ci-providers/jenkins"
+    img="/assets/jenkins.png"
+  />
+  <Card
+    title="Semaphore"
+    href="../ci-providers/semaphoreci"
+    img="/assets/semaphore.png"
+  />
+  <Card
+    title="TeamCity"
+    href="./broken-reference/"
+    img="/assets/teamcity.png"
+  />
+  <Card
+    title="Travis CI"
+    href="../ci-providers/travisci"
+    img="/assets/travis.png"
+  />
+  <Card
+    title="Other CI Providers"
+    href="../ci-providers/otherci"
+    img="/assets/other.png"
+  />
+</Columns>
