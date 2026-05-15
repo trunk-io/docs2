@@ -9,3 +9,7 @@
 drafts/
 \*.draft.mdx
 \_deprecated
+
+# Inactive products (kept in source for future use, hidden from build)
+
+ci-autopilot/
