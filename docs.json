@@ -661,6 +661,14 @@
   },
   "redirects": [
     {
+      "source": "/ci-autopilot",
+      "destination": "/"
+    },
+    {
+      "source": "/ci-autopilot/:slug*",
+      "destination": "/"
+    },
+    {
       "source": "/adminstration",
       "destination": "/setup-and-administration/managing-your-organization"
     },
