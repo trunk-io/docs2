@@ -6,7 +6,7 @@ description: "Merge PRs faster by using passing test results from later PRs in t
 
 Optimistic merging allows pull requests that fail tests to still get merged if pull requests behind them in the queue pass _their_ tests. The assumption is that the queue has proof that while one specific PR might fail tests, it passes them when combined with a pull request that is going to merge soon behind it.
 
-The foundation of our merge queue starts with [predictive testing](/broken/pages/BAKgbuxqWos5o4kna99T). When a predictive test is being run, concurrent tests sometimes finish before the work ahead of it. This creates a situation where the system knows that all code ahead of it collectively `passes` tests, and it is safe to merge all those changes into your protected branch (`main)`.\
+The foundation of our merge queue starts with [predictive testing](/merge-queue/optimizations/predictive-testing). When a predictive test is being run, concurrent tests sometimes finish before the work ahead of it. This creates a situation where the system knows that all code ahead of it collectively `passes` tests, and it is safe to merge all those changes into your protected branch (`main)`.\
 \
 With optimistic merging enabled, the queue uses results from pull requests later in the queue to merge faster. In the illustration below you can see that pull request 'c' includes the verified testing results of pull requests 'b' and 'a'. As soon as 'c' passes testing, we can safely merge 'a', 'b', and 'c' and know they will all work correctly together.
 
@@ -79,7 +79,7 @@ Don't enable optimistic merging if:
 
 * [Batching](./batching) - Test batches optimistically
 * [Predictive testing](./predictive-testing) - Required foundation for optimistic merging
-* [Anti-flake protection](/broken/pages/eP3tevVEeuSPwyO2f6yo) - Reduces unnecessary retests
+* [Anti-flake protection](/merge-queue/optimizations/anti-flake-protection) - Reduces unnecessary retests
 
 #### Common misconceptions
 
