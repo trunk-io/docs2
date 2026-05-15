@@ -17,6 +17,10 @@ Authenticate to the API with an API token using the header `x-api-token`.
 
 ### Finding your API token
 
-You can find your API token in the [Trunk App](https://app.trunk.io).
+You can find your API token in the [Trunk App](https://app.trunk.io) by navigating to **Settings** > **Organization** > **General** and scrolling to the **API** section. The **API Token** field displays your token.
 
+Click the **eye icon** to reveal the token, then the **copy icon** to copy it to your clipboard. Pass it in the `x-api-token` header on any request to Trunk's REST APIs.
 
+**If you are an admin**, a **Rotate** button is available next to the API Token field. Rotating immediately invalidates the previous token, so any integrations using the old token will need to be updated.
+
+**If you are not an admin**, the **Rotate** button is disabled. Only administrators can rotate the API token.
