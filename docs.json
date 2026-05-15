@@ -597,7 +597,7 @@
       "anchors": [
         {
           "href": "https://app.trunk.io",
-          "icon": "play",
+          "icon": "/logo/trunk-mark.svg",
           "anchor": "Open app"
         },
         {
