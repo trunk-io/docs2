@@ -669,6 +669,18 @@
       "destination": "/"
     },
     {
+      "source": "/merge-queue/reference/how-does-it-work",
+      "destination": "/merge-queue/optimizations/predictive-testing"
+    },
+    {
+      "source": "/code-quality/overview/setup-and-installation/github-integration",
+      "destination": "/code-quality/overview/prevent-new-issues/migration-guide"
+    },
+    {
+      "source": "/code-quality/overview/setup-and-installation",
+      "destination": "/code-quality/overview"
+    },
+    {
       "source": "/adminstration",
       "destination": "/setup-and-administration/managing-your-organization"
     },
@@ -686,7 +698,7 @@
     },
     {
       "source": "/check/get-started",
-      "destination": "/code-quality/overview/setup-and-installation"
+      "destination": "/code-quality/overview"
     },
     {
       "source": "/check/usage",
@@ -710,7 +722,7 @@
     },
     {
       "source": "/check/github-integration",
-      "destination": "/code-quality/overview/setup-and-installation/github-integration"
+      "destination": "/code-quality/overview/prevent-new-issues/migration-guide"
     },
     {
       "source": "/check/configuration/supported",
@@ -1162,7 +1174,7 @@
     },
     {
       "source": "/docs/check-get-started",
-      "destination": "/code-quality/overview/setup-and-installation"
+      "destination": "/code-quality/overview"
     },
     {
       "source": "/docs/check-github-integration",
@@ -1178,7 +1190,7 @@
     },
     {
       "source": "/docs/check/github-integration",
-      "destination": "/code-quality/overview/setup-and-installation/github-integration"
+      "destination": "/code-quality/overview/prevent-new-issues/migration-guide"
     },
     {
       "source": "/docs/cli",
@@ -1394,7 +1406,7 @@
     },
     {
       "source": "/ci/get-started/github-integration",
-      "destination": "/code-quality/overview/setup-and-installation/github-integration"
+      "destination": "/code-quality/overview/prevent-new-issues/migration-guide"
     },
     {
       "source": "/code-quality/usage",
@@ -1402,11 +1414,11 @@
     },
     {
       "source": "/code-quality/ci/get-started",
-      "destination": "/code-quality/overview/setup-and-installation"
+      "destination": "/code-quality/overview"
     },
     {
       "source": "/code-quality/ci/get-started/github-integration",
-      "destination": "/code-quality/overview/setup-and-installation/github-integration"
+      "destination": "/code-quality/overview/prevent-new-issues/migration-guide"
     },
     {
       "source": "/code-quality/configuration/debugging",
@@ -1414,7 +1426,7 @@
     },
     {
       "source": "/check/check-cloud-ci-integration/get-started/github-integration",
-      "destination": "/code-quality/overview/setup-and-installation/github-integration"
+      "destination": "/code-quality/overview/prevent-new-issues/migration-guide"
     },
     {
       "source": "/tools",

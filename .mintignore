@@ -13,3 +13,8 @@ _deprecated/
 # Inactive products (kept in source for future use, hidden from build)
 
 ci-autopilot/
+
+# Hidden pages from migration (URLs redirect to canonical destinations)
+
+merge-queue/reference/how-does-it-work.mdx
+code-quality/overview/setup-and-installation/
