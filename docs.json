@@ -1629,10 +1629,6 @@
       "destination": "/merge-queue/merge-queue"
     },
     {
-      "source": "/code-quality/overview",
-      "destination": "/code-quality/overview"
-    },
-    {
       "source": "/code-quality",
       "destination": "/code-quality/overview"
     },
@@ -1663,10 +1659,6 @@
     {
       "source": "/flaky-tests/quarantine-service-availability",
       "destination": "/flaky-tests/quarantining/quarantine-service-availability"
-    },
-    {
-      "source": "/flaky-tests/quarantining",
-      "destination": "/flaky-tests/quarantining"
     },
     {
       "source": "/flaky-tests/test-collections",
@@ -1775,10 +1767,6 @@
     {
       "source": "/merge-queue/managing-merge-queue/metrics",
       "destination": "/merge-queue/administration/metrics"
-    },
-    {
-      "source": "/merge-queue/webhooks",
-      "destination": "/merge-queue/webhooks"
     },
     {
       "source": "/merge-queue/concepts-and-optimizations/pr-prioritization",
