@@ -24,3 +24,57 @@ h6 {
   margin-top: 20px;
   font-weight: bold;
 }
+
+/* Mintlify renders custom SVG anchor icons as <img>, which can't recolor
+   their content via fill: currentColor the way inline FA icons do. The
+   convention we use: author source SVGs as solid BLACK icons (single
+   color, no theme variants needed). CSS handles theme adaptation and
+   hover emphasis.
+
+   - Light mode default: black-on-white reads correctly, no filter.
+   - Dark mode default: invert(1) flips black -> white for visibility
+     on the dark sidebar.
+   - Hover (either mode): suppress Mintlify's bg-gray-900 / bg-gray-300
+     overlay box that would otherwise paint behind the <img>. Restore
+     opacity to 1 so the icon snaps from "secondary-opacity" muted
+     default to fully-opaque emphasis. In dark mode, also boost
+     brightness slightly so the inverted-white icon pops more.
+
+   Selector scope: any anchor-icon <img> Mintlify tags with the
+   `secondary-opacity` class. FA/Lucide icons render inline as <svg>
+   (not <img>), so they're naturally excluded. Any future custom-SVG
+   anchor inherits this behavior without per-file CSS. */
+
+/* Default state: muted opacity gives the "secondary" / unhovered look.
+   The Mintlify `secondary-opacity` class doesn't seem to actually fade
+   the icon (its name notwithstanding), so we set the default opacity
+   here so the hover transition to 1 has somewhere to come from. */
+img.secondary-opacity {
+  opacity: 0.6;
+}
+
+/* Dark mode default: invert(1) flips black -> white; opacity stays muted. */
+.dark img.secondary-opacity {
+  filter: invert(1);
+}
+
+/* Hover: suppress Mintlify's bg-gray-900/gray-300 overlay box,
+   bring opacity to full for emphasis. */
+.group:hover img.secondary-opacity {
+  background-color: transparent !important;
+  opacity: 1;
+}
+
+/* Dark mode hover: maintain inversion + brightness boost so the
+   inverted-white icon pops further than the muted default. */
+.dark .group:hover img.secondary-opacity {
+  filter: invert(1) brightness(1.4);
+  opacity: 1;
+}
+
+/* Slack community anchor: hidden via CSS while keeping the entry in
+   docs.json's navigation.global.anchors. Remove this rule to bring it
+   back. Mintlify's anchor schema has no native hidden/disabled flag. */
+a[href="https://slack.trunk.io"] {
+  display: none;
+}
