@@ -45,13 +45,28 @@ h6 {
    (not <img>), so they're naturally excluded. Any future custom-SVG
    anchor inherits this behavior without per-file CSS. */
 
+/* Default state: muted opacity gives the "secondary" / unhovered look.
+   The Mintlify `secondary-opacity` class doesn't seem to actually fade
+   the icon (its name notwithstanding), so we set the default opacity
+   here so the hover transition to 1 has somewhere to come from. */
+img.secondary-opacity {
+  opacity: 0.6;
+}
+
+/* Dark mode default: invert(1) flips black -> white; opacity stays muted. */
 .dark img.secondary-opacity {
   filter: invert(1);
 }
+
+/* Hover: suppress Mintlify's bg-gray-900/gray-300 overlay box,
+   bring opacity to full for emphasis. */
 .group:hover img.secondary-opacity {
   background-color: transparent !important;
   opacity: 1;
 }
+
+/* Dark mode hover: maintain inversion + brightness boost so the
+   inverted-white icon pops further than the muted default. */
 .dark .group:hover img.secondary-opacity {
   filter: invert(1) brightness(1.4);
   opacity: 1;
