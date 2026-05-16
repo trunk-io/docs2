@@ -26,21 +26,33 @@ h6 {
 }
 
 /* Mintlify renders custom SVG anchor icons as <img>, which can't recolor
-   their content via fill: currentColor the way inline FA icons do. To make
-   hover behave like the inline FA icons (color shift, not a contrasting
-   background box), suppress Mintlify's bg-gray-900 / bg-gray-300 hover
-   overlay behind the <img>, then use a CSS filter to shift the icon's
-   apparent color: darker in light mode, lighter in dark mode.
+   their content via fill: currentColor the way inline FA icons do. The
+   convention we use: author source SVGs as solid BLACK icons (single
+   color, no theme variants needed). CSS handles theme adaptation and
+   hover emphasis.
+
+   - Light mode default: black-on-white reads correctly, no filter.
+   - Dark mode default: invert(1) flips black -> white for visibility
+     on the dark sidebar.
+   - Hover (either mode): suppress Mintlify's bg-gray-900 / bg-gray-300
+     overlay box that would otherwise paint behind the <img>. Restore
+     opacity to 1 so the icon snaps from "secondary-opacity" muted
+     default to fully-opaque emphasis. In dark mode, also boost
+     brightness slightly so the inverted-white icon pops more.
 
    Selector scope: any anchor-icon <img> Mintlify tags with the
-   `secondary-opacity` class. Mintlify uses this class only on the
-   nav-anchor img elements (FA/Lucide icons render as inline <svg>, not
-   <img>, so they're naturally excluded). Any future custom-SVG anchor
-   we add will inherit this hover behavior without per-file CSS. */
+   `secondary-opacity` class. FA/Lucide icons render inline as <svg>
+   (not <img>), so they're naturally excluded. Any future custom-SVG
+   anchor inherits this behavior without per-file CSS. */
+
+.dark img.secondary-opacity {
+  filter: invert(1);
+}
 .group:hover img.secondary-opacity {
   background-color: transparent !important;
-  filter: brightness(0.5);
+  opacity: 1;
 }
 .dark .group:hover img.secondary-opacity {
-  filter: brightness(1.6);
+  filter: invert(1) brightness(1.4);
+  opacity: 1;
 }
