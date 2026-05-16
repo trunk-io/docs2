@@ -30,11 +30,17 @@ h6 {
    hover behave like the inline FA icons (color shift, not a contrasting
    background box), suppress Mintlify's bg-gray-900 / bg-gray-300 hover
    overlay behind the <img>, then use a CSS filter to shift the icon's
-   apparent color: darker in light mode, lighter in dark mode. */
-.group:hover img[src$="/logo/trunk-mark.svg"] {
+   apparent color: darker in light mode, lighter in dark mode.
+
+   Selector scope: any anchor-icon <img> Mintlify tags with the
+   `secondary-opacity` class. Mintlify uses this class only on the
+   nav-anchor img elements (FA/Lucide icons render as inline <svg>, not
+   <img>, so they're naturally excluded). Any future custom-SVG anchor
+   we add will inherit this hover behavior without per-file CSS. */
+.group:hover img.secondary-opacity {
   background-color: transparent !important;
   filter: brightness(0.5);
 }
-.dark .group:hover img[src$="/logo/trunk-mark.svg"] {
+.dark .group:hover img.secondary-opacity {
   filter: brightness(1.6);
 }
