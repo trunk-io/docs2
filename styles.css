@@ -26,11 +26,15 @@ h6 {
 }
 
 /* Mintlify renders custom SVG anchor icons as <img>, which can't recolor
-   its content via fill: currentColor the way inline FA icons do. On hover
-   Mintlify adds a dark bg-gray-900 (light mode) or light bg-gray-300 (dark
-   mode) behind the icon — our static-fill paths would blend in. Invert
-   the icon on hover so the paths show as a contrasting color against the
-   hover background, matching the FA-icon hover behavior. */
+   their content via fill: currentColor the way inline FA icons do. To make
+   hover behave like the inline FA icons (color shift, not a contrasting
+   background box), suppress Mintlify's bg-gray-900 / bg-gray-300 hover
+   overlay behind the <img>, then use a CSS filter to shift the icon's
+   apparent color: darker in light mode, lighter in dark mode. */
 .group:hover img[src$="/logo/trunk-mark.svg"] {
-  filter: invert(1) brightness(1.5);
+  background-color: transparent !important;
+  filter: brightness(0.5);
+}
+.dark .group:hover img[src$="/logo/trunk-mark.svg"] {
+  filter: brightness(1.6);
 }
