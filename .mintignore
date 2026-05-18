@@ -9,7 +9,7 @@
 drafts/
 *.draft.mdx
 _deprecated/
-changelog/
+# changelog/   # temporarily disabled to preview auto-generated changelog under "Changelog mint" tab
 
 # Inactive products (kept in source for future use, hidden from build)
 

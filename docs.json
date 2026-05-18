@@ -591,6 +591,16 @@
             ]
           }
         ]
+      },
+      {
+        "tab": "Changelog",
+        "hidden": true,
+        "pages": [
+          "changelog/index",
+          "changelog/2026-05-18-flaky-tests-failure-count-monitor",
+          "changelog/2026-05-18-flaky-tests-monitor-label-actions",
+          "changelog/2026-05-18-flaky-tests-test-labels"
+        ]
       }
     ],
     "global": {
@@ -601,7 +611,7 @@
           "anchor": "Open app"
         },
         {
-          "href": "https://trunk.io/changelog",
+          "href": "/changelog",
           "icon": "bullhorn",
           "anchor": "Changelog"
         },
@@ -634,7 +644,7 @@
             "label": "Open app"
           },
           {
-            "href": "https://trunk.io/changelog",
+            "href": "/changelog",
             "label": "Changelog"
           },
           {
