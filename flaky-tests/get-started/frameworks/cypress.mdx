@@ -4,16 +4,16 @@ description: "A guide for generating Trunk-compatible test reports for Cypress t
 ---
 You can automatically [detect and manage flaky tests](../../detection/) in your Cypress projects by integrating with Trunk. This document explains how to configure Cypress to output JUnit XML reports that can be uploaded to Trunk for analysis.
 
-### Checklist
+### Setup steps
 
-By the end of this guide, you should achieve the following before proceeding to the [next steps](./cypress#next-step) to configure your CI provider.
+Work through the steps below in order. Once you've finished the last one, you'll be ready to move on to [configure uploads in CI](../ci-providers/).
 
-* [ ] Generate a compatible test report
-* [ ] Configure the report file path or glob
-* [ ] Disable retries for better detection accuracy
-* [ ] Test uploads locally
-
-After correctly generating reports following the above steps, you'll be ready to move on to the next steps to [configure uploads in CI](../ci-providers/).
+<Steps>
+  <Step title={<a href="#generating-reports">Generate a compatible test report</a>} />
+  <Step title={<a href="#report-file-path">Configure the report file path or glob</a>} />
+  <Step title={<a href="#disable-retries">Disable retries for better detection accuracy</a>} />
+  <Step title={<a href="#try-it-locally">Test uploads locally</a>} />
+</Steps>
 
 ### Generating Reports
 
