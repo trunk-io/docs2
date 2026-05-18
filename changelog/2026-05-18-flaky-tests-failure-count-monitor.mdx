@@ -1,0 +1,21 @@
+---
+title: "Flaky Tests: Failure Count Monitor"
+description: "Flag tests the moment they accumulate a configured number of failures on monitored branches."
+date: 2026-05-18
+category: Flaky Tests
+type: new-feature
+---
+
+**You can now flag tests as soon as they accumulate a configured number of failures — no failure-rate math, no minimum sample size required.**
+
+The new **failure count monitor** reacts to individual failures within a rolling time window, making it well-suited for stable branches like `main` where any single failure is meaningful. Set it up with a failure count (default: 1), a window, a resolution timeout, and the branches to watch.
+
+Common uses:
+
+- **Stable branch alerting** — flag any test that fails on `main`, even once.
+- **Post-merge regression detection** — catch regressions before a failure-rate monitor accumulates enough data to trigger.
+- **Merge queue / release branches** — quick alerting on branches where failures are suspicious by definition.
+
+A live **Preview** panel shows which tests would be flagged under your current settings before you save, so you can tune the threshold with confidence.
+
+[Read the docs](https://docs.trunk.io/flaky-tests/detection/failure-count-monitor) to learn more.
