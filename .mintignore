@@ -9,6 +9,7 @@
 drafts/
 *.draft.mdx
 _deprecated/
+changelog/
 
 # Inactive products (kept in source for future use, hidden from build)
 
