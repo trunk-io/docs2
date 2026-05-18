@@ -1,0 +1,54 @@
+---
+title: "Skipped Test Monitor"
+description: "Detect tests that are consistently being skipped and apply labels to surface them for review."
+---
+
+The skipped test monitor tracks test cases that accumulate a configured number of skipped runs within a time window. It applies labels to those tests so your team can identify tests that are being silently ignored, rather than classifying them as flaky or broken.
+
+## When to Use This Monitor
+
+- **Surface suppressed tests:** Find tests that someone marked as skip (`.skip`, `xtest`, `xit`) and never re-enabled.
+- **Track intentional skips:** Apply a `skipped` label so dashboards reflect tests that are excluded from runs, giving a more accurate picture of suite coverage.
+- **Scope to specific branches:** Detect skips on main or release branches where a skipped test represents a gap in coverage rather than a development convenience.
+
+## How It Works
+
+The monitor counts the number of skipped runs for each test case within a configurable time window (in minutes). When a test accumulates at least `minSkippedCount` skipped runs in that window, the monitor activates and applies the configured labels.
+
+Resolution occurs after `resolutionDays` days pass with no new skipped runs recorded for that test on any monitored branch.
+
+## Configuration
+
+| Setting | Description | Default |
+|---|---|---|
+| Window | Time window (minutes) over which skipped runs are counted | Required |
+| Min skipped count | Number of skipped runs in the window required to activate | Required |
+| Resolution days | Days without a new skipped run before the monitor resolves | Required |
+| Branch scope | Branch names or glob patterns to monitor | All branches |
+| Action | Apply labels (the only available action — this monitor does not classify) | Apply labels |
+
+### Window
+
+The time window controls how far back the monitor looks when counting skipped runs. A shorter window (e.g., 60 minutes) catches tests skipped in a burst around a specific CI run. A longer window (e.g., 2 days, 2880 minutes) catches tests that are habitually skipped across many runs.
+
+### Min Skipped Count
+
+Set this to 1 to flag any test the moment it skips a single run in the window. Set it higher to require repeated skips, filtering out tests that are skipped once for a legitimate reason (such as a flaky environment that resolves itself).
+
+### Resolution Days
+
+After a test stops being skipped, the monitor waits `resolutionDays` before resolving. This prevents the label from flickering on and off for tests that skip intermittently.
+
+### Branch Scope
+
+Use branch patterns to limit detection to branches where a skipped test is significant. For example, monitoring only `main` means tests skipped on feature branches do not trigger the monitor.
+
+## Choosing Between Monitors
+
+| Goal | Recommended monitor |
+|---|---|
+| Detect tests consistently being skipped | Skipped test monitor |
+| Track recently added tests | New test monitor |
+| Flag tests whose runtime exceeds a threshold | Slow test monitor |
+| Detect tests that fail then pass on retry | Pass-on-retry monitor |
+| Alert on tests failing at a sustained rate | Failure rate monitor |
