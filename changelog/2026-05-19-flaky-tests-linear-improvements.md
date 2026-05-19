@@ -24,6 +24,6 @@ Defaults are applied whenever you open the **Create Ticket** modal and can still
 
 If you already have a Linear ticket tracking a flaky test, you can attach it without creating a duplicate. From the Test Details page, click **Link Ticket**, paste the Linear URL or ID, and submit. The ticket's title, status, and assignee sync back from Linear.
 
-You can also link tickets programmatically with the [Link Ticket to Test Case API](https://docs.trunk.io/flaky-tests/reference/api-reference#post-flaky-tests-link-ticket-to-test-case).
+You can also link tickets programmatically with the [Link a ticket to a test case API](https://docs.trunk.io/flaky-tests/reference/api-reference/link-a-ticket-to-a-test-case).
 
 [Read the docs →](https://docs.trunk.io/flaky-tests/management/ticketing/linear-integration#link-existing-tickets-to-tests)
