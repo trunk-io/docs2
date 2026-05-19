@@ -1,0 +1,28 @@
+---
+title: CLI 1.20.0
+description: "Trunk actions now support the ${target} substitution in their run command. This will be replaced with all targets that triggered the actions; Trunk actions now support the ${pwd} substitution in…"
+slug: cli-1-20-0
+date: 2024-02-15
+category: Code Quality
+---
+
+**🎁 New**
+
+- Trunk actions now support the `${target}` substitution in their run command. This will be replaced
+  with all targets that triggered the actions.
+- Trunk actions now support the `${pwd}` substitution in their run_from specification. This will be
+  replaced with the user's current working directory.
+- File ignores can now specify the session type for when it should apply.
+
+**✨ Improvements**
+
+- During `trunk init`, the tool will now provide a summary of all issues that currently exist in
+  your repo.
+- `trunk init` now supports the `--allow-existing` flag, to gracefully handle the case where a
+  repository was already initialized.
+
+**🔧 Fixes**
+
+- LSP Server optimizations.
+- Trunk will now automatically keep you logged in as you use the tool.
+- Fix a bug where batch bisection would not kick in when a linter was killed by a signal.

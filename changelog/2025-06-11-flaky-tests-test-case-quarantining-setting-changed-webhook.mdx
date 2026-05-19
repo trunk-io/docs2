@@ -1,0 +1,72 @@
+---
+title: "Flaky Tests: test_case.quarantining_setting_changed webhook"
+description: "We’re happy to announce that a new testcase.quarantiningsetting_changed webhook is now available for all Flaky Tests users."
+slug: flaky-tests-test-case-quarantining-setting-changed-webhook
+date: 2025-06-11
+category: Flaky Tests
+---
+
+We’re happy to announce that a new `test_case.quarantining_setting_changed` webhook is now available
+for all Flaky Tests users.
+
+This webhook is fired when a test’s quarantine setting is manually changed between
+`ALWAYS_QUARANTINE`, `NEVER_QUARANTINE`, or `UNSPECIFIED`, where `UNSPECIFIED` means that the repo’s
+quarantine settings will be applied to the test case.
+
+The webhook payload contains useful details like the new and previous settings, a user-inputted
+reason for the change, who made the change, and all the info you need for the affected test case:
+
+```
+{
+ "quarantine_setting_changed": {
+   "actor": {
+     "email": "riley@trunk.io",
+     "full_name": "Riley Draward"
+   },
+   "previous_quarantining_setting": "UNSPECIFIED",
+   "reason": "Test is important, should not be quarantined!",
+   "timestamp": "2025-06-11T14:17:06.251Z",
+   "updated_quarantining_setting": "NEVER_QUARANTINE"
+ },
+ "test_case": {
+   "codeowners": [],
+   "failure_rate_last_7d": 0,
+   "html_url": "https://app.trunk.io/rileys-org/flaky-tests/test/cd7ef2fe-0ec1-5e40-a323-027029579f5b?repo=rdraward%2Fflaky-remix",
+   "id": "cd7ef2fe-0ec1-5e40-a323-027029579f5b",
+   "most_common_failures": [],
+   "name": "sums some nums > adds 1 + 1 to equal 2",
+   "pull_requests_impacted_last_7d": 0,
+   "quarantined": false,
+   "repository": {
+     "html_url": "https://github.com/rdraward/flaky-remix"
+   },
+   "status": {
+     "reason": "",
+     "timestamp": "2025-03-17T21:53:43.327Z",
+     "value": "flaky"
+   },
+   "test_suite": "app/utils/sum.test.ts",
+   "ticket": {
+     "html_url": "https://linear.app/riley-at-trunk/issue/RIL-10/[flaky-test]-apputilssumtestts-sums-some-nums-adds-1-1-to-equal-2"
+   },
+   "variant": ""
+ },
+ "type": "test_case.quarantining_setting_changed"
+}
+```
+
+This allows you to build automations and custom workflows when a test’s quarantine setting is
+changed, such as automatically creating Linear or Jira tickets to fix flaky or broken tests marked
+as `ALWAYS_QUARANTINED`, or sending a message to the team in Slack so everyone is kept up to date on
+status changes.
+
+To subscribe to the new webhook:
+
+1.  Go to **Settings** in the Trunk app.
+2.  Click on **Webhooks** under Organization.
+3.  Click **Add Endpoint** and connect to an existing endpoint, Slack, MS Teams, Linear, or Jira.
+4.  Follow our
+    [guides for handling the webhook payload](https://docs.trunk.io/flaky-tests/webhooks).
+
+For more information on the webhook events,
+[check out our Svix documentation](https://www.svix.com/event-types/us/org_2eQPL41Ew5XSHxiXZIamIUIXg8H/#test_case.quarantining_setting_changed).

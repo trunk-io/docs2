@@ -1,0 +1,70 @@
+---
+title: "Flaky Tests: CODEOWNERS support"
+description: "We’re thrilled to announce support for CODEOWNERS in our Flaky Tests product, which is available for both GitHub and GitLab repositories."
+slug: flaky-tests-codeowners-support
+date: 2025-01-16
+category: Flaky Tests
+---
+
+We’re thrilled to announce support for
+[CODEOWNERS](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners)
+in our Flaky Tests product, which is available for both GitHub and GitLab repositories. With this
+integration, we now process your CODEOWNERS file to identify and annotate ownership for tests
+automatically. This unlocks powerful capabilities for test ownership and management, including:
+
+**Test Details View**: Instantly see who owns each test right from the test details page.
+
+![](/assets/changelog/flaky-tests-codeowners-support-iwxj98.png)
+
+**Webhook Integration**: Retrieve ownership information in your
+[webhooks](https://www.svix.com/event-types/us/org_2eQPL41Ew5XSHxiXZIamIUIXg8H/#test_case.status_changed)
+for automated workflows.
+
+```
+{
+
+   "status_change": { ... },
+
+   "test_case": {
+
+       "codeowners": ["@agraebe", "code", "owners", "@dev-team"],
+
+       "id": "fc7a6bdd-0ebe-55d5-aa31-ff0adb411d0e",
+
+... }
+
+}
+
+```
+
+**Jira Integration**: Automatically populate owner details in Jira tickets to streamline task
+assignments.
+
+![](/assets/changelog/flaky-tests-codeowners-support-75ak4f.png)
+
+#### **Why It Matters**
+
+CODEOWNERS is a key tool for maintaining code ownership within repositories. With this new
+integration, you can:
+
+- **Notify Owners**: Automatically inform test owners in messaging applications like Slack or Teams
+  when their tests exhibit flakiness.
+- **Streamline Workflows**: Assign flakiness issues directly to owners using project management
+  tools like Jira or Linear.
+
+#### **How to Get Started**
+
+It’s simple! Place your CODEOWNERS file in one of the standard locations supported by your Git
+provider and follow their conventions:
+[**GitHub**](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners)
+**and** [**GitLab**](https://docs.gitlab.com/ee/user/project/codeowners/)**.**
+
+Here’s an example CODEOWNERS file:
+
+```
+# In this example, @agraebe owns any file in the `/tests` directory  
+
+# at the root of your repository and its subdirectories.  
+
+/tests/ @agraebe 
+```

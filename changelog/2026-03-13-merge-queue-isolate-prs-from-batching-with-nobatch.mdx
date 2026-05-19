@@ -1,0 +1,13 @@
+---
+title: "Merge Queue: Isolate PRs from Batching with noBatch"
+description: "PRs can now opt out of batching to test in isolation. When a high-risk PR is in the queue, batching it with other PRs means a failure forces the entire batch to restart."
+slug: merge-queue-isolate-prs-from-batching-with-nobatch
+date: 2026-03-13
+category: Merge Queue
+---
+
+**PRs can now opt out of batching to test in isolation.** When a high-risk PR is in the queue,
+batching it with other PRs means a failure forces the entire batch to restart. With the new
+`noBatch` flag, a PR tests on its own, protecting other PRs from being delayed by its potential
+failures. Set it via the `/trunk merge --no-batch` CLI command or by passing `"noBatch": true` in
+the `POST /v1/submitPullRequest` API request.

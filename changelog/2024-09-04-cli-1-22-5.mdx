@@ -1,0 +1,18 @@
+---
+title: CLI 1.22.5
+description: "Help text improvements; trunk fmt will now use configured verbs when presenting results to the user."
+slug: cli-1-22-5
+date: 2024-09-04
+category: Code Quality
+---
+
+**✨ Improvements**
+
+- Help text improvements.
+- `trunk fmt` will now use configured verbs when presenting results to the user.
+
+**🔧 Fixes**
+
+- Fix a crash in the LSP server when giving diagnostics for empty files.
+- Trunk no longer erroneously follows symlinks to directories when watching the filesystem on Linux,
+  saving on resources.

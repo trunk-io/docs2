@@ -1,0 +1,45 @@
+---
+title: "Merge Queue: updateQueue API"
+description: "We’ve added a new updateQueue API to Trunk Merge Queue that enables you to update a Merge Queue’s state."
+slug: merge-queue-updatequeue-api
+date: 2025-04-17
+category: Merge Queue
+---
+
+We’ve added a new `updateQueue` API to Trunk Merge Queue that enables you to update a Merge Queue’s
+state.
+
+This means that you no longer need to manually go into the settings page in the web app to update
+the merge queue state. Instead, queue state can be managed with custom tooling or automations using
+`updateQueue`:
+
+```
+curl -L \
+  --request POST \
+  --url 'https://api.trunk.io/v1/updateQueue' \
+  --header 'x-api-token: YOUR_API_KEY' \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "repo": {
+      "host": "github.com",
+      "name": "mergequeue",
+      "owner": "trunk-io"
+    },
+    "targetBranch": "main",
+    "state": "DRAINING"
+  }'
+```
+
+As a refresher, the possible queue states are:
+
+- **RUNNING**: PRs are being enqueued and are merged after tests pass. This is the default state for
+  a merge queue.
+- **PAUSED**: PRs in the queue are tested, but the queue will not merge successful PRs or begin
+  testing new PRs. A queue can be paused as an immediate response to a CI incident, reducing noise
+  from failures while preserving the order of PRs that have already been enqueued.
+- **DRAINING**: PRs currently in the queue will be tested and merged, but new PRs will not begin
+  testing. This state is helpful for use cases like a code freeze, so PRs in the queue can be
+  shipped, but newly enqueued PRs are not tested or merged. 
+
+See the Merge Queue [API reference](https://docs.trunk.io/references/apis/merge#post-updatequeue)
+for more information.

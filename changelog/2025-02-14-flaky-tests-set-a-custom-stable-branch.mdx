@@ -1,0 +1,19 @@
+---
+title: "Flaky Tests: Set a custom stable branch"
+description: "If your stable branch is not main, you can now set a custom stable branch for your repositories to improve flaky test detection."
+slug: flaky-tests-set-a-custom-stable-branch
+date: 2025-02-14
+category: Flaky Tests
+---
+
+If your stable branch is not `main`, you can now set a custom stable branch for your repositories to
+improve flaky test detection.
+
+Previously, Flaky Tests assumed that `main` was a repository's stable branch. This would lead to
+subpar flaky test detection if a different branch, `master` or `develop` for example, is defined as
+the default stable branch for your workflows.
+
+Now you can override these stable branch defaults to better match your organization's custom CI
+workflows.
+
+[Learn how to customize your stable branch in the Trunk docs.](https://docs.trunk.io/flaky-tests/detection#stable-branches)

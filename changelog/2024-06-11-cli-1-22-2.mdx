@@ -1,0 +1,25 @@
+---
+title: CLI 1.22.2
+description: "Add an option to skip files that are missing compile commands."
+slug: cli-1-22-2
+date: 2024-06-11
+category: Code Quality
+---
+
+**🎁 New**
+
+- Add an option to
+  [skip](https://docs.trunk.io/check/configuration/custom-linters/reference/lint-config#skip_missing_compile_commandhttps://docs.trunk.io/check/configuration/custom-linters/reference/lint-config#skip_missing_compile_command)
+  files that are missing compile commands.
+
+**✨ Improvements**
+
+- Trunk will now automatically cleanup downloads that have not been used in awhile.
+- Trunk will now enable eslint version >= 9 if you use the new style config files.
+- Trunk now
+  [allows](https://docs.trunk.io/check/configuration/custom-linters/reference/lint-config#enabled)
+  running node based tools from `node_modules/.bin` instead of hermetically managed.
+
+**🔧 Fixes**
+
+- Fix Ruby installation on some machines.

@@ -1,0 +1,27 @@
+---
+title: Plugins 1.3.0
+description: "New tools: gulp, tailwindcss, tsc, webpack.; New formatter: dotnet-format (MacOS support coming soon)."
+slug: plugins-1-3-0
+date: 2023-11-20
+category: Code Quality
+---
+
+**🎁 New**
+
+- New tools: `gulp`, `tailwindcss`, `tsc`, `webpack.`
+- New formatter: [dotnet-format](https://github.com/dotnet/format#readme) (MacOS support coming
+  soon).
+
+**✨ Improvements**
+
+- Change `trufflehog` to use `--only-verified` by default, reducing false positives.
+- Find line/col information from `markdown-link-check.`
+- Support running `sourcery` with open source license (currently incompatible on Windows).
+- Gate linter upgrade validation to also include Windows tests.
+- Add `fix` command for `standardrb.`
+
+**🔧 Fixes**
+
+- Fix `trufflehog` line number errors.
+- Remove `trunk install` from codespaces setup.
+- Fix `osv-scanner` execution env.

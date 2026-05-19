@@ -1,0 +1,16 @@
+---
+title: "Merge Queue: Failure tab only displays current failures"
+description: "We’ve updated the Merge Queue Failure tab so that only PRs that failed and have not been resubmitted to the queue are displayed."
+slug: merge-queue-failure-tab-only-displays-current-failures
+date: 2025-05-28
+category: Merge Queue
+---
+
+We’ve updated the Merge Queue **Failure** tab so that only PRs that failed and have not been
+resubmitted to the queue are displayed.
+
+Previously, the **Failure** tab contained a list of all historical PR failures, making it difficult
+to identify current failures requiring action. This change gives you a concise list of PR failures
+that can be fixed and resubmitted to the queue. Upon resubmission, the PR is removed from the page.
+
+![A screenshot of the Failures tab for Merge Queue, displaying a table with 3 failed PRs. Each PR is a row in the table, and has PR#, title, failure time and a link to details.](/assets/changelog/merge-queue-failure-tab-only-displays-current-failures-ox1931.png)

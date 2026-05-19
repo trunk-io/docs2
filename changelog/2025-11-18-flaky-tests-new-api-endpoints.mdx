@@ -1,0 +1,51 @@
+---
+title: "Flaky Tests: New API endpoints"
+description: "We’ve added three new endpoints to make it easier to investigate flaky tests, automate triage, and integrate test health into your workflows."
+slug: flaky-tests-new-api-endpoints
+date: 2025-11-18
+category: Flaky Tests
+---
+
+We’ve added three new endpoints to make it easier to investigate flaky tests, automate triage, and
+integrate test health into your workflows.
+
+### **📝 /flaky-tests/get-test-details**
+
+You can now retrieve **details for a single test by ID**, without having to paginate through entire
+lists of unhealthy tests.
+
+**What’s new?**
+
+- New request-body filter: `test_id`
+- Response returns **only the matching test**
+- Enables fast, targeted detail lookups for downstream automations
+
+[Read the Docs](https://docs.trunk.io/flaky-tests/flaky-tests#post-flaky-tests-get-test-details)
+
+---
+
+### **🫙 /flaky-tests/list-quarantined-tests**
+
+A new way to list quarantined tests **with the timestamp of when each test was quarantined**.
+
+**What’s new?**
+
+- Response now includes the **timestamp of when the quarantine override was created**
+- If no override audit log exists, the timestamp defaults to the test’s status-change time
+- Ideal for automated “this test has been quarantined too long” workflows
+
+[Read the Docs](https://docs.trunk.io/flaky-tests/flaky-tests#post-flaky-tests-list-quarantined-tests)
+
+---
+
+### **⚠️ /flaky-tests/list-failing-tests**
+
+A new endpoint to help teams select which tests should run during weekly flaky-test burn-down jobs.
+
+**What’s new?**
+
+- Query for tests that have **failed within the last week**
+- Helps keep flaky jobs focused, faster, and more cost-efficient
+- Useful for scheduling targeted “high-value” retest runs
+
+[Read the Docs](https://docs.trunk.io/flaky-tests/flaky-tests#post-flaky-tests-list-failing-tests)

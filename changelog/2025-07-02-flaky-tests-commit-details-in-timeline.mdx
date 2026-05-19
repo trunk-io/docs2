@@ -1,0 +1,28 @@
+---
+title: "Flaky Tests: Commit details in timeline"
+description: "We’ve added additional details about commits that trigger test status changes to test timelines in the Flaky Tests dashboard."
+slug: flaky-tests-commit-details-in-timeline
+date: 2025-07-02
+category: Flaky Tests
+---
+
+We’ve added additional details about commits that trigger test status changes to test timelines in
+the Flaky Tests dashboard.
+
+A test will be identified as flaky if it produces inconsistent results on the same git commit. This
+is often seen when test failures are automatically retried in CI. This flaky behavior can be
+detected on stable branches (for example, main), PR branches, or merge branches.
+
+Previously, Flaky Tests did not specify what type of commit led to a status change in the flaky test
+dashboard. The same “Inconsistent results on the same commit” message would be included in the
+timeline on the test details page.
+
+Now, the timeline will say where inconsistent test results are seen, whether it is a stable, PR, or
+merge commit:
+
+![](/assets/changelog/flaky-tests-commit-details-in-timeline-6l0s2r.png)
+
+When there is a status change due to a stable branch commit, the name of the branch will be included
+in the message.
+
+This helps to easily identify the source of flakiness when tests are rerun on the same commit.

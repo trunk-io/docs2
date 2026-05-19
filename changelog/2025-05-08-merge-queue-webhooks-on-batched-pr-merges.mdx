@@ -1,0 +1,42 @@
+---
+title: "Merge Queue: Webhooks on batched PR merges"
+description: "Webhooks are now available for batched PR merges in Merge Queue. This allows you to build custom automations and respond to events when batching is enabled."
+slug: merge-queue-webhooks-on-batched-pr-merges
+date: 2025-05-08
+category: Merge Queue
+---
+
+Webhooks are now available for batched PR merges in Merge Queue. This allows you to build custom
+automations and respond to events when
+[batching](https://docs.trunk.io/merge-queue/concepts-and-optimizations/batching) is enabled.
+
+The
+[pull_request_batch.merged webhook](https://www.svix.com/event-types/us/org_2eQPL41Ew5XSHxiXZIamIUIXg8H/#pull_request_batch.merged)
+payload lists all the PRs included in the batch, as well as information about the repo, the target
+branch you are merging into, and the test (or feature) branch:
+
+```
+ "action": "merged",
+  "pr_numbers": [
+    1,
+    2
+  ],
+  "repository": {
+    "host": "github.com",
+    "name": "trunk-io",
+    "owner": "mergequeue"
+  },
+  "status": "some string",
+  "target_branch": "main",
+  "test_branch": "trunk-merge/pr-1-2/abc123",
+  "test_branch_sha": "a23f8853080d3fe873c3419a735513898c2329f500ce6aa39cf2253213fd00e4",
+  "test_pr_number": 15
+}
+```
+
+If you aren’t using batching on your Merge Queue, the
+[pull_request.merged webhook](https://www.svix.com/event-types/us/org_2eQPL41Ew5XSHxiXZIamIUIXg8H/#pull_request.merged)
+is still available for individual PR merges.
+
+Read the [webhook docs](https://docs.trunk.io/merge-queue/webhooks) to learn how to subscribe to
+Merge Queue webhooks.

@@ -1,0 +1,43 @@
+---
+title: "Merge Queue: Draft PR support"
+description: "Trunk Merge Queue, by default, will now raise draft pull requests in order to test changes submitted to the merge queue! Trunk Merge Queue is now even easier to get started with and no longer…"
+slug: testing-using-draft-prs
+date: 2024-05-26
+category: Merge Queue
+---
+
+Trunk Merge Queue, by default, will now raise draft pull requests in order to test changes submitted
+to the merge queue! Trunk Merge Queue is now even easier to get started with and no longer requires
+any setup - simply
+[create a Merge Queue](https://docs.trunk.io/merge-queue/set-up-trunk-merge#connect-your-trunk-organization-to-github),
+[submit a pull request](https://docs.trunk.io/merge-queue/set-up-trunk-merge#submit-pull-requests),
+and
+[watch it get tested and merged](https://docs.trunk.io/merge-queue/set-up-trunk-merge#pull-request-processing).
+
+![](/assets/changelog/testing-using-draft-prs-z4rslv.png)
+
+Testing pull requests in the Merge Queue by raising draft PRs is especially useful since Trunk Merge
+Queue
+[automatically syncs with your branch protection settings on GitHub](https://docs.trunk.io/merge-queue/set-up-trunk-merge#testing-prs-in-the-queue).
+This means Trunk Merge Queue will use the same set of tests you configured on your GitHub Status
+Checks, keeping things simple and consistent.
+
+Previously, Trunk Merge Queue would create an isolated branch containing the tip of main, the
+current changes in your pull request, and changes of all the PRs in front of this one in the queue.
+Developers would have to merge code changes to configure specifically what tests get triggered when
+we begin testing a PR.
+
+This has its own benefits, but it requires configuring a custom GitHub Action Workflow, which can be
+very involved.
+
+```
+on:
+  push:
+    branches:
+      - trunk-merge/**
+```
+
+Now, you can get started with Trunk Merge Queue right away!
+[This setting is also configurable](https://docs.trunk.io/merge-queue/set-up-trunk-merge/advanced-settings#draft-prs),
+so you can always have Trunk Merge Queue create a branch instead if you wish to have more control
+over testing PRs in the merge queue.

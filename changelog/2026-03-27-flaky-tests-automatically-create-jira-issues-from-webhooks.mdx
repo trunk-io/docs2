@@ -1,0 +1,19 @@
+---
+title: "Flaky Tests: Automatically Create Jira Issues from Webhooks"
+description: "A new Jira connector in your webhook settings creates issues in your Jira Cloud project whenever a test's status changes to flaky and impacts more than a configurable number of PRs."
+slug: flaky-tests-automatically-create-jira-issues-from-webhooks
+date: 2026-03-27
+category: Flaky Tests
+---
+
+**You can now automatically create Jira issues when a test becomes flaky.**
+
+![](/assets/changelog/flaky-tests-automatically-create-jira-issues-from-webhooks-1rzy9x.png)
+
+A new Jira connector in your webhook settings creates issues in your Jira Cloud project whenever a
+test's status changes to flaky and impacts more than a configurable number of PRs. This mirrors the
+existing Linear webhook integration. Configure your Jira project key, issue type, labels, and custom
+fields, and issues are created with full test context including failure rates, codeowners, and links
+back to the Trunk test detail page.
+
+[Read the Docs](https://docs.trunk.io/flaky-tests/webhooks/jira-integration) to learn more

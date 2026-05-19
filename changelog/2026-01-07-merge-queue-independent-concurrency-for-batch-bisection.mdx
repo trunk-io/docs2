@@ -1,0 +1,27 @@
+---
+title: "Merge Queue: Independent Concurrency for Batch Bisection"
+description: "When a batch of PRs fails and needs to be split apart to identify the culprit, you want those bisection tests to run as fast as possible so developers get quick feedback about what broke."
+slug: merge-queue-independent-concurrency-for-batch-bisection
+date: 2026-01-07
+category: Merge Queue
+---
+
+**Set higher test concurrency for failure isolation without slowing down your main merge queue**
+
+When a batch of PRs fails and needs to be split apart to identify the culprit, you want those
+bisection tests to run as fast as possible so developers get quick feedback about what broke. 
+
+![](/assets/changelog/merge-queue-independent-concurrency-for-batch-bisection-6ytyzg.png)
+
+Previously, bisection tests shared the same concurrency limit as your main queue, meaning the
+isolation process could slow down other PRs waiting to merge. With independent concurrency settings,
+you can configure bisection to run at higher concurrency (spinning up more test runners to isolate
+failures ASAP) while keeping your main queue at its optimal setting. 
+
+This means faster root cause identification when batches fail, no impact on your main queue's
+throughput during failure investigation, and the flexibility to optimize each workflow
+independently. You can be aggressive about isolating problems without sacrificing the steady flow of
+successful PRs through your queue.
+
+[Read the Docs](https://docs.trunk.io/merge-queue/optimizations/batching#bisection-testing-concurrency)
+to learn more

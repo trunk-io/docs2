@@ -1,0 +1,29 @@
+---
+title: "Merge Queue: Chrome Extension"
+description: "The Trunk Chrome Extension brings merge queue controls directly into your GitHub pull request page."
+slug: merge-queue-chrome-extension
+date: 2026-04-30
+category: Merge Queue
+---
+
+The Trunk Chrome Extension brings merge queue controls directly into your GitHub pull request page.
+
+TLDR;
+[Add to Chrome right now](https://chromewebstore.google.com/detail/trunk-for-github/liggeliamkammmieidmmfmmdnjilabgn?hl=en-US&utm_source=changelog)
+
+![](/assets/changelog/merge-queue-chrome-extension-4syq66.png)
+
+Previously, submitting a PR to the queue, checking its status, or canceling it meant switching to
+the Trunk web app or dropping a `/trunk merge` comment and waiting for a response. Now, the
+extension overlays a Trunk panel directly on any PR page in a queue-enabled repository - replacing
+GitHub's native merge controls with queue-aware actions.
+
+From the panel you can add a PR to the queue (with optional priority), cancel it, and watch it move
+through each stage in real time: Queued → Pending → Testing → Tests Passed → Merged. No polling, no
+tab switching.
+
+Authentication reuses your existing `app.trunk.io` browser session - no new credentials, no API
+tokens. Chrome admins can deploy it org-wide via the Chrome Web Store ID
+`liggeliamkammmieidmmfmmdnjilabgn`.
+
+[Read the Docs](https://docs.trunk.io/merge-queue/chrome-extension) to learn more.

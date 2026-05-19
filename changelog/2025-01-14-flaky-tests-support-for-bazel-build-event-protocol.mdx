@@ -1,0 +1,31 @@
+---
+title: "Flaky Tests: Support for Bazel build event protocol"
+description: "Trunk Flaky Tests now supports uploading test results by parsing Bazel Build Event Protocol (BEP) files."
+slug: flaky-tests-support-for-bazel-build-event-protocol
+date: 2025-01-14
+category: Flaky Tests
+---
+
+Trunk Flaky Tests now supports uploading test results by parsing Bazel Build Event Protocol (BEP)
+files. Supporting BEP files gives Trunk more context when parsing Bazel test results for more
+accurate detection results. Parsing BEP files lets Trunk accurately track tests run by understanding
+which targets were actually built and which were cached and skipped. In the future, this will also
+allow Trunk to work better with Bazel's
+[built-in retries](https://bazel.build/reference/command-line-reference#flag--flaky_test_attempts).
+
+Trunk expects a JSON serialization of the [build event protocol](https://bazel.build/remote/bep)
+which you can export by running the `bazel test` command with the options
+`--nobuild_event_json_file_path_conversion` and `--build_event_json_file=build_events.json`.
+
+You can switch to uploading BEP files by running the upload command with the
+`--bazel-bep-path build_events.json` option.
+
+```
+./trunk flakytests upload --bazel-bep-path build_events.json \
+--org-url-slug <TRUNK_ORG_SLUG> \
+--token $TRUNK_TOKEN
+```
+
+You can learn more about Bazel in the
+[docs](https://docs.trunk.io/flaky-tests/get-started/frameworks/bazel) or chat with us
+[on Slack](https://slack.trunk.io/).

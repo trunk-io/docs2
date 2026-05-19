@@ -1,0 +1,50 @@
+---
+title: "Flaky Tests: PR test summaries"
+description: "We're excited to introduce a powerful new feature that will help you accelerate your PR iterations: PR Test Summaries!"
+slug: flaky-tests-pr-test-summaries
+date: 2024-10-17
+category: Flaky Tests
+seo_description: A summary of all your PR test results from all CI jobs in one report.
+---
+
+We're excited to introduce a powerful new feature that will help you accelerate your PR iterations:
+**PR Test Summaries**!
+
+Imagine this: You're diligently working on a new feature in your branch and ready to submit your
+Pull Request (PR) for review. You've run your tests locally, and everything looks good. But then you
+push your code, and—oh no! Some tests you haven’t even touched are failing. This is where our new PR
+Test Summaries come in!
+
+With this feature, you can **quickly identify failing tests and their reasons, as well as pinpoint
+flaky tests**. This way, you’ll know whether the issue lies with your code changes or the tests
+themselves.
+
+## PR Test Summaries
+
+This new feature includes the following:
+
+![](/assets/changelog/flaky-tests-pr-test-summaries-qt7l0r.png)
+
+**GitHub PR Comment:** Each new PR will receive a comment summarizing the test results, including:
+
+- Counts for test runs, categorized by result (failed, flaky, skipped, quarantined)
+- Collapsible lists for failed, flaky, and skipped tests
+- For failed and flaky tests: detailed failure reasons and direct links to trace logs for quick
+  investigation
+
+![](/assets/changelog/flaky-tests-pr-test-summaries-izxf8v.png)
+
+**PR Summary View**: This new view in our web app gives you access to a comprehensive listing of all
+test run details:
+
+- A table showing all test runs, filtered by outcome (passed, failed, or skipped) and whether or not
+  they have been quarantined
+- Every test run includes an icon to indicate whether a test is known to be flaky, the failure
+  reason, and more details to investigate
+
+![](/assets/changelog/flaky-tests-pr-test-summaries-l4f3u.png)
+
+**Test Run Detail Panel:** You are most likely already familiar with this view; it will show you all
+run details include tracelogs, branch, job run link, duration, and more.[  
+](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)  
+[Learn more about PR Test Summaries in the docs](https://docs.trunk.io/flaky-tests/github-pull-request-comments)

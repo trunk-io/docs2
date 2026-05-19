@@ -1,0 +1,32 @@
+---
+title: Plugins 1.6.0
+description: "New linter Vale. Thanks @gewenyu99 for the contribution!; New formatter php-cs-fixer. Thanks @matthewbaggett for the contribution!."
+slug: plugins-1-6-0
+date: 2024-06-11
+category: Code Quality
+---
+
+**🎁 New**
+
+- New linter [Vale](https://vale.sh/). Thanks @gewenyu99 for the contribution!
+- New formatter [php-cs-fixer](https://github.com/PHP-CS-Fixer/PHP-CS-Fixer#readme). Thanks
+  @matthewbaggett for the contribution!
+- New tools [phpunit](https://phpunit.de/index.html) and
+  [paratest](https://github.com/paratestphp/paratest#readme). Thanks @matthewbaggett for the
+  contribution!
+- New tool `docker-credential-ecr-login`
+
+**✨ Improvements**
+
+- Official support for `eslint@9.x`. For more information, see our
+  [migration guide](https://github.com/trunk-io/plugins/blob/main/linters/eslint/README.md).
+- Add missing health checks for several tools
+- Fix error handling for `biome fmt`
+- Cleanup contributing and style guide
+- More concise `bazel` filetypes
+
+**🔧 Fixes**
+
+- Support more ruby version formats
+- Pin versions for `npm-check-pre-push` action
+- Fix parsing of `trivy` terraform issues

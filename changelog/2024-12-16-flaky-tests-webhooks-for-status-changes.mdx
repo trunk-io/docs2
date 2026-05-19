@@ -1,0 +1,26 @@
+---
+title: "Flaky Tests: Webhooks for status changes"
+description: "We’re excited to announce the addition of webhooks for flaky tests, designed to help you automate your workflows for better handling of flaky tests."
+slug: flaky-tests-webhooks-for-status-changes
+date: 2024-12-16
+category: Flaky Tests
+seo_description:
+  Automate notification messages and assign tickets when a new flaky test appears in your repo.
+seo_image: /assets/changelog/flaky-tests-webhooks-for-status-changes-seo.png
+---
+
+We’re excited to announce the addition of webhooks for flaky tests, designed to help you automate
+your workflows for better handling of flaky tests. The new `test_case.status_changed` event triggers
+whenever a test's status changes (healthy ↔ flaky ↔ broken). This makes it easier to track and
+respond to flaky tests as they show up.
+[View the docs and example usage here.](https://docs.trunk.io/flaky-tests/webhooks/github-issues-integration)
+
+![](/assets/changelog/flaky-tests-webhooks-for-status-changes-b4hln2.png)
+
+With this update, you can automate actions to react to flaky tests in a way that suits you best. For
+instance, you can create tickets in project management tools (e.g. Jira, GitHub, Linear) and ensure
+they are automatically assigned to the right project and team. You can also automatically send
+notifications (e.g. in Slack, Discord, and Microsoft Teams) to the right engineers with the most
+relevant information, such as failure reasons and trace logs. This helps teams respond quickly,
+triage issues, and resolve flaky tests efficiently.
+[Explore our webhook guide to get started](https://docs.trunk.io/flaky-tests/webhooks).

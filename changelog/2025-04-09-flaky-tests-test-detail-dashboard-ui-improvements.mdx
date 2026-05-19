@@ -1,0 +1,51 @@
+---
+title: "Flaky Tests: Test detail dashboard UI improvements"
+description: "The test details page in the Flaky Tests dashboard is getting a major UX overhaul."
+slug: flaky-tests-test-detail-dashboard-ui-improvements
+date: 2025-04-09
+category: Flaky Tests
+---
+
+The test details page in the Flaky Tests dashboard is getting a major UX overhaul.
+
+User interviews and feedback from beta users helped us remove metrics that were not useful and
+update visualizations to better show a test’s health over time. The tabbed views are also gone,
+which means you can get all the information about a test’s health in a single, unified dashboard,
+including: 
+
+- A test’s current status.
+- When a test was marked as flaky and quarantined.
+- Test flake and failure rates on mainline and PR branches.
+- Overall test health history.
+- Grouped unique test failure reasons.
+
+![A screenshot of the test details page in Trunk Flaky Tests. It displays the flaky status of the test, multiple bar charts that show test success, quarantine, and failure history, a test history timeline, and a table with unique failure reasons.](/assets/changelog/flaky-tests-test-detail-dashboard-ui-improvements-i15ll8.png)
+
+These new charts break down how often a test is successful, failing, or quarantined for CI jobs for
+your mainline branch and PRs and show test health changes over time.
+
+### A more eventful test history timeline
+
+The test history timeline has been moved to the main page, and updates, including when a test was
+marked as flaky, quarantined, or fixed, are always visible. Teams using the Jira integration to
+track test flakes will also see any updates to a flaky test’s ticket reflected in the timeline.
+
+You can still override the repo's default quarantine setting and always quarantine or never
+quarantine a test, but now you can leave a comment for other devs that shows up in the timeline.
+
+![The override button is selected on the test details page with an open dialog that allows users to Always Quarantine or Never Quarantine the test. There is also a comment box, and save an cancel buttons](/assets/changelog/flaky-tests-test-detail-dashboard-ui-improvements-4n5mew.png)
+
+For example, you might want to let your team know that the “Test is important - flakes must be
+fixed!” when you override the repo default to never quarantine a test:
+
+![A screenshot of the test history timeline, with an entry for Never Quarantine set along with the message "Test is important - flakes must be fixed!"](/assets/changelog/flaky-tests-test-detail-dashboard-ui-improvements-8776t8.png)
+
+The table shows all the unique reasons the test fails in CI.  Trunk uses AI to auto-group unique
+failures so multiple runs will be grouped under a single failure reason. Individual runs, including
+stack traces, branch, commit, and job information, are available when a row in the table is
+expanded. This means all the information you need to debug and fix flaky or broken tests is
+available in a single place.
+
+![A snapshot of the dashboard with a table of failure types that has two unique failure reasons](/assets/changelog/flaky-tests-test-detail-dashboard-ui-improvements-28h1zg.png)
+
+Have feedback for us? [Reach out on our community Slack](https://slack.trunk.io).

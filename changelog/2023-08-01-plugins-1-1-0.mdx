@@ -1,0 +1,28 @@
+---
+title: Plugins 1.1.0
+description: "New security linter: dustilock; New security linter: trufflehog-git (a variant of trufflehog)."
+slug: plugins-1-1-0
+date: 2023-08-01
+category: Code Quality
+---
+
+**🎁 New**
+
+- New security linter: [dustilock](https://github.com/Checkmarx/dustilock#readme).
+- New security linter: `trufflehog-git` (a variant
+  of [trufflehog](https://github.com/trufflesecurity/trufflehog#readme)).
+- New formatter: [prisma.](https://github.com/prisma/prisma#readme)
+
+**✨ Improvements**
+
+- Improve Windows CI tests.
+- Add downloads for Linux arm64.
+- Deprecate `kube-linter@<0.6.1`. **Please update your config accordingly.**
+- Trigger `buf generate` on changes to `buf.gen.yaml` and `buf.work.yaml.`
+
+**🔧 Fixes**
+
+- Fix `bandit` to respect config files.
+- Fix `osv-scanner` line number reporting.
+- Fix `trufflehog` line number off-by-one errors.
+- Fix `autopep8` integration by pinning `pycodestyle` version.

@@ -1,0 +1,286 @@
+---
+title: "Changelog"
+description: "Recent updates to Trunk Flaky Tests."
+rss: true
+---
+
+
+## 2026
+
+### May 2026
+
+<Update label="May 18, 2026" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Organization-Scoped Test Labels](/changelog/2026-05-18-flaky-tests-test-labels)**
+
+  Tag, organize, and filter your test suite with org-wide labels.
+</Update>
+
+<Update label="May 18, 2026" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Failure Count Monitor](/changelog/2026-05-18-flaky-tests-failure-count-monitor)**
+
+  Flag tests the moment they accumulate a configured number of failures on monitored branches.
+</Update>
+
+<Update label="May 18, 2026" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Apply Labels from Monitors](/changelog/2026-05-18-flaky-tests-monitor-label-actions)**
+
+  Monitors can now apply labels to tests instead of classifying them as flaky or broken.
+</Update>
+
+### March 2026
+
+<Update label="March 27, 2026" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Automatically Create Jira Issues from Webhooks](/changelog/2026-03-27-flaky-tests-automatically-create-jira-issues-from-webhooks)**
+
+  A new Jira connector in your webhook settings creates issues in your Jira Cloud project whenever a test's status changes to flaky and impacts more than a configurable number of PRs.
+</Update>
+
+<Update label="March 24, 2026" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Configurable Threshold Monitors with Live Preview](/changelog/2026-03-24-flaky-tests-configurable-threshold-monitors-with-live-preview)**
+
+  You now have full control over how flaky tests are detected. Threshold monitors let you define exactly when a test should be flagged as flaky or broken, set the failure rate threshold, time window,…
+</Update>
+
+### February 2026
+
+<Update label="February 2, 2026" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Infrastructure Failure Protection](/changelog/2026-02-02-flaky-tests-infrastructure-failure-protection)**
+
+  When infrastructure issues like database outages, network problems, or CI runner failures cause a large number of tests to fail simultaneously, retrying those tests can trigger mass false flaky…
+</Update>
+
+
+## 2025
+
+### November 2025
+
+<Update label="November 18, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: New API endpoints](/changelog/2025-11-18-flaky-tests-new-api-endpoints)**
+
+  We’ve added three new endpoints to make it easier to investigate flaky tests, automate triage, and integrate test health into your workflows.
+</Update>
+
+### September 2025
+
+<Update label="September 9, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Auto quarantine no longer applied to broken tests](/changelog/2025-09-09-flaky-tests-auto-quarantine-no-longer-applied-to-broken-tests)**
+
+  Auto-quarantining test cases have been updated to target only 'flaky' tests specifically. Previously, both 'flaky' and 'broken' tests were subject to automatic quarantine.
+</Update>
+
+<Update label="September 9, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Test: Corrected CLI test failure reporting flag](/changelog/2025-09-09-flaky-test-corrected-cli-test-failure-reporting-flag)**
+
+  Resolved an issue where test failures were not being reported or displayed when using the --disable-quarantining flag.
+</Update>
+
+### August 2025
+
+<Update label="August 25, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: New endpoint and XCode 26 support](/changelog/2025-08-25-flaky-tests-new-endpoint-and-xcode-26-support)**
+
+  A new endpoint is available from the trunk api at /flaky-tests/list-unhealthy-tests for your CI/CD integrations.
+</Update>
+
+### July 2025
+
+<Update label="July 2, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Commit details in timeline](/changelog/2025-07-02-flaky-tests-commit-details-in-timeline)**
+
+  We’ve added additional details about commits that trigger test status changes to test timelines in the Flaky Tests dashboard.
+</Update>
+
+### June 2025
+
+<Update label="June 25, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Manual test status overrides](/changelog/2025-06-25-flaky-tests-manual-test-status-overrides)**
+
+  You can now manually set a test’s status to Flaky, Healthy, or Broken in the Flaky Tests dashboard.
+</Update>
+
+<Update label="June 18, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Test suite and class available on test details page](/changelog/2025-06-18-test-suite-and-class-available-on-test-details-page)**
+
+  The names of a test’s suite and class are now visible on the test details page of the flaky test dashboard, along with a file search link for repos using either GitHub or Bitbucket as source control…
+</Update>
+
+<Update label="June 11, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: test_case.quarantining_setting_changed webhook](/changelog/2025-06-11-flaky-tests-test-case-quarantining-setting-changed-webhook)**
+
+  We’re happy to announce that a new testcase.quarantiningsetting_changed webhook is now available for all Flaky Tests users.
+</Update>
+
+### May 2025
+
+<Update label="May 21, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Improved test failure details](/changelog/2025-05-21-improved-test-failure-details)**
+
+  More changes have landed on the Flaky Tests dashboard: unique failure details on the test details page are now available in a single table view.
+</Update>
+
+<Update label="May 15, 2025" tags={["Flaky Tests"]}>
+  **[RSpec Plugin for Ruby repos](/changelog/2025-05-15-rspec-plugin-for-ruby-repos)**
+
+  The new Flaky Tests RSpec plugin is the best way to run RSpec tests and upload the results to Trunk.
+</Update>
+
+### April 2025
+
+<Update label="April 25, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Link Ticket to Test Case API](/changelog/2025-04-25-link-ticket-to-test-case-api)**
+
+  Today, we’re introducing a new Link Ticket to Test Case API that allows you to link your existing Linear or Jira tickets to tests in the Flaky Tests dashboard.
+</Update>
+
+<Update label="April 25, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Linear integration](/changelog/2025-04-25-linear-integration)**
+
+  We now have a built-in Linear integration that creates tickets with relevant test and failure information from your flaky tests.
+</Update>
+
+<Update label="April 17, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Track environment-specific flakes with variants](/changelog/2025-04-17-track-environment-specific-flakes-with-variants)**
+
+  Starting today, the --variant option should be used to upload test results when the same tests are run on different environments, also known as matrix builds.
+</Update>
+
+<Update label="April 9, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Test detail dashboard UI improvements](/changelog/2025-04-09-flaky-tests-test-detail-dashboard-ui-improvements)**
+
+  The test details page in the Flaky Tests dashboard is getting a major UX overhaul.
+</Update>
+
+### March 2025
+
+<Update label="March 26, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Quarantined Tests API](/changelog/2025-03-26-flaky-tests-quarantined-tests-api)**
+
+  A new Quarantined Tests API is now available to all Flaky Tests users. This API fetches a list of currently quarantined tests for a given repo, allowing organizations to implement custom workflows to…
+</Update>
+
+### February 2025
+
+<Update label="February 26, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Detailed Jira integration status updates](/changelog/2025-02-26-flaky-tests-detailed-jira-integration-status-updates)**
+
+  We have an exciting update for teams using the Flaky Test Jira integration to create and track their tickets.
+</Update>
+
+<Update label="February 14, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Set a custom stable branch](/changelog/2025-02-14-flaky-tests-set-a-custom-stable-branch)**
+
+  If your stable branch is not main, you can now set a custom stable branch for your repositories to improve flaky test detection.
+</Update>
+
+<Update label="February 10, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Weekly reports](/changelog/2025-02-10-flaky-tests-weekly-reports)**
+
+  We're excited to introduce a new way to help your team stay on top of your repository's test health through weekly email reports.
+</Update>
+
+### January 2025
+
+<Update label="January 29, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Webhook Integration for Slack, Microsoft Teams, GitHub Issues, and Linear](/changelog/2025-01-29-flaky-tests-webhook-integration-for-slack-microsoft-teams-github-issues-and-linea)**
+
+  We're excited to introduce webhook integrations for Slack, Microsoft Teams, GitHub Issues, and Linear.
+</Update>
+
+<Update label="January 16, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: CODEOWNERS support](/changelog/2025-01-16-flaky-tests-codeowners-support)**
+
+  We’re thrilled to announce support for CODEOWNERS in our Flaky Tests product, which is available for both GitHub and GitLab repositories.
+</Update>
+
+<Update label="January 14, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Support for Bazel build event protocol](/changelog/2025-01-14-flaky-tests-support-for-bazel-build-event-protocol)**
+
+  Trunk Flaky Tests now supports uploading test results by parsing Bazel Build Event Protocol (BEP) files.
+</Update>
+
+<Update label="January 3, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Flaky test detection on merge branches](/changelog/2025-01-03-flaky-tests-flaky-test-detection-on-merge-branches)**
+
+  We’re excited to announce improved flaky test detection for merge queue users. In a merge queue, a single flaky failure will force every enqueued PR behind it to be retested, affecting every engineer…
+</Update>
+
+
+## 2024
+
+### December 2024
+
+<Update label="December 16, 2024" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Webhooks for status changes](/changelog/2024-12-16-flaky-tests-webhooks-for-status-changes)**
+
+  We’re excited to announce the addition of webhooks for flaky tests, designed to help you automate your workflows for better handling of flaky tests.
+</Update>
+
+### November 2024
+
+<Update label="November 12, 2024" tags={["Flaky Tests"]}>
+  **[Flaky Tests: New onboarding flow](/changelog/2024-11-12-flaky-tests-new-onboarding-flow)**
+
+  Hi everyone, we’ve introduced a new onboarding flow to make it easier to integrate your test framework and CI provider with Trunk.
+</Update>
+
+<Update label="November 11, 2024" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Added Flaky Test commands to Trunk CLI ](/changelog/2024-11-11-flaky-tests-added-flaky-test-commands-to-trunk-cli)**
+
+  The Trunk CLI now includes commands for uploading and validating test results for Trunk Flaky Tests.
+</Update>
+
+<Update label="November 8, 2024" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Dashboard improvements](/changelog/2024-11-08-flaky-tests-dashboard-improvements)**
+
+  We’re continually refining our UX with the help of our beta users’ feedback and we’ve made some changes to how Flaky Tests displays key information on the dashboards.
+</Update>
+
+<Update label="November 4, 2024" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Data uploads view](/changelog/2024-11-04-flaky-tests-data-uploads-view)**
+
+  A common pain point during onboarding is the lack of transparency after the Trunk CLI uploads test results.
+</Update>
+
+### October 2024
+
+<Update label="October 28, 2024" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Improved support for iOS and Swift developers](/changelog/2024-10-28-flaky-tests-improved-support-for-ios-and-swift-developers)**
+
+  Flaky Tests now supports the XCResults format outputted by Swift projects using XCTests. You can now upload the .xcresults format to Trunk directly, without configuring a JUnit XML reporter.
+</Update>
+
+<Update label="October 17, 2024" tags={["Flaky Tests"]}>
+  **[Flaky Tests: PR test summaries](/changelog/2024-10-17-flaky-tests-pr-test-summaries)**
+
+  We're excited to introduce a powerful new feature that will help you accelerate your PR iterations: PR Test Summaries!
+</Update>
+
+<Update label="October 14, 2024" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Quarantining](/changelog/2024-10-14-flaky-tests-quarantining)**
+
+  We’re excited to provide a new way for you to mitigate the negative impact of flaky tests in your repo through quarantining.
+</Update>
+
+### August 2024
+
+<Update label="August 27, 2024" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Jira Integration](/changelog/2024-08-27-flaky-tests-jira-integration)**
+
+  We’re excited to announce the latest enhancement: Jira integration for managing flaky tests. This update builds on our MVP by streamlining the issue management process within Jira.
+</Update>
+
+### July 2024
+
+<Update label="July 15, 2024" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Issue handling MVP](/changelog/2024-07-15-test-analytics-beta-issue-handling-mvp-copy-issue-details)**
+
+  Today, we are releasing our first feature to support issue handling related to flaky tests. This MVP feature is designed to streamline reporting and managing flaky tests, saving valuable time and…
+</Update>
+
+### June 2024
+
+<Update label="June 28, 2024" tags={["Flaky Tests"]}>
+  **[Flaky Tests: UX improvements](/changelog/2024-06-28-test-analytics-beta-ux-improvements-dashboard-test-details)**
+
+  We are rolling out substantial UX improvements to the dashboard and detail views. These enhancements provide users with quick and easy access to critical information.
+</Update>

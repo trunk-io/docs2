@@ -1,0 +1,18 @@
+---
+title: "Flaky Tests: Auto quarantine no longer applied to broken tests"
+description: "Auto-quarantining test cases have been updated to target only 'flaky' tests specifically. Previously, both 'flaky' and 'broken' tests were subject to automatic quarantine."
+slug: flaky-tests-auto-quarantine-no-longer-applied-to-broken-tests
+date: 2025-09-09
+category: Flaky Tests
+---
+
+Auto-quarantining test cases have been updated to target only 'flaky' tests specifically.
+Previously, both 'flaky' and 'broken' tests were subject to automatic quarantine.
+
+This ensures that only tests exhibiting inconsistent behavior (flakiness) are automatically
+quarantined, while genuinely broken tests require manual intervention or different handling.
+
+Verify tests are broken using the test details page, and look for "**Marked as Broken (Not
+Quarantining)**" in the test history.
+
+![](/assets/changelog/flaky-tests-auto-quarantine-no-longer-applied-to-broken-tests-g9qcpy.png)

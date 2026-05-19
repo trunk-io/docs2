@@ -1,0 +1,35 @@
+---
+title: "Flaky Tests: Track environment-specific flakes with variants"
+description: "Starting today, the --variant option should be used to upload test results when the same tests are run on different environments, also known as matrix builds."
+slug: track-environment-specific-flakes-with-variants
+date: 2025-04-17
+category: Flaky Tests
+---
+
+Starting today, the `--variant` option should be used to upload test results when the same tests are
+run on different environments, also known as matrix builds.
+
+If you use a matrix strategy to run the same CI tests on different architectures or environments,
+test flakiness could be unique to an environment. Examples include testing a mobile app on iOS and
+Android, running tests for your CLI tool on macOS and Linux, or performing the same e2e tests on
+different browsers. Tests run on separate environments must be treated as unique to guarantee
+accurate flake detection.
+
+Using variants, Flaky Tests will now treat the same test run on different environments as unique.
+This means flakes can be detected and quarantined on a per-environment basis.
+
+To specify a variant during upload, use the `--variant` option:
+
+```
+./trunk flakytests upload --junit-paths "test_output.xml" \
+--org-url-slug <TRUNK_ORG_SLUG> \
+--token $TRUNK_API_TOKEN \
+--variant linux_x86_64
+```
+
+Variant names are visible in brackets on your Flaky Tests dashboard:
+
+![](/assets/changelog/track-environment-specific-flakes-with-variants-4xs69k.png)
+
+See the [reference docs](https://docs.trunk.io/flaky-tests/uploader#full-command-reference) for more
+information on uploading test reports with variants.

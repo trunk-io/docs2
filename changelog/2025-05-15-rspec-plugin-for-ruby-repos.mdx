@@ -1,0 +1,66 @@
+---
+title: RSpec Plugin for Ruby repos
+description: "The new Flaky Tests RSpec plugin is the best way to run RSpec tests and upload the results to Trunk."
+slug: rspec-plugin-for-ruby-repos
+date: 2025-05-15
+category: Flaky Tests
+---
+
+The new Flaky Tests RSpec plugin is the best way to run RSpec tests and upload the results to Trunk.
+
+The plugin provides a couple of different advantages over generating JUnit XML files when testing
+with RSpec, all of which contribute to more accurate flake detection in Ruby projects:
+
+- By default, running RSpec tests and creating a report using `rspec_junit_formatter` will produce
+  programmatic test names, which makes flake detection difficult. The plugin eliminates this issue
+  by uploading consistent test names to Trunk.
+- The plugin allows for a more direct capture of test run retries.
+- Flaky tests can be quarantined as the tests run, not after the fact.
+
+#### Get started with `rspec_trunk_flaky_tests`
+
+To get started with the `rspec_trunk_flaky_tests` plugin:
+
+- Add the plugin gem to your Gemfile:
+
+```
+# Gemfile
+gem "rspec_trunk_flaky_tests"
+```
+
+- Install the plugin by running the install command in your terminal
+
+```
+bundler install
+```
+
+- Load the plugin in `spec_helper.rb`:
+
+```
+# Add to spec/spec_helper.rb
+require "trunk_spec_helper"
+```
+
+Don’t forget to
+[disable automatic retries on failures](https://docs.trunk.io/flaky-tests/get-started/frameworks/rspec#disable-retries).
+
+That’s it, you are ready to run your RSpec tests and upload the results to Trunk. Start by uploading
+locally run test results:
+
+```
+TRUNK_ORG_URL_SLUG=<TRUNK_ORG_URL_SLUG> \
+TRUNK_API_TOKEN=<TRUNK_ORG_TOKEN> \
+bundle exec rspec
+```
+
+Your `TRUNK_ORG_URL_SLUG` and `TRUNK_API_TOKEN` are found under **Settings** in the Trunk web app.
+
+When you run this command locally, your RSpec tests will run, and results will automatically be
+uploaded to Trunk. Any uploaded results will be displayed in the **Uploads** tab.
+
+The last step is
+[integrating with your CI provider](https://docs.trunk.io/flaky-tests/get-started/ci-providers).
+After integrating, Trunk will automatically detect and quarantine your flaky tests every time the CI
+job runs.
+
+See the [RSpec docs](https://docs.trunk.io/flaky-tests/get-started/frameworks/rspec) for more info.

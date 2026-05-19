@@ -1,0 +1,28 @@
+---
+title: CLI 1.22.1
+description: "Added a new severity level, note, which is not blocking by default; Trunk can now upload issues to our web app without requiring our GitHub app to be installed."
+slug: cli-1-22-1
+date: 2024-05-07
+category: Code Quality
+---
+
+**🎁 New**
+
+- Added a new severity level, `note`, which is not blocking by default.
+- Trunk can now upload issues to our web app without requiring our GitHub app to be installed.
+
+**✨ Improvements**
+
+- Trunk now provides more informative text for many commands.
+- Trunk will now attempt to repair symlinks in the `.trunk` directory on startup.
+- Added support for gzipped executables via the `rename_single_file` option.
+  [Learn more](https://docs.trunk.io/check/advanced-setup/tools/configuration#download-fields).
+
+**🔧 Fixes**
+
+- Fixed an off-by-one error in the LSP server when a file did not end with a newline.
+- Addressed several edge cases where Trunk would incorrectly complain that a `trunk-ignore` was not
+  suppressing an issue.
+- A `trunk-ignore` that is not suppressing a lint issue is now assigned `note` severity and is not
+  blocking by default.
+- Fixed an edge case involving `golangci-lint` and Trunk's sandboxing.

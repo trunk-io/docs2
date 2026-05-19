@@ -1,0 +1,20 @@
+---
+title: CLI 1.17.0
+description: "Trunk now always uses TCP instead of unix domain sockets to communicate with its daemon; Trunk tools now does health checks to ensure installed versions match the expected versions."
+slug: 1-17-0
+date: 2023-10-13
+category: Code Quality
+---
+
+**✨ Improvements**
+
+- Trunk now always uses TCP instead of unix domain sockets to communicate with its daemon.
+- Trunk tools now does health checks to ensure installed versions match the expected versions.
+- LSP Server optimizations.
+- trunk-ignore-all can now be used to ignore formatting diagnostics.
+
+**🔧 Fixes**
+
+- Allow linter definitions to override environment variables as intended.
+- Various Windows bug fixes.
+- Better error reporting for various issues.

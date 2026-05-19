@@ -1,0 +1,28 @@
+---
+title: "Merge Queue: Support Additional Merge Methods"
+description: "You can now select your preferred merge method for PRs going through the merge queue. Previously, Trunk Merge only supported squash merging, which combines all commits into a single commit."
+slug: merge-queue-support-additional-merge-methods
+date: 2026-01-23
+category: Merge Queue
+---
+
+**Choose how your PRs get merged: squash, merge commit, or rebase.**
+
+![](/assets/changelog/merge-queue-support-additional-merge-methods-2wvyp4.png)
+
+You can now select your preferred merge method for PRs going through the merge queue. Previously,
+Trunk Merge only supported squash merging, which combines all commits into a single commit. Now you
+can choose between:
+
+- **Squash** (default) - Combines all commits into a single commit
+- **Merge commit** - Preserves all individual commits and creates a merge commit
+- **Rebase** - Replays commits on top of main for a linear history
+
+This flexibility means you can match your team's existing Git workflow preferences, maintain your
+desired commit history style, and satisfy different requirements across projects. Whether you want a
+clean linear history with squash, full commit preservation with merge commits, or a streamlined
+history with rebase, your merge queue now adapts to your team's practices instead of forcing you to
+change them.
+
+[Read the Docs](https://docs.trunk.io/merge-queue/administration/advanced-settings#merge-method) to
+learn more

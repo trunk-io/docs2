@@ -1,0 +1,42 @@
+---
+title: Plugins 1.5.0
+description: "New runtime: php; New linter and tool: tofu."
+slug: plugins-1-5-0
+date: 2024-04-24
+category: Code Quality
+---
+
+**🎁 New**
+
+- New runtime: `php`
+- New linter and tool: [tofu](https://opentofu.org/)
+- New linter: [phpstan](https://phpstan.org/)
+- New [Poetry](https://github.com/trunk-io/plugins/blob/main/actions/poetry/README.md) git-hook
+  actions
+- New tool: [difft](https://github.com/Wilfred/difftastic#readme)
+- New tool: [yq](https://github.com/mikefarah/yq#readme)
+- New tool: [goreleaser](https://github.com/goreleaser/goreleaser#readme).
+  Thanks @matthewbaggett for the contribution!
+
+**✨ Improvements**
+
+- Breaking change: Update
+  default `commitlint` to `v19` ([updated guide](https://github.com/trunk-io/plugins/blob/main/actions/commitlint/README.md)).
+  Thanks @rriski for the contribution!
+- Fixes for `trufflehog` and `buildifier`
+- Don't run `clang-tidy` from LSP by default
+- Run `ruff` on `python-interface` files
+- Run `prettier` on `postcss` files
+- Run `clang-format` on `cuda` files
+- Upgrade `ruby-build`
+- Don't recommend `terrascan` by default. Thanks @yu-iskw for the contribution!
+- Add descriptions for each linter
+
+**🔧 Fixes**
+
+- Add support for `pmd@7.0.0`
+- Support React-style comments in JSX/TSX files
+
+**Note: We do not yet officially support** **`eslint@9.x`\*\***. If you want to start using it, see
+our** [**migration
+guide**](https://github.com/trunk-io/plugins/blob/main/linters/eslint/README.md)**.\*\*

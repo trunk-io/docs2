@@ -1,0 +1,43 @@
+---
+title: Trunk Merge Queue - Parallel Queues
+description: "Trunk Merge Queue now offers two modes for creating merge queues: \"Single\" and \"Parallel\". The Single mode operates as a standard first-in, first-out merge queue, where pull requests (PRs) are added…"
+slug: trunk-merge-parallel-queues
+date: 2023-11-21
+category: Merge Queue
+seo_title: Parallel Queues
+seo_description: Trunk Merge Queue  now has parallel queues!
+---
+
+Trunk Merge Queue now offers two modes for creating merge queues: "Single" and "Parallel". The
+Single mode operates as a standard first-in, first-out merge queue, where pull requests (PRs) are
+added and merged in the order they arrive. In Parallel mode, Trunk Merge Queue can create multiple
+queues.
+
+When a PR is added in Parallel mode, it checks if the changes in the PR impact the same areas as
+other PRs in the queue. Depending on this, the PR is either placed in an existing queue or a new one
+is created for it. This method allows PRs that don't interfere with each other to be tested and
+merged simultaneously, improving efficiency while ensuring accurate testing.
+
+**Excited to try out parallel mode? Some benefits you can expect are:**
+
+- **Parallel PR Testing/Merging:** Dynamic queues allow simultaneous merging of related PRs across
+  different code areas, avoiding delays from unrelated PRs.
+- **Lower CI Burn:** Only PRs affecting the same code areas are retested if a PR in the Merge Queue
+  fails or is removed, lowering CI strain.
+- **Scalable Merging:** Parallel queues manage any number of PRs regardless of team size by focusing
+  on interdependent PRs.
+
+**Getting Started:**
+
+- Sign Up for an account: [https://app.trunk.io/](https://app.trunk.io/)
+- [Configure](https://docs.trunk.io/merge-graph/set-up-trunk-merge#set-up-trunk-merge). Add your
+  build system info, so that we can calculate the dependency graph.
+- [Existing Trunk Merge Queue Users](https://docs.trunk.io/merge-graph/merge): Current users can
+  maintain their workflow with the existing system
+
+**Notes:**
+
+- This update aims to enhance productivity and reduce bottlenecks in the merge process, particularly
+  for teams experiencing growth and increased PR volume.
+- Continuous integration and code quality remain a top priority, with the new system designed to
+  uphold these standards while increasing efficiency.

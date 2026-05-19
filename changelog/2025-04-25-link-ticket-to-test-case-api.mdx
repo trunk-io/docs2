@@ -1,0 +1,41 @@
+---
+title: "Flaky Tests: Link Ticket to Test Case API"
+description: "Today, we’re introducing a new Link Ticket to Test Case API that allows you to link your existing Linear or Jira tickets to tests in the Flaky Tests dashboard."
+slug: link-ticket-to-test-case-api
+date: 2025-04-25
+category: Flaky Tests
+---
+
+Today, we’re introducing a new **Link Ticket to Test Case API** that allows you to link your
+existing Linear or Jira tickets to tests in the Flaky Tests dashboard.
+
+Trunk has built-in ticketing integrations with Jira and Linear, allowing you to create detailed bug
+tickets for flaky tests with a single click. If you’re already tracking flaky test issues with
+existing tickets, you can now link those Jira or Linear tickets directly to your flaky tests in
+Trunk, keeping all relevant context in one place.
+
+Calling the API requires the ID of your test case in Flaky Tests, which can be found on
+[incoming webhook payloads](https://docs.trunk.io/flaky-tests/webhooks) or the URL of the test case
+details page, and the ID of the ticket in your ticketing system:
+
+```
+curl -L \​
+  --request POST \​
+  --url 'https://api.trunk.io/v1/flaky-tests/link-ticket-to-test-case' \​
+  --header 'x-api-token: YOUR_API_KEY' \​
+  --header 'Content-Type: application/json' \​
+  --data '{
+    "test_case_id": "01234567-0123-0123-0123-0123456789ab",
+    "external_ticket_id": "KAN-123"
+```
+
+Once a ticket is linked to a test, ticketing information will be available in Flaky Tests webhooks.
+This makes it possible to build custom integrations and automations with the context of any linked
+ticket information. And when ticket information is not included in the payload, you know one has not
+been created for the flake.
+
+You can only use the Link Ticket to Test Case API if you have already set up the
+[Linear or Jira integration](https://docs.trunk.io/flaky-tests/ticketing-integrations).
+
+[Read the reference docs](https://docs.trunk.io/references/apis/flaky-tests#post-flaky-tests-link-ticket-to-test-case)
+for more information on the Link Ticket to Test Case API.

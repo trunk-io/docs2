@@ -1,0 +1,65 @@
+---
+title: "Flaky Tests: Weekly reports"
+description: "We're excited to introduce a new way to help your team stay on top of your repository's test health through weekly email reports."
+slug: flaky-tests-weekly-reports
+date: 2025-02-10
+category: Flaky Tests
+---
+
+We're excited to introduce a new way to help your team stay on top of your repository's test health
+through weekly email reports.
+
+With automatic detection and quarantining, Trunk can do a great job of mitigating the impact of test
+flakiness on your team's velocity. But we don't want you to forget about your flaky tests. Even if
+they're no longer causing friction, they should still be fixed eventually.
+
+To help you stay on top of your repo's test health, we created a weekly digest for your flaky tests.
+Here's what you can expect to find in each report.
+
+**Key Metrics**
+
+At the top of each report, you'll see an overview of important metrics on flaky tests and their
+impact on your organization. You'll see the number of broken and flaky tests, how many PRs they
+block, and an estimate of engineering hours lost due to these flaky tests.
+
+![](/assets/changelog/flaky-tests-weekly-reports-3ymq3g.png)
+
+We also include the changes week to week. We believe it's important to keep track of week-to-week
+changes to understand if the flaky tests problem is controlled or if it's spreading. This helps you
+decide whether more resources should be devoted to fixing and controlling flaky tests. It can also
+alert against larger issues where a bug in code or infrastructure can cause a spike in test
+flakiness.
+
+**Per-Repo Breakdown**
+
+If your org is tracking flaky tests across many repos, the weekly report will break down the key
+metrics for each repo. This helps you see which repos are doing well and which might need extra
+love.
+
+![](/assets/changelog/flaky-tests-weekly-reports-7avaya.png)
+
+**Frequently Failing Tests**
+
+Each report has a dedicated section for frequently failing tests. This alerts against high-impact
+broken and flaky tests. You can use this list to catch newly introduced high-impact flaky tests or
+get an overview of the flaky tests you should be investigating next with your team.
+
+![](/assets/changelog/flaky-tests-weekly-reports-ub4gvb.png)
+
+**Important Action Items**
+
+Toolrot can be a real issue with the sheer scale of infrastructure required for modern CI. The
+weekly email reports will remind you if your CI is misconfigured or if there's a new version of the
+analytics-uploader tool you should upgrade to. All of these help ensure your detection remains
+accurate and effective.
+
+![](/assets/changelog/flaky-tests-weekly-reports-oq8twu.png)
+
+**Who Gets These Reports?**
+
+All org admins will get the emails by default as long as you've uploaded test results to us in the
+past week. The emails are delivered each Monday, and we go over the stats over the last week. You
+should see these emails in your mailbox starting next week.
+
+If you've got any questions about these email reports or would like to suggest some new additions,
+please feel free to [reach out to us on Slack.](https://slack.trunk.io/)

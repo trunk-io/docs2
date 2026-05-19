@@ -1,0 +1,31 @@
+---
+title: "Merge Queue: First class Nx support"
+description: "Trunk Merge Queue, through its Parallel Queues feature, can dynamically create new merge queues to test only the pull requests with potential conflicts together."
+slug: first-class-support-for-trunk-merge-queue-nx
+date: 2024-05-17
+category: Merge Queue
+seo_title: "Merge Queue: First Class Nx Support | Trunk Changelog"
+seo_description: Trunk adds first-class, out-of-the-box support for Nx repos.
+seo_image: /assets/changelog/first-class-support-for-trunk-merge-queue-nx-seo.jpg
+---
+
+Trunk Merge Queue, through its [Parallel Queues](https://docs.trunk.io/merge-queue/parallel-queues)
+feature, can dynamically create new merge queues to test only the pull requests with potential
+conflicts together. While Parallel Mode can be used by any repo, we provide an easy way to
+[start using Parallel Queues on Bazel repos through our GitHub action](https://docs.trunk.io/merge-queue/parallel-queues/bazel),
+requiring practically no setup.
+
+Today, we’re providing even more first-class support for parallel queues with the release of our
+[GitHub Action for Nx repos using Parallel Queues](https://docs.trunk.io/merge-queue/parallel-queues/nx).
+Now, enjoying the benefits of using Parallel Merge Queues is easier than before on your Nx repos -
+you set up the GitHub action, and Trunk takes care of pulling the relevant information out of your
+PRs, making sure it only tests the pull requests that actually have a chance of breaking each other
+together. Power like this allows your merge queue to continue to scale effortlessly, preventing
+needlessly long lines of pull requests waiting to get tested and merged.
+
+Not using Nx or Bazel? You can still get started with Parallel Queues by using our
+[Public API](https://docs.trunk.io/apis/merge)! The majority of build tools like Nx and Bazel make
+it easy to pull out information on what sections of code your PRs is impacting - for more guidance
+with this, [reach out in our community slack](http://trunkcommunity.slack.com). More GitHub actions
+supporting other tools like Turborepo are coming soon to continue to make parallel queues as easy to
+leverage as possible for any build tool.

@@ -1,0 +1,34 @@
+---
+title: "Flaky Tests: Flaky test detection on merge branches"
+description: "We’re excited to announce improved flaky test detection for merge queue users. In a merge queue, a single flaky failure will force every enqueued PR behind it to be retested, affecting every engineer…"
+slug: flaky-tests-flaky-test-detection-on-merge-branches
+date: 2025-01-03
+category: Flaky Tests
+---
+
+We’re excited to announce improved flaky test detection for merge queue users. In a merge queue, a
+single flaky failure will force every enqueued PR behind it to be retested, affecting every engineer
+involved and wasting tons of CI resources. If you run a merge queue like
+[Trunk Merge](https://trunk.io/merge-queue) to test your changes before they're merged, tests run on
+the merge branches are an important signal about your tests' health. Flaky Tests can now detect
+flaky tests using signals on your PR branches, merge branches, and protected branches.
+
+Tests are expected to behave differently on protected branches such as `main` or `master` compared
+to tests run on PR branches. Trunk adjusts for this inherent volatility of PR branches by applying a
+slightly different set of rules to them:
+
+- Inconsistent test results on the same commit hash, where results are different on identical code
+  is considered flaky
+- Inconsistent test results on different commit hashes, but across a large number of PRs is
+  considered flaky
+
+Merge branches created by merge queues, on the other hand, are treated similarly to protected
+branches. We make the assumption that before PRs are submitted to a merge queue, tests have already
+been run once on the PR and are passing.
+
+If you'd like to learn more about how Trunk detects flaky tests, see the
+[Detection page in docs](https://docs.trunk.io/flaky-tests/detection).
+
+Trunk Flaky Test supports detection on merge branch for **Trunk Merge**, **GitLab Merge Trains**,
+**Graphite Merge Queues**, and **GitHub merge queue**. If you're using an unsupported merge queue
+and would like to apply detection on merge branches, [contact us on Slack](https://slack.trunk.io/).
