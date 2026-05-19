@@ -1,0 +1,44 @@
+---
+title: "Weekly update — May 19, 2026"
+description: "Label-based merge queue enqueueing, monitor label actions for flaky tests, and quieter PR pages from the Chrome Extension."
+date: 2026-05-19
+category: Weekly update
+---
+
+This week's shipped changes across Merge Queue and Flaky Tests.
+
+## New features
+
+### Merge Queue: Enqueue pull requests by label
+
+**You can now send a pull request to the merge queue by applying a configured GitHub label**, alongside the existing `/trunk merge` comment, web app, and CLI options.
+
+Configure a single label per repository (for example, `merge-queue` or `ready-to-merge`) under **Settings → Repositories → Merge Queue → Enqueue by label**. Once set, applying that label to any eligible open pull request submits it to the queue automatically, and Trunk removes the label as soon as the queue picks the pull request up.
+
+This makes it easy to plug Trunk Merge Queue into existing label-based GitHub workflows — bots, GitHub Actions, and review tools that already manage labels can drive the merge queue without learning a new command surface.
+
+Note: removing the label does **not** cancel a pull request that has already been picked up. Use `/trunk cancel`, the web app, or the CLI to cancel an in-flight pull request.
+
+[Read the docs](https://docs.trunk.io/merge-queue/using-the-queue/reference#enqueueing-by-label) to learn more.
+
+### Flaky Tests: Apply labels from monitors
+
+**Pass-on-Retry, Failure Rate, and Failure Count monitors can now apply labels to tests instead of changing their health status.** When you create or edit a monitor, an **Action** section lets you choose between the existing **Classify test status** behavior and the new **Apply labels** action.
+
+With **Apply labels** selected, the monitor adds one or more labels to every test it matches while the monitor is active, and removes them when the test no longer matches — without flipping the test to flaky or broken. Use it to dry-run a new detection rule, route tests to a triage workflow, or tag tests for a specific team to investigate, all without disturbing your existing flaky test signals.
+
+Labels applied by monitors coexist with labels applied by people: a label stays on a test until every source removes it.
+
+[Read the docs](https://docs.trunk.io/flaky-tests/management/test-labels#automatic-labeling-from-monitors) to learn more.
+
+## Updates
+
+### Merge Queue: Chrome Extension hides redundant bot comments
+
+**The [Trunk for GitHub Chrome Extension](https://docs.trunk.io/merge-queue/chrome-extension) now automatically hides Trunk bot comments that prompt you to submit a pull request to the merge queue.** Because the extension already overlays a merge queue panel directly on the pull request page, those prompt comments were redundant — hiding them cuts noise from the PR conversation without removing any controls.
+
+Hiding only applies on pull request pages where the extension overlay is active, and only to merge-queue prompt comments from the `trunk-io` and `trunk-staging-io` bot accounts. Other bot comments and non-merge-queue Trunk comments are unaffected. Submit, cancel, and status actions remain available through the extension panel.
+
+The new behavior ships in Browser Extension v0.7.0 and rolls out via the Chrome Web Store auto-update.
+
+[Read the docs](https://docs.trunk.io/merge-queue/chrome-extension#automatic-bot-comment-hiding) to learn more.
