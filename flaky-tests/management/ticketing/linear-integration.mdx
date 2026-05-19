@@ -20,7 +20,7 @@ To connect a Linear project:
 3. Add a [Linear API key](./linear-integration#api-token-permissions)
 4. Select a Team and **Connect to Linear**.
 
-After connecting to Linear, you can specify a default project and a default assignee for new tickets.
+After connecting, you can configure field defaults for auto-created tickets — including Priority, Labels, Estimate, Project, and Assignee — all scoped to the selected team. See [Field defaults](#field-defaults) below.
 
 #### API Key permissions
 
@@ -55,10 +55,38 @@ Before you create the ticket, you get a preview of the title and description.
 
 #### Create with Linear
 
-If you are connected to Linear, you can click the **Create Linear Ticket** button at the end of the modal to automatically create a ticket with the configured team and assignees.
+If you are connected to Linear, you can click the **Create Linear Ticket** button at the end of the modal to automatically create a ticket with the configured team and any field defaults you have set.
 
 Note: You can use [Flaky Tests webhooks](../../webhooks/linear-integration) to automate ticket creation, or if you need more control over how tickets are created in Linear. This integration is not required when using webhooks.
 
-#### Link existing tickets to tests
+### Field defaults
 
-If you already have a ticket in Linear that you want to link to a test in the dashboard, you can use the [Link Ticket to Test Case API](../../reference/api-reference#post-flaky-tests-link-ticket-to-test-case).
+After selecting a team, you can configure default values that pre-populate whenever a new Linear ticket is created from Flaky Tests:
+
+| Field | Description |
+|---|---|
+| **Priority** | Default issue priority (Urgent, High, Medium, Low, No priority) |
+| **Labels** | One or more team-level or workspace-level labels to apply |
+| **Estimate** | Default story point estimate (scale matches your team's estimation type: Fibonacci, T-shirt, linear, or exponential) |
+| **Project** | Default Linear project, filtered to projects accessible by the selected team |
+| **Assignee** | Default assignee, chosen from team members |
+
+Changing the selected team clears and reloads all field options automatically.
+
+Field defaults are saved per repository. When you open the **Create Ticket** modal, all configured defaults are pre-filled and can be overridden before submitting.
+
+### Link existing tickets to tests
+
+If you already have a Linear ticket for a test, you can link it directly from the Test Details page without creating a new one.
+
+**From the UI:**
+
+1. Open the test case details page.
+2. Click **Link Ticket** in the top-left corner.
+3. Enter the Linear ticket URL or ID and click **Submit**.
+
+The ticket appears on the test details page and its metadata (title, status, assignee) syncs from Linear.
+
+**Via API:**
+
+You can also link tickets programmatically using the [Link Ticket to Test Case API](../../reference/api-reference#post-flaky-tests-link-ticket-to-test-case).
