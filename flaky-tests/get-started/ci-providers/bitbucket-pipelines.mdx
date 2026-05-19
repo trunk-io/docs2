@@ -11,16 +11,16 @@ Flaky Test support for source control providers like GitLab and BitBucket is sti
 
 Before you start on these steps, see the [Test Frameworks](../frameworks/) docs for instructions on producing a Trunk-compatible output for your test framework.
 
-### Checklist
+### Setup steps
 
-By the end of this guide, you should achieve the following.
+Work through the steps below in order. Once you've finished the last one, you're set up — head to [app.trunk.io](https://app.trunk.io) to see your results.
 
-* [ ] Get your Trunk organization slug and token
-* [ ] Set your slug and token as a variable in CI
-* [ ] Configure your CI to upload to Trunk
-* [ ] Validate your uploads in Trunk
-
-After completing these checklist items, you'll be integrated with Trunk.&#x20;
+<Steps>
+  <Step title={<a href="#trunk-organization-slug-and-token">Get your Trunk organization slug and token</a>} />
+  <Step title={<a href="#add-the-trunk-token-as-a-secret">Set your slug and token as a variable in CI</a>} />
+  <Step title={<a href="#upload-to-trunk">Configure your CI to upload to Trunk</a>} />
+  <Step title={<a href="#validate-your-uploads">Validate your uploads in Trunk</a>} />
+</Steps>
 
 ### Trunk Organization Slug and Token
 
@@ -146,6 +146,15 @@ See the [uploader.md](../../reference/cli-reference.md "mention") for all availa
 Ensure you report every test run in CI and **clean up stale files** produced by your test framework. If you're reusing test runners and using a glob like `**/junit.xml` to upload tests, stale files not cleaned up will be included in the current test run, throwing off detection of flakiness. You should clean up all your results files after every upload step.
 
 You can do this by omitting the `artifacts` definitions in the test steps of your configuration. [Learn more about artifacts in BitBucket Pipelines](https://support.atlassian.com/bitbucket-cloud/docs/use-artifacts-in-steps/).
+
+### Validate Your Uploads
+
+Once your pipeline has run on a stable branch, head to [app.trunk.io](https://app.trunk.io) and confirm Trunk received your results.
+
+- The **Uploads** tab lists every report Trunk has ingested, with status and any warnings (missing file paths, malformed XML, and so on).
+- The **Tests** tab shows individual test cases once an upload has been processed.
+
+If a recent run isn't showing up, check your CI logs for upload errors and confirm your `TRUNK_TOKEN` and `TRUNK_ORG_SLUG` secrets are set on the project running the pipeline.
 
 <Tip>
 **Have questions?**

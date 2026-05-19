@@ -6,16 +6,16 @@ Trunk Flaky Tests integrates with your CI by adding a step in your GitHub Action
 
 Before you start these steps, see the [Test Frameworks](../frameworks/) docs for instructions on producing Trunk-compatible reports for your test framework.
 
-### Checklist
+### Setup steps
 
-By the end of this guide, you should achieve the following.
+Work through the steps below in order. Once you've finished the last one, you're set up — head to [app.trunk.io](https://app.trunk.io) to see your results.
 
-* [ ] Get your Trunk organization slug and token
-* [ ] Set your slug and token as secrets in GitHub Actions
-* [ ] Configure GitHub Actions to upload to Trunk
-* [ ] Validate your uploads in Trunk
-
-After completing these checklist items, you'll be integrated with Trunk.
+<Steps>
+  <Step title={<a href="#trunk-organization-slug-and-token">Get your Trunk organization slug and token</a>} />
+  <Step title={<a href="#add-your-trunk-token-and-organization-slug-as-secrets">Set your slug and token as secrets in GitHub Actions</a>} />
+  <Step title={<a href="#upload-to-trunk">Configure GitHub Actions to upload to Trunk</a>} />
+  <Step title={<a href="#validate-your-uploads">Validate your uploads in Trunk</a>} />
+</Steps>
 
 ### Trunk Organization Slug and Token
 
@@ -223,6 +223,15 @@ You can also wrap the test command with the Trunk Analytics CLI. When wrapping t
 #### Stale files
 
 Ensure you report every test run in CI and **clean up stale files** produced by your test framework. If you're reusing test runners and using a glob like `**/junit.xml` to upload tests, stale files not cleaned up will be included in the current test run, throwing off detection of flakiness. You should clean up all your results files after every upload step.
+
+### Validate Your Uploads
+
+Once your workflow has run on a stable branch, head to [app.trunk.io](https://app.trunk.io) and confirm Trunk received your results.
+
+- The **Uploads** tab lists every report Trunk has ingested, with status and any warnings (missing file paths, malformed XML, and so on).
+- The **Tests** tab shows individual test cases once an upload has been processed.
+
+If a recent run isn't showing up, check the action logs for upload errors and confirm your `TRUNK_TOKEN` and `TRUNK_ORG_SLUG` secrets are set on the repo running the workflow.
 
 ### Getting Direct Links to Job Logs
 
