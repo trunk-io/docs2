@@ -279,6 +279,7 @@
                     "pages": [
                       "flaky-tests/management/ticketing/jira-integration",
                       "flaky-tests/management/ticketing/linear-integration",
+                      "flaky-tests/management/ticketing/integration-patterns",
                       "flaky-tests/management/ticketing/other-ticketing-platforms"
                     ]
                   }
