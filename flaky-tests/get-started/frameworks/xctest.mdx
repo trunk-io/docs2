@@ -19,6 +19,8 @@ Work through the steps below in order. Once you've finished the last one, you'll
 
 Running XCTests from `xcodebuild` produces a `.xcresult` in an obscure directory by default. You can specify a `-resultBundlePath` option to generate the results locally:
 
+Replace `<YOUR_SCHEME>` with the Xcode scheme name for your test target.
+
 ```sh
 xcodebuild test -scheme <YOUR_SCHEME> \
   -resultBundlePath ./test-results.xcresult
@@ -44,7 +46,7 @@ If you run tests in CI with [the `-retry-tests-on-failure` option](https://keith
 
 Before modifying your CI jobs to automatically upload test results to Trunk, try uploading a single test run manually.
 
-You make an upload to Trunk using the following command:
+You make an upload to Trunk using the following command. Replace `<TRUNK_ORG_SLUG>` and `<TRUNK_ORG_TOKEN>` with your Trunk organization values (instructions at the bottom of this page).
 
 <CodeGroup>
 ```bash Linux (x64)

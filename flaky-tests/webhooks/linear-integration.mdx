@@ -49,6 +49,8 @@ You'll need to configure the following headers.
 | --------------- | ------------------ |
 | `Authorization` | `<YOUR_API_TOKEN>` |
 
+Replace `<YOUR_API_TOKEN>` with the Linear personal access token you created in [step 1](#id-1.-create-a-linear-personal-access-token).
+
 ### 4. Find your Linear Team, Project, and Label IDs
 
 You need to find your Linear team, project, and label IDs to create issues with the appropriate labeling. You can do this by querying your Linear project using cURL.
@@ -278,7 +280,7 @@ If you have CODEOWNERS configured in your repo, it will be reported by Trunk in 
 
 Since the way your owners map to your Linear user is unique to your team, you'll need to provide your own mapping to convert code owners to their **Linear ID**.
 
-You can modify your issue create payload like this to include an assignee:
+You can modify your issue create payload like this to include an assignee. Replace `<YOUR_TEAM_ID>`, `<YOUR_PROJECT_ID>`, `<YOUR_LABEL_ID>`, and `<ASSIGNEE_ID>` with the IDs you queried for above.
 
 ```javascript
 webhook.payload = {query: `mutation IssueCreate {

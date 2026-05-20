@@ -263,6 +263,8 @@ scrape_configs:
         values: ['<your-trunk-api-token>']
 ```
 
+Replace `<your-trunk-api-token>` with a Trunk API token — see [API tokens](/setup-and-administration/apis) for how to generate one.
+
 To scrape metrics for all repositories in your organization, omit both the `repo` and `repoHost` parameters.
 
 #### Datadog Agent configuration
@@ -284,6 +286,8 @@ instances:
     min_collection_interval: 60
     send_distribution_buckets: true
 ```
+
+Replace `<your-trunk-api-token>` with a Trunk API token — see [API tokens](/setup-and-administration/apis) for how to generate one.
 
 To collect metrics for all repositories in your organization, omit the query parameters:
 

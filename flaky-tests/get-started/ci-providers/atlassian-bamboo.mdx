@@ -57,6 +57,14 @@ The following is an example of a [Bamboo Plan Spec](https://confluence.atlassian
 
 To find out how to produce the report files the uploader needs, see the instructions for your test framework in the [frameworks](../frameworks/ "mention") docs.
 
+Replace the following placeholders before running the spec:
+
+- `<YOUR_PROJECT_KEY>`, `<YOUR_PLAN_KEY>`, `<YOUR_JOB_KEY>` — your Bamboo project, plan, and job identifiers
+- `<XML_GLOB_PATH>` (XML tab) — the glob your test framework writes JUnit XML to
+- `<BEP_JSON_PATH>` (Bazel tab) — the Bazel build event protocol JSON file produced by your test run
+- `<XCRESULT_PATH>` (XCode tab) — the path to your `.xcresult` bundle
+- `<YOUR_TRUNK_ORG_SLUG>` and `<YOUR_TRUNK_TOKEN>` — the values from [Trunk Organization Slug and Token](#trunk-organization-slug-and-token) above
+
 <CodeGroup>
 ```yaml XML
 version: 2
