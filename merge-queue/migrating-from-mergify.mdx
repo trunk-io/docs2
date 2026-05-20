@@ -1,0 +1,168 @@
+---
+title: "Migrate from Mergify"
+description: "Switch from Mergify to Trunk Merge Queue. Map Mergify constructs to Trunk equivalents, configure GitHub rulesets for queue admission, and use the impacted_targets API for per-target test selection."
+---
+
+For teams moving off Mergify, the migration is usually motivated by platform reliability,
+per-target test selection, or both. This page covers the mental shift required, the
+mapping between Mergify and Trunk concepts, the observability surface, and a recommended
+migration sequence.
+
+<Tip>
+Looking for a feature comparison? [Trunk vs Mergify](https://trunk.io) covers the
+high-level differences. This page is the hands-on migration guide.
+</Tip>
+
+***
+
+### The mental shift: queue admission vs testing requirements
+
+The biggest conceptual change when moving from Mergify is that **Mergify rules decide
+both whether a PR can enter the queue and what gets tested**, while Trunk separates
+those two concerns:
+
+- **GitHub** (via [branch protection rulesets](./getting-started/configure-branch-protection))
+  decides whether a PR is admissible to the queue. Trunk waits until GitHub reports the PR
+  as mergeable, then admits it.
+- **Trunk** decides what to test once the PR is in the queue. The `required_statuses`
+  field in `trunk.yaml` controls which checks Trunk cares about **during** testing — not
+  what's required to enter the queue.
+
+If you've been packing both gating logic and test-selection logic into Mergify rules,
+expect to split them: branch protection / rulesets get the gating, Trunk gets the testing.
+
+***
+
+### Mapping Mergify constructs to Trunk
+
+#### `queue_rules` → Trunk queue settings + GitHub rulesets
+
+Mergify `queue_rules` typically combine admission criteria (which PRs can enter), batching
+behavior, and merge conditions. In Trunk these split across two surfaces:
+
+- **Admission criteria** move to GitHub branch protection rules or rulesets. Required
+  status checks, required reviews, and merge restrictions all live there.
+- **Queue behavior** (batching, parallel queues, priority) is configured in the Trunk web
+  app or via [advanced queue settings](./administration/advanced-settings).
+
+#### `required_status_checks` with OR-clauses → rulesets + an aggregator action
+
+Mergify natively supports OR-clauses on required status checks (for example, "require
+either `ci-fast` or `ci-full` to pass"). Trunk's `trunk.yaml` `required_statuses` is a
+**flat list** with implicit AND semantics, so Mergify users with conditional check logic
+need to handle the OR upstream:
+
+- Use [GitHub rulesets](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/about-rulesets-for-repositories-and-organizations)
+  to define conditional admission. Rulesets support per-pattern and per-condition rules
+  that can encode OR-logic at the GitHub layer.
+- For check-level conditional logic that rulesets can't express, write an **aggregator
+  action**: a GitHub Actions workflow that runs the conditional logic and emits a single
+  status check Trunk can require. This is a one-time setup cost but keeps `trunk.yaml`
+  simple.
+
+<Info>
+Aggregator actions are the migration tax for teams with complex Mergify rules. Teams with
+straightforward AND-only required checks won't need them.
+</Info>
+
+#### `priority_rules` → labels + the submit API
+
+Mergify priority rules map to two Trunk mechanisms:
+
+- **Manual priority** via [`/trunk merge --high-priority`](./using-the-queue/reference) on
+  a PR comment, or the equivalent action in the Trunk web app.
+- **Label-driven priority** via the [submit Pull Request endpoint](./reference/merge-queue-cli-reference)
+  with a priority field. Use this when you want automation (a GitHub Action, an external
+  service) to set priority based on PR metadata.
+
+#### Per-rule conditional testing → `impacted_targets` API
+
+In Mergify, per-rule conditionals often gate which tests run for which PRs. In Trunk this
+is handled by the [`setImpactedTargets`](./reference/merge-queue-cli-reference) API: your
+CI computes the set of targets affected by a PR and reports them to Trunk, which uses that
+set to decide what to test in the queue.
+
+This is a different concept from Mergify's rule-level conditionals — it operates per-PR
+based on actual file changes, not per-rule based on PR metadata. For most teams this is a
+strict upgrade in precision; for teams that used Mergify rules to encode "if PR touches
+folder X, run test Y," the equivalent is computing impacted targets in CI and POSTing them
+before the PR enters the queue.
+
+***
+
+### Observability and reliability
+
+The other common migration driver is platform observability. Trunk's surface here:
+
+- **[status.trunk.io](https://status.trunk.io)** — public status page with subscriber
+  push notifications. Status changes also surface in the Trunk web app UI directly.
+- **Stalled-queue response** — Trunk treats stalled queues as all-hands incidents. Multiple
+  internal stall-pattern alerts fire across the team simultaneously, not a single on-call
+  paged in isolation.
+- **Testing-timeout safety net** — Trunk enforces a configurable test-timeout so a single
+  hung test can't stall the queue indefinitely.
+- **Public scrapeable metrics endpoint** — Trunk exposes a Prometheus-style
+  [metrics endpoint](./administration/metrics) you can point your monitoring stack at for
+  customer-side alerting on queue depth, throughput, and per-PR latency.
+
+<Info>
+The metrics endpoint is the recommended path for teams who want their existing dashboards
+(Grafana, Datadog) to alert on Trunk queue health alongside their other infrastructure.
+</Info>
+
+***
+
+### Migration sequence
+
+Recommended order. Each step is independent; you can pause between any of them.
+
+#### 1. Inventory existing Mergify rules
+
+Catalog your current `.mergify.yml`:
+
+- Admission rules (which PRs enter the queue) → these become **GitHub rulesets**.
+- Status-check requirements (which checks are required) → these become **`required_statuses`
+  in `trunk.yaml`**, possibly aggregated by a workflow if Mergify used OR-logic.
+- Priority rules → these become **labels + the submit API**, or `/trunk merge --high-priority`.
+- Per-rule testing conditionals → these become **`setImpactedTargets`** calls in CI.
+
+#### 2. Configure GitHub rulesets
+
+Move admission logic out of Mergify and into GitHub rulesets first. Verify rulesets behave
+as expected with a small group of PRs before enabling Trunk.
+
+#### 3. Enable Trunk Merge Queue
+
+Follow the [Getting Started](./getting-started/) guide to install the Trunk GitHub App,
+configure `trunk.yaml`, and connect your repository.
+
+#### 4. Optional: run both in parallel during transition
+
+If you want a low-risk evaluation period, run Trunk alongside Mergify for a window. Trunk
+handles externally-merged PRs gracefully — if Mergify merges a PR while Trunk has it in
+queue, Trunk marks it merged on its side and restarts any in-flight tests against the new
+base.
+
+<Info>
+While running both, disable [Trunk's GitHub comments](./administration/advanced-settings)
+so developers don't see comments from both systems during evaluation.
+</Info>
+
+#### 5. Turn off Mergify
+
+Once Trunk is handling your queue traffic cleanly, disable the Mergify app on the
+repository. Re-enable Trunk's GitHub comments to make merges visible to the team.
+
+#### 6. Share the rollout
+
+Point your team at [Using the Queue](./using-the-queue/) so they know how to interact with
+the new merge flow.
+
+***
+
+### Getting help
+
+If you hit something during migration that isn't covered here, your Slack Connect channel
+with Trunk is the fastest path. Common Mergify migration questions land there frequently
+enough that this page exists; if yours doesn't get answered by this page, mention it so we
+can extend the coverage.

@@ -66,6 +66,7 @@
                 ]
               },
               "merge-queue/migrating-from-github-merge-queue",
+              "merge-queue/migrating-from-mergify",
               {
                 "group": "Optimizations",
                 "root": "merge-queue/optimizations/index",
