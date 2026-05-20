@@ -105,7 +105,11 @@ If you are connected to Jira, you can click the **Create Jira Ticket** button at
 
 If you already have a ticket in Jira that you want to link to a test in the dashboard, you can use the [Link Ticket to Test Case API](../../reference/api-reference#post-flaky-tests-link-ticket-to-test-case).
 
-## Custom Fields
+<Info>
+For credential errors, cross-project link permission errors, webhook link-back patterns, and CODEOWNERS routing, see [Integration patterns and troubleshooting](./integration-patterns).
+</Info>
+
+### Custom Fields
 
 Some Jira projects require additional fields beyond the standard fields (summary, description, and issue type) when creating tickets. Trunk supports configuring default values for any Jira field on a per-issue-type basis. Users can also override those defaults when creating a ticket.
 

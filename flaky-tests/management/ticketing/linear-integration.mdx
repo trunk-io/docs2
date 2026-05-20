@@ -59,7 +59,11 @@ If you are connected to Linear, you can click the **Create Linear Ticket** butto
 
 Note: You can use [Flaky Tests webhooks](../../webhooks/linear-integration) to automate ticket creation, or if you need more control over how tickets are created in Linear. This integration is not required when using webhooks.
 
-## Field defaults
+<Info>
+Webhook-created tickets are not linked back to the test details page automatically. See [Integration patterns and troubleshooting](./integration-patterns#link-back-asymmetry) for the link-back patterns, idempotency caveats, and CODEOWNERS routing notes.
+</Info>
+
+### Field defaults
 
 After selecting a team, you can configure default values that pre-populate whenever a new Linear ticket is created from Flaky Tests:
 

@@ -1,0 +1,238 @@
+---
+title: "Integration patterns and troubleshooting"
+description: "Webhook vs button-based ticket creation, link-back behavior, idempotency, CODEOWNERS routing, and troubleshooting for Linear and Jira ticketing integrations."
+---
+
+There are three ways to create a Linear or Jira ticket from a flaky test, and they
+behave differently in ways that matter for production setups. This page covers the
+tradeoffs between patterns, the common gotchas (link-back, idempotency, CODEOWNERS
+routing, rate limits), and troubleshooting for credential and permission errors.
+
+***
+
+### Pick a creation pattern
+
+Each pattern trades off control vs convenience. Most teams end up with a mix.
+
+| Pattern | How tickets are created | Link-back to test page | Field control | CODEOWNERS routing |
+| --- | --- | --- | --- | --- |
+| **Button-based** (UI) | A user clicks **Create Ticket** on the test details page or repo overview | Automatic | Field defaults configured in settings | Not used |
+| **Webhook** (built-in connector) | Trunk emits `v2.test_case.status_changed`, your Svix transformation calls the Linear or Jira API | **Not automatic** — requires a follow-up `link-ticket` call | Full control via transformation | Not supported by the built-in transformation |
+| **Custom handler** (webhook → your service → Linear/Jira) | Webhook hits your own endpoint, which decides whether and how to create the ticket | Must call `link-ticket` yourself | Full | Can implement arbitrary routing logic |
+
+If you only need ticket creation for a handful of tests per week and your team works
+out of one Linear team or Jira project, the button-based flow is the lowest-friction
+option. If you need automation, expect to write a custom handler or layer
+Linear automations on top of the built-in webhook.
+
+***
+
+### Link-back asymmetry
+
+This is the most common source of confusion when moving from the button flow to a
+webhook flow.
+
+- **Button-based tickets are linked back automatically.** When a user clicks
+  **Create Linear Ticket** or **Create Jira Ticket** in the dashboard, Trunk
+  creates the ticket and associates it with the test in one step. The test details
+  page shows the ticket immediately.
+- **Webhook-created tickets are not linked back.** The
+  [built-in webhook connectors for Linear](../../webhooks/linear-integration) and
+  [Jira](../../webhooks/jira-integration) create the ticket in your ticketing
+  system, but Trunk has no way to know which ticket corresponds to which test
+  unless you tell it.
+
+To get link-back behavior with webhooks, call the
+[Link Ticket to Test Case API](../../reference/api-reference#post-flaky-tests-link-ticket-to-test-case)
+after creating the ticket. Two patterns work well:
+
+#### Pattern A: webhook handler calls link-ticket after creation
+
+Replace the built-in connector's direct call to Linear or Jira with a call to your
+own service. Your service creates the ticket, gets back the ticket ID or URL, and
+then calls Trunk's link-ticket API with that ticket reference and the
+`test_case.id` from the webhook payload.
+
+This pattern keeps everything in one handler and is the most common choice when you
+already have an internal service that brokers ticketing.
+
+#### Pattern B: ticketing-system automation calls link-ticket on creation
+
+If you're using Linear, you can attach an automation to the Linear project that
+triggers when a new issue is created and POSTs to Trunk's link-ticket API. This
+avoids running your own service but pushes the integration logic into Linear's
+automation surface. Jira Automation can do the equivalent on the Jira side, with
+the caveat that you need to extract the test case ID from the ticket description
+or a custom field.
+
+<Info>
+The `test_case.id` returned in the webhook payload is the stable identifier
+Trunk expects. If you store it in the ticket description or a Jira custom field
+at creation time, the automation has something to reference when it calls
+link-ticket.
+</Info>
+
+***
+
+### Webhooks have no idempotency
+
+Trunk's `v2.test_case.status_changed` webhook fires on every transition. A test
+that goes **flaky → healthy → flaky** will trigger the webhook twice, and the
+default transformation will create two tickets — Trunk does not track which tests
+already have an open ticket.
+
+If you want one ticket per test regardless of how many times it flaps, the
+deduplication has to happen in your handler. Options:
+
+- **Query before creating.** Before creating a ticket, query Linear or Jira for an
+  existing ticket that references the `test_case.id` (matched against ticket
+  description or a custom field). Skip creation if one exists.
+- **Use the link-ticket API as a deduplication signal.** Call
+  [`POST /flaky-tests/get-test-details`](../../reference/api-reference#post-flaky-tests-get-test-details)
+  with the test case ID and check whether a ticket is already linked. If one is,
+  skip creation.
+- **Filter on status transition.** If you only want one ticket the first time a
+  test goes flaky, your transformation can no-op on transitions where
+  `previous_status === "HEALTHY"` isn't the first such transition. This requires
+  storing state outside the webhook handler.
+
+The built-in connector templates filter on `new_status === "FLAKY"` but do nothing
+beyond that. Treat that filter as the floor, not the ceiling.
+
+***
+
+### CODEOWNERS-based routing is not built in
+
+The webhook payload includes `test_case.codeowners`, but the **built-in Linear
+and Jira connectors do not use it for team or assignee routing**. The default
+transformations write the codeowners list into the ticket description as prose;
+they do not pick a Linear team or Jira project based on it.
+
+If you need to route tickets to different teams based on CODEOWNERS, you need a
+custom handler or a customized transformation. The Linear webhook integration
+guide shows
+[an example mapping CODEOWNERS to Linear assignee IDs](../../webhooks/linear-integration#optional-automatic-issue-assignment)
+— team-level routing follows the same pattern but writes a different `teamId`
+instead of an `assigneeId`.
+
+For Jira, the equivalent is to map CODEOWNERS values to project keys or assignee
+account IDs in your handler before constructing the issue payload.
+
+<Info>
+Manual ticket creation (the button flow) uses the field defaults configured per
+repository in **Settings** > **Repositories** > **Ticketing Integration**. It
+does not consult CODEOWNERS either. CODEOWNERS-driven routing is only available
+when you build it yourself in a webhook handler.
+</Info>
+
+***
+
+### Auto-quarantine + auto-ticket combinations
+
+A common goal is "quarantine the test automatically, and file a ticket so someone
+fixes it." This requires both halves of the setup to be wired correctly:
+
+- **Auto-quarantine** is configured under
+  [quarantining settings](../../quarantining/index) and runs on Trunk's side. It
+  changes the test's quarantine status but does not create a ticket on its own.
+- **Auto-ticket creation** requires a webhook subscribed to
+  `v2.test_case.status_changed` with a working transformation pointed at Linear
+  or Jira.
+
+If quarantine kicks in but no ticket appears, walk the webhook side first:
+
+1. Confirm a webhook endpoint exists for the Linear or Jira connector in
+   **Settings** > **Organization** > **Webhooks**.
+2. Open the endpoint's **Message Attempts** log in the Svix app portal. If the
+   event arrived but the response is 4xx, the transformation is producing an
+   invalid payload (most commonly: missing required Jira custom field, or wrong
+   project key).
+3. If the event never arrived at the endpoint, the upstream event itself did not
+   fire. See the next section.
+
+***
+
+### Beta auto-analyses rate limit
+
+If you depend on `test_case.investigation_completed` (the AI analysis event that
+[Autofix Flaky Tests](../../agents/autofix-flaky-tests) emits) to trigger ticket
+creation, the analysis is rate-limited.
+
+The beta default is **100 auto-analyses per month per workspace**. Once that
+limit is hit, no further `test_case.investigation_completed` events fire for the
+rest of the month, and any downstream webhook (including Linear or Jira ticket
+creation that depends on the investigation event) stops as well.
+
+If you're hitting the limit:
+
+- Reach out via your dedicated support channel to request a raised limit.
+- For a one-off ticket, kick off a manual analysis from the test details page —
+  manual runs still emit the investigation event and will trigger downstream
+  webhooks.
+
+<Info>
+The `v2.test_case.status_changed` event (the one most ticketing webhooks
+subscribe to) is **not** rate-limited. The 100/month cap applies only to the AI
+investigation pipeline.
+</Info>
+
+***
+
+### Troubleshooting Jira
+
+#### "Invalid Credentials" on Jira connection
+
+When connecting Jira and the form returns **Invalid Credentials** (401):
+
+- **The Jira API token must belong to the same Atlassian account as the email
+  you entered.** This is the most common cause. Tokens created under a different
+  account will validate against that other account, not the one in the email
+  field.
+- The email field must be the email on the Atlassian profile of the token owner,
+  not an alias or shared inbox.
+- Confirm the token has not expired. Jira API tokens have a maximum lifetime of
+  365 days. Generate a new token if the original is past its expiry.
+
+If the credentials check passes but operations on a specific project fail, see
+the next section.
+
+#### "Unable to find ticket" when linking a Jira ticket via API
+
+If [linking a ticket via API](../../reference/api-reference#post-flaky-tests-link-ticket-to-test-case)
+returns **Unable to find ticket** for a project outside your default Jira
+integration project, the cause is almost always permissions or formatting:
+
+- **The Jira API token configured in your Trunk integration must have access to
+  the target project.** Trunk calls Jira's issues API directly, so a project the
+  token cannot read is invisible to Trunk. Confirm the user that owns the token
+  has _Browse projects_ permission on the target project.
+- **`external_ticket_id` must be formatted as `PROJECT_KEY-NUMBER`** (for
+  example, `ABC-1234`). The project key must match the actual key of the target
+  project — case-sensitive.
+
+This is the most common reason cross-project links fail: the token owner has
+access to their team's project but not the project they're trying to link to.
+
+***
+
+### Troubleshooting Linear
+
+The webhook-side issues (link-back, idempotency, CODEOWNERS routing) are covered
+in the sections above. For connection-time errors:
+
+- Confirm the Linear API key has the required permissions for the connection —
+  see [API Key permissions](./linear-integration#api-key-permissions). _Read_ and
+  _Create issues_ are the minimum.
+- Confirm the team you select in the connection form is one the API key has
+  access to. Linear scopes API keys to the issuing user; if the user is not a
+  member of the team, the connection will fail to enumerate it.
+
+***
+
+### Related pages
+
+- [Linear integration](./linear-integration) — built-in connector setup and field defaults
+- [Jira integration](./jira-integration) — built-in connector setup, API token scopes, and custom fields
+- [Linear webhook integration](../../webhooks/linear-integration) — automated ticket creation with custom transformations
+- [Jira webhook integration](../../webhooks/jira-integration) — automated ticket creation with custom transformations
+- [Link Ticket to Test Case API](../../reference/api-reference#post-flaky-tests-link-ticket-to-test-case) — programmatic link-back
