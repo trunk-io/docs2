@@ -248,6 +248,7 @@
                   "flaky-tests/detection/pass-on-retry-monitor",
                   "flaky-tests/detection/failure-rate-monitor",
                   "flaky-tests/detection/failure-count-monitor",
+                  "flaky-tests/detection/tuning-monitors",
                   "flaky-tests/detection/flag-as-flaky",
                   "flaky-tests/detection/the-importance-of-pr-test-results",
                   "flaky-tests/detection/infrastructure-failure-protection"

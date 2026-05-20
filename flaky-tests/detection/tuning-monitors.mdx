@@ -1,0 +1,95 @@
+---
+title: "Tuning monitors for your run volume"
+description: "Match monitor type, thresholds, and branch scope to how often your tests actually run."
+---
+Monitors are a tunable system, not a fixed ruleset. The defaults work for typical CI volumes — frequent PR runs, frequent merges, a busy `main` branch. Teams that run differently (low-volume daily suites, very noisy PR branches, queue-only failures) often see one of two symptoms: monitors that never trigger when they should, or monitors that flip on a single transient failure.
+
+This page is a tuning meta-guide. It does not re-explain the individual monitor types — see [Pass-on-Retry](./pass-on-retry-monitor), [Failure Rate](./failure-rate-monitor), and [Failure Count](./failure-count-monitor) for those. It walks through the system-level questions that come up most often: which monitor to use at which run volume, how to avoid single-failure flips, why a monitor scoped to `main` misses queue-branch failures, what the **inactive** state in the UI actually means, and what to check before turning on auto-quarantine.
+
+### Match the monitor to your run volume
+
+The right monitor depends on how many runs accumulate on the branches you care about, not just on the failure pattern you want to catch.
+
+#### Low-volume suites (e.g. once-daily runs)
+
+A failure rate monitor needs enough runs inside its window to clear the **minimum sample size** before it evaluates a test at all. If your suite runs once a day and you have a 24-hour window with a minimum sample size of 10, the monitor will never have enough data to fire — and the test will look "healthy" in the UI even at a 100% failure rate.
+
+Two adjustments make low-volume suites work:
+
+- Switch to a [failure count monitor](./failure-count-monitor). It reacts to individual failures without a percentage calculation or sample-size floor.
+- If you want a failure rate monitor, raise the window (e.g. 48 hours), lower the minimum sample size to 2 or 3, and accept that low minimums carry less statistical confidence.
+
+#### High-volume PR branches
+
+PR branches generate a lot of noise: failing tests are often expected during active development, and developers re-push corrections that look like flapping. Two patterns work here:
+
+- Use a failure count monitor with a short window (for example, `>= 2` failures in 1 hour) to catch genuine repeat failures without needing a rate calculation.
+- If you use a failure rate monitor on PRs, scope it to **broken** detection with a high threshold (70–90%) so it only flags persistent breakage, not normal in-development churn. See [Pull Requests: Catch Broken Tests](./failure-rate-monitor#pull-requests-catch-broken-tests) for full settings.
+
+### Avoid single-failure flips on main
+
+The most common false-positive pattern is a flaky monitor that trips on a single failure: any non-zero failure count in a short window exceeds the configured threshold and the test gets flagged.
+
+If you see this, the monitor's effective rule is "1 failure equals flaky." Two changes reduce it:
+
+- Raise the activation threshold and lengthen the window. For example, switch from `> 1% over 3 days` to `> 20% over 120 hours with at least 5 runs`. That works out to roughly "2 of 5 failures" before a test flips to flaky.
+- Enable the [Pass-on-Retry monitor](./pass-on-retry-monitor) as your primary flakiness signal. A fail-then-pass on the same commit is a much stronger indicator of true flakiness than a single failure on a stable branch.
+
+<Info>
+A failure rate monitor with a low activation threshold and a low minimum sample size is mathematically equivalent to a failure count monitor with `count = 1`. If that's what you want, use a failure count monitor explicitly — the intent is clearer in the UI and easier to tune later.
+</Info>
+
+### Cover the branches where failures actually happen
+
+A monitor only evaluates runs on branches that match its [branch scope](./failure-rate-monitor#branch-scope). A failure rate monitor scoped to `main` will not flag a test that failed 91 times out of 113 runs if those runs were all on PR or merge queue branches.
+
+If you have tests that fail heavily in CI but appear healthy in Trunk, check the monitor's branch list first:
+
+- For GitHub Merge Queue, add `gh-readonly-queue/*` (or `gh-readonly-queue/main/*` to scope tighter).
+- For Trunk Merge Queue, add `trunk-merge/*`.
+- For Graphite Merge Queue, add `graphite-merge/*`.
+- For PR branches, add patterns like `feature/*`, `fix/*`, or your team's naming convention.
+
+You can either expand an existing monitor's branch list or create a dedicated monitor per branch class with different thresholds. The merge queue case is often best as its own monitor with stricter settings — failures there are suspicious because the code already passed PR checks. See [Merge Queue: Strict Monitoring](./failure-rate-monitor#merge-queue-strict-monitoring) for recommended values.
+
+### Recovery and resolution are tuned separately from activation
+
+The settings that flag a test are not the same settings that clear it. Tune both, or expect tests to stay flagged longer than you want.
+
+- **Pass-on-Retry recovery days** (default `7`, range 1–15) controls how long a test must go without pass-on-retry behavior before it returns to healthy. If a test was last flagged six days ago and you wonder why 20+ clean runs haven't cleared it, the answer is usually that the 7-day clock hasn't expired yet. Shorten this on the monitor's settings page if you want faster recovery.
+- **Failure rate resolution threshold** is independent from the activation threshold. Setting resolution lower than activation creates a buffer that prevents flapping — see [Resolution Threshold](./failure-rate-monitor#resolution-threshold).
+- **Failure count resolution timeout** is the only way a failure count monitor resolves. If a test stops running entirely, it stays flagged until the resolution timeout elapses from its last failure. See [Resolution Timeout](./failure-count-monitor#resolution-timeout).
+- **Failure rate stale timeout** clears flagged tests that have stopped running (deleted, renamed, or skipped). See [Stale Timeout](./failure-rate-monitor#stale-timeout).
+
+### What "inactive" means in the monitors UI
+
+A monitor in the **inactive** state is still enabled. The label means the monitor was previously triggered for the test and is no longer triggered — it has resolved. It does not mean the monitor is disabled, paused, or misconfigured.
+
+| State | Meaning |
+|---|---|
+| **Active** | The monitor is currently triggered for this test |
+| **Inactive** | The monitor was previously triggered and has resolved; it continues to evaluate new runs |
+| **Disabled** | The monitor has been turned off and is not evaluating any runs |
+
+If both of your monitors show "inactive" and you expect them to be flagging tests, check that they are evaluating the branches where failures occur (see [Cover the branches where failures actually happen](#cover-the-branches-where-failures-actually-happen) above) and that thresholds are achievable given your run volume.
+
+### Before turning on auto-quarantine
+
+[Auto-quarantine](../agents/autofix-flaky-tests) quarantines tests flagged by your enabled flaky monitors. Broken tests are not quarantined — they represent real regressions that should be fixed, not hidden.
+
+Two checks before flipping it on:
+
+- **Spot-check your current flaky set.** Open the flaky tests list and look for false positives (tests that aren't actually flaky but tripped a monitor) and false negatives (tests you know are flaky but no monitor flagged). If either list is long, tune your monitors first.
+- **Aim for windows in the 1–3 day range.** That's a reasonable starting point for most teams: short enough that quarantines reflect recent behavior, long enough to avoid flapping on individual failures.
+
+Auto-quarantine respects per-monitor severity, so a test classified by a broken monitor will not be quarantined even if it's also flagged by a flaky monitor.
+
+### A gap to be aware of
+
+There is no current way to tell, at the monitor level, whether a failure on a merge queue branch came from a genuinely flaky test or from a PR that introduced a real regression. Both look the same to Trunk: a failure on `gh-readonly-queue/*` (or your queue's equivalent).
+
+The pragmatic proxy is a higher-threshold failure count monitor scoped to your merge queue branches — for example, `>= 2` failures in 1 hour. A single failure could be a bad PR, but multiple failures across different queue runs in a short window are a stronger signal that the test itself is the problem. We're aware of the gap and tracking it.
+
+### Getting help
+
+If you're seeing detection behavior you don't expect after tuning, reach out to your dedicated Trunk support channel. Bring the monitor's settings, the test's recent run history (branch breakdown matters), and what you expected to happen.
