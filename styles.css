@@ -71,10 +71,3 @@ img.secondary-opacity {
   filter: invert(1) brightness(1.4);
   opacity: 1;
 }
-
-/* Slack community anchor: hidden via CSS while keeping the entry in
-   docs.json's navigation.global.anchors. Remove this rule to bring it
-   back. Mintlify's anchor schema has no native hidden/disabled flag. */
-a[href="https://slack.trunk.io"] {
-  display: none;
-}

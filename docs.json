@@ -601,11 +601,6 @@
           "anchor": "Open app"
         },
         {
-          "href": "https://slack.trunk.io",
-          "icon": "slack",
-          "anchor": "Slack community"
-        },
-        {
           "href": "https://trunk.io/changelog",
           "icon": "bullhorn",
           "anchor": "Changelog"
@@ -637,10 +632,6 @@
           {
             "href": "https://app.trunk.io",
             "label": "Open app"
-          },
-          {
-            "href": "https://slack.trunk.io",
-            "label": "Slack community"
           },
           {
             "href": "https://trunk.io/changelog",
