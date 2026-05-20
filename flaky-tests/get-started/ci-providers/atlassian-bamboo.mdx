@@ -55,7 +55,7 @@ Trunk can also detect test flakes on PR and merge branches. To best detect flaky
 
 The following is an example of a [Bamboo Plan Spec](https://confluence.atlassian.com/bamboo/bamboo-specs-894743906.html) that uploads test results after your tests run. The upload step is placed under `final-tasks` so it runs even when tests fail. Note: you must either run `trunk` from the repo root when uploading test results or pass a `--repo-root` argument.
 
-To find out how to produce the report files the uploader needs, see the instructions for your test framework in the [frameworks](../frameworks/ "mention") docs.
+To find out how to produce the report files the uploader needs, see the instructions for your test framework in the [frameworks](../frameworks/) docs.
 
 <CodeGroup>
 ```yaml XML
@@ -181,7 +181,7 @@ Bamboo automatically sets the `bamboo_repository_pr_key` variable on PR builds, 
 The examples above use the Linux x64 binary. If your CI runs on a different platform, see the [Trunk Analytics CLI](../../reference/cli-reference#manual-download) page for all available platform downloads.
 </Info>
 
-See the [uploader.md](../../reference/cli-reference.md "mention") for all available command line arguments and usage.
+See the [uploader.md](../../reference/cli-reference.md) for all available command line arguments and usage.
 
 #### Stale files
 
