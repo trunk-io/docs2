@@ -2,88 +2,29 @@
 title: "Submit and cancel pull requests"
 description: "Covers the journey of a PR from submission through various states to completion"
 ---
+
 ## Submitting and cancelling pull requests
 
-We offer a few mechanisms for submitting a PR to the Merge Graph:
+<Tabs>
+  <Tab title="Chrome Extension">
+    Install the [Trunk for GitHub Chrome Extension](https://chromewebstore.google.com/detail/trunk-for-github/liggeliamkammmieidmmfmmdnjilabgn) to submit and cancel PRs directly from GitHub without leaving your pull request page.
 
-* Posting a GitHub comment `/trunk merge` on a pull request.
-* Ticking the checkbox in the Trunk comment on a pull request.
-* Clicking the "Retry" button on the WebApp.
-* Using the `trunk` CLI:
+    <Frame>
+      ![Image](/images/image.png)
+    </Frame>
 
-```
-trunk login
-trunk merge <pr-number>
-```
+    | State | Description |
+    | :-- | :-- |
+    | Submit | Click "Add to Merge Queue" button. You can change the priority of the submission by clicking on the drop-arrow arrow. |
+    | Pending | Click "Remove" to remove the PR from the queue. |
+  </Tab>
+  <Tab title="GitHub Comment">
+    Post a comment directly on the pull request:
 
-* Applying a configured **enqueue label** to the pull request on GitHub (see [Enqueueing by label](#enqueueing-by-label)).
-
-Admins can also use [`/trunk merge --force`](./force-merge) to push a PR through the queue when branch protection isn't satisfied.
-
-## Enqueueing by label
-
-You can configure a GitHub label that, when applied to a pull request, automatically submits it to the merge queue. This lets teams integrate Trunk Merge Queue into existing label-based GitHub workflows and automations without requiring a comment or CLI command.
-
-### Configure the enqueue label
-
-1. Navigate to **Settings** > **Repositories** > **Merge Queue**.
-2. Under **Enqueue by label**, enter the name of the GitHub label you want to use (for example, `merge-queue` or `ready-to-merge`).
-3. Save the setting.
-
-Once configured, applying that label to any open pull request in the repository will enqueue it automatically. Trunk removes the label from the PR once the queue picks it up.
-
-<Info>
-The enqueue label only triggers enqueueing when applied to an open PR that is eligible for the queue. PRs that are draft, failing required checks, or otherwise ineligible will not be enqueued.
-</Info>
-
-### Removing from the queue
-
-Removing the configured label from a PR does **not** cancel it from the queue. Use `/trunk cancel`, the Web App, or the CLI to cancel an in-progress PR.
-
-We offer similar commands for cancellation.
-
-* Posting a GitHub comment `/trunk cancel` on a pull request.
-* Cancellation from the WebApp:
-
-<Frame>
-![](/assets/image_(35).png)
-</Frame>
-
-* Using the `trunk` CLI:
-
-```
-trunk login
-trunk merge cancel <pr-number>
-```
-
-## Custom merge commit titles
-
-You can specify a custom merge commit title for any PR by adding a `merge-commit-title:` directive on its own line anywhere in the PR body:
-
-```
-merge-commit-title: Your Custom Commit Title Here
-```
-
-When Trunk merges the PR, it uses this title instead of the default GitHub-generated title. When the directive is not present, the default behavior is preserved.
-
-The directive name is case-sensitive. It must be lowercase `merge-commit-title:`. Variations such as `Merge-Commit-Title:` are not recognized.
-
-This is useful for teams that follow conventional commit formats, include ticket numbers in merge commits, or want a cleaner git history.
-
-### Example
-
-```markdown
-## Description
-This PR adds user authentication.
-
-merge-commit-title: feat(auth): add OAuth2 login flow [PROJ-123]
-```
-
-<Info>
-The `merge-commit-title:` directive only customizes the merge commit **title**. The commit body follows the usual behavior for your configured [merge method](../administration/advanced-settings#merge-method).
-
-The directive applies to the **Squash** and **Merge Commit** merge methods. It has no effect when using **Rebase**, since rebase replays the original commits onto the target branch and does not produce a separate merge commit.
-</Info>
+    - **Submit:** `/trunk merge`
+    - **Cancel:** `/trunk cancel`
+  </Tab>
+</Tabs>
 
 ## Pull request processing
 
@@ -93,13 +34,13 @@ Once a PR is submitted to the merge queue it goes through several states. First,
 
 A PR's lifecycle in the Merge Queue goes through the following states:
 
-| State           | Description                                                                                                                                                                                                                                                                                                                                                                                                  |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Queued          | The PR was submitted to Trunk Merge Queue, but the PR isn't eligible for merging yet. Impacted targets may not be uploaded, or readiness checks may not have passed.                                                                                                                                                                                                                                         |
-| Pending         | The MergeGraph created a node for the PR. Testing will begin if the graph has capacity.                                                                                                                                                                                                                                                                                                                      |
-| Testing         | The PR is testing. Required status checks that Trunk Merge Queue must gate on before merging PRs can be specified with in `.trunk/trunk.yaml` or through GitHub branch protection rules as the "Status checks that are required" before merging on your merge branch                                                                                                                                         |
-| Tests Passed    | The PR successfully passed tests. It may have to wait for upstream PRs to complete tests before merging.                                                                                                                                                                                                                                                                                                     |
+| State | Description |
+| --- | --- |
+| Queued | The PR was submitted to Trunk Merge Queue, but the PR isn't eligible for merging yet. Impacted targets may not be uploaded, or readiness checks may not have passed. |
+| Pending | The MergeGraph created a node for the PR. Testing will begin if the graph has capacity. |
+| Testing | The PR is testing. Required status checks that Trunk Merge Queue must gate on before merging PRs can be specified with in `.trunk/trunk.yaml` or through GitHub branch protection rules as the "Status checks that are required" before merging on your merge branch |
+| Tests Passed | The PR successfully passed tests. It may have to wait for upstream PRs to complete tests before merging. |
 | Pending Failure | The PR failed tests. The cause of failures is still indeterminate - it may be due to an upstream PR, or due to the current PR. It will wait until the root cause of tests has been determined, and restart testing on your PR if due to an upstream PR. If you want to manually restart a failed PR, see [manually restarting PRs](./handle-failed-pull-requests#manually-restarting-failed-pull-requests). |
-| Merged          | The PR successfully merged into the target branch. It will be removed from the queue.                                                                                                                                                                                                                                                                                                                        |
-| Failed          | The PR caused a testing failure. It will be removed from the queue.                                                                                                                                                                                                                                                                                                                                          |
-| Cancelled       | The PR was cancelled, e.g. `/trunk cancel`. It will be removed from the queue.                                                                                                                                                                                                                                                                                                                               |
+| Merged | The PR successfully merged into the target branch. It will be removed from the queue. |
+| Failed | The PR caused a testing failure. It will be removed from the queue. |
+| Cancelled | The PR was cancelled, e.g. `/trunk cancel`. It will be removed from the queue. |
