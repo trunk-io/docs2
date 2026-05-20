@@ -6,12 +6,12 @@ description: "Verify your Trunk Merge Queue installation by submitting a test PR
 
 After completing configuration, verify your setup:
 
-* [ ] `trunk-io` bot is added to push restrictions for your protected branch
-* [ ] No branch protection rules apply to `trunk-temp/*` or `trunk-merge/*` branches
-* [ ] If using Draft PR mode: Required status checks are configured in GitHub branch protection
-* [ ] If using Push-triggered mode:
-  * [ ] CI workflows trigger on `trunk-merge/**` branches
-  * [ ] `merge.required_statuses` is defined in `trunk.yaml`
+* `trunk-io` bot is added to push restrictions for your protected branch
+* No branch protection rules apply to `trunk-temp/*` or `trunk-merge/*` branches
+* If using Draft PR mode: Required status checks are configured in GitHub branch protection
+* If using Push-triggered mode:
+  * CI workflows trigger on `trunk-merge/**` branches
+  * `merge.required_statuses` is defined in `trunk.yaml`
 
 #### **Test your configuration**
 

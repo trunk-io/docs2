@@ -7,6 +7,12 @@ This page covers how to make sure your CI checks run on the branches Trunk Merge
 * **Draft PR mode (default)** — no additional CI configuration is required.
 * **Push-Triggered mode** — you need to add a CI workflow that triggers on pushes to `trunk-merge/**`.
 
+## Prerequisites
+
+- Completed [Install the GitHub App and create a queue](./install-and-create-your-queue) and [Configure branch protection](./configure-branch-protection)
+- The testing mode chosen during branch protection setup (Draft PR or Push-Triggered) — you need to know which path applies
+- Write access to your CI provider's workflow configuration (e.g., `.github/workflows/` for GitHub Actions)
+
 ### If using Draft PR mode (default) <a href="#if-using-draft-pr-mode-default" id="if-using-draft-pr-mode-default"></a>
 
 Your existing pull request-triggered CI workflows will automatically run when Trunk creates draft pull requests to test changes. **No additional configuration is required.**
