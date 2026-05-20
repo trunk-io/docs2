@@ -50,295 +50,285 @@
       },
       {
         "tab": "Merge Queue",
-        "groups": [
+        "pages": [
+          "merge-queue/merge-queue",
           {
-            "group": "Merge Queue",
+            "group": "Getting Started",
+            "root": "merge-queue/getting-started/index",
             "pages": [
-              "merge-queue/merge-queue",
+              "merge-queue/getting-started/install-and-create-your-queue",
+              "merge-queue/getting-started/configure-branch-protection",
+              "merge-queue/getting-started/configure-ci-status-checks",
+              "merge-queue/getting-started/test-your-setup"
+            ]
+          },
+          "merge-queue/migrating-from-github-merge-queue",
+          {
+            "group": "Optimizations",
+            "root": "merge-queue/optimizations/index",
+            "pages": [
+              "merge-queue/optimizations/predictive-testing",
+              "merge-queue/optimizations/anti-flake-protection",
               {
-                "group": "Getting Started",
-                "root": "merge-queue/getting-started/index",
+                "group": "Parallel queues",
+                "root": "merge-queue/optimizations/parallel-queues/index",
                 "pages": [
-                  "merge-queue/getting-started/install-and-create-your-queue",
-                  "merge-queue/getting-started/configure-branch-protection",
-                  "merge-queue/getting-started/configure-ci-status-checks",
-                  "merge-queue/getting-started/test-your-setup"
+                  "merge-queue/optimizations/parallel-queues/bazel",
+                  "merge-queue/optimizations/parallel-queues/nx",
+                  "merge-queue/optimizations/parallel-queues/api"
                 ]
               },
-              "merge-queue/migrating-from-github-merge-queue",
+              "merge-queue/optimizations/batching",
+              "merge-queue/optimizations/priority-merging",
+              "merge-queue/optimizations/optimistic-merging",
+              "merge-queue/optimizations/pending-failure-depth",
+              "merge-queue/optimizations/direct-merge-to-main"
+            ]
+          },
+          {
+            "group": "Using the Queue",
+            "root": "merge-queue/using-the-queue/index",
+            "pages": [
+              "merge-queue/using-the-queue/reference",
+              "merge-queue/using-the-queue/monitor-queue-status",
+              "merge-queue/using-the-queue/handle-failed-pull-requests",
+              "merge-queue/using-the-queue/emergency-pull-requests",
+              "merge-queue/using-the-queue/force-merge"
+            ]
+          },
+          "merge-queue/integration-for-slack",
+          "merge-queue/chrome-extension",
+          "merge-queue/reference/merge-queue-cli-reference",
+          "merge-queue/webhooks",
+          {
+            "group": "API reference",
+            "root": "merge-queue/reference/merge",
+            "openapi": {
+              "source": "openapi.json",
+              "directory": "/merge-queue/reference/merge"
+            },
+            "pages": [
               {
-                "group": "Optimizations",
-                "root": "merge-queue/optimizations/index",
+                "group": "Pull Request Endpoints",
                 "pages": [
-                  "merge-queue/optimizations/predictive-testing",
-                  "merge-queue/optimizations/anti-flake-protection",
-                  {
-                    "group": "Parallel queues",
-                    "root": "merge-queue/optimizations/parallel-queues/index",
-                    "pages": [
-                      "merge-queue/optimizations/parallel-queues/bazel",
-                      "merge-queue/optimizations/parallel-queues/nx",
-                      "merge-queue/optimizations/parallel-queues/api"
-                    ]
-                  },
-                  "merge-queue/optimizations/batching",
-                  "merge-queue/optimizations/priority-merging",
-                  "merge-queue/optimizations/optimistic-merging",
-                  "merge-queue/optimizations/pending-failure-depth",
-                  "merge-queue/optimizations/direct-merge-to-main"
-                ]
-              },
-              {
-                "group": "Using the Queue",
-                "root": "merge-queue/using-the-queue/index",
-                "pages": [
-                  "merge-queue/using-the-queue/reference",
-                  "merge-queue/using-the-queue/monitor-queue-status",
-                  "merge-queue/using-the-queue/handle-failed-pull-requests",
-                  "merge-queue/using-the-queue/emergency-pull-requests",
-                  "merge-queue/using-the-queue/force-merge"
-                ]
-              },
-              "merge-queue/integration-for-slack",
-              "merge-queue/chrome-extension",
-              "merge-queue/reference/merge-queue-cli-reference",
-              "merge-queue/webhooks",
-              {
-                "group": "API reference",
-                "root": "merge-queue/reference/merge",
-                "openapi": {
-                  "source": "openapi.json",
-                  "directory": "/merge-queue/reference/merge"
-                },
-                "pages": [
-                  {
-                    "group": "Pull Request Endpoints",
-                    "pages": [
-                      "POST /cancelPullRequest",
-                      "POST /getSubmittedPullRequest",
-                      "POST /restartTestsOnPullRequest",
-                      "POST /setImpactedTargets",
-                      "POST /submitPullRequest",
-                      "POST /getMergeQueueTestingDetails"
-                    ]
-                  },
-                  {
-                    "group": "Metrics Endpoints",
-                    "pages": [
-                      "GET /getMergeQueueMetrics"
-                    ]
-                  },
-                  {
-                    "group": "Queue Endpoints",
-                    "pages": [
-                      "POST /createQueue",
-                      "POST /deleteQueue",
-                      "POST /getQueue",
-                      "POST /updateQueue"
-                    ]
-                  }
+                  "POST /cancelPullRequest",
+                  "POST /getSubmittedPullRequest",
+                  "POST /restartTestsOnPullRequest",
+                  "POST /setImpactedTargets",
+                  "POST /submitPullRequest",
+                  "POST /getMergeQueueTestingDetails"
                 ]
               },
               {
-                "group": "Administration",
-                "root": "merge-queue/administration/index",
+                "group": "Metrics Endpoints",
                 "pages": [
-                  "merge-queue/administration/advanced-settings",
-                  "merge-queue/administration/terraform",
-                  "merge-queue/administration/metrics"
+                  "GET /getMergeQueueMetrics"
                 ]
               },
               {
-                "group": "Reference",
-                "root": "merge-queue/reference/index",
+                "group": "Queue Endpoints",
                 "pages": [
-                  "merge-queue/reference/common-problems",
-                  "merge-queue/reference/troubleshooting"
+                  "POST /createQueue",
+                  "POST /deleteQueue",
+                  "POST /getQueue",
+                  "POST /updateQueue"
                 ]
               }
+            ]
+          },
+          {
+            "group": "Administration",
+            "root": "merge-queue/administration/index",
+            "pages": [
+              "merge-queue/administration/advanced-settings",
+              "merge-queue/administration/terraform",
+              "merge-queue/administration/metrics"
+            ]
+          },
+          {
+            "group": "Reference",
+            "root": "merge-queue/reference/index",
+            "pages": [
+              "merge-queue/reference/common-problems",
+              "merge-queue/reference/troubleshooting"
             ]
           }
         ]
       },
       {
         "tab": "Flaky Tests",
-        "groups": [
+        "pages": [
           {
-            "group": "Flaky Tests",
+            "group": "Overview",
+            "root": "flaky-tests/overview",
+            "pages": [
+              "flaky-tests/dashboard"
+            ]
+          },
+          {
+            "group": "Getting Started",
+            "root": "flaky-tests/get-started/index",
             "pages": [
               {
-                "group": "Overview",
-                "root": "flaky-tests/overview",
+                "group": "Test frameworks",
+                "root": "flaky-tests/get-started/frameworks/index",
                 "pages": [
-                  "flaky-tests/dashboard"
-                ]
-              },
-              {
-                "group": "Getting Started",
-                "root": "flaky-tests/get-started/index",
-                "pages": [
+                  "flaky-tests/get-started/frameworks/android",
+                  "flaky-tests/get-started/frameworks/bazel",
+                  "flaky-tests/get-started/frameworks/behave",
+                  "flaky-tests/get-started/frameworks/rust",
+                  "flaky-tests/get-started/frameworks/cypress",
+                  "flaky-tests/get-started/frameworks/dart-test",
+                  "flaky-tests/get-started/frameworks/gotestsum",
+                  "flaky-tests/get-started/frameworks/googletest",
+                  "flaky-tests/get-started/frameworks/gradle",
+                  "flaky-tests/get-started/frameworks/jasmine",
+                  "flaky-tests/get-started/frameworks/jest",
+                  "flaky-tests/get-started/frameworks/karma",
+                  "flaky-tests/get-started/frameworks/kotest",
+                  "flaky-tests/get-started/frameworks/maven",
+                  "flaky-tests/get-started/frameworks/minitest",
+                  "flaky-tests/get-started/frameworks/mocha",
+                  "flaky-tests/get-started/frameworks/nightwatch",
+                  "flaky-tests/get-started/frameworks/nunit",
+                  "flaky-tests/get-started/frameworks/pest",
+                  "flaky-tests/get-started/frameworks/phpunit",
+                  "flaky-tests/get-started/frameworks/playwright",
+                  "flaky-tests/get-started/frameworks/pytest",
+                  "flaky-tests/get-started/frameworks/robot-framework",
                   {
-                    "group": "Test frameworks",
-                    "root": "flaky-tests/get-started/frameworks/index",
+                    "group": "RSpec",
+                    "root": "flaky-tests/get-started/frameworks/rspec/index",
                     "pages": [
-                      "flaky-tests/get-started/frameworks/android",
-                      "flaky-tests/get-started/frameworks/bazel",
-                      "flaky-tests/get-started/frameworks/behave",
-                      "flaky-tests/get-started/frameworks/rust",
-                      "flaky-tests/get-started/frameworks/cypress",
-                      "flaky-tests/get-started/frameworks/dart-test",
-                      "flaky-tests/get-started/frameworks/gotestsum",
-                      "flaky-tests/get-started/frameworks/googletest",
-                      "flaky-tests/get-started/frameworks/gradle",
-                      "flaky-tests/get-started/frameworks/jasmine",
-                      "flaky-tests/get-started/frameworks/jest",
-                      "flaky-tests/get-started/frameworks/karma",
-                      "flaky-tests/get-started/frameworks/kotest",
-                      "flaky-tests/get-started/frameworks/maven",
-                      "flaky-tests/get-started/frameworks/minitest",
-                      "flaky-tests/get-started/frameworks/mocha",
-                      "flaky-tests/get-started/frameworks/nightwatch",
-                      "flaky-tests/get-started/frameworks/nunit",
-                      "flaky-tests/get-started/frameworks/pest",
-                      "flaky-tests/get-started/frameworks/phpunit",
-                      "flaky-tests/get-started/frameworks/playwright",
-                      "flaky-tests/get-started/frameworks/pytest",
-                      "flaky-tests/get-started/frameworks/robot-framework",
-                      {
-                        "group": "RSpec",
-                        "root": "flaky-tests/get-started/frameworks/rspec/index",
-                        "pages": [
-                          "flaky-tests/get-started/frameworks/rspec/manual-uploads"
-                        ]
-                      },
-                      "flaky-tests/get-started/frameworks/swift-testing",
-                      "flaky-tests/get-started/frameworks/testplan",
-                      "flaky-tests/get-started/frameworks/vitest",
-                      "flaky-tests/get-started/frameworks/xctest",
-                      "flaky-tests/get-started/frameworks/other-test-frameworks"
+                      "flaky-tests/get-started/frameworks/rspec/manual-uploads"
                     ]
                   },
+                  "flaky-tests/get-started/frameworks/swift-testing",
+                  "flaky-tests/get-started/frameworks/testplan",
+                  "flaky-tests/get-started/frameworks/vitest",
+                  "flaky-tests/get-started/frameworks/xctest",
+                  "flaky-tests/get-started/frameworks/other-test-frameworks"
+                ]
+              },
+              {
+                "group": "CI Providers",
+                "root": "flaky-tests/get-started/ci-providers/index",
+                "pages": [
+                  "flaky-tests/get-started/ci-providers/atlassian-bamboo",
+                  "flaky-tests/get-started/ci-providers/azure-devops-pipelines",
+                  "flaky-tests/get-started/ci-providers/bitbucket-pipelines",
+                  "flaky-tests/get-started/ci-providers/buildkite",
+                  "flaky-tests/get-started/ci-providers/circleci",
+                  "flaky-tests/get-started/ci-providers/droneci",
+                  "flaky-tests/get-started/ci-providers/github-actions",
+                  "flaky-tests/get-started/ci-providers/gitlab",
+                  "flaky-tests/get-started/ci-providers/google-cloud-build",
+                  "flaky-tests/get-started/ci-providers/jenkins",
+                  "flaky-tests/get-started/ci-providers/semaphoreci",
+                  "flaky-tests/get-started/ci-providers/travisci",
+                  "flaky-tests/get-started/ci-providers/otherci"
+                ]
+              },
+              "flaky-tests/get-started/multiple-repositories"
+            ]
+          },
+          {
+            "group": "Flaky test detection",
+            "root": "flaky-tests/detection/index",
+            "pages": [
+              "flaky-tests/detection/pass-on-retry-monitor",
+              "flaky-tests/detection/failure-rate-monitor",
+              "flaky-tests/detection/failure-count-monitor",
+              "flaky-tests/detection/flag-as-flaky",
+              "flaky-tests/detection/the-importance-of-pr-test-results",
+              "flaky-tests/detection/infrastructure-failure-protection"
+            ]
+          },
+          {
+            "group": "Flaky test management",
+            "root": "flaky-tests/management/index",
+            "pages": [
+              "flaky-tests/management/managing-detected-flaky-tests",
+              "flaky-tests/management/test-labels",
+              "flaky-tests/management/github-pull-request-comments",
+              {
+                "group": "Ticketing",
+                "root": "flaky-tests/management/ticketing/index",
+                "pages": [
+                  "flaky-tests/management/ticketing/jira-integration",
+                  "flaky-tests/management/ticketing/linear-integration",
+                  "flaky-tests/management/ticketing/other-ticketing-platforms"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Quarantining",
+            "root": "flaky-tests/quarantining/index",
+            "pages": [
+              "flaky-tests/quarantining/quarantine-service-availability"
+            ]
+          },
+          {
+            "group": "Webhooks",
+            "root": "flaky-tests/webhooks/index",
+            "pages": [
+              "flaky-tests/webhooks/slack-integration",
+              "flaky-tests/webhooks/microsoft-teams-integration",
+              "flaky-tests/webhooks/github-issues-integration",
+              "flaky-tests/webhooks/linear-integration",
+              "flaky-tests/webhooks/jira-integration"
+            ]
+          },
+          {
+            "group": "Agents",
+            "root": "flaky-tests/agents/index",
+            "pages": [
+              "flaky-tests/agents/autofix-flaky-tests",
+              "flaky-tests/agents/autofix-ci-failures",
+              "links/mcp-reference"
+            ]
+          },
+          {
+            "group": "Reference",
+            "root": "flaky-tests/reference/index",
+            "pages": [
+              "flaky-tests/reference/cli-reference",
+              {
+                "group": "API reference",
+                "root": "flaky-tests/reference/api-reference",
+                "openapi": {
+                  "directory": "/flaky-tests/reference/api-reference",
+                  "source": "/openapi.json"
+                },
+                "pages": [
+                  "POST /flaky-tests/get-test-details",
+                  "POST /flaky-tests/link-ticket-to-test-case",
+                  "POST /flaky-tests/list-failing-tests",
+                  "POST /flaky-tests/list-unhealthy-tests",
+                  "POST /flaky-tests/list-quarantined-tests"
+                ]
+              },
+              {
+                "group": "MCP reference",
+                "root": "flaky-tests/reference/mcp-reference/index",
+                "pages": [
                   {
-                    "group": "CI Providers",
-                    "root": "flaky-tests/get-started/ci-providers/index",
+                    "group": "Configuration",
+                    "root": "flaky-tests/reference/mcp-reference/configuration/index",
                     "pages": [
-                      "flaky-tests/get-started/ci-providers/atlassian-bamboo",
-                      "flaky-tests/get-started/ci-providers/azure-devops-pipelines",
-                      "flaky-tests/get-started/ci-providers/bitbucket-pipelines",
-                      "flaky-tests/get-started/ci-providers/buildkite",
-                      "flaky-tests/get-started/ci-providers/circleci",
-                      "flaky-tests/get-started/ci-providers/droneci",
-                      "flaky-tests/get-started/ci-providers/github-actions",
-                      "flaky-tests/get-started/ci-providers/gitlab",
-                      "flaky-tests/get-started/ci-providers/google-cloud-build",
-                      "flaky-tests/get-started/ci-providers/jenkins",
-                      "flaky-tests/get-started/ci-providers/semaphoreci",
-                      "flaky-tests/get-started/ci-providers/travisci",
-                      "flaky-tests/get-started/ci-providers/otherci"
+                      "flaky-tests/reference/mcp-reference/configuration/cursor-ide",
+                      "flaky-tests/reference/mcp-reference/configuration/github-copilot-ide",
+                      "flaky-tests/reference/mcp-reference/configuration/claude-code-cli",
+                      "flaky-tests/reference/mcp-reference/configuration/claude-code-plugin",
+                      "flaky-tests/reference/mcp-reference/configuration/gemini-cli",
+                      "flaky-tests/reference/mcp-reference/configuration/bearer-auth"
                     ]
                   },
-                  "flaky-tests/get-started/multiple-repositories"
-                ]
-              },
-              {
-                "group": "Flaky test detection",
-                "root": "flaky-tests/detection/index",
-                "pages": [
-                  "flaky-tests/detection/pass-on-retry-monitor",
-                  "flaky-tests/detection/failure-rate-monitor",
-                  "flaky-tests/detection/failure-count-monitor",
-                  "flaky-tests/detection/flag-as-flaky",
-                  "flaky-tests/detection/the-importance-of-pr-test-results",
-                  "flaky-tests/detection/infrastructure-failure-protection"
-                ]
-              },
-              {
-                "group": "Flaky test management",
-                "root": "flaky-tests/management/index",
-                "pages": [
-                  "flaky-tests/management/managing-detected-flaky-tests",
-                  "flaky-tests/management/test-labels",
-                  "flaky-tests/management/github-pull-request-comments",
-                  {
-                    "group": "Ticketing",
-                    "root": "flaky-tests/management/ticketing/index",
-                    "pages": [
-                      "flaky-tests/management/ticketing/jira-integration",
-                      "flaky-tests/management/ticketing/linear-integration",
-                      "flaky-tests/management/ticketing/other-ticketing-platforms"
-                    ]
-                  }
-                ]
-              },
-              {
-                "group": "Quarantining",
-                "root": "flaky-tests/quarantining/index",
-                "pages": [
-                  "flaky-tests/quarantining/quarantine-service-availability"
-                ]
-              },
-              {
-                "group": "Webhooks",
-                "root": "flaky-tests/webhooks/index",
-                "pages": [
-                  "flaky-tests/webhooks/slack-integration",
-                  "flaky-tests/webhooks/microsoft-teams-integration",
-                  "flaky-tests/webhooks/github-issues-integration",
-                  "flaky-tests/webhooks/linear-integration",
-                  "flaky-tests/webhooks/jira-integration"
-                ]
-              },
-              {
-                "group": "Agents",
-                "root": "flaky-tests/agents/index",
-                "pages": [
-                  "flaky-tests/agents/autofix-flaky-tests",
-                  "flaky-tests/agents/autofix-ci-failures",
-                  "links/mcp-reference"
-                ]
-              },
-              {
-                "group": "Reference",
-                "root": "flaky-tests/reference/index",
-                "pages": [
-                  "flaky-tests/reference/cli-reference",
-                  {
-                    "group": "API reference",
-                    "root": "flaky-tests/reference/api-reference",
-                    "openapi": {
-                      "directory": "/flaky-tests/reference/api-reference",
-                      "source": "/openapi.json"
-                    },
-                    "pages": [
-                      "POST /flaky-tests/get-test-details",
-                      "POST /flaky-tests/link-ticket-to-test-case",
-                      "POST /flaky-tests/list-failing-tests",
-                      "POST /flaky-tests/list-unhealthy-tests",
-                      "POST /flaky-tests/list-quarantined-tests"
-                    ]
-                  },
-                  {
-                    "group": "MCP reference",
-                    "root": "flaky-tests/reference/mcp-reference/index",
-                    "pages": [
-                      {
-                        "group": "Configuration",
-                        "root": "flaky-tests/reference/mcp-reference/configuration/index",
-                        "pages": [
-                          "flaky-tests/reference/mcp-reference/configuration/cursor-ide",
-                          "flaky-tests/reference/mcp-reference/configuration/github-copilot-ide",
-                          "flaky-tests/reference/mcp-reference/configuration/claude-code-cli",
-                          "flaky-tests/reference/mcp-reference/configuration/claude-code-plugin",
-                          "flaky-tests/reference/mcp-reference/configuration/gemini-cli",
-                          "flaky-tests/reference/mcp-reference/configuration/bearer-auth"
-                        ]
-                      },
-                      "flaky-tests/reference/mcp-reference/search-test",
-                      "flaky-tests/reference/mcp-reference/fix-flaky-test",
-                      "flaky-tests/reference/mcp-reference/set-up-test-uploads",
-                      "flaky-tests/reference/mcp-reference/investigate-ci-failure"
-                    ]
-                  }
+                  "flaky-tests/reference/mcp-reference/search-test",
+                  "flaky-tests/reference/mcp-reference/fix-flaky-test",
+                  "flaky-tests/reference/mcp-reference/set-up-test-uploads",
+                  "flaky-tests/reference/mcp-reference/investigate-ci-failure"
                 ]
               }
             ]
@@ -347,26 +337,21 @@
       },
       {
         "tab": "Setup & Administration",
-        "groups": [
+        "pages": [
+          "setup-and-administration/connecting-to-trunk",
+          "setup-and-administration/managing-your-organization",
+          "setup-and-administration/github-app-permissions",
+          "setup-and-administration/trunk-sudo-app",
+          "setup-and-administration/support",
+          "setup-and-administration/billing",
+          "setup-and-administration/security",
           {
-            "group": "Setup & Administration",
+            "group": "API Reference",
+            "root": "setup-and-administration/apis/index",
             "pages": [
-              "setup-and-administration/connecting-to-trunk",
-              "setup-and-administration/managing-your-organization",
-              "setup-and-administration/github-app-permissions",
-              "setup-and-administration/trunk-sudo-app",
-              "setup-and-administration/support",
-              "setup-and-administration/billing",
-              "setup-and-administration/security",
-              {
-                "group": "API Reference",
-                "root": "setup-and-administration/apis/index",
-                "pages": [
-                  "links/flaky-tests-api",
-                  "links/merge-queue-api",
-                  "setup-and-administration/apis/webhooks"
-                ]
-              }
+              "links/flaky-tests-api",
+              "links/merge-queue-api",
+              "setup-and-administration/apis/webhooks"
             ]
           }
         ]
