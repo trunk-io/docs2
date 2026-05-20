@@ -6,10 +6,10 @@ description: "Set up GitHub branch protection so Trunk Merge Queue can admit, te
 
 Before configuring branch protection:
 
-* [ ] Trunk GitHub App installed and queue created (previous step)
-* [ ] Repository has CI/CD configured (GitHub Actions, CircleCI, etc.)
-* [ ] CI runs on pull requests and reports status checks to GitHub
-* [ ] You have admin access to repository settings
+* Trunk GitHub App installed and queue created (previous step)
+* Repository has CI/CD configured (GitHub Actions, CircleCI, etc.)
+* CI runs on pull requests and reports status checks to GitHub
+* You have admin access to repository settings
 
 ### How Branch Protection Affects the Queue
 
@@ -158,11 +158,11 @@ For each Branch ruleset whose **Branch targeting criteria** could match `trunk-t
 
 Before submitting your first PR to the queue, confirm:
 
-* [ ] Ruleset #1 targets only your protected branch and has the Trunk GitHub App on the bypass list as **Exempt**.
-* [ ] Ruleset #2 targets only your protected branch and does **not** bypass Trunk.
-* [ ] Every other Branch ruleset visible at the organization level and on this repository either does not match `trunk-temp/**/*`/`trunk-merge/**/*`, or explicitly excludes both patterns.
-* [ ] (If using [Trunk Sudo](../../setup-and-administration/trunk-sudo-app)) Trunk Sudo is on Ruleset #1's bypass list as **Exempt**.
-* [ ] (If using [Trunk Sudo](../../setup-and-administration/trunk-sudo-app) **and** Force merge) Trunk Sudo is also on Ruleset #2's bypass list as **Exempt**.
+* Ruleset #1 targets only your protected branch and has the Trunk GitHub App on the bypass list as **Exempt**.
+* Ruleset #2 targets only your protected branch and does **not** bypass Trunk.
+* Every other Branch ruleset visible at the organization level and on this repository either does not match `trunk-temp/**/*`/`trunk-merge/**/*`, or explicitly excludes both patterns.
+* (If using [Trunk Sudo](../../setup-and-administration/trunk-sudo-app)) Trunk Sudo is on Ruleset #1's bypass list as **Exempt**.
+* (If using [Trunk Sudo](../../setup-and-administration/trunk-sudo-app) **and** Force merge) Trunk Sudo is also on Ruleset #2's bypass list as **Exempt**.
 
 #### Migrating from Classic rules to Rulesets <a href="#migrating-from-classic-rules-to-rulesets" id="migrating-from-classic-rules-to-rulesets"></a>
 
@@ -233,10 +233,10 @@ To verify and fix:
 
 Before submitting your first PR to the queue, confirm:
 
-* [ ] The `trunk-io` GitHub App is in the list of allowed actors for push restrictions on your protected branch.
-* [ ] No Classic branch protection rule on this repository uses a wildcard pattern (e.g., `*/*`, `**/*`) that matches `trunk-temp/**/*` or `trunk-merge/**/*` — or, if one does, the `trunk-io` bot is on its bypass list.
-* [ ] Every Branch ruleset visible at the organization level and on this repository either does not match `trunk-temp/**/*`/`trunk-merge/**/*`, or explicitly excludes both patterns. (Push rulesets do not need this exemption — see [Exempt Trunk's temporary branches from other rulesets](#exempt-trunk-temporary-branches).)
-* [ ] (If using [Trunk Sudo](/setup-and-administration/trunk-sudo-app)) Trunk Sudo is configured per the Trunk Sudo page.
+* The `trunk-io` GitHub App is in the list of allowed actors for push restrictions on your protected branch.
+* No Classic branch protection rule on this repository uses a wildcard pattern (e.g., `*/*`, `**/*`) that matches `trunk-temp/**/*` or `trunk-merge/**/*` — or, if one does, the `trunk-io` bot is on its bypass list.
+* Every Branch ruleset visible at the organization level and on this repository either does not match `trunk-temp/**/*`/`trunk-merge/**/*`, or explicitly excludes both patterns. (Push rulesets do not need this exemption — see [Exempt Trunk's temporary branches from other rulesets](#exempt-trunk-temporary-branches).)
+* (If using [Trunk Sudo](/setup-and-administration/trunk-sudo-app)) Trunk Sudo is configured per the Trunk Sudo page.
 
 
 ### Next Steps
