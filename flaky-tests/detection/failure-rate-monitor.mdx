@@ -76,6 +76,8 @@ How long (in hours) a flagged test can go without any runs before it's automatic
 
 When not set, flagged tests remain in their detected state indefinitely until they run enough times to recover through the normal threshold check. Setting a stale timeout (e.g., 24 hours) keeps abandoned tests from cluttering your test list.
 
+To remove a previously set stale timeout, clear the field when editing the monitor. The monitor will then keep tests flagged indefinitely until they recover through the normal threshold check.
+
 A test resolved as stale is no longer being tracked by this monitor. If the test starts running again and exceeds the activation threshold, it will be re-flagged.
 
 <Info>
