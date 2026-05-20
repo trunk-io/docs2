@@ -1,0 +1,143 @@
+---
+title: "Quarantine recipes"
+description: "Cheat sheet, bulk operations, history/events, cross-repo, and fix-verification patterns for quarantining."
+---
+
+This page is the practical companion to the main [Quarantining](./index) page. The main page covers what quarantining is and how to enable it. This page covers the operational questions that come up after you have it on — semantics edge cases, bulk operations, cross-repo configurations, the events tab, and how to verify a fix without flipping quarantine state mid-PR.
+
+## Quarantine semantics cheat sheet
+
+A few rules that catch teams by surprise:
+
+| Rule | Detail |
+|---|---|
+| Only flaky tests auto-quarantine | Broken tests never auto-quarantine, even when auto-quarantine is on. A broken test is a real regression — Trunk surfaces it but does not hide it from CI. |
+| Most severe status wins | When several [classifying monitors](../detection/#how-monitors-work) fire on the same test, the most severe status wins (broken > flaky > healthy). A broken-monitor hit on an otherwise-flaky test will block auto-quarantine. |
+| Manual "Flag as Flaky" does not quarantine on its own | [Flagging a test as flaky](../detection/flag-as-flaky) only sets its classification. It quarantines that test only when **Auto-Quarantine Flaky Tests** is also enabled in repo or collection settings. |
+| State propagation is not instant | After a manual override (Always / Never Quarantine), it can take up to a minute for the new state to reflect everywhere — on the test detail page, in the table, and in CI lookups. If a change appears to revert on page reload, wait and refresh. |
+| Deleting a monitor immediately removes its influence | If you delete or disable the monitor that was flagging a test, the test re-evaluates against the remaining active monitors. If no classifying monitors are left, the test goes back to healthy and any auto-quarantine on it is removed. See [Disabling or Deleting a Monitor](../detection/#disabling-or-deleting-a-monitor). |
+
+<Info>
+If a test you expect to be quarantined is not, walk this list in order: is auto-quarantine on, is the test classified as **Flaky** (not Broken or Healthy), and is there a more severe monitor active that's outranking the flaky monitor.
+</Info>
+
+### When manual override is the right tool
+
+Manual **Always Quarantine** and **Never Quarantine** overrides bypass classification. Reach for them when:
+
+- You know a test is flaky but no monitor has caught it yet, and you need it quarantined right now.
+- You want to permanently exclude a critical test from auto-quarantine — for example, a smoke test where a real failure must always block CI.
+- A broken test needs to be temporarily hidden from CI while a fix is in progress and you accept the trade-off.
+
+See [Overriding individual tests](./index#overriding-individual-tests) for the UI steps.
+
+## Bulk operations
+
+### Bulk quarantine across a suite
+
+Test suites do not have their own quarantine state — quarantining is per-test. To act on a suite's worth of tests at once:
+
+1. Open the Flaky Tests table.
+2. Filter by the suite name (or any other column that scopes the set).
+3. Select all matching tests.
+4. Apply **Quarantine** as a bulk action.
+
+For auto-quarantined tests, the equivalent "act on this whole suite" move is to mute the detecting monitor for the selected tests rather than overriding each one manually.
+
+### Bulk-unquarantine after an infrastructure incident
+
+When an infra incident (a flaky runner, a bad deploy, a service outage) causes a large number of tests to flake on the same window, auto-quarantine can lock down hundreds or thousands of otherwise-healthy tests at once. There is no bulk-unquarantine API today. The fastest recovery path:
+
+1. Open **Settings** > **Repositories** > your repo > **Flaky Tests** > **Pass-on-Retry Monitor**.
+2. Lower the **recovery threshold** to a short window (for example, 3 days).
+3. Any test that has not flaked again inside that shorter window will resolve and lose its auto-quarantine.
+4. Once the incident-related quarantines have cleared, raise the recovery threshold back to its prior value.
+
+This works because pass-on-retry monitors resolve a test the moment its recent run history no longer matches the configured pattern. Shortening the recovery window forces a re-evaluation across the whole repo.
+
+<Info>
+A direct bulk-unquarantine API is a tracked request. Until it ships, the recovery-threshold approach is the recommended workaround for post-incident cleanup.
+</Info>
+
+### Bulk "never quarantine"
+
+There is no API to mark a list of tests as **Never Quarantine** in one call. For now this is a manual operation — open each test from the Flaky Tests table and toggle **Never Quarantine** from the row context menu, or use the test detail page. API support for bulk overrides is on the roadmap.
+
+## Conditional quarantine: per-PR, per-branch, or "just this one build"
+
+Trunk does not currently support quarantining a test only on a specific PR, branch, or build. Quarantine state is repo-wide (or collection-wide), and changes apply to all subsequent runs everywhere until you undo them.
+
+If you need behavior that looks like "quarantine this just on my fix branch":
+
+- **For verifying a fix before un-quarantining**, use the recipe in [Verifying a fix without un-quarantining](#verifying-a-fix-without-un-quarantining) below. This is the answer most teams actually want.
+- **For temporarily quarantining a test for the duration of a PR**, set **Always Quarantine** when you start the PR and remove the override (or set **Never Quarantine**) when you merge. The override is global for the time it is set, but most PRs are short-lived enough that this is acceptable.
+- **For per-branch detection thresholds**, configure separate [failure rate monitors](../detection/failure-rate-monitor#recommended-configurations) with different branch scopes. This controls _detection_ per-branch, not quarantine per-branch, but it is often what teams are reaching for when they ask about per-branch quarantine.
+
+Conditional / per-PR quarantine is a tracked feature request.
+
+## Verifying a fix without un-quarantining
+
+A common workflow: you think you've fixed a flaky test, and you want CI to tell you whether the fix actually works — but you don't want to un-quarantine the test first, in case the fix doesn't hold and you re-pollute CI.
+
+Quarantined tests still run in CI. The Trunk Analytics CLI overrides the **exit code** for failed quarantined tests, but the test's underlying pass/fail outcome is still recorded and uploaded. So:
+
+1. Leave the test quarantined.
+2. Push your fix on a branch and run CI normally.
+3. In the CI logs (or on the Trunk test detail page's **Test History** tab), look at the test's actual result on those runs — not the quarantine-override pass result at the job level.
+4. If the underlying test result is consistently passing across the runs your fix touched, the fix is holding. Remove the override (or wait for the detecting monitor to resolve) to un-quarantine.
+
+On the **Test History** tab, set the **Quarantined** filter to **Only** to see exactly the runs Trunk overrode. The colored left border on each row also distinguishes the underlying outcome (green pass, red fail) from the quarantine state (blue border).
+
+## Quarantine history and the Events tab
+
+The test detail page's **Events** tab is an audit timeline. Two things are worth knowing about how the **Quarantine Event** filter is scoped:
+
+- It surfaces **manual** overrides only — Always Quarantine and Never Quarantine actions, and removals of those overrides. The actor and timestamp are recorded.
+- It does **not** surface auto-quarantine history. Auto-quarantine is a consequence of the test's current classification, which lives under flake-detection events. To see why an auto-quarantined test became quarantined, filter the Events tab to **Flake Detection** and look at which monitor flagged it.
+
+If a manual override appears to "vanish" from the timeline after a monitor change, the override is still recorded — but the test's overall quarantine state may have flipped because a more severe monitor now outranks it. Manual overrides do not disappear; the test's effective state is the combination of all monitors plus any overrides.
+
+### How monitor changes affect quarantine state
+
+| Action | Effect on quarantine |
+|---|---|
+| Disable or delete a classifying monitor | Monitor immediately resolves for every test it was flagging. Tests re-evaluate against remaining active monitors. If no classifying monitor is left, the test transitions to healthy and any auto-quarantine on it is removed. |
+| Add a new broken-type monitor that fires on a flaky test | The test's status becomes broken (most severe wins). Because broken tests don't auto-quarantine, the test loses its auto-quarantine. A manual **Always Quarantine** override still keeps it quarantined. |
+| Mute a monitor on a specific test | The muted monitor stops contributing to that test's status for the mute duration. If it was the only active classifying monitor, the test transitions to healthy and auto-quarantine is removed for the duration. |
+
+## Cross-repo and forks: applying one repo's quarantine config to another
+
+Quarantine state lives on the repo identified by your git remote URL. If you have a private fork or a separate test-distribution repo and you want it to inherit the main repo's quarantine config without polluting the main repo's run history, override the repo URL on the fork's upload step and run it in dry-run mode:
+
+```bash
+./trunk-analytics-cli upload \
+  --junit-paths "test_output.xml" \
+  --org-url-slug <TRUNK_ORG_SLUG> \
+  --token $TRUNK_API_TOKEN \
+  --repo-url "https://github.com/your-org/main-repo.git" \
+  --dry-run=true
+```
+
+Or with the GitHub Actions uploader:
+
+```yaml
+- name: Apply main repo quarantine config (dry-run)
+  uses: trunk-io/analytics-uploader@v1
+  with:
+    junit-paths: <TEST OUTPUT PATH>
+    org-slug: my-trunk-org-slug
+    token: ${{ secrets.TRUNK_API_TOKEN }}
+    repo-url: "https://github.com/your-org/main-repo.git"
+    dry-run: true
+```
+
+What this does:
+
+- `--repo-url` redirects the upload's quarantine lookups to the main repo's config, so the fork's CI honors the main repo's quarantined-test list.
+- `--dry-run=true` skips the actual ingestion step, so the fork's run results never land in the main repo's history.
+
+The fork still gets the quarantine overrides at the exit-code layer. The main repo's dashboard stays clean.
+
+<Info>
+If you do want the fork's results to appear in the main repo, drop the `--dry-run=true` flag. If you want them tracked separately on the fork's own repo entry, drop both flags entirely — see [Multiple Repositories and Forks](../get-started/multiple-repositories) for the default behavior.
+</Info>

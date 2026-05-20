@@ -288,6 +288,7 @@
                 "group": "Quarantining",
                 "root": "flaky-tests/quarantining/index",
                 "pages": [
+                  "flaky-tests/quarantining/recipes",
                   "flaky-tests/quarantining/quarantine-service-availability"
                 ]
               },
