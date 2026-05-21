@@ -6,43 +6,33 @@ og:title: "Trunk Merge Queue overview"
 
 A merge queue sits between your developers and your protected branch. Instead of letting PRs merge as soon as their own CI passes, the queue tests each PR against the head of `main` plus every PR ahead of it — so what merges is what was actually tested, even when ten PRs land in the same hour. That predictive testing model is shared across most modern merge queues.
 
-Trunk Merge Queue layers three things on top of that baseline: **batching** (test groups of PRs in one CI run), **parallel queues** (route non-overlapping changes into independent test lanes), and **anti-flake protection** (let a passing successor retroactively validate a failed predecessor). The rest of this page is how each one works and when it matters.
+Trunk Merge Queue layers three things on top of that baseline:
 
-## Batching
+<Columns cols={3}>
+  <Tile
+    href="./optimizations/batching"
+    title="Batching"
+    description="Test many PRs in one CI run."
+  >
+    <Icon icon="boxes-stacked" size={48} />
+  </Tile>
+  <Tile
+    href="./optimizations/parallel-queues/"
+    title="Parallel queues"
+    description="Lanes for unrelated PRs."
+  >
+    <Icon icon="columns-3" size={48} />
+  </Tile>
+  <Tile
+    href="./optimizations/anti-flake-protection"
+    title="Anti-flake protection"
+    description="Flakes don't evict PRs."
+  >
+    <Icon icon="shield-check" size={48} />
+  </Tile>
+</Columns>
 
-Instead of one CI run per PR, the queue groups several PRs together and tests them as a single unit. If the batch fails, automatic bisection isolates the culprit so passing PRs in the batch still merge — no manual debugging, no ejecting the whole batch.
-
-<Frame caption="Batching: multiple PRs test together; if the batch fails, bisection finds the culprit">
-<iframe allow="autoplay; fullscreen; picture-in-picture; display-capture; clipboard-write" allowfullscreen="" allowtransparency="true" referrerpolicy="no-referrer-when-downgrade" class="vidyard-iframe-BsPi6f1KHvsa6wE18ySAJf" frameborder="0" height="100%" width="100%" scrolling="no" src="https://play.vidyard.com/BsPi6f1KHvsa6wE18ySAJf?disable_popouts=1&amp;disable_analytics=0&amp;preload=auto&amp;disable_larger_player=false&amp;theater_button=0&amp;pip_button=0&amp;controller=hubs&amp;action=show&amp;type=inline&amp;v=4.3.20" title="trunk.io merge queue // batching" spellcheck="false"></iframe>
-</Frame>
-
-**What it costs you not to have it:** every PR pays the full CI bill, even when ten land in the same hour.
-
-→ See how [batching](./optimizations/batching) works.
-
-## Parallel queues
-
-Each PR reports which targets it touches. Non-overlapping PRs run in their own test lanes; only overlapping PRs share a lane. Bazel and Nx are first-class integrations; any other build system can report targets via the [impacted-targets API](./optimizations/parallel-queues/api).
-
-<Frame caption="Parallel queues: PRs touching different parts of the codebase test in their own lanes">
-<iframe allow="autoplay; fullscreen; picture-in-picture; display-capture; clipboard-write" allowfullscreen="" allowtransparency="true" referrerpolicy="no-referrer-when-downgrade" class="vidyard-iframe-XeTFxCCLuDUU3kip2RnykW" frameborder="0" height="100%" width="100%" scrolling="no" src="https://play.vidyard.com/XeTFxCCLuDUU3kip2RnykW?disable_popouts=1&amp;disable_analytics=0&amp;preload=auto&amp;disable_larger_player=false&amp;theater_button=0&amp;pip_button=0&amp;controller=hubs&amp;action=show&amp;type=inline&amp;v=4.3.20" title="trunk.io merge queue // parallel queues" spellcheck="false"></iframe>
-</Frame>
-
-**What it costs you not to have it:** a two-line frontend fix waits 45 minutes behind a slow backend PR because they share a single queue.
-
-→ Explore [parallel queues](./optimizations/parallel-queues/).
-
-## Anti-flake protection
-
-When a PR fails testing, the queue holds it in place while downstream PRs continue testing. If a downstream PR — which includes the failed PR's changes — passes, the failure was transient and both PRs merge. Two mechanics combine to make this work: [pending failure depth](./optimizations/pending-failure-depth) holds the failed PR, and [optimistic merging](./optimizations/optimistic-merging) lets a passing successor validate it retroactively.
-
-<Frame caption="Anti-flake protection: a failed PR is held while successors test, then merges when the failure proves transient">
-<iframe src="https://cdn.iframe.ly/nO8lIvz" allowfullscreen="" scrolling="no" allow="encrypted-media *;" spellcheck="false"></iframe>
-</Frame>
-
-**What it costs you not to have it:** flaky tests evict legitimate PRs from the queue and force manual retries.
-
-→ Learn about [anti-flake protection](./optimizations/anti-flake-protection).
+Each links to the deep page with mechanics and worked examples. The rest of this page maps the same three to symptoms you'd recognize on your own team.
 
 ## When does this make sense?
 
@@ -58,6 +48,7 @@ Other optimizations worth knowing about:
 - [**Priority merging**](./optimizations/priority-merging) — fast-track urgent PRs (hotfixes, incident response) to the front of the queue without bypassing it
 - [**Predictive testing internals**](./optimizations/predictive-testing) — how the foundational mechanic actually works
 - [**Testing concurrency**](./administration/advanced-settings#testing-concurrency) — how many PRs the queue tests at once
+- [**Direct merge to main**](./optimizations/direct-merge-to-main) — skip retesting when a PR is already up to date with `main` and the queue is empty
 
 → Full list in [Optimizations](./optimizations/).
 
