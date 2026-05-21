@@ -2,6 +2,9 @@
 title: "API"
 description: "Upload impacted targets, read testing details, and handle the common gotchas"
 ---
+
+## Uploading impacted targets
+
 Impacted Targets should be computed for every PR. The list of impacted targets should be computed by comparing two different SHAs: the **head of the target branch**, and the **merge commit of the pr**.
 
 <Info>
@@ -33,16 +36,15 @@ BODY: {
 
 `impactedTargets` allows specifying either an array of strings representing the impacted targets from the PR or the string "ALL" (note that this is explicitly not in an array and is just the string "ALL"). Specifying "ALL" is the equivalent of saying that everything that comes into the graph after this PR should be based on this one, which is useful when your PR contains changes that affect the whole repo (such as editing `trunk.yaml` or a GitHub workflow).
 
-**Handling Forked Pull Requests**\
+### Handling forked pull requests
+
 The HTTP POST must contain the `x-api-token` to prove that it is a valid request from a workflow your org controls. _Workflows that come from forked PRs most likely will not have access to the Trunk org token_ required for the HTTP POST above. In this case, you should provide the **run ID** of the workflow as the `x-forked-workflow-run-id` header in place of the `x-api-token`. This ID can be obtained from [the GitHub context](https://docs.github.com/en/actions/learn-github-actions/contexts#github-context) as `${{ github.run_id }}`. Trunk Merge Queue will verify that the ID belongs to a currently running workflow originating from a forked PR with a SHA that matches the one provided in the request and allow it through.
 
 <Info>
 We do not recommend using an event trigger like `pull_request_target.` This would allow workflows from forked PRs to get secrets, which is a security risk and would open your repo to attackers making forks, adding malicious code, and then running it against your repo to exfiltrate information. (see[ Keeping your GitHub Actions and workflows secure](https://securitylab.github.com/research/github-actions-preventing-pwn-requests/)).
 </Info>
 
-***
-
-### Reading testing details with `/getMergeQueueTestingDetails`
+## Reading testing details with `/getMergeQueueTestingDetails`
 
 Once a PR is in the queue, `/getMergeQueueTestingDetails` returns the testing batch
 that contains it, including the impacted targets being tested. Two response fields
@@ -59,7 +61,7 @@ read `impactedTargetsForTestedPrs`. If you need the full set of targets the pred
 build state covers (for example, to decide whether to skip a cache rebuild), read
 `impactedTargets`.
 
-### Deriving `testRunId` from the merge branch name
+## Deriving `testRunId` from the merge branch name
 
 Trunk Merge Queue creates a branch per predictive test run with the shape
 `trunk-merge/pr-<PR_NUMBER>/<TEST_RUN_UUID>`. The trailing UUID **is** the `testRunId`
@@ -72,9 +74,9 @@ extra API call.
 TEST_RUN_ID="${GITHUB_REF##*/}"
 ```
 
-### Recipes and gotchas
+## Recipes and gotchas
 
-#### Skip uploads on `trunk-merge/*` branches
+### Skip uploads on `trunk-merge/*` branches
 
 `/setImpactedTargets` rejects uploads for PRs that Trunk itself raised — the temporary
 branches with the `trunk-merge/*` prefix. Filter your impacted-targets workflow so it
@@ -90,7 +92,7 @@ on:
       - "trunk-temp/**"
 ```
 
-#### "ALL" does not short-circuit the rest of the queue
+### "ALL" does not short-circuit the rest of the queue
 
 Uploading `"ALL"` for a PR signals that the PR is impacting every target, so any other
 PR in the queue should be considered to overlap with it. It does **not** override or
@@ -102,14 +104,14 @@ Use `"ALL"` for PRs that genuinely touch the whole graph (editing `trunk.yaml`, 
 shared GitHub workflow, or a root-level config). Don't use it as a shortcut for "I
 don't want to compute targets for this PR" — you will serialize the queue.
 
-#### Last upload wins per head SHA
+### Last upload wins per head SHA
 
 If you upload impacted targets multiple times for the same PR head SHA, the most
 recent upload replaces the earlier ones. There is no merge or union performed
 server-side. If your CI recomputes targets after an amend or a force-push, the new
 upload is authoritative.
 
-#### Reuse `bazel-diff` output between PR and MQ jobs
+### Reuse `bazel-diff` output between PR and MQ jobs
 
 The `bazel-diff` result that produces your impacted-targets list for a PR build is
 the same artifact you'd recompute inside the merge queue's test job. Most Bazel orgs
@@ -117,12 +119,8 @@ reuse it: compute once on PR open, upload it to `/setImpactedTargets`, and have 
 `trunk-merge/*` CI job pull the same artifact (via `actions/upload-artifact` /
 `download-artifact`, an artifact store, or an S3 cache) rather than recomputing.
 
-#### Request body size limit
+### Request body size limit
 
 <Info>
-The documented request body limit is 20 MiB (see the [API reference](../../reference/merge#request-format)).
-Engineering has cited ~10 MB in customer support threads. If you are anywhere close
-to either number, confirm the current limit with Trunk support before relying on
-headroom. If your target list exceeds the limit, send `"ALL"` as the
-`impactedTargets` value instead of a full list.
+The request body limit is 20 MB. If your target list exceeds the limit, send `"ALL"` as the `impactedTargets` value instead of a full list.
 </Info>
