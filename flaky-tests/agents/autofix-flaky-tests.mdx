@@ -29,7 +29,16 @@ Once enabled, any time that Trunk [detects a flaky test](../detection/index), Tr
 
 Flaky tests can also be analyzed manually via the UI and via the [MCP server](../reference/mcp-reference/fix-flaky-test).
 
-## Autofix with Cursor Automations
+### Skipped and failed analyses
+
+When Trunk skips or fails an analysis, the Analysis tab shows a banner explaining what happened. Common reasons an analysis is skipped:
+
+- **Monthly analysis limit reached.** Your repository has used all available analyses for the current billing period. The banner shows how long ago the skip occurred.
+- **Analysis already in progress.** A previous run is still queued; Trunk skips a new one to avoid duplicates.
+
+If an analysis fails due to an internal error, the banner notes the failure without exposing internal details. In either case, you can request a new analysis once the blocking condition clears.
+
+### Autofix with Cursor Automations
 
 Whenever an investigation is completed, Trunk will emit a [webhook](../webhooks/index) for `test_case.investigation_completed`. Enable webhooks via [Svix](../webhooks/index).
 
