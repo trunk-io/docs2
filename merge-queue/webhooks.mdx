@@ -41,7 +41,7 @@ A typical PR moves through the queue as follows:
 
 When a batch run reports failures, `pull_request_batch.pending_failure` fires for the batch. **This does not always lead to bisection.** If a PR higher in the queue fails first, the PRs above it can get kicked out and the surviving PRs are re-queued. The PRs that show up in subsequent `pull_request.queued` events won't necessarily map back to the original `pending_failure` batch.
 
-When Trunk does run a bisection to identify the failing PR in a batch, there is no dedicated `bisection_completed` event. Instead, watch the `reason` field on `pull_request.queued`:
+When Trunk does run a bisection to identify the failing PR in a batch, there is no dedicated `bisection_completed` event. Instead, watch the `queued_reason` field on `pull_request.queued`:
 
 - `BISECTION_REQUIRED` — the PR is entering bisection.
 - `BISECTION_TEST_RUN_PASSED` — the PR passed its bisection test run and is returning to the queue.
@@ -56,7 +56,7 @@ For most events the PR lifecycle and the batch lifecycle are the same — events
 
 ### Payload notes
 
-Webhook payloads currently **do not include an event timestamp**. The practical workaround is to treat the time your endpoint receives the webhook as the event time. If you need precise event ordering, persist the receive-time on your side as soon as the payload arrives.
+All webhook payloads include an ISO 8601 `timestamp` field marking when the state transition occurred. Use this for ordering events rather than your endpoint's receive time — receive time is subject to retry delays and out-of-order delivery.
 
 ***
 
@@ -72,9 +72,9 @@ See the [Flaky Tests webhooks reference](/flaky-tests/webhooks) for the full `v2
 
 ### Quarantining events
 
-`test_case.quarantining_setting_changed` fires only when a quarantining setting is manually overridden to `ALWAYS` or `NEVER`. It does **not** fire when Trunk auto-quarantines a test based on flakiness.
+`test_case.quarantining_setting_changed` fires only when a quarantining setting is manually overridden to `ALWAYS_QUARANTINE` or `NEVER_QUARANTINE`. It does **not** fire when Trunk auto-quarantines a test based on flakiness.
 
-To react to auto-quarantine, listen to `test_case.status_changed` (or `v2.test_case.status_changed`) and check for `current_status == FLAKY` in the payload.
+To react to auto-quarantine, listen to `v2.test_case.status_changed` and check `new_status == "FLAKY"` in the payload.
 
 ***
 
