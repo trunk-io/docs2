@@ -68,6 +68,7 @@ Emitted when an AI-powered flaky test analysis finishes for a test case.
 |---|---|---|
 | `type` | string | Always `test_case.investigation_completed` |
 | `investigation_id` | string (UUID) | Unique identifier for the investigation |
+| `trigger` | string | How the investigation was initiated. One of `AUTOMATIC`, `MANUAL`, or `MCP` |
 | `confidence` | number | Overall confidence score (0-1) for the findings |
 | `created_at` | string (ISO 8601) | When the investigation completed |
 | `markdown_summary` | string | Markdown-formatted summary of findings and recommendations |
