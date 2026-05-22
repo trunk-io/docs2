@@ -6,9 +6,16 @@ og:title: "Trunk Merge Queue overview"
 
 A merge queue sits between your developers and your protected branch. Instead of letting PRs merge as soon as their own CI passes, the queue tests each PR against the head of `main` plus every PR ahead of it — so what merges is what was actually tested, even when ten PRs land in the same hour. That predictive testing model is shared across most modern merge queues.
 
-Trunk Merge Queue layers three things on top of that baseline:
+Trunk Merge Queue runs on four mechanics. Predictive testing is the correctness baseline; the other three are how Trunk makes it fast and resilient.
 
-<Columns cols={3}>
+<Columns cols={2}>
+  <Tile
+    href="./optimizations/predictive-testing"
+    title="Predictive testing"
+    description="Test against everything ahead."
+  >
+    <Icon icon="crystal-ball" size={48} />
+  </Tile>
   <Tile
     href="./optimizations/batching"
     title="Batching"
@@ -32,7 +39,6 @@ Trunk Merge Queue layers three things on top of that baseline:
   </Tile>
 </Columns>
 
-Each links to the deep page with mechanics and worked examples. The rest of this page maps the same three to symptoms you'd recognize on your own team.
 
 ## When does this make sense?
 
