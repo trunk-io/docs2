@@ -786,11 +786,6 @@
           "href": "/changelog",
           "icon": "bullhorn",
           "anchor": "Changelog"
-        },
-        {
-          "href": "https://features.trunk.io",
-          "icon": "circle-star",
-          "anchor": "Feature requests"
         }
       ]
     }
@@ -818,10 +813,6 @@
           {
             "href": "/changelog",
             "label": "Changelog"
-          },
-          {
-            "href": "https://features.trunk.io",
-            "label": "Feature requests"
           }
         ]
       }
