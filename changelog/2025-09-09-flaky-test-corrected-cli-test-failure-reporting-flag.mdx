@@ -1,0 +1,20 @@
+---
+title: "Flaky Test: Corrected CLI test failure reporting flag"
+description: "Resolved an issue where test failures were not being reported or displayed when using the --disable-quarantining flag."
+slug: flaky-test-corrected-cli-test-failure-reporting-flag
+date: 2025-09-09
+category: Flaky Tests
+---
+
+Resolved an issue where test failures were not being reported or displayed when using the
+`--disable-quarantining` flag.
+
+- **What was happening**: When `--disable-quarantining` was specified, failing tests were not being
+  compared against quarantine state, preventing failure reporting and causing the CLI to skip
+  displaying test failure information
+- **Root cause**: The quarantining check was being applied too broadly, affecting both quarantine
+  state fetching AND test failure context building
+- **Impact**: Users saw no failure output and couldn't identify which tests were failing when using
+  this flag
+- **Resolution**: Limited the quarantine disabling logic to only apply when fetching quarantine
+  state, not when building test context

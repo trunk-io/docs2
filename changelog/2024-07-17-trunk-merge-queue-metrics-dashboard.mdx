@@ -1,0 +1,44 @@
+---
+title: "Merge Queue: New metrics dashboard"
+description: "Merge queues are integral to validating and merging PRs - a critical part of any development process. Minimizing the friction to merge a PR and ensuring the merging process remains fast is essential…"
+slug: trunk-merge-queue-metrics-dashboard
+date: 2024-07-17
+category: Merge Queue
+---
+
+Merge queues are integral to validating and merging PRs - a critical part of any development
+process. Minimizing the friction to merge a PR and ensuring the merging process remains fast is
+essential to remaining productive and shipping code faster.
+
+Gaining an analytical understanding of how PRs are moving through the merge queue, how much CI time
+it takes to test PRs in the queue, why PRs are frequently failing during testing, and so on, can
+help developers recognize the impact and problems of their merge process.
+
+Today, Trunk Merge Queues introduces a metric dashboard focused on Merge Queue health and
+efficiency. Merge Queue has many features and settings, such as
+[batching](https://docs.trunk.io/merge-queue/batching) and
+[changing how many PRs can get tested at once](https://docs.trunk.io/merge-queue/set-up-trunk-merge/advanced-settings#concurrency),
+which can affect the throughput and speed of your queue - these metrics help you validate your
+decisions when optimizing your queue’s configuration.
+
+1.  “Time in Queue” - how long a pull spends in the queue from when it enters the queue to when it
+    leaves, whether it fails or succeeds.
+2.  “Conclusion Counts” - the count of successfully tested and merged PRs, failures in the queue, or
+    cancellations. A large amount of failures or sudden changes in the number of merged or failed
+    PRs can indicate a problem that needs investigating.
+3.  “CI Time Testing PRs in the Queue” - how much time is spent in your CI pipelines testing PRs in
+    the queue. A spike in this metric indicates that tests are now taking much longer to run.
+    1.  If you’re currently utilizing batching, this feature considers that all of the PRs in a
+        batch will be tested by the same CI run
+
+4.  “CI Jobs Triggered To Test PRs” - how many jobs are getting kicked off to test pull requests in
+    the queue. Each job required a machine to run on - the more jobs there are, the higher the
+    contention for machines and the longer it takes to test PRs
+
+Currently, both CI metrics work specifically for GitHub actions or any workflows you’re
+[pushing data to CI analytics for](https://docs.trunk.io/ci-analytics/setup).  
+
+![](/assets/changelog/trunk-merge-queue-metrics-dashboard-dvsgg7.png)
+
+More metrics are being planned for the future! If you have any suggestions or questions, head over
+to our [community slack](http://trunkcommunity.slack.com).

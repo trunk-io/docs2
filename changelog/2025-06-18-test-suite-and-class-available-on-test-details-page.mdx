@@ -1,0 +1,23 @@
+---
+title: "Flaky Tests: Test suite and class available on test details page"
+description: "The names of a test’s suite and class are now visible on the test details page of the flaky test dashboard, along with a file search link for repos using either GitHub or Bitbucket as source control…"
+slug: test-suite-and-class-available-on-test-details-page
+date: 2025-06-18
+category: Flaky Tests
+---
+
+The names of a test’s suite and class are now visible on the test details page of the flaky test
+dashboard, along with a file search link for repos using either GitHub or Bitbucket as source
+control providers.
+
+![](/assets/changelog/test-suite-and-class-available-on-test-details-page-pul21b.png)
+
+This additional information helps you navigate to the correct test when investigating flakiness or
+failures, and is particularly helpful in large projects and monorepos.
+
+The suite and class will only be displayed if your test framework reporter includes that information
+in the JUnit XML test report uploaded to Trunk.
+
+We will also attempt to add a file search link for projects using GitHub or Bitbucket for source
+control. It is not always possible to provide a link to the file, depending on how project files are
+compiled and whether or not those files are available in source control.

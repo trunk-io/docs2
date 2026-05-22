@@ -1,0 +1,17 @@
+---
+title: "Merge Queue: Prometheus-Compatible Metrics Endpoint"
+description: "Merge Queue now exposes a Prometheus-compatible metrics endpoint for integration with your existing monitoring stack."
+slug: merge-queue-prometheus-compatible-metrics-endpoint
+date: 2026-03-13
+category: Merge Queue
+---
+
+**Merge Queue now exposes a Prometheus-compatible metrics endpoint for integration with your
+existing monitoring stack.**
+
+Previously, merge queue metrics were only available through the Health tab in the Trunk web app. Now
+you can query `GET /v1/getMergeQueueMetrics` (authenticated via `x-api-token` header) to pull
+real-time queue data into Prometheus, Grafana, Datadog, or any tool that scrapes Prometheus-format
+metrics.
+
+[Read the Docs](https://docs.trunk.io/merge-queue/administration/metrics) to learn more

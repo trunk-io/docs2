@@ -1,0 +1,32 @@
+---
+title: CLI 1.24.0
+description: "Updated embedded CURL to v8.13 (enables support for running inside Open AI Codex); Formatting issues can now be downgraded to non-blocking using the threshold value like any other linter issue."
+slug: cli-1-24-0
+date: 2025-05-28
+category: Code Quality
+---
+
+**✨ Improvements**
+
+- Updated embedded CURL to v8.13 (enables support for running inside Open AI Codex)
+- Formatting issues can now be downgraded to non-blocking using the `threshold` value like any other
+  linter issue. To make use of this feature you need to set the unformatted_level for any formatters
+  you want to control this way as such:
+
+```
+lint:
+  definitions:
+   - name: foo_formatter
+     commands:
+      - name: format
+        ...
+        formatter: true
+        unformatted_level: low
+```
+
+\*\*
+
+🔧 Fixes\*\*
+
+- Specifying a runtime with equality operator will use system version if available. (e.g.
+  ruby@=3.4.2 will now use ruby found on PATH if version matches exactly)

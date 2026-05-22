@@ -1,0 +1,51 @@
+---
+title: "Flaky Tests: Quarantined Tests API"
+description: "A new Quarantined Tests API is now available to all Flaky Tests users. This API fetches a list of currently quarantined tests for a given repo, allowing organizations to implement custom workflows to…"
+slug: flaky-tests-quarantined-tests-api
+date: 2025-03-26
+category: Flaky Tests
+---
+
+A new Quarantined Tests API is now available to all Flaky Tests users. This API fetches a list of
+currently quarantined tests for a given repo, allowing organizations to implement custom workflows
+to review and fix quarantined tests.
+
+```
+// https://api.trunk.io/v1/flaky-tests/list-quarantined-tests
+// a sample response with a single quarantined flaky test
+{
+  "quarantined_tests": [
+    {
+      "name": "sums some nums > subtracts 1 from 2 to equal 1",
+      "parent": "app/utils/subtract.test.ts",
+      "file": null,
+      "classname": "app/utils/subtract.test.ts",
+      "status": "FLAKY",
+      "codeowners": [],
+      "quarantine_setting": "AUTO_QUARANTINE",
+      "status_last_updated_at": "2025-02-13T15:52:03.000Z",
+      "test_case_id": "48cd26cb-6333-528a-919f-ed597ee11715"
+     }
+   ],
+   "page": {
+     "total_rows": 1,
+     "total_pages": 1,
+     "next_page_token": "",
+     "prev_page_token": "nUj35JF5aNJFjUkIakxff89f1b...",
+     "last_page_token": "bVUNwekgkHadgZfSgwuac75640...",
+     "page_index": 0
+   }
+}
+```
+
+Dev teams are using the Quarantined Tests API to do things such as:
+
+- Automatically skip quarantined tests when testing locally
+- Check for any tests that should be manually un-quarantined
+- Determine what teams, projects, or modules have the most quarantined tests
+- Assign engineers to fix certain quarantined tests, based on recent code changes
+- Send Slack or email notifications to let teams know when the number of quarantined tests reaches a
+  threshold
+
+See the [API reference](https://docs.trunk.io/apis/flaky-tests) for more information on required
+headers and payload.

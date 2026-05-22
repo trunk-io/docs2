@@ -1,0 +1,18 @@
+---
+title: CLI 1.16.1
+description: "Oxipng now uses the language \"unoptimized image\" rather than \"unformatted file.\"; Improved crash reporting for internal errors."
+slug: 1-16-1
+date: 2023-09-26
+category: Code Quality
+---
+
+**✨ Improvements**
+
+- Oxipng now uses the language "unoptimized image" rather than "unformatted file."
+- Improved crash reporting for internal errors.
+
+**🔧 Fixes**
+
+- Be more resilient to permission-denied errors in the file watcher.
+- The LSP Server will now retry linting a file when it detects the file has changed, rather than
+  leaving stale diagnostics.

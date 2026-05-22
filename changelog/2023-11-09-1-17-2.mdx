@@ -1,0 +1,25 @@
+---
+title: CLI 1.17.2
+description: "Single-player mode will now auto-upgrade all linters periodically; Linters now have a maximum concurrency setting. Trunk will never run a linter more than this number of times simultaneously."
+slug: 1-17-2
+date: 2023-11-09
+category: Code Quality
+---
+
+**🎁 New**
+
+- Single-player mode will now auto-upgrade all linters periodically.
+- Linters now have a maximum
+  concurrency [setting](https://docs.trunk.io/check/custom-linters#limiting-concurrency). Trunk will
+  never run a linter more than this number of times simultaneously.
+
+**✨ Improvements**
+
+- Trunk now gives an error message when you include a version specifier in a disabled entry.
+- Added
+  the --only-detected-formatters and --only-detected-linters [flags](https://docs.trunk.io/cli/init-in-a-git-repo#only-enabling-detected-tools)
+- LSP Server de-deuplicates code actions.
+
+**🔧 Fixes**
+
+- Fixed a memory leak in the daemon process.

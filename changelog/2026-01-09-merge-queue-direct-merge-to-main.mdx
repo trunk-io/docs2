@@ -1,0 +1,21 @@
+---
+title: "Merge Queue: Direct Merge to Main"
+description: "Skip redundant testing and merge immediately when your PR is already up-to-date and the queue is empty"
+slug: merge-queue-direct-merge-to-main
+date: 2026-01-09
+category: Merge Queue
+---
+
+**Skip redundant testing and merge immediately when your PR is already up-to-date and the queue is
+empty**
+
+![](/assets/changelog/merge-queue-direct-merge-to-main-evezyw.png)
+
+The merge queue exists to test your PR against the latest version of main, but if your PR is already
+based on the tip of main and the queue is empty, rerunning tests provides no additional value;
+you've already tested against the exact state your PR will merge into. 
+
+With this optimization, Trunk Merge Queue will recognize this situation and merge your PR directly
+without the unnecessary wait.
+
+[Read the Docs](https://docs.trunk.io/merge-queue/optimizations/direct-merge-to-main) to learn more

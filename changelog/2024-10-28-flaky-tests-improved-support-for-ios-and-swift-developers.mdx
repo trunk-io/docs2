@@ -1,0 +1,25 @@
+---
+title: "Flaky Tests: Improved support for iOS and Swift developers"
+description: "Flaky Tests now supports the XCResults format outputted by Swift projects using XCTests. You can now upload the .xcresults format to Trunk directly, without configuring a JUnit XML reporter."
+slug: flaky-tests-improved-support-for-ios-and-swift-developers
+date: 2024-10-28
+category: Flaky Tests
+seo_description:
+  Flaky Tests now supports the XCResults format outputted by Swift projects using XCTests.
+---
+
+Flaky Tests now supports the XCResults format outputted by Swift projects using XCTests. You can now
+upload the `.xcresults` format to Trunk directly, without configuring a JUnit XML reporter.
+Supporting XCTests directly also means you can include test file paths from `.xcresults` when
+reporting to Trunk Flaky Tests. This is especially important for CODEOWNERS support planned for a
+future release.
+
+You can upload XCResults using the Trunk CLI with the `--xcresult-path` argument.
+
+```
+./trunk flakytests upload --xcresult-path "/path/to/Test.xresult"
+```
+
+To learn more, visit our
+[XCTests documentation](https://docs.trunk.io/flaky-tests/get-started/frameworks/xctest) and
+[Uploader CLI references](https://docs.trunk.io/flaky-tests/uploader).

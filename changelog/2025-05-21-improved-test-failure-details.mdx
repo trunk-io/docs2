@@ -1,0 +1,29 @@
+---
+title: "Flaky Tests: Improved test failure details"
+description: "More changes have landed on the Flaky Tests dashboard: unique failure details on the test details page are now available in a single table view."
+slug: improved-test-failure-details
+date: 2025-05-21
+category: Flaky Tests
+---
+
+More changes have landed on the Flaky Tests dashboard: unique failure details on the test details
+page are now available in a single table view.
+
+This table is helpful for developers tasked with debugging and fixing flakes. Trunk uses AI to
+automatically group related failure reasons for an individual test and presents them in a single
+table:
+
+![](/assets/changelog/improved-test-failure-details-xhb9ly.png)
+
+The test summary, charts that display quarantine or error status, count, and dates of failures help
+you determine where to start your investigation. Each unique failure reason can also be expanded to
+show all historical stack traces for that failure type:
+
+![](/assets/changelog/improved-test-failure-details-tdt8wq.png)
+
+This means that all the information you need to start debugging flaky tests is in a single place.
+Developers don’t have to manually dig through historical CI logs to unearth various stack traces and
+logs.
+
+Have questions or feedback on the updates?
+[Reach out on our community Slack](https://slack.trunk.io).

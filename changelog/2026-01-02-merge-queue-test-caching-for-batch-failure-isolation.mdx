@@ -1,0 +1,24 @@
+---
+title: "Merge Queue: Test Caching for Batch Failure Isolation"
+description: "When you use batching mode, the merge queue tests multiple PRs together for efficiency. If a batch fails, the queue needs to figure out which specific PR caused the problem by splitting the batch…"
+slug: merge-queue-test-caching-for-batch-failure-isolation
+date: 2026-01-02
+category: Merge Queue
+---
+
+**Intelligently reuse test results when isolating failures in batched PRs to save CI resources**
+
+When you use batching mode, the merge queue tests multiple PRs together for efficiency. If a batch
+fails, the queue needs to figure out which specific PR caused the problem by splitting the batch
+apart and retesting smaller groups. 
+
+With this optimization, the merge queue will recognize when it's about to run a test that it has
+already run during the isolation process. If we already know a test will fail based on earlier
+results, we skip rerunning it and reuse that information. 
+
+This means faster failure isolation when batches break, significant CI cost savings during the
+bisection process (especially important for large batches or expensive test suites), and quicker
+feedback about which PR needs fixing.
+
+[Read the Docs](https://docs.trunk.io/merge-queue/optimizations/batching#test-caching-during-bisection)
+to learn more

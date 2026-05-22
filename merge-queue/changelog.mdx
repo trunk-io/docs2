@@ -1,0 +1,249 @@
+---
+title: "Changelog"
+description: "Recent updates to Trunk Merge Queue."
+rss: true
+---
+
+
+## 2026
+
+### April 2026
+
+<Update label="April 30, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Chrome Extension](/changelog/2026-04-30-merge-queue-chrome-extension)**
+
+  The Trunk Chrome Extension brings merge queue controls directly into your GitHub pull request page.
+</Update>
+
+<Update label="April 21, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Drill Down Into Merge Metrics](/changelog/2026-04-21-merge-queue-drill-down-into-merge-metrics)**
+
+  Merge Queue Health metrics can now be drilled down to the individual pull requests behind any data point.
+</Update>
+
+<Update label="April 13, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Terraform Provider](/changelog/2026-04-13-merge-queue-terraform-provider)**
+
+  Merge Queue can now be managed fully through Terraform. Previously, creating, updating, and managing a Trunk Merge Queue was a manual process handled through our UI.
+</Update>
+
+### March 2026
+
+<Update label="March 26, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Testing Details API Now Includes Impacted Target Information](/changelog/2026-03-26-merge-queue-testing-details-api-now-includes-impacted-target-information)**
+
+  The Get Testing Details API now returns impacted target information, giving CI systems everything they need to launch the right tests.
+</Update>
+
+<Update label="March 25, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Multiple Queues Per Repo with Grouped Selector](/changelog/2026-03-25-merge-queue-multiple-queues-per-repo-with-grouped-selector)**
+
+  Previously, a repo could only have one queue. Now you can create additional queues from the merge queue creation page. The repo selector shows repos that already have queues and how many exist.
+</Update>
+
+<Update label="March 25, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Slack App Home Tab](/changelog/2026-03-25-merge-queue-slack-app-home-tab)**
+
+  The Trunk Slack App Home tab is now a full control plane for your merge queue activity across all your organizations.
+</Update>
+
+<Update label="March 19, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: List Pull Requests Public API Endpoint](/changelog/2026-03-19-merge-queue-list-pull-requests-public-api-endpoint)**
+
+  A new POST /v1/listPullRequests endpoint lets you query all PRs in your merge queue programmatically. Filter by state (not ready, pending, testing, merged, failed, cancelled), time range, and…
+</Update>
+
+<Update label="March 19, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Route Slack Notifications to Multiple Channels](/changelog/2026-03-19-merge-queue-route-slack-notifications-to-multiple-channels)**
+
+  Merge queue Slack notifications can now be routed to multiple channels. Previously, notifications went to a single configured channel.
+</Update>
+
+<Update label="March 13, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Prometheus-Compatible Metrics Endpoint](/changelog/2026-03-13-merge-queue-prometheus-compatible-metrics-endpoint)**
+
+  Merge Queue now exposes a Prometheus-compatible metrics endpoint for integration with your existing monitoring stack.
+</Update>
+
+<Update label="March 13, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Isolate PRs from Batching with noBatch](/changelog/2026-03-13-merge-queue-isolate-prs-from-batching-with-nobatch)**
+
+  PRs can now opt out of batching to test in isolation. When a high-risk PR is in the queue, batching it with other PRs means a failure forces the entire batch to restart.
+</Update>
+
+<Update label="March 9, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Impacted Targets Visible on the Merge Graph](/changelog/2026-03-09-merge-queue-impacted-targets-visible-on-the-merge-graph)**
+
+  The merge graph now shows impacted targets directly on nodes and edges, so you can see exactly why PRs are connected and which targets they share.
+</Update>
+
+<Update label="March 5, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Custom Merge Commit Titles](/changelog/2026-03-05-merge-queue-custom-merge-commit-titles)**
+
+  You can now customize the merge commit title for any PR in the queue. Add merge-commit-title: Your custom title here on its own line anywhere in your PR body, and the merge queue will use that as the…
+</Update>
+
+### February 2026
+
+<Update label="February 6, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Public API for Queue Management](/changelog/2026-02-06-merge-queue-public-api-for-queue-management)**
+
+  You can now fully manage your merge queues through the Trunk API without touching the web UI.
+</Update>
+
+### January 2026
+
+<Update label="January 30, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Personal Slack Notifications](/changelog/2026-01-30-merge-queue-personal-slack-notifications)**
+
+  Get direct messages in Slack about your PRs in the merge queue, keeping you informed without adding noise to team channels and allowing you to address failures immediately.
+</Update>
+
+<Update label="January 23, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Support Additional Merge Methods](/changelog/2026-01-23-merge-queue-support-additional-merge-methods)**
+
+  You can now select your preferred merge method for PRs going through the merge queue. Previously, Trunk Merge only supported squash merging, which combines all commits into a single commit.
+</Update>
+
+<Update label="January 14, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Filter Metrics by Impacted Targets](/changelog/2026-01-14-merge-queue-filter-metrics-by-impacted-targets)**
+
+  Now you can filter merge queue health metrics by impacted targets to see exactly how well this parallel workflow is performing for each part of your codebase.
+</Update>
+
+<Update label="January 9, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Direct Merge to Main](/changelog/2026-01-09-merge-queue-direct-merge-to-main)**
+
+  Skip redundant testing and merge immediately when your PR is already up-to-date and the queue is empty
+</Update>
+
+<Update label="January 7, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Independent Concurrency for Batch Bisection](/changelog/2026-01-07-merge-queue-independent-concurrency-for-batch-bisection)**
+
+  When a batch of PRs fails and needs to be split apart to identify the culprit, you want those bisection tests to run as fast as possible so developers get quick feedback about what broke.
+</Update>
+
+<Update label="January 2, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Test Caching for Batch Failure Isolation](/changelog/2026-01-02-merge-queue-test-caching-for-batch-failure-isolation)**
+
+  When you use batching mode, the merge queue tests multiple PRs together for efficiency. If a batch fails, the queue needs to figure out which specific PR caused the problem by splitting the batch…
+</Update>
+
+
+## 2025
+
+### May 2025
+
+<Update label="May 28, 2025" tags={["Merge Queue"]}>
+  **[Merge Queue: Failure tab only displays current failures](/changelog/2025-05-28-merge-queue-failure-tab-only-displays-current-failures)**
+
+  We’ve updated the Merge Queue Failure tab so that only PRs that failed and have not been resubmitted to the queue are displayed.
+</Update>
+
+<Update label="May 8, 2025" tags={["Merge Queue"]}>
+  **[Merge Queue: Webhooks on batched PR merges](/changelog/2025-05-08-merge-queue-webhooks-on-batched-pr-merges)**
+
+  Webhooks are now available for batched PR merges in Merge Queue. This allows you to build custom automations and respond to events when batching is enabled.
+</Update>
+
+### April 2025
+
+<Update label="April 17, 2025" tags={["Merge Queue"]}>
+  **[Merge Queue: updateQueue API](/changelog/2025-04-17-merge-queue-updatequeue-api)**
+
+  We’ve added a new updateQueue API to Trunk Merge Queue that enables you to update a Merge Queue’s state.
+</Update>
+
+### January 2025
+
+<Update label="January 28, 2025" tags={["Merge Queue"]}>
+  **[Merge: Webhook notifications for Microsoft Teams and Slack](/changelog/2025-01-28-merge-webhook-notifications-for-microsoft-teams-and-slack)**
+
+  We're excited to share our new webhook integrations for Trunk Merge. You can now send notifications about events in the merge queue to your Microsoft Teams and Slack channels.
+</Update>
+
+
+## 2024
+
+### July 2024
+
+<Update label="July 17, 2024" tags={["Merge Queue"]}>
+  **[Merge Queue: New metrics dashboard](/changelog/2024-07-17-trunk-merge-queue-metrics-dashboard)**
+
+  Merge queues are integral to validating and merging PRs - a critical part of any development process. Minimizing the friction to merge a PR and ensuring the merging process remains fast is essential…
+</Update>
+
+<Update label="July 10, 2024" tags={["Merge Queue"]}>
+  **[Merge Queue: API updates](/changelog/2024-07-10-trunk-merge-queue-public-api-updated)**
+
+  Trunk Merge Queue has added more functionality to its public API, allowing it to fit seamlessly into any integration.
+</Update>
+
+### May 2024
+
+<Update label="May 26, 2024" tags={["Merge Queue"]}>
+  **[Merge Queue: Draft PR support](/changelog/2024-05-26-testing-using-draft-prs)**
+
+  Trunk Merge Queue, by default, will now raise draft pull requests in order to test changes submitted to the merge queue! Trunk Merge Queue is now even easier to get started with and no longer…
+</Update>
+
+<Update label="May 17, 2024" tags={["Merge Queue"]}>
+  **[Merge Queue: First class Nx support](/changelog/2024-05-17-first-class-support-for-trunk-merge-queue-nx)**
+
+  Trunk Merge Queue, through its Parallel Queues feature, can dynamically create new merge queues to test only the pull requests with potential conflicts together.
+</Update>
+
+### April 2024
+
+<Update label="April 5, 2024" tags={["Merge Queue"]}>
+  **[Merge Queue: Batching support](/changelog/2024-04-05-merge-batching-support)**
+
+  Trunk Merge Queue now supports grouping PRs into batches for greater throughput. See Batching docs for more details.
+</Update>
+
+<Update label="April 5, 2024" tags={["Merge Queue"]}>
+  **[Merge Queue: Webhook support](/changelog/2024-04-05-merge-web-hook-support)**
+
+  Trunk Merge Queue now supports webhooks to provide realtime events to integrated platforms. See the Webhooks API doc for more details.
+</Update>
+
+### March 2024
+
+<Update label="March 29, 2024" tags={["Merge Queue"]}>
+  **[Merge Queue: Optimistic merging and pending failure depth](/changelog/2024-03-29-optimistic-merging-and-pending-failure-depth)**
+
+  Merge Queue now supports Optimistic Merging to allow failed tests to be merged if later PRs pass. Merge Queue also now supports Pending Failure Depth to allow failed tests to remain in the queue for…
+</Update>
+
+<Update label="March 15, 2024" tags={["Merge Queue"]}>
+  **[Merge Queue: PR prioritization](/changelog/2024-03-15-trunk-merge-pr-prioritization)**
+
+  Support for setting the priority of a pull request from the command line or a GitHub comment. Higher priority PRs will move ahead of lower priority PRs. See PR Prioritization docs for more details.
+</Update>
+
+### February 2024
+
+<Update label="February 20, 2024" tags={["Merge Queue"]}>
+  **[Merge Queue : Support for forked and open source repos](/changelog/2024-02-20-merge-support-for-forked-and-open-source-repos)**
+
+  Trunk Merge Queue now supports uploading impacted targets from forked PRs, and has more verbose information on PRs for contributors that aren't a part of the same Trunk org.
+</Update>
+
+### January 2024
+
+<Update label="January 12, 2024" tags={["Merge Queue"]}>
+  **[Merge Queue: Automatic status checks](/changelog/2024-01-12-merge-automatic-status-checks)**
+
+  Trunk Merge Queue now supports automatically setting the required status checks by scanning the GitHub branch protection of the target branch. See Define Required Status For Testing for details.
+</Update>
+
+
+## 2023
+
+### November 2023
+
+<Update label="November 21, 2023" tags={["Merge Queue"]}>
+  **[Trunk Merge Queue - Parallel Queues](/changelog/2023-11-21-trunk-merge-parallel-queues)**
+
+  Trunk Merge Queue now offers two modes for creating merge queues: \"Single\" and \"Parallel\". The Single mode operates as a standard first-in, first-out merge queue, where pull requests (PRs) are added…
+</Update>

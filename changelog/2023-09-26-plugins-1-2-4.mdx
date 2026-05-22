@@ -1,0 +1,28 @@
+---
+title: Plugins 1.2.4
+description: "New tool: clangd."
+slug: plugins-1-2-4
+date: 2023-09-26
+category: Code Quality
+---
+
+**🎁 New**
+
+- New tool: `clangd.`
+
+**✨ Improvements**
+
+- Don't autoenable `gokart` and `tfsec.`
+- Lower the `hadolint` timeout.
+- Update definitions to use the new `run_from` syntax.
+- Add `mts` as a typescript file extension.
+- Update `jq` definition and release label.
+- Update copy on `oxipng` autofixes.
+- Update default `ruff` config to not report diagnostics for python docstrings.
+- Update tool testing framework to use healthchecks.
+
+**🔧 Fixes**
+
+- Fix `tfsec` output related to trivy migration.
+- Fix `trufflehog` to ignore PagerDutyApiKey and LaunchDarkly, which can include many false
+  positives.

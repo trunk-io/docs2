@@ -1,0 +1,30 @@
+---
+title: "Merge Queue: List Pull Requests Public API Endpoint"
+description: "A new POST /v1/listPullRequests endpoint lets you query all PRs in your merge queue programmatically. Filter by state (not ready, pending, testing, merged, failed, cancelled), time range, and…"
+slug: merge-queue-list-pull-requests-public-api-endpoint
+date: 2026-03-19
+category: Merge Queue
+---
+
+**A new** `POST /v1/listPullRequests` endpoint lets you query all PRs in your merge queue
+programmatically. Filter by state (not ready, pending, testing, merged, failed, cancelled), time
+range, and paginate through results. This gives CI integrations and internal tooling a complete view
+of queue activity without scraping the UI.
+
+Example Request
+
+```
+curl -X POST https://api.trunk.io/v1/listPullRequests \
+  -H "Content-Type: application/json" \
+  -H "x-api-token: $TRUNK_API_TOKEN" \
+  -d '{
+    "repo": {
+      "host": "github.com",
+      "owner": "my-org",
+      "name": "my-repo"
+    },
+    "targetBranch": "main",
+    "state": "TESTING",
+    "take": 10
+  }'
+```

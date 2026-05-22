@@ -1,0 +1,28 @@
+---
+title: CLI 1.22.3
+description: "Add a linter definition field [](https://docs.trunk.io/code-quality/configuration/integrating-linters/reference/linter-definition#verbatimmessage)for a linter to have multi-line messages; Allow…"
+slug: cli-1-22-3
+date: 2024-08-15
+category: Code Quality
+---
+
+**🎁 New**
+
+- Add a
+  [linter definition field](https://docs.trunk.io/cli/configuration/lint/definitions#verbatim_message)
+  [](https://docs.trunk.io/code-quality/configuration/integrating-linters/reference/linter-definition#verbatim_message)for
+  a linter to have multi-line messages.
+- Allow [specifying](https://docs.trunk.io/cli/configuration#trunk_remote_hint) a hint so that Trunk
+  can identify an upstream remote to use other than origin.
+
+**✨ Improvements**
+
+- Improved output for Markdownlint messages.
+- Improved output for the trunk git hooks.
+- Improved output for trunk when run via a git hook inside VSCode.
+- Reduced memory usage.
+- Remove some overly verbose logging.
+
+**🔧 Fixes**
+
+- Fix a rare instance where a linter can hang without timing out.

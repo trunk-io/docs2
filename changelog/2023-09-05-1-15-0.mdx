@@ -1,0 +1,24 @@
+---
+title: CLI 1.15.0
+description: "New command line flag: --print-failures will print any failures instead of saving them to a file."
+slug: 1-15-0
+date: 2023-09-05
+category: Code Quality
+---
+
+**🎁 New**
+
+- New command line flag: --print-failures will print any failures instead of saving them to a file.
+
+**✨ Improvements**
+
+- trunk upgrade is now able to perform all upgrades in a single invocation. Previously, it would
+  require multiple invocations if there were dependencies between the linters, plugin repos, or the
+  CLI.
+- The LSP Server will now lint files that are modified outside of the editor.
+
+**🔧 Fixes**
+
+- Remove deprecated trunk check download. It has been superseded by trunk install.
+- Make Trunk daemon startup faster to fix occasional timeouts connecting to it.
+- Fix various Windows issues.

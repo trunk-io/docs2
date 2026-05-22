@@ -1,0 +1,31 @@
+---
+title: CLI 1.16.0
+description: "Introduce the ability to pin a specific version of a linter, tool, or runtime in Trunk. Append a ! to its version to prevent updates via trunk upgrade; Added support for plugins in prettier versions…"
+slug: 1-16-0
+date: 2023-09-18
+category: Code Quality
+---
+
+**🎁 New**
+
+- Introduce the ability to pin a specific version of a linter, tool, or runtime in Trunk. Append
+  a ! to its version to prevent updates via trunk upgrade.
+- Added support for plugins in prettier versions >=3.0.0.
+
+**✨ Improvements**
+
+- Replaced run_linter_from with run_from in linter definitions
+  ([see docs](https://docs.trunk.io/check/custom-linters)).
+- Trunk will no longer suggest upgrades that are enabled in a plugin.
+
+**🔧 Fixes**
+
+- Resolved an issue where trunk upgrade sometimes failed to display upgrade summaries.
+- Updated compile_commands.json parsing with support for the arguments key.
+- Fix a rare crash in the pre-commit hook when pressing the spacebar to skip checks.
+- Do a better job of discarding issues in files outside the workspace.
+- The LSP Sever does a better job clearing stale diagnostics.
+- Better crash reporting on macOS.
+- Better error messages when failing to resolve DNS entries.
+- Fixed a bug where trunk would reinstall tools on each upgrade.
+- Many Windows bug fixes.

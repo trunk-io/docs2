@@ -1,0 +1,20 @@
+---
+title: "Flaky Tests: Infrastructure Failure Protection"
+description: "When infrastructure issues like database outages, network problems, or CI runner failures cause a large number of tests to fail simultaneously, retrying those tests can trigger mass false flaky…"
+slug: flaky-tests-infrastructure-failure-protection
+date: 2026-02-02
+category: Flaky Tests
+---
+
+When infrastructure issues like database outages, network problems, or CI runner failures cause a
+large number of tests to fail simultaneously, retrying those tests can trigger mass false flaky
+detections. Infrastructure Failure Protection identifies these scenarios and excludes them from
+flakiness detection.
+
+![](/assets/changelog/flaky-tests-infrastructure-failure-protection-yql4qd.png)
+
+By enabling this setting, you can set a threshold for filtering runs based on the percentage of
+failed tests; if failures exceed 80%, those tests won't be processed for flaky test detection and
+you'll see a new status in the Uploads tab indicating 'Upload Skipped Due to Infrastructure Error'.
+
+[Read the Docs](https://docs.trunk.io/flaky-tests/infrastructure-failure-protection) to learn more

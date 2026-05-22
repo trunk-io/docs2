@@ -1,0 +1,19 @@
+---
+title: CLI 1.18.1
+description: "Trunk will now respect .netrc when downloading files; When a batched linter execution fails, trunk will now bisect the batch, and only tell the user about the file(s) that failed."
+slug: cli-1-18-1
+date: 2023-12-14
+category: Code Quality
+---
+
+**✨ Improvements**
+
+- Trunk will now respect `.netrc` when downloading files.
+- When a batched linter execution fails, trunk will now bisect the batch, and only tell the user
+  about the file(s) that failed.
+
+**🔧 Fixes**
+
+- Fix a bug where concurrent go installs could conflict with each other.
+- Fix a bug where the trunk-announce action would fail when creating a git worktree.
+- Fix a rare bug where trunk could consume a CPU core for an indefinite amount of time.

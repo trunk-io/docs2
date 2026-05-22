@@ -1,0 +1,23 @@
+---
+title: CLI 1.19.0
+description: "Rewrite linters now have the ability to emit diagnostics."
+slug: cli-1-19-0
+date: 2024-01-08
+category: Code Quality
+---
+
+**🎁 New**
+
+- Rewrite linters now have the ability to emit diagnostics.
+
+**✨ Improvements**
+
+- Git hooks are less noisy when there is nothing to do.
+
+**🔧 Fixes**
+
+- Fix for `include-what-you-use` not running from the correct working directory.
+- When running sub-proccesses at a low priority, trunk will now ensure the priority is never raised.
+- Ensure environment variables for temporary folders are set for Windows sub-processes.
+- Fix for Windows when your repository is not on the C: drive.
+- Shell hooks fix for paths with special characters.

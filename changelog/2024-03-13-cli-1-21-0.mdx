@@ -1,0 +1,25 @@
+---
+title: CLI 1.21.0
+description: "Added support for --color=false to disable color output in the CLI."
+slug: cli-1-21-0
+date: 2024-03-13
+category: Code Quality
+---
+
+**🎁 New**
+
+- Added support for \`--color=false\` to disable color output in the CLI.
+
+Add experimental support for the new
+[upstream_mode](https://docs.trunk.io/check/configuration/custom-linters/reference/lint-config#upstream_mode)
+option to better support tools that don't work well with symlinked files.
+
+**✨ Improvements**
+
+- Don't exit with status 1 if Trunk fails to post annotations to GitHub.
+- Improve check output when \`--ci\` is specified.
+
+**🔧 Fixes**
+
+- Npm package installs are now correctly passed environment variables.
+- Fix a rare crash when a large number of files are ignored in `trunk.yaml`.

@@ -1,0 +1,36 @@
+---
+title: "Flaky Tests: Added Flaky Test commands to Trunk CLI "
+description: "The Trunk CLI now includes commands for uploading and validating test results for Trunk Flaky Tests."
+slug: flaky-tests-added-flaky-test-commands-to-trunk-cli
+date: 2024-11-11
+category: Flaky Tests
+seo_description:
+  The Trunk CLI now includes commands for uploading and validating test results for Trunk Flaky
+  Tests.
+---
+
+The Trunk CLI now includes commands for uploading and validating test results for Trunk Flaky Tests.
+
+You can install the CLI in your CI systems like this:
+
+```
+curl -fsSLO --retry 3 https://trunk.io/releases/trunk && chmod +x trunk
+```
+
+The launcher will install the appropriate Trunk CLI binary for your system.
+
+You can use the Trunk CLI for Flaky Tests using the `trunk flakytests` subcommand.
+
+```
+./trunk flakytests upload --junit-paths "test_output.xml" \
+  --org-url-slug <TRUNK_ORG_SLUG> \
+  --token $TRUNK_API_TOKEN
+```
+
+You can also now use the Trunk CLI to validate JUnit XML files during debugging.
+
+```
+./trunk flakytests validate
+```
+
+Learn more in our [Uploader CLI Reference docs](https://docs.trunk.io/flaky-tests/uploader).

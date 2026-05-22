@@ -1,0 +1,34 @@
+---
+title: "Flaky Tests: Manual test status overrides"
+description: "You can now manually set a test’s status to Flaky, Healthy, or Broken in the Flaky Tests dashboard."
+slug: flaky-tests-manual-test-status-overrides
+date: 2025-06-25
+category: Flaky Tests
+---
+
+You can now manually set a test’s status to Flaky, Healthy, or Broken in the Flaky Tests dashboard.
+
+This means you can take advantage of Flaky Tests quarantining to unblock CI when you already know
+that a test has a high chance of failing, like in the case of a service outage affecting end-to-end
+tests.
+
+This is not a permanent override. Flaky Tests will continue to classify this test using this new
+status. 
+
+For example, if a test status is manually set to Healthy but becomes flaky after a series of CI
+runs, Flaky Tests will mark the test as Flaky.
+
+To update a test’s status:
+
+- Click the **Edit** button next to the test status in the Flaky Tests dashboard:
+
+![](/assets/changelog/flaky-tests-manual-test-status-overrides-q4yjf.png)
+
+- Enter a comment, and click **Save Status**.
+
+![](/assets/changelog/flaky-tests-manual-test-status-overrides-pq5e3b.png)
+
+The status change and comment will appear in the timeline on the test detail page.
+
+Manual test status overrides will not be enabled by default. Reach out to us on our
+[community Slack](https://slack.trunk.io/) to enable it for your organization.

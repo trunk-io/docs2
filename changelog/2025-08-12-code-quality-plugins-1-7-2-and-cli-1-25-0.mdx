@@ -1,0 +1,21 @@
+---
+title: "Code Quality: Plugins 1.7.2 and CLI 1.25.0"
+description: "New linter: ls-lint. Thank you @nenadfilipovic for the contribution!"
+slug: code-quality-plugins-1-7-2-and-cli-1-25-0
+date: 2025-08-12
+category: Code Quality
+---
+
+**🎁 New**
+
+- New linter: [ls-lint](https://ls-lint.org/). Thank you @nenadfilipovic for the contribution!
+
+**✨ Improvements**
+
+- Add new file types, `jpg`, `gip`, `pcap`, `tif`, `webp`
+- Update `known_good_version` for `shellcheck`, `flake8`, `prettier`, `black`, `tflint`. Thank
+  you @yu-iskw for the contribution!
+- Ignore list for a linter will no longer error if a specifically ignored file in the list is not
+  found. This better matches behavior of glob pattern ignores.
+- Performance improvements in launch time
+- Various bug fixes

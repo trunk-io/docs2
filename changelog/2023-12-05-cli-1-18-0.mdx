@@ -1,0 +1,31 @@
+---
+title: CLI 1.18.0
+description: "Announcing Trunk shell-hooks: Watches your current working directory to ensure that Trunk-managed tools, linters, and runtimes are available in PATH."
+slug: cli-1-18-0
+date: 2023-12-05
+category: Code Quality
+---
+
+**🎁 New**
+
+- Announcing [Trunk shell-hooks](https://docs.trunk.io/check/tools#running-tools): Watches your
+  current working directory to ensure that Trunk-managed tools, linters, and runtimes are available
+  in _PATH_.
+
+**✨ Improvements**
+
+- Trunk check will now hide pre-existing issues by default. The new `--show-existing` command-line
+  flag can be used to show them.
+- Trunk check will now omit prompts if not running with an interactive terminal.
+- Trunk tools can now
+  [list extra packages](https://docs.trunk.io/check/configuration#installing-additional-packages) to
+  be installed.
+- Runtime-based tools (ie, `python`) must now be
+  [explicitly](https://docs.trunk.io/check/tools/configuration#runtime-based-tools) enabled.
+
+**🔧 Fixes**
+
+- Several Windows fixes.
+- Fixes for Emacs-based LSP clients.
+- The LSP server will now limit the number of retries for linting files that are modified mid-run.
+- Miscellaneous fixes.

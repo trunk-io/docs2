@@ -1,0 +1,1001 @@
+---
+title: "Changelog"
+description: "Recent updates to Trunk."
+rss: true
+---
+
+
+## 2026
+
+### May 2026
+
+<Update label="May 18, 2026" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Organization-Scoped Test Labels](/changelog/2026-05-18-flaky-tests-test-labels)**
+
+  Tag, organize, and filter your test suite with org-wide labels.
+</Update>
+
+<Update label="May 18, 2026" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Failure Count Monitor](/changelog/2026-05-18-flaky-tests-failure-count-monitor)**
+
+  Flag tests the moment they accumulate a configured number of failures on monitored branches.
+</Update>
+
+<Update label="May 18, 2026" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Apply Labels from Monitors](/changelog/2026-05-18-flaky-tests-monitor-label-actions)**
+
+  Monitors can now apply labels to tests instead of classifying them as flaky or broken.
+</Update>
+
+### April 2026
+
+<Update label="April 30, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Chrome Extension](/changelog/2026-04-30-merge-queue-chrome-extension)**
+
+  The Trunk Chrome Extension brings merge queue controls directly into your GitHub pull request page.
+</Update>
+
+<Update label="April 21, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Drill Down Into Merge Metrics](/changelog/2026-04-21-merge-queue-drill-down-into-merge-metrics)**
+
+  Merge Queue Health metrics can now be drilled down to the individual pull requests behind any data point.
+</Update>
+
+<Update label="April 13, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Terraform Provider](/changelog/2026-04-13-merge-queue-terraform-provider)**
+
+  Merge Queue can now be managed fully through Terraform. Previously, creating, updating, and managing a Trunk Merge Queue was a manual process handled through our UI.
+</Update>
+
+### March 2026
+
+<Update label="March 27, 2026" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Automatically Create Jira Issues from Webhooks](/changelog/2026-03-27-flaky-tests-automatically-create-jira-issues-from-webhooks)**
+
+  A new Jira connector in your webhook settings creates issues in your Jira Cloud project whenever a test's status changes to flaky and impacts more than a configurable number of PRs.
+</Update>
+
+<Update label="March 26, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Testing Details API Now Includes Impacted Target Information](/changelog/2026-03-26-merge-queue-testing-details-api-now-includes-impacted-target-information)**
+
+  The Get Testing Details API now returns impacted target information, giving CI systems everything they need to launch the right tests.
+</Update>
+
+<Update label="March 25, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Multiple Queues Per Repo with Grouped Selector](/changelog/2026-03-25-merge-queue-multiple-queues-per-repo-with-grouped-selector)**
+
+  Previously, a repo could only have one queue. Now you can create additional queues from the merge queue creation page. The repo selector shows repos that already have queues and how many exist.
+</Update>
+
+<Update label="March 25, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Slack App Home Tab](/changelog/2026-03-25-merge-queue-slack-app-home-tab)**
+
+  The Trunk Slack App Home tab is now a full control plane for your merge queue activity across all your organizations.
+</Update>
+
+<Update label="March 24, 2026" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Configurable Threshold Monitors with Live Preview](/changelog/2026-03-24-flaky-tests-configurable-threshold-monitors-with-live-preview)**
+
+  You now have full control over how flaky tests are detected. Threshold monitors let you define exactly when a test should be flagged as flaky or broken, set the failure rate threshold, time window,…
+</Update>
+
+<Update label="March 19, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: List Pull Requests Public API Endpoint](/changelog/2026-03-19-merge-queue-list-pull-requests-public-api-endpoint)**
+
+  A new POST /v1/listPullRequests endpoint lets you query all PRs in your merge queue programmatically. Filter by state (not ready, pending, testing, merged, failed, cancelled), time range, and…
+</Update>
+
+<Update label="March 19, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Route Slack Notifications to Multiple Channels](/changelog/2026-03-19-merge-queue-route-slack-notifications-to-multiple-channels)**
+
+  Merge queue Slack notifications can now be routed to multiple channels. Previously, notifications went to a single configured channel.
+</Update>
+
+<Update label="March 13, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Prometheus-Compatible Metrics Endpoint](/changelog/2026-03-13-merge-queue-prometheus-compatible-metrics-endpoint)**
+
+  Merge Queue now exposes a Prometheus-compatible metrics endpoint for integration with your existing monitoring stack.
+</Update>
+
+<Update label="March 13, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Isolate PRs from Batching with noBatch](/changelog/2026-03-13-merge-queue-isolate-prs-from-batching-with-nobatch)**
+
+  PRs can now opt out of batching to test in isolation. When a high-risk PR is in the queue, batching it with other PRs means a failure forces the entire batch to restart.
+</Update>
+
+<Update label="March 9, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Impacted Targets Visible on the Merge Graph](/changelog/2026-03-09-merge-queue-impacted-targets-visible-on-the-merge-graph)**
+
+  The merge graph now shows impacted targets directly on nodes and edges, so you can see exactly why PRs are connected and which targets they share.
+</Update>
+
+<Update label="March 5, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Custom Merge Commit Titles](/changelog/2026-03-05-merge-queue-custom-merge-commit-titles)**
+
+  You can now customize the merge commit title for any PR in the queue. Add merge-commit-title: Your custom title here on its own line anywhere in your PR body, and the merge queue will use that as the…
+</Update>
+
+### February 2026
+
+<Update label="February 6, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Public API for Queue Management](/changelog/2026-02-06-merge-queue-public-api-for-queue-management)**
+
+  You can now fully manage your merge queues through the Trunk API without touching the web UI.
+</Update>
+
+<Update label="February 2, 2026" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Infrastructure Failure Protection](/changelog/2026-02-02-flaky-tests-infrastructure-failure-protection)**
+
+  When infrastructure issues like database outages, network problems, or CI runner failures cause a large number of tests to fail simultaneously, retrying those tests can trigger mass false flaky…
+</Update>
+
+### January 2026
+
+<Update label="January 30, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Personal Slack Notifications](/changelog/2026-01-30-merge-queue-personal-slack-notifications)**
+
+  Get direct messages in Slack about your PRs in the merge queue, keeping you informed without adding noise to team channels and allowing you to address failures immediately.
+</Update>
+
+<Update label="January 23, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Support Additional Merge Methods](/changelog/2026-01-23-merge-queue-support-additional-merge-methods)**
+
+  You can now select your preferred merge method for PRs going through the merge queue. Previously, Trunk Merge only supported squash merging, which combines all commits into a single commit.
+</Update>
+
+<Update label="January 14, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Filter Metrics by Impacted Targets](/changelog/2026-01-14-merge-queue-filter-metrics-by-impacted-targets)**
+
+  Now you can filter merge queue health metrics by impacted targets to see exactly how well this parallel workflow is performing for each part of your codebase.
+</Update>
+
+<Update label="January 9, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Direct Merge to Main](/changelog/2026-01-09-merge-queue-direct-merge-to-main)**
+
+  Skip redundant testing and merge immediately when your PR is already up-to-date and the queue is empty
+</Update>
+
+<Update label="January 7, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Independent Concurrency for Batch Bisection](/changelog/2026-01-07-merge-queue-independent-concurrency-for-batch-bisection)**
+
+  When a batch of PRs fails and needs to be split apart to identify the culprit, you want those bisection tests to run as fast as possible so developers get quick feedback about what broke.
+</Update>
+
+<Update label="January 2, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Test Caching for Batch Failure Isolation](/changelog/2026-01-02-merge-queue-test-caching-for-batch-failure-isolation)**
+
+  When you use batching mode, the merge queue tests multiple PRs together for efficiency. If a batch fails, the queue needs to figure out which specific PR caused the problem by splitting the batch…
+</Update>
+
+
+## 2025
+
+### November 2025
+
+<Update label="November 18, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: New API endpoints](/changelog/2025-11-18-flaky-tests-new-api-endpoints)**
+
+  We’ve added three new endpoints to make it easier to investigate flaky tests, automate triage, and integrate test health into your workflows.
+</Update>
+
+<Update label="November 12, 2025" tags={["Code Quality"]}>
+  **[Plugins 1.7.4](/changelog/2025-11-12-plugins-1-7-4)**
+
+  ✨ Improvements
+</Update>
+
+### October 2025
+
+<Update label="October 9, 2025" tags={["Code Quality"]}>
+  **[Plugins 1.7.3](/changelog/2025-10-09-plugins-1-7-3)**
+
+  🎁 New
+</Update>
+
+### September 2025
+
+<Update label="September 9, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Auto quarantine no longer applied to broken tests](/changelog/2025-09-09-flaky-tests-auto-quarantine-no-longer-applied-to-broken-tests)**
+
+  Auto-quarantining test cases have been updated to target only 'flaky' tests specifically. Previously, both 'flaky' and 'broken' tests were subject to automatic quarantine.
+</Update>
+
+<Update label="September 9, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Test: Corrected CLI test failure reporting flag](/changelog/2025-09-09-flaky-test-corrected-cli-test-failure-reporting-flag)**
+
+  Resolved an issue where test failures were not being reported or displayed when using the --disable-quarantining flag.
+</Update>
+
+<Update label="September 1, 2025" tags={["Web App"]}>
+  **[UI refresh: Enhanced dashboard experience](/changelog/2025-09-01-ui-refresh-enhanced-dashboard-experience)**
+
+  We've redesigned the app with a visual-first approach that helps you spot critical issues at a glance instead of digging through data. Plus, get a sneak peek at our new CI Autopilot interface!
+</Update>
+
+### August 2025
+
+<Update label="August 25, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: New endpoint and XCode 26 support](/changelog/2025-08-25-flaky-tests-new-endpoint-and-xcode-26-support)**
+
+  A new endpoint is available from the trunk api at /flaky-tests/list-unhealthy-tests for your CI/CD integrations.
+</Update>
+
+<Update label="August 25, 2025" tags={["CI Autopilot"]}>
+  **[CI Autopilot: Stacked PRs, CI Triggers and MCP support](/changelog/2025-08-25-ci-autopilot-stacked-prs-ci-triggers-and-mcp-support)**
+
+  Onboarding UX improvements; Stacked PR User experience improvements to generate less noise in your repo/feeds.
+</Update>
+
+<Update label="August 15, 2025" tags={["CI Autopilot"]}>
+  **[CI Autopilot: Private beta initial release](/changelog/2025-08-15-ci-autopilot-private-beta-initial-release)**
+
+  Core features in this release:
+</Update>
+
+<Update label="August 12, 2025" tags={["Code Quality"]}>
+  **[Code Quality: Plugins 1.7.2 and CLI 1.25.0](/changelog/2025-08-12-code-quality-plugins-1-7-2-and-cli-1-25-0)**
+
+  New linter: ls-lint. Thank you @nenadfilipovic for the contribution!
+</Update>
+
+### July 2025
+
+<Update label="July 2, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Commit details in timeline](/changelog/2025-07-02-flaky-tests-commit-details-in-timeline)**
+
+  We’ve added additional details about commits that trigger test status changes to test timelines in the Flaky Tests dashboard.
+</Update>
+
+### June 2025
+
+<Update label="June 25, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Manual test status overrides](/changelog/2025-06-25-flaky-tests-manual-test-status-overrides)**
+
+  You can now manually set a test’s status to Flaky, Healthy, or Broken in the Flaky Tests dashboard.
+</Update>
+
+<Update label="June 24, 2025" tags={["Code Quality"]}>
+  **[Plugins 1.7.1](/changelog/2025-06-24-plugins-1-7-1)**
+
+  🎁 New
+</Update>
+
+<Update label="June 18, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Test suite and class available on test details page](/changelog/2025-06-18-test-suite-and-class-available-on-test-details-page)**
+
+  The names of a test’s suite and class are now visible on the test details page of the flaky test dashboard, along with a file search link for repos using either GitHub or Bitbucket as source control…
+</Update>
+
+<Update label="June 11, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: test_case.quarantining_setting_changed webhook](/changelog/2025-06-11-flaky-tests-test-case-quarantining-setting-changed-webhook)**
+
+  We’re happy to announce that a new testcase.quarantiningsetting_changed webhook is now available for all Flaky Tests users.
+</Update>
+
+### May 2025
+
+<Update label="May 28, 2025" tags={["Code Quality"]}>
+  **[Plugins 1.7.0](/changelog/2025-05-28-plugins-1-7-0)**
+
+  ✨ Improvements
+</Update>
+
+<Update label="May 28, 2025" tags={["Code Quality"]}>
+  **[CLI 1.24.0](/changelog/2025-05-28-cli-1-24-0)**
+
+  Updated embedded CURL to v8.13 (enables support for running inside Open AI Codex); Formatting issues can now be downgraded to non-blocking using the threshold value like any other linter issue.
+</Update>
+
+<Update label="May 28, 2025" tags={["Merge Queue"]}>
+  **[Merge Queue: Failure tab only displays current failures](/changelog/2025-05-28-merge-queue-failure-tab-only-displays-current-failures)**
+
+  We’ve updated the Merge Queue Failure tab so that only PRs that failed and have not been resubmitted to the queue are displayed.
+</Update>
+
+<Update label="May 21, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Improved test failure details](/changelog/2025-05-21-improved-test-failure-details)**
+
+  More changes have landed on the Flaky Tests dashboard: unique failure details on the test details page are now available in a single table view.
+</Update>
+
+<Update label="May 15, 2025" tags={["Flaky Tests"]}>
+  **[RSpec Plugin for Ruby repos](/changelog/2025-05-15-rspec-plugin-for-ruby-repos)**
+
+  The new Flaky Tests RSpec plugin is the best way to run RSpec tests and upload the results to Trunk.
+</Update>
+
+<Update label="May 9, 2025" tags={["Web App"]}>
+  **[Sunsetting CI Analytics and Code Quality web issue browser](/changelog/2025-05-09-sunsetting-ci-analytics-and-code-quality-web-issue-browser)**
+
+  Trunk CI Analytics and Code Quality web issue browser are being shut down today. This is a strategic change as we reinvent and consolidate our tools for the future.
+</Update>
+
+<Update label="May 8, 2025" tags={["Merge Queue"]}>
+  **[Merge Queue: Webhooks on batched PR merges](/changelog/2025-05-08-merge-queue-webhooks-on-batched-pr-merges)**
+
+  Webhooks are now available for batched PR merges in Merge Queue. This allows you to build custom automations and respond to events when batching is enabled.
+</Update>
+
+### April 2025
+
+<Update label="April 25, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Link Ticket to Test Case API](/changelog/2025-04-25-link-ticket-to-test-case-api)**
+
+  Today, we’re introducing a new Link Ticket to Test Case API that allows you to link your existing Linear or Jira tickets to tests in the Flaky Tests dashboard.
+</Update>
+
+<Update label="April 25, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Linear integration](/changelog/2025-04-25-linear-integration)**
+
+  We now have a built-in Linear integration that creates tickets with relevant test and failure information from your flaky tests.
+</Update>
+
+<Update label="April 17, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Track environment-specific flakes with variants](/changelog/2025-04-17-track-environment-specific-flakes-with-variants)**
+
+  Starting today, the --variant option should be used to upload test results when the same tests are run on different environments, also known as matrix builds.
+</Update>
+
+<Update label="April 17, 2025" tags={["Merge Queue"]}>
+  **[Merge Queue: updateQueue API](/changelog/2025-04-17-merge-queue-updatequeue-api)**
+
+  We’ve added a new updateQueue API to Trunk Merge Queue that enables you to update a Merge Queue’s state.
+</Update>
+
+<Update label="April 11, 2025" tags={["Code Quality"]}>
+  **[Plugins 1.6.8](/changelog/2025-04-11-plugins-1-6-8)**
+
+  New linter: golangci-lint2. Users who wish to upgrade should replace golangci-lint with golangci-lint2
+</Update>
+
+<Update label="April 9, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Test detail dashboard UI improvements](/changelog/2025-04-09-flaky-tests-test-detail-dashboard-ui-improvements)**
+
+  The test details page in the Flaky Tests dashboard is getting a major UX overhaul.
+</Update>
+
+### March 2025
+
+<Update label="March 26, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Quarantined Tests API](/changelog/2025-03-26-flaky-tests-quarantined-tests-api)**
+
+  A new Quarantined Tests API is now available to all Flaky Tests users. This API fetches a list of currently quarantined tests for a given repo, allowing organizations to implement custom workflows to…
+</Update>
+
+<Update label="March 13, 2025" tags={["Web App"]}>
+  **[Web App: Single sign-on (SSO) support](/changelog/2025-03-13-web-app-single-sign-on-sso-support)**
+
+  Trunk now supports single sign-on (SSO) for enterprise plan users. SSO allows your team to access Trunk with their work email account through your organization's identity and access management…
+</Update>
+
+### February 2025
+
+<Update label="February 26, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Detailed Jira integration status updates](/changelog/2025-02-26-flaky-tests-detailed-jira-integration-status-updates)**
+
+  We have an exciting update for teams using the Flaky Test Jira integration to create and track their tickets.
+</Update>
+
+<Update label="February 14, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Set a custom stable branch](/changelog/2025-02-14-flaky-tests-set-a-custom-stable-branch)**
+
+  If your stable branch is not main, you can now set a custom stable branch for your repositories to improve flaky test detection.
+</Update>
+
+<Update label="February 10, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Weekly reports](/changelog/2025-02-10-flaky-tests-weekly-reports)**
+
+  We're excited to introduce a new way to help your team stay on top of your repository's test health through weekly email reports.
+</Update>
+
+### January 2025
+
+<Update label="January 29, 2025" tags={["Code Quality"]}>
+  **[Plugins 1.6.7](/changelog/2025-01-29-plugins-1-6-7)**
+
+  New security linter: snyk. Thanks @fsargent for the contribution!; New action: terraform-docs. Thanks @Gowiem for the contribution!.
+</Update>
+
+<Update label="January 29, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Webhook Integration for Slack, Microsoft Teams, GitHub Issues, and Linear](/changelog/2025-01-29-flaky-tests-webhook-integration-for-slack-microsoft-teams-github-issues-and-linea)**
+
+  We're excited to introduce webhook integrations for Slack, Microsoft Teams, GitHub Issues, and Linear.
+</Update>
+
+<Update label="January 28, 2025" tags={["Merge Queue"]}>
+  **[Merge: Webhook notifications for Microsoft Teams and Slack](/changelog/2025-01-28-merge-webhook-notifications-for-microsoft-teams-and-slack)**
+
+  We're excited to share our new webhook integrations for Trunk Merge. You can now send notifications about events in the merge queue to your Microsoft Teams and Slack channels.
+</Update>
+
+<Update label="January 21, 2025" tags={["Web App"]}>
+  **[Web App: Sign in with Microsoft](/changelog/2025-01-21-web-app-sign-in-with-microsoft)**
+
+  The Trunk Web App now supports signing in with Microsoft. This makes it easier for teams who are primarily integrated with Microsoft's ecosystem (Outlook, Microsoft Teams) to get started with Trunk.
+</Update>
+
+<Update label="January 16, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: CODEOWNERS support](/changelog/2025-01-16-flaky-tests-codeowners-support)**
+
+  We’re thrilled to announce support for CODEOWNERS in our Flaky Tests product, which is available for both GitHub and GitLab repositories.
+</Update>
+
+<Update label="January 14, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Support for Bazel build event protocol](/changelog/2025-01-14-flaky-tests-support-for-bazel-build-event-protocol)**
+
+  Trunk Flaky Tests now supports uploading test results by parsing Bazel Build Event Protocol (BEP) files.
+</Update>
+
+<Update label="January 3, 2025" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Flaky test detection on merge branches](/changelog/2025-01-03-flaky-tests-flaky-test-detection-on-merge-branches)**
+
+  We’re excited to announce improved flaky test detection for merge queue users. In a merge queue, a single flaky failure will force every enqueued PR behind it to be retested, affecting every engineer…
+</Update>
+
+
+## 2024
+
+### December 2024
+
+<Update label="December 16, 2024" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Webhooks for status changes](/changelog/2024-12-16-flaky-tests-webhooks-for-status-changes)**
+
+  We’re excited to announce the addition of webhooks for flaky tests, designed to help you automate your workflows for better handling of flaky tests.
+</Update>
+
+<Update label="December 10, 2024" tags={["Code Quality"]}>
+  **[Plugins 1.6.6](/changelog/2024-12-10-plugins-1-6-6)**
+
+  Upgrade ruby-build to 20241105. Thanks @amkisko for the contribution!; Upgrade jdk to 23.
+</Update>
+
+### November 2024
+
+<Update label="November 13, 2024" tags={["Code Quality"]}>
+  **[Plugins 1.6.5](/changelog/2024-11-13-plugins-1-6-5)**
+
+  Use a hadolint version that works on the latest versions of macOS; Fix parsing in new versions of ruff for source files with syntax errors.
+</Update>
+
+<Update label="November 12, 2024" tags={["Flaky Tests"]}>
+  **[Flaky Tests: New onboarding flow](/changelog/2024-11-12-flaky-tests-new-onboarding-flow)**
+
+  Hi everyone, we’ve introduced a new onboarding flow to make it easier to integrate your test framework and CI provider with Trunk.
+</Update>
+
+<Update label="November 11, 2024" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Added Flaky Test commands to Trunk CLI ](/changelog/2024-11-11-flaky-tests-added-flaky-test-commands-to-trunk-cli)**
+
+  The Trunk CLI now includes commands for uploading and validating test results for Trunk Flaky Tests.
+</Update>
+
+<Update label="November 8, 2024" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Dashboard improvements](/changelog/2024-11-08-flaky-tests-dashboard-improvements)**
+
+  We’re continually refining our UX with the help of our beta users’ feedback and we’ve made some changes to how Flaky Tests displays key information on the dashboards.
+</Update>
+
+<Update label="November 4, 2024" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Data uploads view](/changelog/2024-11-04-flaky-tests-data-uploads-view)**
+
+  A common pain point during onboarding is the lack of transparency after the Trunk CLI uploads test results.
+</Update>
+
+<Update label="November 4, 2024" tags={["Code Quality"]}>
+  **[CLI 1.22.8](/changelog/2024-11-04-cli-1-22-8)**
+
+  Fix a daemon connection error that could occur on Windows; Fix a daemon connection error that could happen on some machines with restricted TCP permissions.
+</Update>
+
+### October 2024
+
+<Update label="October 28, 2024" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Improved support for iOS and Swift developers](/changelog/2024-10-28-flaky-tests-improved-support-for-ios-and-swift-developers)**
+
+  Flaky Tests now supports the XCResults format outputted by Swift projects using XCTests. You can now upload the .xcresults format to Trunk directly, without configuring a JUnit XML reporter.
+</Update>
+
+<Update label="October 17, 2024" tags={["Flaky Tests"]}>
+  **[Flaky Tests: PR test summaries](/changelog/2024-10-17-flaky-tests-pr-test-summaries)**
+
+  We're excited to introduce a powerful new feature that will help you accelerate your PR iterations: PR Test Summaries!
+</Update>
+
+<Update label="October 15, 2024" tags={["Code Quality"]}>
+  **[Plugins 1.6.4](/changelog/2024-10-15-plugins-1-6-4)**
+
+  🎁 New
+</Update>
+
+<Update label="October 14, 2024" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Quarantining](/changelog/2024-10-14-flaky-tests-quarantining)**
+
+  We’re excited to provide a new way for you to mitigate the negative impact of flaky tests in your repo through quarantining.
+</Update>
+
+### September 2024
+
+<Update label="September 30, 2024" tags={["Code Quality"]}>
+  **[Plugins 1.6.3](/changelog/2024-09-30-plugins-1-6-3)**
+
+  🎁 New
+</Update>
+
+<Update label="September 30, 2024" tags={["Code Quality"]}>
+  **[CLI 1.22.6](/changelog/2024-09-30-cli-1-22-6)**
+
+  Fix a rare deadlock that could cause a linter execution to hang indefinitely.
+</Update>
+
+<Update label="September 4, 2024" tags={["Code Quality"]}>
+  **[CLI 1.22.5](/changelog/2024-09-04-cli-1-22-5)**
+
+  Help text improvements; trunk fmt will now use configured verbs when presenting results to the user.
+</Update>
+
+### August 2024
+
+<Update label="August 27, 2024" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Jira Integration](/changelog/2024-08-27-flaky-tests-jira-integration)**
+
+  We’re excited to announce the latest enhancement: Jira integration for managing flaky tests. This update builds on our MVP by streamlining the issue management process within Jira.
+</Update>
+
+<Update label="August 20, 2024" tags={["Code Quality"]}>
+  **[Plugins 1.6.2](/changelog/2024-08-20-plugins-1-6-2)**
+
+  ruff@>=0.6.0 now runs on Jupyter notebooks by default
+</Update>
+
+<Update label="August 15, 2024" tags={["Code Quality"]}>
+  **[CLI 1.22.3](/changelog/2024-08-15-cli-1-22-3)**
+
+  Add a linter definition field [](https://docs.trunk.io/code-quality/configuration/integrating-linters/reference/linter-definition#verbatimmessage)for a linter to have multi-line messages; Allow…
+</Update>
+
+<Update label="August 6, 2024" tags={["Web App"]}>
+  **[Web App: Light mode support](/changelog/2024-08-06-web-app-light-mode-support)**
+
+  Trunk Web App now supports both light and dark mode.
+</Update>
+
+### July 2024
+
+<Update label="July 17, 2024" tags={["Merge Queue"]}>
+  **[Merge Queue: New metrics dashboard](/changelog/2024-07-17-trunk-merge-queue-metrics-dashboard)**
+
+  Merge queues are integral to validating and merging PRs - a critical part of any development process. Minimizing the friction to merge a PR and ensuring the merging process remains fast is essential…
+</Update>
+
+<Update label="July 16, 2024" tags={["Code Quality"]}>
+  **[Plugins 1.6.1](/changelog/2024-07-16-plugins-1-6-1)**
+
+  Support additional osv-scanner lockfile types; Added tfvars filetype.
+</Update>
+
+<Update label="July 15, 2024" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Issue handling MVP](/changelog/2024-07-15-test-analytics-beta-issue-handling-mvp-copy-issue-details)**
+
+  Today, we are releasing our first feature to support issue handling related to flaky tests. This MVP feature is designed to streamline reporting and managing flaky tests, saving valuable time and…
+</Update>
+
+<Update label="July 10, 2024" tags={["Merge Queue"]}>
+  **[Merge Queue: API updates](/changelog/2024-07-10-trunk-merge-queue-public-api-updated)**
+
+  Trunk Merge Queue has added more functionality to its public API, allowing it to fit seamlessly into any integration.
+</Update>
+
+### June 2024
+
+<Update label="June 28, 2024" tags={["Flaky Tests"]}>
+  **[Flaky Tests: UX improvements](/changelog/2024-06-28-test-analytics-beta-ux-improvements-dashboard-test-details)**
+
+  We are rolling out substantial UX improvements to the dashboard and detail views. These enhancements provide users with quick and easy access to critical information.
+</Update>
+
+<Update label="June 11, 2024" tags={["Code Quality"]}>
+  **[Plugins 1.6.0](/changelog/2024-06-11-plugins-1-6-0)**
+
+  New linter Vale. Thanks @gewenyu99 for the contribution!; New formatter php-cs-fixer. Thanks @matthewbaggett for the contribution!.
+</Update>
+
+<Update label="June 11, 2024" tags={["Code Quality"]}>
+  **[CLI 1.22.2](/changelog/2024-06-11-cli-1-22-2)**
+
+  Add an option to skip files that are missing compile commands.
+</Update>
+
+### May 2024
+
+<Update label="May 26, 2024" tags={["Merge Queue"]}>
+  **[Merge Queue: Draft PR support](/changelog/2024-05-26-testing-using-draft-prs)**
+
+  Trunk Merge Queue, by default, will now raise draft pull requests in order to test changes submitted to the merge queue! Trunk Merge Queue is now even easier to get started with and no longer…
+</Update>
+
+<Update label="May 17, 2024" tags={["Merge Queue"]}>
+  **[Merge Queue: First class Nx support](/changelog/2024-05-17-first-class-support-for-trunk-merge-queue-nx)**
+
+  Trunk Merge Queue, through its Parallel Queues feature, can dynamically create new merge queues to test only the pull requests with potential conflicts together.
+</Update>
+
+<Update label="May 7, 2024" tags={["Code Quality"]}>
+  **[CLI 1.22.1](/changelog/2024-05-07-cli-1-22-1)**
+
+  Added a new severity level, note, which is not blocking by default; Trunk can now upload issues to our web app without requiring our GitHub app to be installed.
+</Update>
+
+<Update label="May 2, 2024" tags={["Code Quality"]}>
+  **[VSCode 3.18.0](/changelog/2024-05-02-vscode-3-18-0)**
+
+  The extension now has an installed/recommended view for linters and plugins.
+</Update>
+
+### April 2024
+
+<Update label="April 29, 2024" tags={["Code Quality"]}>
+  **[VSCode 3.17.0](/changelog/2024-04-29-vscode-3-17-0)**
+
+  The extension now has Trunk account integration.
+</Update>
+
+<Update label="April 24, 2024" tags={["Code Quality"]}>
+  **[Plugins 1.5.0](/changelog/2024-04-24-plugins-1-5-0)**
+
+  New runtime: php; New linter and tool: tofu.
+</Update>
+
+<Update label="April 23, 2024" tags={["Code Quality"]}>
+  **[CLI 1.22.0](/changelog/2024-04-23-cli-1-22-0)**
+
+  Many optimizations to make trunk faster in very large repositories; Improved error reporting for failed upstream detection.
+</Update>
+
+<Update label="April 23, 2024" tags={["Code Quality"]}>
+  **[VSCode 3.16.0](/changelog/2024-04-23-vscode-3-16-0)**
+
+  The extension is more robust to reloads on upgrade; The extension provides error messages if the trunk version is invalid.
+</Update>
+
+<Update label="April 5, 2024" tags={["Merge Queue"]}>
+  **[Merge Queue: Batching support](/changelog/2024-04-05-merge-batching-support)**
+
+  Trunk Merge Queue now supports grouping PRs into batches for greater throughput. See Batching docs for more details.
+</Update>
+
+<Update label="April 5, 2024" tags={["Merge Queue"]}>
+  **[Merge Queue: Webhook support](/changelog/2024-04-05-merge-web-hook-support)**
+
+  Trunk Merge Queue now supports webhooks to provide realtime events to integrated platforms. See the Webhooks API doc for more details.
+</Update>
+
+### March 2024
+
+<Update label="March 29, 2024" tags={["Merge Queue"]}>
+  **[Merge Queue: Optimistic merging and pending failure depth](/changelog/2024-03-29-optimistic-merging-and-pending-failure-depth)**
+
+  Merge Queue now supports Optimistic Merging to allow failed tests to be merged if later PRs pass. Merge Queue also now supports Pending Failure Depth to allow failed tests to remain in the queue for…
+</Update>
+
+<Update label="March 18, 2024" tags={["Code Quality"]}>
+  **[Plugins 1.4.5](/changelog/2024-03-18-plugins-1-4-5)**
+
+  New linter/formatter: dart; New linter: regal.
+</Update>
+
+<Update label="March 15, 2024" tags={["Merge Queue"]}>
+  **[Merge Queue: PR prioritization](/changelog/2024-03-15-trunk-merge-pr-prioritization)**
+
+  Support for setting the priority of a pull request from the command line or a GitHub comment. Higher priority PRs will move ahead of lower priority PRs. See PR Prioritization docs for more details.
+</Update>
+
+<Update label="March 13, 2024" tags={["Code Quality"]}>
+  **[CLI 1.21.0](/changelog/2024-03-13-cli-1-21-0)**
+
+  Added support for --color=false to disable color output in the CLI.
+</Update>
+
+<Update label="March 6, 2024" tags={["Code Quality"]}>
+  **[VSCode 3.15.0](/changelog/2024-03-06-vscode-3-15-0)**
+
+  Fix occasional flakiness on extension startup.
+</Update>
+
+<Update label="March 1, 2024" tags={["Code Quality"]}>
+  **[Plugins 1.4.4](/changelog/2024-03-01-plugins-1-4-4)**
+
+  New linter and formatter: psscriptanalyzer. Thanks @natescherer for the contribution!; New tool: kubectl.
+</Update>
+
+### February 2024
+
+<Update label="February 26, 2024" tags={["Code Quality"]}>
+  **[VSCode 3.14.0](/changelog/2024-02-26-vscode-3-14-0)**
+
+  Inline annotation settings changes are now applied dynamically; The extension provides better information to the user if the LSP server fails to launch.
+</Update>
+
+<Update label="February 20, 2024" tags={["Code Quality"]}>
+  **[CLI 1.20.1](/changelog/2024-02-20-cli-1-20-1)**
+
+  Fix a crash in the LSP server.
+</Update>
+
+<Update label="February 20, 2024" tags={["Merge Queue"]}>
+  **[Merge Queue : Support for forked and open source repos](/changelog/2024-02-20-merge-support-for-forked-and-open-source-repos)**
+
+  Trunk Merge Queue now supports uploading impacted targets from forked PRs, and has more verbose information on PRs for contributors that aren't a part of the same Trunk org.
+</Update>
+
+<Update label="February 16, 2024" tags={["Code Quality"]}>
+  **[Plugins 1.4.3](/changelog/2024-02-16-plugins-1-4-3)**
+
+  Add support for Ruff formatting; Add support for commitizen. Thanks @natescherer for the contribution!.
+</Update>
+
+<Update label="February 15, 2024" tags={["Code Quality"]}>
+  **[CLI 1.20.0](/changelog/2024-02-15-cli-1-20-0)**
+
+  Trunk actions now support the ${target} substitution in their run command. This will be replaced with all targets that triggered the actions; Trunk actions now support the ${pwd} substitution in…
+</Update>
+
+### January 2024
+
+<Update label="January 12, 2024" tags={["Merge Queue"]}>
+  **[Merge Queue: Automatic status checks](/changelog/2024-01-12-merge-automatic-status-checks)**
+
+  Trunk Merge Queue now supports automatically setting the required status checks by scanning the GitHub branch protection of the target branch. See Define Required Status For Testing for details.
+</Update>
+
+<Update label="January 9, 2024" tags={["Code Quality"]}>
+  **[Plugins 1.4.2](/changelog/2024-01-09-plugins-1-4-2)**
+
+  New linter: biome; Parse prettier failure messages into issues.
+</Update>
+
+<Update label="January 8, 2024" tags={["Code Quality"]}>
+  **[CLI 1.19.0](/changelog/2024-01-08-cli-1-19-0)**
+
+  Rewrite linters now have the ability to emit diagnostics.
+</Update>
+
+<Update label="January 4, 2024" tags={["Code Quality"]}>
+  **[VSCode 3.13.0](/changelog/2024-01-04-vscode-3-13-0)**
+
+  File items are auto-expanded in the tree view as soon as they have diagnostics; The Actions pane is no longer displayed when a repo is not open.
+</Update>
+
+
+## 2023
+
+### December 2023
+
+<Update label="December 18, 2023" tags={["Code Quality"]}>
+  **[Plugins 1.4.1](/changelog/2023-12-18-plugins-1-4-1)**
+
+  New formatter: markdown-table-prettify; New tool: diff-so-fancy.
+</Update>
+
+<Update label="December 14, 2023" tags={["Code Quality"]}>
+  **[CLI 1.18.1](/changelog/2023-12-14-cli-1-18-1)**
+
+  Trunk will now respect .netrc when downloading files; When a batched linter execution fails, trunk will now bisect the batch, and only tell the user about the file(s) that failed.
+</Update>
+
+<Update label="December 13, 2023" tags={["Code Quality"]}>
+  **[VSCode 3.12.0](/changelog/2023-12-13-vscode-3-12-0)**
+
+  The notification to add trunk.yaml to git state is shown less frequently; The Trunk launcher is now added to PATH on windows.
+</Update>
+
+<Update label="December 8, 2023" tags={["Code Quality"]}>
+  **[Plugins 1.4.0](/changelog/2023-12-08-plugins-1-4-0)**
+
+  New tool: GitKraken
+</Update>
+
+<Update label="December 5, 2023" tags={["Code Quality"]}>
+  **[CLI 1.18.0](/changelog/2023-12-05-cli-1-18-0)**
+
+  Announcing Trunk shell-hooks: Watches your current working directory to ensure that Trunk-managed tools, linters, and runtimes are available in PATH.
+</Update>
+
+<Update label="December 1, 2023" tags={["Code Quality"]}>
+  **[VSCode 3.11.0](/changelog/2023-12-01-vscode-3-11-0)**
+
+  Added inline annotations in trunk.yaml to guide a user towards tracking their trunk.yaml in git.
+</Update>
+
+### November 2023
+
+<Update label="November 21, 2023" tags={["Merge Queue"]}>
+  **[Trunk Merge Queue - Parallel Queues](/changelog/2023-11-21-trunk-merge-parallel-queues)**
+
+  Trunk Merge Queue now offers two modes for creating merge queues: \"Single\" and \"Parallel\". The Single mode operates as a standard first-in, first-out merge queue, where pull requests (PRs) are added…
+</Update>
+
+<Update label="November 20, 2023" tags={["Code Quality"]}>
+  **[VSCode 3.9.0](/changelog/2023-11-20-vscode-3-9-0)**
+
+  The install flow is streamlined to guide users to a welcome page, or to open their trunk config, depending on their workbench state.
+</Update>
+
+<Update label="November 20, 2023" tags={["Code Quality"]}>
+  **[Plugins 1.3.0](/changelog/2023-11-20-plugins-1-3-0)**
+
+  New tools: gulp, tailwindcss, tsc, webpack.; New formatter: dotnet-format (MacOS support coming soon).
+</Update>
+
+<Update label="November 13, 2023" tags={["Code Quality"]}>
+  **[VSCode 3.8.0](/changelog/2023-11-13-vscode-3-8-0)**
+
+  The extension helps guide users towards committing their trunk.yaml.
+</Update>
+
+<Update label="November 9, 2023" tags={["Code Quality"]}>
+  **[CLI 1.17.2](/changelog/2023-11-09-1-17-2)**
+
+  Single-player mode will now auto-upgrade all linters periodically; Linters now have a maximum concurrency setting. Trunk will never run a linter more than this number of times simultaneously.
+</Update>
+
+<Update label="November 1, 2023" tags={["Code Quality"]}>
+  **[VSCode 3.7.0](/changelog/2023-11-01-vscode-3-7-0)**
+
+  The extension now streams logs to ${workspace}/.trunk/logs/vscode.log; Made minor changes to verbiage in the UI.
+</Update>
+
+### October 2023
+
+<Update label="October 26, 2023" tags={["Code Quality"]}>
+  **[VSCode 3.6.0](/changelog/2023-10-26-vscode-3-6-0)**
+
+  Mark inline diagnostics as generated by Trunk; Updated the tree view to show new/preexisting issue counts.
+</Update>
+
+<Update label="October 17, 2023" tags={["Code Quality"]}>
+  **[Plugins 1.2.6](/changelog/2023-10-17-plugins-1-2-6)**
+
+  New formatter: pre-commit-hooks (more coming soon); New linter: markdown-link-check.
+</Update>
+
+<Update label="October 17, 2023" tags={["Code Quality"]}>
+  **[CLI 1.17.1](/changelog/2023-10-17-1-17-1)**
+
+  Fix bug where trunk init --single-player-mode would fail if you do not have a .git/info directory; Proper handling of percent encoding in SARIF output.
+</Update>
+
+<Update label="October 13, 2023" tags={["Code Quality"]}>
+  **[CLI 1.17.0](/changelog/2023-10-13-1-17-0)**
+
+  Trunk now always uses TCP instead of unix domain sockets to communicate with its daemon; Trunk tools now does health checks to ensure installed versions match the expected versions.
+</Update>
+
+<Update label="October 12, 2023" tags={["Code Quality"]}>
+  **[VSCode 3.5.0](/changelog/2023-10-12-vscode-3-5-0)**
+
+  Re-added the ability to format files from tree view navigation menus; Added the ability to autofix issues from the tree view navigation menus.
+</Update>
+
+### September 2023
+
+<Update label="September 29, 2023" tags={["Code Quality"]}>
+  **[VSCode 3.4.6](/changelog/2023-09-29-vscode-3-4-6)**
+
+  Fixed a bug where commands were registered before the extension had properly initialized; Fixed telemetry.
+</Update>
+
+<Update label="September 29, 2023" tags={["Code Quality"]}>
+  **[Plugins 1.2.5](/changelog/2023-09-29-plugins-1-2-5)**
+
+  Update svgo to use new fixverb / fixprompt support.
+</Update>
+
+<Update label="September 27, 2023" tags={["Code Quality"]}>
+  **[CLI 1.16.2](/changelog/2023-09-27-1-16-2)**
+
+  Fixed a bug where the LSP server may become unresponsive.
+</Update>
+
+<Update label="September 26, 2023" tags={["Code Quality"]}>
+  **[CLI 1.16.1](/changelog/2023-09-26-1-16-1)**
+
+  Oxipng now uses the language \"unoptimized image\" rather than \"unformatted file.\"; Improved crash reporting for internal errors.
+</Update>
+
+<Update label="September 26, 2023" tags={["Code Quality"]}>
+  **[VSCode 3.4.9](/changelog/2023-09-26-vscode-3-4-9)**
+
+  Added a new setting for controlling whether to add Trunk Tools to PATH.
+</Update>
+
+<Update label="September 26, 2023" tags={["Code Quality"]}>
+  **[Plugins 1.2.4](/changelog/2023-09-26-plugins-1-2-4)**
+
+  New tool: clangd.
+</Update>
+
+<Update label="September 20, 2023" tags={["Code Quality"]}>
+  **[VSCode 3.4.8](/changelog/2023-09-20-vscode-3-4-8)**
+
+  Fixed some initialization issues whenever trunk is auto-initialized in a repository.
+</Update>
+
+<Update label="September 18, 2023" tags={["Code Quality"]}>
+  **[CLI 1.16.0](/changelog/2023-09-18-1-16-0)**
+
+  Introduce the ability to pin a specific version of a linter, tool, or runtime in Trunk. Append a ! to its version to prevent updates via trunk upgrade; Added support for plugins in prettier versions…
+</Update>
+
+<Update label="September 13, 2023" tags={["Code Quality"]}>
+  **[VSCode 3.4.7](/changelog/2023-09-13-vscode-3-4-7)**
+
+  Removed some special handling for recycling Webviews; On Windows, show a message indicating that a user has opened a directory that is not a git repository when applicable.
+</Update>
+
+<Update label="September 7, 2023" tags={["Code Quality"]}>
+  **[Plugins 1.2.3](/changelog/2023-09-07-plugins-1-2-3)**
+
+  New tool and formatter: deno; New tool: aws-amplify.
+</Update>
+
+<Update label="September 5, 2023" tags={["Code Quality"]}>
+  **[CLI 1.15.0](/changelog/2023-09-05-1-15-0)**
+
+  New command line flag: --print-failures will print any failures instead of saving them to a file.
+</Update>
+
+### August 2023
+
+<Update label="August 28, 2023" tags={["Code Quality"]}>
+  **[CLI 1.14.2](/changelog/2023-08-28-1-14-2)**
+
+  Excluded diagnostics from outside the workspace; Tool installation failures are now logged in CI mode.
+</Update>
+
+<Update label="August 23, 2023" tags={["Code Quality"]}>
+  **[Plugins 1.2.2](/changelog/2023-08-23-plugins-1-2-2)**
+
+  New tool: awscli.
+</Update>
+
+<Update label="August 22, 2023" tags={["Code Quality"]}>
+  **[VSCode 3.4.5](/changelog/2023-08-22-vscode-3-4-5)**
+
+  Updated the handling of trunk.languageServerArguments to be additive as opposed to replacing the default arguments.
+</Update>
+
+<Update label="August 21, 2023" tags={["Code Quality"]}>
+  **[CLI 1.14.1](/changelog/2023-08-21-1-14-1)**
+
+  Trunk now respect pip.conf in python environments; Added health checks to tool installations.
+</Update>
+
+<Update label="August 18, 2023" tags={["Code Quality"]}>
+  **[Plugins 1.2.1](/changelog/2023-08-18-plugins-1-2-1)**
+
+  Downgrade default ruby version to 3.1.4.
+</Update>
+
+<Update label="August 18, 2023" tags={["Code Quality"]}>
+  **[Plugins 1.2.0](/changelog/2023-08-18-plugins-1-2-0)**
+
+  Trunk Tools: Hermetic runtime and CLI manager; Linux arm64 support.
+</Update>
+
+<Update label="August 18, 2023" tags={["Code Quality"]}>
+  **[CLI 1.14.0](/changelog/2023-08-18-1-14-0)**
+
+  Introducing Trunk Tools: Hermetic runtime and CLI manager; Linux arm64 support added.
+</Update>
+
+<Update label="August 10, 2023" tags={["Code Quality"]}>
+  **[Plugins 1.1.1](/changelog/2023-08-10-plugins-1-1-1)**
+
+  Add support for private packages to golangci-lint.
+</Update>
+
+<Update label="August 1, 2023" tags={["Code Quality"]}>
+  **[Plugins 1.1.0](/changelog/2023-08-01-plugins-1-1-0)**
+
+  New security linter: dustilock; New security linter: trufflehog-git (a variant of trufflehog).
+</Update>

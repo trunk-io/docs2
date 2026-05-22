@@ -1,0 +1,29 @@
+---
+title: CLI 1.14.0
+description: "Introducing Trunk Tools: Hermetic runtime and CLI manager; Linux arm64 support added."
+slug: 1-14-0
+date: 2023-08-18
+category: Code Quality
+---
+
+**🎁 New**
+
+- Introducing [Trunk Tools](https://docs.trunk.io/tools): Hermetic runtime and CLI manager.
+- Linux arm64 support added.
+- Run only security linters using --scope=security.
+
+**✨ Improvements**
+
+- Linter command overrides now honor platform constraints.
+- Filetype definitions expanded: Match any shebang with ALL.
+- trunk fmt now supports --cache=false option.
+- Added no_issues_codes: Linters can bypass parsing for specific tool exit codes.
+- Node runtime now recognizes user's .npmrc settings.
+
+**🔧 Fixes**
+
+- Resolved crash issue for --ci with trunk fmt.
+- Corrected off-by-one error in include-what-you-use parser.
+- Numerous Windows-related fixes.
+- LSP Server: Diagnostics from user.yaml are now cleared appropriately.
+- SARIF parser updated to support file:// artifact locations.

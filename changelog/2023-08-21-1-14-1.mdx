@@ -1,0 +1,18 @@
+---
+title: CLI 1.14.1
+description: "Trunk now respect pip.conf in python environments; Added health checks to tool installations."
+slug: 1-14-1
+date: 2023-08-21
+category: Code Quality
+---
+
+**✨ Improvements**
+
+- Trunk now respect pip.conf in python environments.
+- Added health checks to tool installations.
+
+**🔧 Fixes**
+
+- Fixed race condition when a linter had both a runtime and a download, but no packages.
+- Ensure that ignores apply to all commands of a linter, not just the first.
+- Fixed a rare crash in template expansion when a variable was not defined.

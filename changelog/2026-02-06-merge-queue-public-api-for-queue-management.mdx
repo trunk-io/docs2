@@ -1,0 +1,25 @@
+---
+title: "Merge Queue: Public API for Queue Management"
+description: "You can now fully manage your merge queues through the Trunk API without touching the web UI."
+slug: merge-queue-public-api-for-queue-management
+date: 2026-02-06
+category: Merge Queue
+---
+
+**Programmatically create, configure, and manage merge queues via REST API**
+
+You can now fully manage your merge queues through the Trunk API without touching the web UI.
+
+- Create new queues with `/createQueue`, specifying your target branch, mode (single or parallel),
+  and concurrency settings. Update queue configuration on the fly with `/updateQueue`—adjust
+  concurrency, enable batching, set testing timeouts, pause or drain the queue, and more.
+- Query queue status with `/getQueue` and clean up with `/deleteQueue` when a queue is no longer
+  needed.
+
+This opens up powerful automation possibilities: spin up queues for new release branches as part of
+your release process, dynamically adjust concurrency based on CI capacity, integrate queue
+management into your infrastructure-as-code workflows, or build custom dashboards using queue data.
+Teams managing multiple repositories or complex branching strategies can now script their entire
+merge queue infrastructure instead of clicking through settings one by one.
+
+[Read the Docs](https://docs.trunk.io/merge-queue/reference/merge#queue-endpoints) to learn more

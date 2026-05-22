@@ -1,0 +1,49 @@
+---
+title: Sunsetting CI Analytics and Code Quality web issue browser
+description: "Trunk CI Analytics and Code Quality web issue browser are being shut down today. This is a strategic change as we reinvent and consolidate our tools for the future."
+slug: sunsetting-ci-analytics-and-code-quality-web-issue-browser
+date: 2025-05-09
+category: Web App
+---
+
+Trunk CI Analytics and Code Quality web issue browser are being shut down today. This is a strategic
+change as we reinvent and consolidate our tools for the future.
+
+#### **What’s changing?**
+
+- CI Analytics has been shut down as of today.
+- Code Quality’s web issue browser has been shut down as of today.
+- Code Quality workflows like Check Nightly and Check on PRs have been marked as deprecated and will
+  be shut down on **July 27th, 2025**.
+
+The core value of Code Quality comes from the CLI, IDE, and CI integrations, and these critical
+components will continue to work as they always have.
+
+#### **Code Quality migration**
+
+Checking for issues nightly and on pull requests has been marked as deprecated. You can check if
+you’re using these features in the Code Quality section of your repo settings. You can still run
+Code Quality in CI if you migrate your workflow
+[following this guide](https://docs.trunk.io/code-quality/setup-and-installation/prevent-new-issues/migration-guide).
+
+![](/assets/changelog/sunsetting-ci-analytics-and-code-quality-web-issue-browser-8zev0i.png)
+
+Code Quality will no longer collect your linting issues, which means the `--upload` flag will no
+longer work. You will also stop receiving Slack notifications about new issues discovered by
+linters.
+
+```
+# --upload will no longer work
+trunk check --upload --series=main
+```
+
+#### **What's next?**
+
+AI has changed the way we work. It allows us to go beyond traditional dashboards to surface root
+causes of test and CI instability and develop AI-driven tools to address these problems. We have
+shut down these parts of Trunk to unify them as a single AI-powered DevEx platform.
+
+We can’t wait to show you what’s next. You can follow our progress by signing up for our
+[in-app waitlist](https://link.trunk.io/e/c/eyJlbWFpbF9pZCI6ImRnU20wQWdEQU5DSEFzLUhBZ0dXZ251VHRqVHZnT1dSSjNYNkVPND0iLCJocmVmIjoiaHR0cHM6Ly9hcHAudHJ1bmsuaW8vbG9naW4_dXRtX2NhbXBhaWduPUNJK0FuYWx5dGljcythbmQrQ29kZStRdWFsaXR5K1dlYitkZXByZWNhdGlvbithbm5vdW5jZW1lbnRcdTAwMjZ1dG1fY29udGVudD1DSStBbmFseXRpY3MrZGVwcmVjYXRpb24rYW5ub3VuY2VtZW50XHUwMDI2dXRtX21lZGl1bT1lbWFpbF9hY3Rpb25cdTAwMjZ1dG1fc291cmNlPWN1c3RvbWVyLmlvIiwiaW50ZXJuYWwiOiJhNmQwMDgwMTlmMWRkMDg3MDIiLCJsaW5rX2lkIjoyNjA5fQ/ca56931b0a78b73d0a66f26688148a96585822f8e9849fd4b479509f4a3dd4b8).
+If you have questions or concerns, please reach out via email (support@trunk.io) or
+[Slack](https://link.trunk.io/e/c/eyJlbWFpbF9pZCI6ImRnU20wQWdEQU5DSEFzLUhBZ0dXZ251VHRqVHZnT1dSSjNYNkVPND0iLCJocmVmIjoiaHR0cHM6Ly9zbGFjay50cnVuay5pby8_dXRtX2NhbXBhaWduPUNJK0FuYWx5dGljcythbmQrQ29kZStRdWFsaXR5K1dlYitkZXByZWNhdGlvbithbm5vdW5jZW1lbnRcdTAwMjZ1dG1fY29udGVudD1DSStBbmFseXRpY3MrZGVwcmVjYXRpb24rYW5ub3VuY2VtZW50XHUwMDI2dXRtX21lZGl1bT1lbWFpbF9hY3Rpb25cdTAwMjZ1dG1fc291cmNlPWN1c3RvbWVyLmlvIiwiaW50ZXJuYWwiOiJhNmQwMDgwMTlmMWRkMDg3MDIiLCJsaW5rX2lkIjoxMX0/ac38975a2cd08f792920659e4784e7c67018cc8879c7c5ef69eb71c2ddc6ee73).

@@ -1,0 +1,17 @@
+---
+title: "Merge Queue: Testing Details API Now Includes Impacted Target Information"
+description: "The Get Testing Details API now returns impacted target information, giving CI systems everything they need to launch the right tests."
+slug: merge-queue-testing-details-api-now-includes-impacted-target-information
+date: 2026-03-26
+category: Merge Queue
+---
+
+**The Get Testing Details API now returns impacted target information, giving CI systems everything
+they need to launch the right tests.** Previously, teams using impacted targets had to piece
+together information from multiple API calls to figure out which targets a PR affects and which
+tests to run. Now a single API call returns impacted targets alongside queue position, dependent
+PRs, and batch membership, so your CI can make informed decisions about test scope without extra
+round-trips.
+
+[Read the Docs](https://docs.trunk.io/merge-queue/reference/merge#post-getmergequeuetestingdetails)
+to learn more
