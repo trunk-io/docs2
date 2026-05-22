@@ -75,7 +75,13 @@ Changing the selected team clears and reloads all field options automatically.
 
 Field defaults are saved per repository. When you open the **Create Ticket** modal, all configured defaults are pre-filled and can be overridden before submitting.
 
-## Link existing tickets to tests
+#### Requiring fields at ticket creation
+
+For each field, you can check **Require user to fill at creation** instead of setting a default value. When this option is on, the field appears in the **Create Ticket** modal as a required input. The **Create Linear Ticket** button stays disabled until the user fills every required field.
+
+This is useful for fields like **Project** or **Assignee** where the right value depends on the specific test being triaged and should not be pre-set globally.
+
+### Link existing tickets to tests
 
 If you already have a Linear ticket for a test, you can link it directly from the Test Details page without creating a new one.
 
