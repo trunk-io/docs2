@@ -6,7 +6,7 @@ Uploading test results from pull requests (PRs) is a critical step for enabling 
 
 Here's a breakdown of the key features that depend on PR test results:
 
-#### Crucial Flakiness Detection
+## Crucial Flakiness Detection
 
 The most common and critical signal for identifying a flaky test happens on PRs. Flakiness is detected when a test produces different results on the same git commit.
 
@@ -18,7 +18,7 @@ This typically happens when:
 
 This "fail then pass" sequence on the same commit is a clear indication of non-deterministic, or "flaky," behavior. Since the majority of test runs occur during the development and review cycle, PRs are the largest source of this vital signal.
 
-#### Measuring Test Impact
+## Measuring Test Impact
 
 The Flaky Tests dashboard is designed to help you prioritize which tests to fix first. The single most important metric for this is `PRs Impacted`. By default, the overview table is sorted by this metric because it's the best way to measure a flaky test's true impact on developer productivity.
 
@@ -28,7 +28,7 @@ If you don't upload test results from PRs:
 * You will have no way to determine which flaky tests are causing the most disruption.
 * You lose the ability to prioritize fixes based on real-world data, potentially wasting time on less important issues.
 
-#### Unblocking Developers with Quarantining
+## Unblocking Developers with Quarantining
 
 Quarantining is one of the most important features of Trunk Flaky Tests. Its core purpose is to prevent known flaky tests from blocking developers and breaking CI pipelines, especially merge queues.
 
@@ -37,7 +37,7 @@ The entire quarantining workflow is predicated on analyzing test results from PR
 * **Identify tests as flaky from PR test runs:** The system needs to see a test pass and fail on the same commit (a signal primarily gathered from PRs) to classify it as flaky.
 * **Apply Quarantine Logic at Runtime:** Uploading a test result and checking if it should be quarantined are part of the same, single step in your CI job. When a test fails on a PR, the `Trunk Analytics CLI` uploads the failure and, in the same operation, checks with the Trunk service to see if that test is on the quarantine list. If it is, the CLI overrides the job's exit code, allowing the build to pass. Without running the `Trunk Analytics CLI` on your PR jobs, this real-time check cannot occur, and even known flaky tests will continue to block your PRs.
 
-#### Immediate CI Feedback and Error Summaries
+## Immediate CI Feedback and Error Summaries
 
 The `Trunk Analytics CLI` provides a detailed summary directly in the CI job's output log. This is the fastest, most immediate feedback a developer gets about their test run.
 
@@ -51,13 +51,13 @@ Without uploading PR results, you lose:
 
 This immediate, in-CI feedback loop is invaluable for developers trying to quickly understand why their build failed.
 
-#### Enabling Developer Productivity Features
+## Enabling Developer Productivity Features
 
 Trunk Flaky Tests offers features directly within the developer workflow that depend entirely on PR data, most significantly the automated pull request comment.
 
 These comments provide a summary of all tests run on a specific PR, highlighting failures and indicating whether they are due to a known flaky test. This feature prevents developers from wasting time investigating a failure that is already identified as flaky. Without uploading PR test results, this valuable, time-saving context is completely lost.
 
-#### Next Steps: Enable PR Uploads
+## Next Steps: Enable PR Uploads
 
 Now that you understand why uploading test results from pull requests is essential, the next step is to configure your CI pipeline. This single step is the key to accurate flakiness detection, true impact measurement, and features like quarantining.
 

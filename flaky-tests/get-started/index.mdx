@@ -4,13 +4,13 @@ description: "Set up Trunk Flaky Tests by configuring test result output, upload
 ---
 Trunk Flaky Tests detects flaky tests by analyzing test results from your CI runs. Setup requires configuring test result output and CI upload integration.
 
-### Prerequisites
+## Prerequisites
 
 * Account at [app.trunk.io](https://app.trunk.io)
 * Ability to modify repository CI configuration and add secrets
 * Tests running in CI on both PRs and stable branches (e.g., main, master, or develop)
 
-#### Step 1: Ensure JUnit XML output
+### Step 1: Ensure JUnit XML output
 
 Trunk ingests test results in JUnit XML format. If your CI already generates JUnit XML, note the file paths and skip to Step 2.
 
@@ -19,7 +19,7 @@ If not, configure your test frameworks to output JUnit XML:
 * See [**Test Frameworks**](./frameworks/) for framework-specific configuration
 * Supports multiple frameworks simultaneously
 
-#### Step 2: Configure CI uploads
+### Step 2: Configure CI uploads
 
 Add test result uploads to all CI jobs that run tests.
 
@@ -35,7 +35,7 @@ Uploads from both PRs and stable branches are required for Trunk Flaky Tests to 
 Trunk automatically recognizes `main`, `master`, and `develop` as stable branches. If your primary branch uses a different name, configure uploads from that branch the same way and Trunk will classify it correctly.
 </Info>
 
-#### Step 3: Verify integration
+### Step 3: Verify integration
 
 1. Push your changes and trigger a CI run
 2. Check CI logs for successful upload confirmation
@@ -46,7 +46,7 @@ Trunk automatically recognizes `main`, `master`, and `develop` as stable branche
 <img className="hidden dark:block" src="/assets/Screenshot_2025-11-11_at_3.57.57_PM.png" alt="" />
 </Frame>
 
-#### Step 4: Configure flake detection
+### Step 4: Configure flake detection
 
 After uploads are flowing, navigate to your repo → **Flaky Tests > Monitors** to set up detection.
 
@@ -59,7 +59,7 @@ After uploads are flowing, navigate to your repo → **Flaky Tests > Monitors** 
 
 [How failure rate monitors work →](../detection/failure-rate-monitor)
 
-#### Quarantining
+### Quarantining
 
 Quarantining suppresses failures from known flaky tests, preventing them from forcing CI re-runs or blocking your merge queue. Flaky tests continue to run and report results — they just don't cause pipeline failures while your team works on fixes. This is especially valuable for unblocking merge queues and keeping development velocity high.
 

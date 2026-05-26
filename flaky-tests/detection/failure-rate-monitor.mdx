@@ -88,9 +88,7 @@ Skipped tests count as not being run. If you have a stale timeout configured and
 
 Which branches the monitor evaluates. You can specify up to 10 branch patterns. Only test runs on matching branches are included in the failure rate calculation. Runs across all matching patterns are pooled together — the failure rate is calculated from the combined set of runs, not evaluated per-pattern individually. This means a monitor scoped to `main` and `release/*` will look at all runs on any of those branches together when determining the failure rate.
 
-#### Branch Pattern Syntax
-
-Branch patterns use glob-style matching with two special characters:
+**Branch pattern syntax.** Branch patterns use glob-style matching with two special characters:
 
 | Character | Meaning | Regex equivalent |
 |---|---|---|
@@ -103,7 +101,7 @@ All other characters are matched literally. Special regex characters (like `.`, 
 Unlike some glob implementations, `*` matches across `/` separators. The pattern `feature/*` matches both `feature/login` and `feature/api/auth`.
 </Info>
 
-#### Pattern Examples
+**Pattern examples:**
 
 | Pattern | Matches | Does not match |
 |---|---|---|
@@ -115,9 +113,7 @@ Unlike some glob implementations, `*` matches across `/` separators. The pattern
 
 A pattern with no special characters matches that exact branch name only. For example, `main` matches the branch named `main` and nothing else.
 
-#### Stable Branch Patterns
-
-For your main or stable branch, use the exact branch name:
+**Stable branch patterns.** For your main or stable branch, use the exact branch name:
 
 | Your stable branch | Pattern |
 |---|---|
@@ -125,9 +121,7 @@ For your main or stable branch, use the exact branch name:
 | `master` | `master` |
 | `develop` | `develop` |
 
-#### Merge Queue Branch Patterns
-
-If you use a merge queue, your queue creates temporary branches to test changes before merging. Each merge queue product uses a different branch naming convention:
+**Merge queue branch patterns.** If you use a merge queue, your queue creates temporary branches to test changes before merging. Each merge queue product uses a different branch naming convention:
 
 | Merge queue | Branch pattern | Example branches matched |
 |---|---|---|
@@ -137,7 +131,7 @@ If you use a merge queue, your queue creates temporary branches to test changes 
 
 GitLab Merge Trains run on the target branch directly rather than creating separate branches. To monitor merge train runs, scope your monitor to the target branch (e.g., `main`).
 
-#### Tips for Branch Scoping
+**Tips for branch scoping:**
 
 - You can add up to **10 patterns** per monitor. A test run is included if its branch matches any of the patterns.
 - Since patterns can't express "everything except a branch," a practical approach is to create **separate monitors**: one scoped to `main` with strict settings, and another scoped to your PR branch naming patterns (e.g., `feature/*`, `fix/*`) with more lenient settings.
@@ -152,16 +146,12 @@ each pattern. --> */}
 
 What happens when the monitor activates on a test. You pick the action at creation and can switch it at any time.
 
-#### Classify test status (default)
-
-The test's status is set according to the monitor's **detection type**, and restored to healthy when the monitor resolves. The detection type is either:
+**Classify test status (default).** The test's status is set according to the monitor's **detection type**, and restored to healthy when the monitor resolves. The detection type is either:
 
 * **Flaky** — for tests that fail intermittently (e.g., 20–50% failure rate). These are typically caused by timing issues, shared state, or non-deterministic behavior. Flaky tests are often quarantined while you investigate the root cause.
 * **Broken** — for tests that fail consistently at a high rate (e.g., 80%+ failure rate). These usually indicate a real regression — something in the code or environment is genuinely broken and needs a fix. Broken tests represent real failures that should be fixed, not hidden.
 
-#### Apply labels
-
-The configured labels are added to the test while the monitor is active. The test's health status is not changed by this monitor. See [Automatic labeling from monitors](../management/test-labels#automatic-labeling-from-monitors) for how to configure and what to expect.
+**Apply labels.** The configured labels are added to the test while the monitor is active. The test's health status is not changed by this monitor. See [Automatic labeling from monitors](../management/test-labels#automatic-labeling-from-monitors) for how to configure and what to expect.
 
 ## Preview Panel
 

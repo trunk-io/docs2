@@ -6,7 +6,7 @@ Trunk provides webhooks for you to build custom integrations to automate workflo
 
 [Svix](https://docs.svix.com/) powers webhooks for Trunk. You'll be using Svix to configure webhooks and you should familiarize yourself with the [Svix App Portal docs](https://docs.svix.com/app-portal) to learn more.
 
-### Supported Events
+## Supported Events
 
 Trunk lets you create custom workflows with **event-triggered webhooks**. Flaky Tests events are named with a `test_case` prefix. You can find all the events that Trunk supports in the event catalog:
 
@@ -21,7 +21,7 @@ Trunk lets you create custom workflows with **event-triggered webhooks**. Flaky 
 
 Trunk publishes three Flaky Tests event types to Svix. Each event includes a full JSON schema with field descriptions visible in the Svix app portal.
 
-#### `test_case.monitor_status_changed`
+### `test_case.monitor_status_changed`
 
 Emitted when a monitor activates or resolves for a test case.
 
@@ -44,7 +44,7 @@ Emitted when a monitor activates or resolves for a test case.
 | `test_case.quarantined` | boolean | Whether the test is quarantined |
 | `test_case.variant` | string | Test variant name |
 
-#### `v2.test_case.status_changed`
+### `v2.test_case.status_changed`
 
 Emitted when a test case changes status (e.g., becomes flaky or is resolved), as triggered by a monitor.
 
@@ -60,7 +60,7 @@ Emitted when a test case changes status (e.g., becomes flaky or is resolved), as
 | `repository` | object | See `repository` fields above |
 | `test_case` | object | See `test_case` fields above |
 
-#### `test_case.investigation_completed`
+### `test_case.investigation_completed`
 
 Emitted when an AI-powered flaky test analysis finishes for a test case.
 

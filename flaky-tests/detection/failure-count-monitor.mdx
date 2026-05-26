@@ -79,16 +79,12 @@ Branch patterns work the same way as [failure rate monitor branch patterns](./fa
 
 What happens when the monitor activates on a test. You pick the action at creation and can switch it at any time.
 
-#### Classify test status (default)
-
-The test's status is set according to the monitor's **detection type**, and restored to healthy when the monitor resolves. The detection type is either:
+**Classify test status (default).** The test's status is set according to the monitor's **detection type**, and restored to healthy when the monitor resolves. The detection type is either:
 
 * **Flaky** — appropriate when failures on the monitored branch are likely non-deterministic. A test that fails once on `main` but passes on retry is probably flaky.
 * **Broken** — appropriate when failures indicate a real regression. If a test fails on `main` and you expect it to keep failing until someone fixes it, broken is the right classification.
 
-#### Apply labels
-
-The configured labels are added to the test while the monitor is active. The test's health status is not changed by this monitor. See [Automatic labeling from monitors](../management/test-labels#automatic-labeling-from-monitors) for how to configure and what to expect.
+**Apply labels.** The configured labels are added to the test while the monitor is active. The test's health status is not changed by this monitor. See [Automatic labeling from monitors](../management/test-labels#automatic-labeling-from-monitors) for how to configure and what to expect.
 
 ## Preview Panel
 
