@@ -38,7 +38,7 @@ BODY: {
 
 ### Handling forked pull requests
 
-The HTTP POST must contain the `x-api-token` to prove that it is a valid request from a workflow your org controls. _Workflows that come from forked PRs most likely will not have access to the Trunk org token_ required for the HTTP POST above. In this case, you should provide the **run ID** of the workflow as the `x-forked-workflow-run-id` header in place of the `x-api-token`. This ID can be obtained from [the GitHub context](https://docs.github.com/en/actions/learn-github-actions/contexts#github-context) as `${{ github.run_id }}`. Trunk Merge Queue will verify that the ID belongs to a currently running workflow originating from a forked PR with a SHA that matches the one provided in the request and allow it through.
+The HTTP POST must contain the `x-api-token` to prove that it is a valid request from a workflow your org controls. _Workflows that come from forked PRs most likely will not have access to the Trunk org token_ required for the HTTP POST above. In this case, you should provide the **run ID** of the workflow as the `x-forked-workflow-run-id` header in place of the `x-api-token`. This ID can be obtained from [the GitHub context](https://docs.github.com/en/actions/learn-github-actions/contexts#github-context) as <code>{'${{ github.run_id }}'}</code>. Trunk Merge Queue will verify that the ID belongs to a currently running workflow originating from a forked PR with a SHA that matches the one provided in the request and allow it through.
 
 <Info>
 We do not recommend using an event trigger like `pull_request_target.` This would allow workflows from forked PRs to get secrets, which is a security risk and would open your repo to attackers making forks, adding malicious code, and then running it against your repo to exfiltrate information. (see[ Keeping your GitHub Actions and workflows secure](https://securitylab.github.com/research/github-actions-preventing-pwn-requests/)).
@@ -75,22 +75,6 @@ TEST_RUN_ID="${GITHUB_REF##*/}"
 ```
 
 ## Recipes and gotchas
-
-### Skip uploads on `trunk-merge/*` branches
-
-`/setImpactedTargets` rejects uploads for PRs that Trunk itself raised — the temporary
-branches with the `trunk-merge/*` prefix. Filter your impacted-targets workflow so it
-does not trigger on those branches, otherwise the action will surface API errors on
-every queue run.
-
-```yaml
-on:
-  pull_request:
-  push:
-    branches-ignore:
-      - "trunk-merge/**"
-      - "trunk-temp/**"
-```
 
 ### "ALL" does not short-circuit the rest of the queue
 
