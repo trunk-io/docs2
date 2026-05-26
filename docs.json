@@ -845,6 +845,10 @@
       "destination": "/code-quality/overview"
     },
     {
+      "source": "/code-quality/code-quality",
+      "destination": "/code-quality/overview"
+    },
+    {
       "source": "/adminstration",
       "destination": "/setup-and-administration/managing-your-organization"
     },
