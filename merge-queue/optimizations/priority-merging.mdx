@@ -2,24 +2,24 @@
 title: "Priority merging"
 description: "Fast-track critical PRs like hotfixes and security patches to the front of the merge queue."
 ---
-### What it is
+## What it is
 
 Priority merging allows you to fast-track critical pull requests to the front of the merge queue.
 
 By assigning a priority level to a PR, you can make sure urgent changes (like hotfixes, security patches, or critical bug fixes) merge ahead of regular feature work. PRs with higher priority are tested and merged before lower-priority PRs, regardless of when they were submitted.
 
-### Why use it
+## Why use it
 
 * **Fast-track critical fixes** - Get security patches and hotfixes to production in minutes, not hours. Priority PRs bypass the normal queue order and merge immediately after testing.
 * **Respond to incidents quickly** - When production is down, you can't wait for 20 feature PRs to merge first. Priority merging lets you deploy fixes urgently while maintaining merge queue safety.
 * **Prevent emergency merges** - Instead of bypassing the queue entirely (risky!), use priority merging to maintain safety while getting urgent PRs through fast. All PRs still get tested, but yours goes first.
 * **Balance urgency with safety** - Priority PRs still go through full testing and validation. You get speed without sacrificing the protection that merge queues provide.
 
-### How to enable
+## How to enable
 
 Priority merging is **built in** - you don't need to enable a setting. You set priority on individual PRs when you need them to be fast-tracked.
 
-#### Enable via GitHub comment
+### Enable via GitHub comment
 
 On any pull request, comment:
 
@@ -33,7 +33,7 @@ or
 /trunk merge -p <level>
 ```
 
-#### Enable via Command Line argument
+### Enable via Command Line argument
 
 From the command line enter the following command:
 
@@ -47,7 +47,7 @@ or
 trunk merge <pr-number> -p <level>
 ```
 
-#### Valid priority levels
+### Valid priority levels
 
 | label | number | note |
 |---|---|---|
@@ -57,7 +57,7 @@ trunk merge <pr-number> -p <level>
 | low | 200 | Non-urgent refactors, documentation |
 | | 255 | lowest possible priority |
 
-### How priority affects PR order
+## How priority affects PR order
 
 PRs with a higher priority will always begin testing before any other PR that isn't currently being tested, ensuring that prioritized PRs move into the queue as soon as they can. A PR without a priority will use the default `medium` (100) priority. If there is already a PR in the queue with the same priority, then the new one will be behind it.
 
@@ -69,7 +69,7 @@ When prioritizing a PR, Merge will explicitly **not interrupt** any currently te
 Another exception: Admins can still merge PRs in absolutely necessary cases outside of the merge queue. Merge Queue handles this gracefully and will react properly to restart the rest of the queue.
 </Warning>
 
-#### Example:
+### Example:
 
 Say you have a queue that is configured to test two PRs at once. The queue currently looks like this:
 
@@ -89,7 +89,7 @@ Instead, if you submit PR D with an `"urgent"` priority, then D would be tested 
 <img src="/assets/file.excalidraw_(1).svg" alt="Queue with an urgent PR moved to the front and a normal PR restarting" class="gitbook-drawing"/>
 </Frame>
 
-### Visual indicators in the dashboard
+## Visual indicators in the dashboard
 
 When a PR is queued with a non-default priority, the merge queue graph view displays a badge on the PR node so you can quickly identify fast-tracked items:
 
@@ -102,22 +102,22 @@ When a PR is queued with a non-default priority, the merge queue graph view disp
 
 Priority badges appear on individual PR nodes in the [graph view](../using-the-queue/monitor-queue-status#graph-view). Batch nodes (multiple PRs tested together) do not display priority badges.
 
-### Tradeoffs and considerations
+## Tradeoffs and considerations
 
-#### What you gain
+### What you gain
 
 * **Emergency response capability** - Critical fixes merge in minutes
 * **Incident resolution speed** - Production issues resolved faster
 * **Maintained safety** - Unlike bypassing the queue, priority PRs still get tested
 * **Team confidence** - Developers know urgent fixes can get through quickly
 
-#### What you give up or risk
+### What you give up or risk
 
 * **Queue disruption for others** - Normal PRs wait longer when priority PRs jump ahead
 * **Potential for abuse** - If everyone marks their PR as high priority, the system loses effectiveness
 * **Fairness concerns** - Team members may feel frustrated if priorities are used unfairly
 
-#### When NOT to use priority merging
+### When NOT to use priority merging
 
 Don't use high priority for:
 
@@ -133,7 +133,7 @@ Don't use high priority for:
 * Critical bug fixes blocking users
 * Emergency hotfixes
 
-#### Best practices
+### Best practices
 
 **Establish priority guidelines:** Document when priority should and shouldn't be used. Example:
 
@@ -144,7 +144,7 @@ Don't use high priority for:
 
 **Rotate on-call priority power:** Only the current on-call engineer can set high priority. This prevents abuse and ensures judgment calls are made by whoever is dealing with the incident.
 
-#### Common misconceptions
+### Common misconceptions
 
 * **Misconception:** "Priority PRs skip testing"
   * **Reality:** No! Priority PRs go through full testing, they just test first. Safety is never compromised.
@@ -153,7 +153,7 @@ Don't use high priority for:
 * **Misconception:** "Priority PRs interrupt currently running tests"
   * **Reality:** Priority PRs queue at the front but don't cancel in-progress tests. The system remains stable.
 
-### Next Steps
+## Next Steps
 
 **Set up priority guidelines:**
 

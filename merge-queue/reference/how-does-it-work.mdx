@@ -3,7 +3,7 @@ title: "How does it work?"
 description: "Merge Queue creates predictive branches to verify that the future state of your protected branch will remain green when the contents of the queue merge into it."
 hidden: true
 ---
-### **How does a merge queue work?**
+## **How does a merge queue work?**
 
 1. Instead of merging your pull requests directly through GitHub, engineers submit their pull requests to the Merge Queue service. A pull request can be submitted to the queue before passing CI or code review is complete. Once the prerequisites for the queue have been met, the pull request will formally enter the queue.
 2. Trunk Merge Queue will test your pull request against the changes ahead of it in the queue so that the changes are tested against the predicted view of the branch, assuming everything ahead of it merges successfully. This process is called [**predictive testing** ](/merge-queue/optimizations/predictive-testing)and is illustrated in the video below.
@@ -21,7 +21,7 @@ hidden: true
 2. Once the pre-requisites are met, Trunk Merge Queue will create a temporary branch with the naming convention `trunk-merge/***`. This branch will be based on the head of `main` and will include the changes in your pull request and the changes from pull requests ahead of your pull request in the queue. This is the predictive branch described above and is used to guarantee the correctness of your system.
 3. The same tests that are required for your pull request will now be run on this predictive branch. When those tests pass - your original pull request will be merged into `main`.
 
-### Key concepts
+## Key concepts
 
 <Columns cols={2}>
   <Card
@@ -61,11 +61,11 @@ hidden: true
 ></iframe>
 </Frame>
 
-### **Requirements**
+## **Requirements**
 
 Trunk Merge Queue works with any CI provider as long as you use GitHub for your repo hosting.
 
-### **Next steps**
+## **Next steps**
 
 <Columns cols={2}>
   <Card

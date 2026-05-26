@@ -3,13 +3,13 @@ title: "Troubleshooting"
 description: "Common Trunk Merge Queue issues and how to fix them, including permission errors, stuck PRs, and missing status checks."
 ---
 
-#### Troubleshooting common issues
+## If your test PR doesn't merge automatically
 
 <Info>
 Visit [Trunk Support](../../setup-and-administration/support) for additional assistance or to contact the support team.
 </Info>
 
-If your test PR doesn't merge automatically:
+Start here if a PR you submitted isn't merging:
 
 * **Check the status comments for the PR in** the [Trunk Dashboard](https://app.trunk.io/) to see what it's waiting for
 * **Stuck in "Queued"**: Usually means branch protection rules haven't passed (missing required status checks or code review) or there are merge conflicts. If the status looks correct but the PR still won't enter the queue, try [removing](/merge-queue/using-the-queue/handle-failed-pull-requests#manually-restarting-failed-pull-requests) and re-adding by commenting `/trunk merge` again on the PR.
@@ -17,7 +17,7 @@ If your test PR doesn't merge automatically:
 * **"Permission denied" errors**: Review the [Branch Protection](/merge-queue/getting-started/configure-branch-protection#configure-branch-protection-rules) guide to make sure `trunk-temp/*` and `trunk-merge/*` branches aren't protected by wildcard rules like `*/*`.
 * **Status checks not running**: Verify your CI is configured to run on draft PRs (or `trunk-merge/**` branches if using push-triggered mode). See the [Branch Protection](/merge-queue/getting-started/configure-branch-protection#configure-branch-protection-rules) guide for details.
 
-### Troubleshooting common issues
+## Common errors and stuck states
 
 <AccordionGroup>
 <Accordion title='"Permission denied on trunk-merge/* branch"'>

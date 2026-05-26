@@ -8,13 +8,13 @@ While this is the foundation, achieving the scale necessary to merge thousands o
 
 This section explains each of these key concepts:
 
-#### Throughput and speed
+## Throughput and speed
 
 * [**Batching**](./batching): Groups multiple compatible pull requests together into a single test run. This significantly increases merge throughput and can dramatically reduce CI costs by validating an entire batch with a single test run instead of one for each individual pull request. It is an essential feature for achieving high throughput.
 * [**Parallel Queues**](./parallel-queues/): Allows for the creation of multiple independent queues that test and merge PRs in parallel. This feature is necessary for large monorepos and transforms the queue from a simple "line" into a more complex and efficient "graph".
 * [**Testing Concurrency**](../administration/advanced-settings#testing-concurrency): A setting that defines the maximum number of pull requests that can be tested simultaneously. Fine-tuning this number maximizes merge velocity. It keeps a continuous flow of validated pull requests moving by keeping your CI runners fully utilized.
 
-#### Resilience and flake handling
+## Resilience and flake handling
 
 * [**Optimistic Merging**](./optimistic-merging): Increases merge speed by using test results from pull requests that are later in the queue. When a pull request (e.g., pull request 'c') passes testing, its success also verifies the changes from the pull requests ahead of it ('a' and 'b'). This allows the entire group of pull requests to be safely merged at once.
 * [**Pending Failure Depth**](./pending-failure-depth): When a group fails testing, it enters a Pending Failure state and waits for successor test runs to complete before transitioning. When combined with Optimistic Merging, a passing successor can retroactively clear the failure, enabling automated recovery from transient (flaky) failures without evicting the group from the queue.
@@ -28,6 +28,6 @@ While Anti-Flake Protection provides resilience to flaky tests through queue mec
 
 * [**Flaky Tests Quarantining**](../../flaky-tests/quarantining/index) (via [Flaky Tests](../../flaky-tests/overview)): Automatically detects and quarantines flaky tests to prevent their failures from blocking the merge queue. Quarantined tests continue running and uploading results for visibility, allowing your team to identify and fix them while eliminating false-negative blockages. This foundation of clean test signals is essential for achieving maximum queue throughput.
 
-#### Prioritization
+## Prioritization
 
 * [**Priority Merging**](./priority-merging): Provides the ability to prioritize certain pull requests, allowing urgent changes or hotfixes to bypass the standard queue order and be tested and merged more quickly.

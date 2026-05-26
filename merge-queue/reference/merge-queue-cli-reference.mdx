@@ -4,7 +4,7 @@ description: "Trunk CLI commands for submitting, canceling, pausing, and resumin
 ---
 The Trunk CLI allows you to insert and remove PRs into the Merge Queue. You can also pause and resume the queue from the CLI.
 
-### Installation
+## Installation
 
 <CodeGroup>
 ```bash macOS/Linux
@@ -19,21 +19,21 @@ curl https://get.trunk.io -fsSL | bash
 ```
 </CodeGroup>
 
-### Prerequisites
+## Prerequisites
 
 Before using the CLI:
 
 * **Authenticate:** Run `trunk login`
 * **Git repository:** Execute commands from your repository root
 
-### Usage
+## Usage
 
 ```bash
 trunk merge [flags] <pr-number>
 trunk merge [subcommand]
 ```
 
-#### **Submit a PR to the Queue**
+### **Submit a PR to the Queue**
 
 ```bash
 trunk merge <pr-number> [flags]
@@ -84,7 +84,7 @@ trunk merge 1234 -p 0
 </Tab>
 </Tabs>
 
-#### Check Queue Status
+### Check Queue Status
 
 ```bash
 trunk merge status
@@ -109,7 +109,7 @@ Trunk Merge Status [main] [Running]
                      Waiting in queue
 ```
 
-#### **View PR Status and History**
+### **View PR Status and History**
 
 ```bash
 trunk merge status <pr-number>
@@ -137,7 +137,7 @@ Learn more at https://app.trunk.io/gh/org/repo/merge/main/1835
 10-03 21:17:05    ✔ Merged       Pull request merged successfully
 ```
 
-#### **Cancel a PR**
+### **Cancel a PR**
 
 Remove a pull request from the merge queue. Use cases:
 
@@ -148,7 +148,7 @@ Remove a pull request from the merge queue. Use cases:
 trunk merge cancel <pr-number>
 ```
 
-#### Pause Queue \[admin only]
+### Pause Queue \[admin only]
 
 Pause the merge queue, changing its state from `Running` to `Paused`. The ordering of PRs in the queue is preserved while paused.
 
@@ -163,7 +163,7 @@ trunk merge pause
 * **Emergency situations** - Prevent any merges during incident response
 * **Scheduled maintenance** - Block merges during maintenance window
 
-#### Resume Queue \[admin only]
+### Resume Queue \[admin only]
 
 Resume merge queue processing, changing its state from `Paused` back to `Running`. The queue will begin testing waiting PRs in priority order.
 
