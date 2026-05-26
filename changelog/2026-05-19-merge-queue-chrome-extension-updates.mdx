@@ -1,0 +1,17 @@
+---
+title: "Merge Queue: Chrome Extension Quality-of-Life Updates"
+description: "Automatic bot comment hiding, a skip-batching toggle, and Celebration Mode come to the Trunk for GitHub Chrome Extension."
+date: 2026-05-19
+category: Merge Queue
+type: update
+---
+
+**This week's [Chrome Extension](https://docs.trunk.io/merge-queue/chrome-extension) updates cut PR clutter and give you more control at submission time.**
+
+Three changes shipped:
+
+- **Skip batching toggle** — when batching is enabled for your repository, the merge queue panel now includes a **Skip batching** toggle. Flip it on to enqueue a PR without grouping it into a batch — useful for hotfixes or any PR that needs to merge without waiting for a batch window. Previously this required the `/trunk merge --no-batch` CLI command.
+- **Celebration Mode** — a new optional **Celebration** setting plays a confetti burst each time you add a PR to the merge queue. Toggle it on from the extension's **Options** page. Respects your OS reduced-motion preference, so nothing animates if you have **Reduce motion** enabled.
+- **Automatic bot comment hiding** — on PRs managed by Trunk, the extension now hides the Trunk bot comments that prompt you to submit a PR to the queue. Cuts noise from your PR conversation without removing any queue controls — submit, cancel, and status actions remain available through the extension panel. Hiding only applies on PR pages where the extension overlay is active, and only to merge-queue prompt comments from the `trunk-io` and `trunk-staging-io` bot accounts.
+
+[Read the docs](https://docs.trunk.io/merge-queue/chrome-extension) to learn more.
