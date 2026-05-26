@@ -3,7 +3,7 @@ title: "Autofix Flaky Tests"
 ---
 Trunk can automatically investigate flaky tests in your codebase and raise fix pull requests with suggested solutions.
 
-### Prerequisites
+## Prerequisites
 
 To use the Autofix Flaky Tests feature, you'll need:
 
@@ -19,7 +19,7 @@ The "Investigate Flaky Tests" setting can only be changed by organization admins
 ![Setting to enable Flaky Test investigation](/assets/investigate-flaky-tests-setting.png)
 </Frame>
 
-### Auto-Investigate Flaky Tests
+## Auto-Investigate Flaky Tests
 
 Once enabled, any time that Trunk [detects a flaky test](../detection/index), Trunk analyzes the failure patterns, failure output, and git history of the test to provide a number of insights.
 
@@ -29,7 +29,7 @@ Once enabled, any time that Trunk [detects a flaky test](../detection/index), Tr
 
 Flaky tests can also be analyzed manually via the UI and via the [MCP server](../reference/mcp-reference/fix-flaky-test).
 
-### Autofix with Cursor Automations
+## Autofix with Cursor Automations
 
 Whenever an investigation is completed, Trunk will emit a [webhook](../webhooks/index) for `test_case.investigation_completed`. Enable webhooks via [Svix](../webhooks/index).
 
@@ -74,7 +74,7 @@ We recommend the following conventions:
 - Be specific about conventions and antipatterns for your repository. You will need to refine the Automation prompt to suit your needs.
 - If your CI setup allows it, prompt Cursor to run the tests to verify them.
 
-### What's next?
+## What's next?
 
 - Continue to monitor your tests to confirm the flaky test fixes are effective
 - Investigations can be triggered and applied via [MCP](../reference/mcp-reference/fix-flaky-test)

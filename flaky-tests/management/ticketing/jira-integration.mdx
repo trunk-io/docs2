@@ -6,7 +6,7 @@ When Trunk Flaky Tests [detects a flaky test](../../detection/index), you can cr
 
 Webhook payloads will also contain ticket information when a Jira ticket is created with the integration or when [existing tickets are linked](./jira-integration#link-existing-tickets-to-tests).
 
-### Connecting to Jira
+## Connecting to Jira
 
 <Frame>
 <img className="block dark:hidden" src="/assets/jira-connect-form-light.png" alt="" />
@@ -31,7 +31,7 @@ Jira labels cannot contain spaces — the Trunk UI enforces this restriction in 
 
 After connecting to Jira, you can specify a default issue type for new tickets and a default assignee for new tickets.
 
-#### API Token permissions
+### API Token permissions
 
 Your Jira user account must have the following project permissions to create a Jira API token that allows Trunk to read, create, and assign tickets automatically:
 
@@ -75,7 +75,7 @@ You need to create an API token with the following scopes:
 Jira tokens cannot last longer than 365 days. Once the token expires, you will need to generate a new API token.
 </Info>
 
-### Create a new ticket
+## Create a new ticket
 
 You can create a new ticket for any test listed in Trunk Flaky Tests.
 
@@ -97,19 +97,19 @@ Before you create the ticket, you will have a preview of the title and descripti
 <img className="hidden dark:block" src="/assets/jira-ticket-creation-dark.png" alt="" />
 </Frame>
 
-#### Create with Jira
+### Create with Jira
 
 If you are connected to Jira, you can click the **Create Jira Ticket** button at the end of the modal, which will automatically create a ticket with the configured labels and assignees.
 
-#### Link existing tickets to tests
+### Link existing tickets to tests
 
 If you already have a ticket in Jira that you want to link to a test in the dashboard, you can use the [Link Ticket to Test Case API](../../reference/api-reference#post-flaky-tests-link-ticket-to-test-case).
 
-### Custom Fields
+## Custom Fields
 
 Some Jira projects require additional fields beyond the standard fields (summary, description, and issue type) when creating tickets. Trunk supports configuring default values for any Jira field on a per-issue-type basis. Users can also override those defaults when creating a ticket.
 
-#### Configuring custom fields
+### Configuring custom fields
 
 In the Jira integration settings (**Settings** -> **Repositories** -> **Ticketing Integration**), select an issue type. Trunk fetches all available fields for that issue type from the Jira API and displays inputs for each supported field.
 
@@ -139,6 +139,6 @@ The following fields are always excluded from the custom field configuration bec
 
 `summary`, `description`, `project`, `issuetype`, `attachment`, `issuelinks`, `parent`
 
-#### Overriding defaults at ticket creation
+### Overriding defaults at ticket creation
 
 When creating a ticket from the Flaky Tests dashboard, the create ticket modal shows inputs for any field that has a configured default or is marked for user input. Users can edit pre-filled defaults before submitting.

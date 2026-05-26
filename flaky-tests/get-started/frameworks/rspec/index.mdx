@@ -4,7 +4,7 @@ description: "A guide for generating Trunk-compatible test reports for RSpec usi
 ---
 You can automatically [detect and manage flaky tests](../../../detection/) in your projects running RSpec by integrating with Trunk. This document explains how to use Trunk's RSpec plugin to upload test results to Trunk.
 
-### Setup steps
+## Setup steps
 
 Work through the steps below in order. Once you've finished the last one, you'll be ready to move on to [configure uploads in CI](../../ci-providers/).
 
@@ -20,7 +20,7 @@ Using the plugin is the best way to accurately detect flaky RSpec tests.
 You can also [manually generate and upload](./manual-uploads) test results in RSpec, however, **manual RSpec uploads are not recommended.**
 </Info>
 
-### Installing the plugin
+## Installing the plugin
 
 Trunk detects flaky tests by analyzing test results automatically uploaded from your CI jobs. You can do this for your Rspec tests using Trunk's RSpec plugin.
 
@@ -42,13 +42,13 @@ Then, load the plugin in `spec_helper.rb`:
 require "trunk_spec_helper"
 ```
 
-#### Disable Retries
+### Disable Retries
 
 You need to disable automatic retries if you previously enabled them. Retries compromise the accurate detection of flaky tests.
 
 If you have a step in CI to rerun failed tests with the `--only-failures` option, or you're using a package like [rspec-retry](https://github.com/NoRedInk/rspec-retry), remember to disable them.
 
-#### Versions and Updating the Plugin
+### Versions and Updating the Plugin
 
 You can find the Gem for `rspec_trunk_flaky_tests` [here](https://rubygems.org/gems/rspec_trunk_flaky_tests), along with its version history. This plugin is periodically updated with improved support and bug fixes. If you're encountering something unexpected, first try:
 
@@ -56,11 +56,11 @@ You can find the Gem for `rspec_trunk_flaky_tests` [here](https://rubygems.org/g
 bundle update rspec_trunk_flaky_tests
 ```
 
-### Environment Variables
+## Environment Variables
 
 These optional environment variables can be set in your project to change the behavior of the RSpec plugin.
 
-#### Repository metadata variables:
+### Repository metadata variables:
 
 | Argument                       | Description                                            |
 | ------------------------------ | ------------------------------------------------------ |
@@ -71,7 +71,7 @@ These optional environment variables can be set in your project to change the be
 | `TRUNK_REPO_HEAD_COMMIT_EPOCH` | HEAD commit timestamp (seconds since epoch)            |
 | `TRUNK_REPO_HEAD_AUTHOR_NAME`  | HEAD commit author name                                |
 
-#### Configuration variables:
+### Configuration variables:
 
 | Argument                          | Description                                               |
 | --------------------------------- | --------------------------------------------------------- |
@@ -84,9 +84,9 @@ These optional environment variables can be set in your project to change the be
 | `TRUNK_LOCAL_UPLOAD_DIR`          | Directory to save test results locally (disables upload)  |
 | `DISABLE_RSPEC_TRUNK_FLAKY_TESTS` | Set to 'true' to completely disable Trunk                 |
 
-### Try It Locally
+## Try It Locally
 
-#### Test Upload
+### Test Upload
 
 Before modifying your CI jobs to automatically upload test results to Trunk, try uploading a single test run manually.
 
@@ -111,7 +111,7 @@ After your upload, you can verify that Trunk has received and processed it succe
 You do not need to download the `trunk-analytics-cli` when using the Trunk RSpec plugin. Uploads are handled for you as long as you have set `TRUNK_ORG_URL_SLUG` and `TRUNK_API_TOKEN`.
 </Info>
 
-### Next Steps
+## Next Steps
 
 Configure your CI to upload test runs to Trunk. Find the guides for your CI framework below:
 

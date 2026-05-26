@@ -8,7 +8,7 @@ This guide will walk you through integrating Trunk Flaky Tests with Linear Issue
 
 Trunk also has a [built-in Linear integration](./linear-integration) for ticket creation. You only need to use webhooks if you want to automate ticket creation or need additional customization.
 
-### 1. Create a Linear Personal Access Token
+## 1. Create a Linear Personal Access Token
 
 Before you can create a webhook to automate GitHub Issue creation, you need to create an API token to authorize your requests.
 
@@ -16,7 +16,7 @@ Before you can create a webhook to automate GitHub Issue creation, you need to c
 2. Under **Account** > **Security & Access** > **Personal API Keys**, Click **New API Key** to create a new access token.
 3. Copy the new API key and save it in a secure location. You'll need to use this later.
 
-### 2. Add a new webhook in Trunk <a href="#id-2.-add-a-webhook-url-to-the-github-issues-api-in-trunk" id="id-2.-add-a-webhook-url-to-the-github-issues-api-in-trunk"></a>
+## 2. Add a new webhook in Trunk <a href="#id-2.-add-a-webhook-url-to-the-github-issues-api-in-trunk" id="id-2.-add-a-webhook-url-to-the-github-issues-api-in-trunk"></a>
 
 Trunk uses Svix to integrate with other services, such as creating Linear Issues through webhooks.
 
@@ -36,7 +36,7 @@ You can create a new endpoint by:
 
 If you're having trouble adding a new webhook endpoint with Svix, please see the [Adding Endpoint docs from Svix](https://docs.svix.com/receiving/using-app-portal/adding-endpoints).
 
-### **3. Add custom headers**
+## 3. Add custom headers
 
 The Linear GraphQL API requires some custom headers. You can configure custom headers in the endpoint configuration:
 
@@ -49,11 +49,11 @@ You'll need to configure the following headers.
 | --------------- | ------------------ |
 | `Authorization` | `<YOUR_API_TOKEN>` |
 
-### 4. Find your Linear Team, Project, and Label IDs
+## 4. Find your Linear Team, Project, and Label IDs
 
 You need to find your Linear team, project, and label IDs to create issues with the appropriate labeling. You can do this by querying your Linear project using cURL.
 
-#### Team ID
+### Team ID
 
 First, you'll need to find your team ID so you can create Linear issues under the correct team. You can make a request in your terminal using cURL, or a similar tool.
 
@@ -87,7 +87,7 @@ You will receive a response that contains your team UID, for example:
 }
 ```
 
-#### Project ID
+### Project ID
 
 If you want to create issues under a specific project, you'll need to find its project ID. You can use a query like this:
 
@@ -119,7 +119,7 @@ You'll receive a response that contains your projects and their IDs, for example
 }
 ```
 
-#### Label ID
+### Label ID
 
 If you want to create issues with a specific label, you'll need to find its label ID. You can use a query like this:
 
@@ -162,7 +162,7 @@ You'll receive a response that contains your labels and their IDs, for example:
 }
 ```
 
-### 5. Customize your transformation
+## 5. Customize your transformation
 
 Transformations are custom code snippets you can write to customize the Linear issues created by the webhook. A working template transformation will be added automatically for your webhook, but you can further customize the behavior of this webhook.
 
@@ -272,7 +272,7 @@ View the full stack trace on the [Test Detail page](./${html_url})
 }
 ```
 
-#### (Optional) Automatic issue assignment
+### (Optional) Automatic issue assignment
 
 If you have CODEOWNERS configured in your repo, it will be reported by Trunk in the webhook payload. You can use this to map different CODEOWNERS to Linear assignees. You can access CODEOWNERS in the payload like this: `webhook.payload.test_case.codeowners`.
 
@@ -302,7 +302,7 @@ webhook.payload = {query: `mutation IssueCreate {
   } ` };
 ```
 
-### 6. Test your webhook
+## 6. Test your webhook
 
 You can create test issues by delivering a mock webhook. You can do this by:
 
@@ -310,7 +310,7 @@ You can create test issues by delivering a mock webhook. You can do this by:
 2. Under **Subscribed events,** select `v2.test_case.status_changed`as the event type to send
 3. Click **Send Example** to test your webhook
 
-### 7. Monitoring webhooks
+## 7. Monitoring webhooks
 
 You can monitor the events and the webhook's delivery logs in the **Overview** tab of an endpoint configuration view.
 
@@ -326,7 +326,7 @@ You can see a list of past delivery attempts in the **Message Attempts** modal. 
 ![](/assets/example-webhook-logs.png)
 </Frame>
 
-### Congratulations!
+## Congratulations!
 
 A Linear Issue will now be created when a test's health status changes to **flaky**. You can further modify your transformation script to customize your issues.
 

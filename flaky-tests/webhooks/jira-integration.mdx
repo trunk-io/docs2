@@ -8,7 +8,7 @@ This guide will walk you through integrating Trunk Flaky Tests with Jira through
 
 Trunk also has a [built-in Jira integration](../management/ticketing/jira-integration) for manual ticket creation. You only need to use webhooks if you want to automate ticket creation or need additional customization.
 
-### 1. Create a Jira API Token
+## 1. Create a Jira API Token
 
 Before you can create a webhook to automate Jira issue creation, you need to create an API token to authorize your requests.
 
@@ -24,7 +24,7 @@ echo -n "your-email@example.com:your-api-token" | base64
 
 Replace `your-email@example.com` with the email associated with your Jira account and `your-api-token` with the token you just created. Save the output for step 3.
 
-### 2. Add a new webhook in Trunk <a href="#id-2.-add-a-webhook-url-to-the-jira-api-in-trunk" id="id-2.-add-a-webhook-url-to-the-jira-api-in-trunk"></a>
+## 2. Add a new webhook in Trunk <a href="#id-2.-add-a-webhook-url-to-the-jira-api-in-trunk" id="id-2.-add-a-webhook-url-to-the-jira-api-in-trunk"></a>
 
 Trunk uses Svix to integrate with other services, such as creating Jira issues through webhooks.
 
@@ -39,7 +39,7 @@ You can create a new endpoint by:
 
 If you're having trouble adding a new webhook endpoint with Svix, please see the [Adding Endpoint docs from Svix](https://docs.svix.com/receiving/using-app-portal/adding-endpoints).
 
-### 3. Add custom headers
+## 3. Add custom headers
 
 The Jira REST API requires authentication headers. You can configure custom headers in the endpoint configuration:
 
@@ -55,7 +55,7 @@ You'll need to configure the following headers:
 
 Replace `<BASE64_TOKEN>` with the Base64-encoded string you generated in [step 1](#1-create-a-jira-api-token).
 
-### 4. Find your Jira project key and issue type
+## 4. Find your Jira project key and issue type
 
 You'll need your Jira project key and preferred issue type to configure the transformation.
 
@@ -63,7 +63,7 @@ You'll need your Jira project key and preferred issue type to configure the tran
 
 **Issue type:** The type of issue to create. Common values are `Bug`, `Task`, or `Story`. The default is `Bug`.
 
-### 5. Customize your transformation
+## 5. Customize your transformation
 
 Transformations are custom code snippets you can write to customize the Jira issues created by the webhook. A working template transformation will be added automatically for your webhook, but you can further customize the behavior.
 
@@ -167,7 +167,7 @@ View the full stack trace on the [Test Detail page|${html_url}]
 The description uses [Jira wiki markup](https://jira.atlassian.com/secure/WikiRendererHelpAction.jspa?section=texteffects) for formatting. Links use the `[text|url]` syntax rather than markdown.
 </Info>
 
-### 6. Test your webhook
+## 6. Test your webhook
 
 You can create test issues by delivering a mock webhook. You can do this by:
 
@@ -175,7 +175,7 @@ You can create test issues by delivering a mock webhook. You can do this by:
 2. Under **Subscribed events,** select `v2.test_case.status_changed` as the event type to send
 3. Click **Send Example** to test your webhook
 
-### 7. Monitoring webhooks
+## 7. Monitoring webhooks
 
 You can monitor the events and the webhook's delivery logs in the **Overview** tab of an endpoint configuration view.
 
@@ -183,7 +183,7 @@ You can see an overview of how many webhook deliveries have been attempted, how 
 
 You can see a list of past delivery attempts in the **Message Attempts** modal. You can filter this list by **Succeeded** and **Failed** status, and you can click on each message to see the **Message content**, response code, and error message of each attempt. You can learn more about [replaying messages](https://docs.svix.com/receiving/using-app-portal/replaying-messages) and [filtering logs](https://docs.svix.com/receiving/using-app-portal/filtering-logs) in the Svix docs.
 
-### Congratulations!
+## Congratulations!
 
 A Jira issue will now be created when a test's health status changes to **flaky**. You can further modify your transformation script to customize your issues.
 

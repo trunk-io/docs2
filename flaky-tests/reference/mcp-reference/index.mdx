@@ -4,7 +4,7 @@ description: "Use the Trunk MCP server from your IDE or AI application to access
 ---
 Trunk Flaky Tests includes a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/docs/getting-started/intro) server. AI applications like Claude Code or Cursor can use MCP servers to connect to data sources, tools, and workflows, enabling them to access key information and perform tasks.
 
-### Supported AI applications
+## Supported AI applications
 
 The following applications are currently supported: Cursor, Claude Code, Gemini CLI, and GitHub Copilot.
 
@@ -12,7 +12,7 @@ The following applications are currently supported: Cursor, Claude Code, Gemini 
 Gemini Code Assist and Windsurf are not supported due to their limited support for MCP servers
 </Info>
 
-### API
+## API
 
 The Trunk MCP server is available at `https://mcp.trunk.io/mcp` and exposes the following tools:
 
@@ -23,7 +23,7 @@ The Trunk MCP server is available at `https://mcp.trunk.io/mcp` and exposes the 
 | [`investigate-ci-failure`](./investigate-ci-failure) | Experimental: Retrieve failing test logs from a CI run |
 | [`setup-trunk-uploads`](./set-up-test-uploads) | Create a setup plan to upload test results |
 
-### Authorization
+## Authorization
 
 The Trunk MCP server supports two authentication methods.
 
@@ -52,7 +52,7 @@ Find your token under **Settings > API** in the Trunk dashboard. Pass it as a Be
 
 API token auth is org-level — all requests are attributed to the organization rather than to a specific user. OAuth remains the preferred method for interactive use because it provides user-level identity.
 
-### Get started
+## Get started
 
 **To get started, configure your AI application to communicate with Trunk's MCP server:**
 

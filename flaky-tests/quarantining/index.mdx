@@ -14,13 +14,13 @@ description: "Mitigate impact of known flaky tests by isolating them at run time
 **Broken tests are not quarantine candidates.** Quarantining is designed for flaky tests — tests that intermittently fail and can be safely skipped to unblock CI while being investigated. A broken test represents a real failure that should not be hidden from CI results. Only tests with a **Flaky** status are eligible for auto-quarantine.
 </Warning>
 
-### What does "Quarantined" mean?
+## What does "Quarantined" mean?
 
 A quarantined test continues running in CI and uploading results to Trunk Flaky Tests, but its failures won't block your pipeline. The [Trunk Analytics CLI](../reference/cli-reference) checks with Trunk's backend to determine if failed tests are quarantined, then overrides the exit code for those failures. When all failures in a CI job come from quarantined tests, the entire job passes.
 
 **Why this matters:** You maintain complete test coverage and historical data while preventing known problematic tests from disrupting your development cycle.
 
-### **How tests get quarantined**
+## How tests get quarantined
 
 Tests can be quarantined through two methods:
 
@@ -29,7 +29,7 @@ Tests can be quarantined through two methods:
 
 Tests are auto-quarantined only if detected as **flaky** or [flagged as flaky](../detection/flag-as-flaky) manually. Tests with a **Broken** status are not auto-quarantined — they represent real failures that should be investigated and fixed. For [manually quarantined tests](./index#overriding-individual-tests), all failures are quarantined regardless of test state.
 
-### Enable quarantining
+## Enable quarantining
 
 <Warning>
 Toggling the **Enable Test Quarantining** switch makes quarantining possible but does not quarantine any tests on its own.
@@ -41,7 +41,7 @@ Actively quarantining tests will significantly change CI results, as failures fr
 
 With quarantining enabled, the Analytics Uploader will compare failed test cases against known flaky tests. If a test is known to be flaky, it will be quarantined. If all failed tests are quarantined, the exit code of the test command will be overridden to return 0 and the CI job will pass.
 
-#### Quarantining settings
+### Quarantining settings
 
 To enable quarantining, navigate to **Settings** > **Repositories** > repository > **Flaky Tests** > toggle **on** **Enable Test Quarantining**.
 
@@ -56,7 +56,7 @@ Here's what each of these options does when enabled:
 | Enable Test Quarantining | This primary toggle activates the quarantining feature set, unlocking both manual override options and the ability to enable auto-quarantining. For any quarantining to work, the [necessary configurations](#updates-in-ci) must also be made in your CI pipeline. |
 | Auto-Quarantine Flaky Tests | When enabled, any test already identified by Trunk as "flaky" will be automatically quarantined. This saves you from having to manually quarantine each flaky test as it's discovered. |
 
-#### Collection-level quarantining settings
+### Collection-level quarantining settings
 
 [Test Collections](../get-started/test-collections) have their own quarantining settings that override the repository-level settings for any uploads routed to that collection. This lets you apply different quarantining policies to different subsets of your test suite.
 
@@ -75,7 +75,7 @@ Only organization admins can change collection quarantining settings. Members ca
 
 When you disable collection quarantining, auto-quarantine is also disabled automatically. Re-enabling quarantining for the collection does not restore auto-quarantine — you must turn it back on separately.
 
-### **Quarantining with Sharded or Parallelized Tests**
+## Quarantining with Sharded or Parallelized Tests
 
 There are two options for handling quarantining.
 
@@ -116,7 +116,7 @@ The CLI only recognizes tests defined in JUnit. If multiple test executions occu
 * Upload results for each test execution separately, or
 * Generate a JUnit that records build errors.
 
-### Updates in CI
+## Updates in CI
 
 If you're using the provided [GitHub Actions workflow](../get-started/ci-providers/) to upload test results to Flaky Tests, you can quarantine flaky tests by wrapping the test command or as a follow-up step.
 
@@ -208,7 +208,7 @@ You can also wrap the test command with the Trunk Analytics CLI. When wrapping t
 </Tab>
 </Tabs>
 
-### Overriding individual tests
+## Overriding individual tests
 
 If you have tests that should never be quarantined or should always be quarantined regardless of their current health status, you can do this by overriding individual tests.
 
@@ -245,7 +245,7 @@ When a manual override is active, a banner shows who set it and when.
 
 To review a history of all quarantine changes on a test, check the **Events** tab on the test details page. The Events tab shows every override, setting change, and comment, along with the author and timestamp for each entry. To see all quarantined runs of a test, set the **Quarantined** filter to **Only** on the **Test History** tab.
 
-### Tracking quarantined jobs in the dashboard
+## Tracking quarantined jobs in the dashboard
 
 Once quarantining is active, the **Quarantining** tab provides a central hub for monitoring its impact and effectiveness. This tab serves as a complete audit log of every CI job saved by the feature, allowing you to:
 
@@ -258,7 +258,7 @@ Once quarantining is active, the **Quarantining** tab provides a central hub for
 ![](/assets/flaky-fullscreen.png)
 </Frame>
 
-### Audit logs
+## Audit logs
 
 Trunk provides audit logs for all setting changes and overwrites for individual tests. You can access the audit log by navigating to **Settings** > **Repositories** **>** repository **>** **Flaky Tests** > **Audit logs** under the Enable Test Quarantining heading.
 
@@ -266,7 +266,7 @@ Trunk provides audit logs for all setting changes and overwrites for individual 
 ![](/assets/qurantine-audit-logs.png)
 </Frame>
 
-### Quarantining API and webhooks
+## Quarantining API and webhooks
 
 For advanced use cases, you can interact with quarantining features programmatically.
 
@@ -274,7 +274,7 @@ For advanced use cases, you can interact with quarantining features programmatic
 * Webhooks: Subscribe to the `test_case.quarantining_setting_changed` event to trigger automated workflows whenever a test's quarantine override is modified. Learn more about [Webhooks](https://www.svix.com/event-types/us/org_2eQPL41Ew5XSHxiXZIamIUIXg8H/#test_case.quarantining_setting_changed).
 
 <Info>
-#### Service Availability and Graceful Degradation
+### Service Availability and Graceful Degradation
 
 Trunk Analytics CLI is designed to fail safe when our quarantine service is unavailable. Read more at [Quarantine Service Availability](./quarantine-service-availability)
 </Info>

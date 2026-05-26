@@ -6,7 +6,7 @@ When Trunk Flaky Tests [detects a flaky test](../../detection/index), you can cr
 
 Webhook payloads will also contain ticket information when a Jira ticket is created with the integration or when [existing tickets are linked](./linear-integration#link-existing-tickets-to-tests).
 
-### Connecting to Linear
+## Connecting to Linear
 
 <Frame>
 <img className="block dark:hidden" src="/assets/linear-integration-light.png" alt="" />
@@ -22,7 +22,7 @@ To connect a Linear project:
 
 After connecting, you can configure field defaults for auto-created tickets — including Priority, Labels, Estimate, Project, and Assignee — all scoped to the selected team. See [Field defaults](#field-defaults) below.
 
-#### API Key permissions
+### API Key permissions
 
 The following project permissions must be granted to your Linear API key so Trunk can read, create, and assign tickets automatically:
 
@@ -31,7 +31,7 @@ The following project permissions must be granted to your Linear API key so Trun
 
 Selecting _Full Access_ will also grant the required permissions.
 
-### Create a new ticket
+## Create a new ticket
 
 You can create a new ticket for any test listed in Flaky Tests.&#x20;
 
@@ -53,13 +53,13 @@ Before you create the ticket, you get a preview of the title and description.
 <img className="hidden dark:block" src="/assets/jira-ticket-creation-dark.png" alt="" />
 </Frame>
 
-#### Create with Linear
+### Create with Linear
 
 If you are connected to Linear, you can click the **Create Linear Ticket** button at the end of the modal to automatically create a ticket with the configured team and any field defaults you have set.
 
 Note: You can use [Flaky Tests webhooks](../../webhooks/linear-integration) to automate ticket creation, or if you need more control over how tickets are created in Linear. This integration is not required when using webhooks.
 
-### Field defaults
+## Field defaults
 
 After selecting a team, you can configure default values that pre-populate whenever a new Linear ticket is created from Flaky Tests:
 
@@ -75,7 +75,7 @@ Changing the selected team clears and reloads all field options automatically.
 
 Field defaults are saved per repository. When you open the **Create Ticket** modal, all configured defaults are pre-filled and can be overridden before submitting.
 
-### Link existing tickets to tests
+## Link existing tickets to tests
 
 If you already have a Linear ticket for a test, you can link it directly from the Test Details page without creating a new one.
 

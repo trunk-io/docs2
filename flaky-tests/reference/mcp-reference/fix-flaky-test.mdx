@@ -2,23 +2,23 @@
 title: "Fix Flaky Test"
 description: "MCP tool reference: fix-flaky-test"
 ---
-### Overview
+## Overview
 
 The `fix-flaky-test` tool retrieves insights and historical failure analysis about a flaky test. This tool allows AI assistants to access investigation results and apply fixes directly in your development environment. For more information, see [Autofix Flaky Tests](../../agents/autofix-flaky-tests).
 
 
 **Return Type:** Structured analysis data with fix recommendations. Structure: metadata, summary, facts
 
-### Parameters
+## Parameters
 
-#### Required Parameters
+### Required Parameters
 
 | Parameter  | Type   | Description                                                     |
 | ---------- | ------ | --------------------------------------------------------------- |
 | `repoName` | string | Repository name in `owner/repo` format (e.g., `trunk-io/trunk`) |
 | `testCaseId` | string | UUID of the test case to retrieve investigations for |
 
-#### Optional Parameters
+### Optional Parameters
 
 | Parameter | Type   | Description                                                            |
 | --------- | ------ | ---------------------------------------------------------------------- |
@@ -26,7 +26,7 @@ The `fix-flaky-test` tool retrieves insights and historical failure analysis abo
 | `investigationId`   | string | Specific fix identifier from previous investigation queries |
 | `createNewInvestigation`   | boolean | Whether or not to trigger a new investigation (may take up to 1 minute) |
 
-### Getting Parameter Values
+## Getting Parameter Values
 
 If your AI assistant doesn't have direct access to Git information, use these commands:
 
@@ -38,27 +38,27 @@ git remote -v
 
 Look for the repository name in the output (e.g., `trunk-io/trunk` from `git@github.com:trunk-io/trunk.git`)
 
-### Usage Examples
+## Usage Examples
 
-#### With Test ID
+### With Test ID
 
 ```
 Fix the flaky test with ID <testCaseId>
 ```
 
-#### Create New Investigation
+### Create New Investigation
 
 ```
 Run a new analysis to help me fix flaky test with ID <testCaseId>
 ```
 
-#### With Existing Investigation
+### With Existing Investigation
 
 ```
 Retrieve the investigation for test <testCaseId> with investigationId <investigationId>
 ```
 
-### Error Handling
+## Error Handling
 
 | Error                          | Cause                                         | Resolution                                                |
 | ------------------------------ | --------------------------------------------- | --------------------------------------------------------- |

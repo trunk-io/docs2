@@ -12,7 +12,7 @@ Flaky Test support for source control providers like GitLab and BitBucket is sti
 
 Before you start on these steps, see the [Test Frameworks](../frameworks/) docs for instructions on producing JUnit XML output for your test runner, supported by virtually all test frameworks, which is what Trunk ingests.
 
-### Setup steps
+## Setup steps
 
 Work through the steps below in order. Once you've finished the last one, you're set up — head to [app.trunk.io](https://app.trunk.io) to see your results.
 
@@ -23,23 +23,23 @@ Work through the steps below in order. Once you've finished the last one, you're
   <Step title={<a href="#validate-your-uploads">Validate your uploads in Trunk</a>} />
 </Steps>
 
-### Trunk Organization Slug and Token
+## Trunk Organization Slug and Token
 
 Before setting up uploads to Trunk, you must sign in to [app.trunk.io](https://app.trunk.io/login?intent=flaky%20tests) and obtain your Trunk organization slug and token.
 
-#### Trunk Slug
+### Trunk Slug
 
 You can find your organization slug under **Settings > Organization > Manage > Organization Name > Slug**. You'll save this as a variable in CI in a later step.
 
-#### Trunk Token
+### Trunk Token
 
 You can find your token under **Settings > Organization > Manage > Organization API Token > View Organization API Token > View**. Since this is a secret, do not leak it publicly. Ensure you get your _organization token_, not your project/repo token.
 
-### Add the Trunk Token as a Secret
+## Add the Trunk Token as a Secret
 
 Store the Trunk slug and API token obtained in the previous step in your CI provider as a secret, environment variable, or an equivalent concept and name them `TRUNK_ORG_SLUG` and `TRUNK_TOKEN` respectively.
 
-### Upload to Trunk
+## Upload to Trunk
 
 Add an `Upload Test Results` step after running tests in each of your CI jobs that run tests. This should be minimally all jobs that run on pull requests, as well as from jobs that run on your main or [stable branches](../../detection/), for example,`main`, `master`, or `develop`.
 
@@ -51,7 +51,7 @@ Trunk can also detect test flakes on PR and merge branches. To best detect flaky
 [Learn more about detection](../../detection/)
 </Danger>
 
-#### Example Upload Script
+### Example Upload Script
 
 The following is an example of a script to upload test results after your tests run. Note: you must either run `trunk` from the repo root when uploading test results or pass a `--repo-root` argument.
 
@@ -102,7 +102,7 @@ Then, you can validate the results using the `trunk-analytics-cli validate` comm
 
 See the [uploader.md](../../reference/cli-reference.md) for all available command line arguments and usage.
 
-#### Environment Variables
+### Environment Variables
 
 Set these environment variables before running `trunk-analytics-cli upload` on unsupported CI systems:
 
@@ -124,7 +124,7 @@ All other variables are optional but recommended.
 | `PR_NUMBER`      | Pull request number (if applicable)                                                                              | `123`                                 |
 | `PR_TITLE`       | Pull request title (if applicable)                                                                               | `Add new feature`                     |
 
-#### About JOB\_URL
+### About JOB\_URL
 
 The `JOB_URL` variable controls where the "Logs" link in Trunk Flaky Tests points to. When users click "Logs" on a test failure, they'll be taken to this URL to view the complete CI job output.
 
@@ -138,11 +138,11 @@ The `JOB_URL` variable controls where the "Logs" link in Trunk Flaky Tests point
 **For GitHub Actions users:** While GitHub Actions is auto-detected, you can override the default workflow URL with a direct job URL. See [GitHub Actions - Getting Direct Links to Job Logs](./github-actions#getting-direct-links-to-job-logs) for instructions.
 </Info>
 
-#### Stale files
+### Stale files
 
 Ensure you report every test run in CI and **clean up stale files** produced by your test framework. If you're reusing test runners and using a glob like `**/junit.xml` to upload tests, stale files not cleaned up will be included in the current test run, throwing off detection of flakiness. You should clean up all your results files after every upload step.
 
-### Validate Your Uploads
+## Validate Your Uploads
 
 Once your pipeline has run on a stable branch, head to [app.trunk.io](https://app.trunk.io) and confirm Trunk received your results.
 

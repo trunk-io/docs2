@@ -4,7 +4,7 @@ description: "Learn how Trunk identifies repositories and how to track tests acr
 ---
 Trunk Flaky Tests identifies repositories by their **git remote URL**, not by the API token. You can safely use the same organization API token across multiple repositories, including forks, without mixing test results.
 
-### How Repository Identification Works
+## How Repository Identification Works
 
 When the Trunk Analytics CLI uploads test results, it reads the git remote URL from your CI environment and parses it into three components:
 
@@ -14,7 +14,7 @@ When the Trunk Analytics CLI uploads test results, it reads the git remote URL f
 
 These three components together uniquely identify the repository in Trunk. The API token determines which _organization_ the upload belongs to, but does not affect which _repository_ the results are associated with.
 
-### Using Trunk with Forks
+## Using Trunk with Forks
 
 If you run tests from a fork, Trunk automatically keeps test results separate based on the fork's remote URL.
 
@@ -31,7 +31,7 @@ You can use the same organization API token for both repositories. Trunk creates
 No special configuration is needed for forks. As long as your fork has a different remote URL (which it does by default), Trunk keeps the data separate automatically.
 </Info>
 
-### Verifying Your Remote URL
+## Verifying Your Remote URL
 
 Before setting up uploads, verify your CI job is using the correct remote URL:
 
@@ -45,7 +45,7 @@ git remote -v
 Some CI providers set environment variables like `GITHUB_REPOSITORY` that may differ from your git remote. The CLI reads the git remote URL by default. If your CI environment modifies the remote, use the `--repo-url` flag to override repository detection.
 </Warning>
 
-### Overriding Repository Detection
+## Overriding Repository Detection
 
 In some CI environments, you may need to manually specify the repository URL:
 
@@ -75,7 +75,7 @@ export TRUNK_REPO_URL="https://github.com/your-company/your-repo.git"
 
 See the [Trunk Analytics CLI](/flaky-tests/reference/cli-reference) reference for the full list of override flags.
 
-### Monorepo with Multiple Test Suites
+## Monorepo with Multiple Test Suites
 
 To track different test suites within the same repository separately, use the `--variant` flag:
 
@@ -95,15 +95,15 @@ To track different test suites within the same repository separately, use the `-
   --token $TRUNK_API_TOKEN
 ```
 
-### Troubleshooting
+## Troubleshooting
 
-#### Test results appearing in wrong repository
+### Test results appearing in wrong repository
 
 1. **Check your git remote**: Run `git remote -v` in your CI job to verify the URL.
 2. **Check CI environment variables**: Some CI providers override git configuration.
 3. **Use explicit override**: Set `--repo-url` to force the correct repository.
 
-#### Duplicate repositories in dashboard
+### Duplicate repositories in dashboard
 
 This can happen if the same repository is uploaded with different URL formats (e.g., HTTPS vs SSH). To resolve:
 
@@ -111,7 +111,7 @@ This can happen if the same repository is uploaded with different URL formats (e
 2. Use `--repo-url` to set a consistent URL.
 3. Contact [support@trunk.io](mailto:support@trunk.io) to merge duplicate repository entries.
 
-### FAQ
+## FAQ
 
 | Question                                       | Answer                                                                 |
 | ---------------------------------------------- | ---------------------------------------------------------------------- |
