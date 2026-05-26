@@ -80,6 +80,23 @@ Sticky labels that mark how a PR was sourced or where it needs extra eyes. Addit
 
 GitHub's default labels (`bug`, `documentation`, `enhancement`, etc.) are also present but not used in our automated workflows.
 
+## Changelog automation
+
+Changelog entries live in `changelog/*.mdx`. Each entry's frontmatter (`title`, `description`, `date`, `category`, `type`) is the single source of truth — the nav sidebar, master index, and product-page indexes are all generated from it.
+
+### Adding a changelog entry
+
+1. Create `changelog/YYYY-MM-DD-<slug>.mdx` with the required frontmatter.
+2. Run `python3 scripts/sync-changelog.py` to regenerate the four nav files.
+3. Commit both the new entry and the updated nav files.
+
+### CI enforcement
+
+Two GitHub Actions workflows keep things in sync:
+
+- **`changelog-check.yml`** runs on PRs that touch changelog-related files. It calls `sync-changelog.py --check`, which exits non-zero if the nav files don't match what the entries would generate. If this check fails, run the sync script locally and push the result.
+- **`changelog-sync.yml`** runs on pushes to `main`. If a changelog entry landed without the nav files being regenerated, the action auto-commits the fix. This is a safety net — the PR check should catch drift before merge.
+
 ## Need help?
 
 ### Troubleshooting

@@ -1,0 +1,23 @@
+name: Changelog nav check
+
+on:
+  pull_request:
+    paths:
+      - 'changelog/**'
+      - 'docs.json'
+      - 'merge-queue/changelog.mdx'
+      - 'flaky-tests/changelog.mdx'
+      - 'scripts/sync-changelog.py'
+
+jobs:
+  check-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Check changelog nav is in sync
+        run: python3 scripts/sync-changelog.py --check

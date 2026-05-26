@@ -1,0 +1,37 @@
+name: Changelog nav sync
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'changelog/**'
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run changelog sync
+        run: python3 scripts/sync-changelog.py
+
+      - name: Check for changes
+        id: diff
+        run: |
+          git diff --quiet && echo "changed=false" >> "$GITHUB_OUTPUT" || echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Commit and push
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs.json changelog/index.mdx merge-queue/changelog.mdx flaky-tests/changelog.mdx
+          git commit -m "chore(changelog): sync nav from changelog entries"
+          git push
