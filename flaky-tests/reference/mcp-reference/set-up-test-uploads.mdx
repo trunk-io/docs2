@@ -2,7 +2,7 @@
 title: "Set up test uploads"
 description: "MCP tool reference: setup-trunk-uploads"
 ---
-### Overview
+## Overview
 
 The `setup-trunk-uploads` tool helps configure test result uploads for Trunk Flaky Tests. This tool provides step-by-step instructions tailored to your specific test framework and CI provider combination.
 
@@ -20,13 +20,13 @@ The tool guides you through a 4-step process:
 
 
 
-### Parameters
+## Parameters
 
 <Warning>
 This agent needs to be called **once per test framework** used in your repository. If your repository uses multiple test frameworks (e.g., Jest for frontend, pytest for backend), call this tool once for each framework with the same `ci_provider`.
 </Warning>
 
-#### Required Parameters
+### Required Parameters
 
 | Parameter       | Type   | Description                                                                                                          |
 | --------------- | ------ | -------------------------------------------------------------------------------------------------------------------- |
@@ -36,9 +36,9 @@ This agent needs to be called **once per test framework** used in your repositor
 
 
 
-### Supported values
+## Supported values
 
-#### Test Frameworks
+### Test Frameworks
 
 * `android` - Android testing framework
 * `bazel` - Bazel test runner
@@ -59,7 +59,7 @@ This agent needs to be called **once per test framework** used in your repositor
 * `vitest` - Vitest testing framework
 * `xctest` - Xcode XCTest framework
 
-#### CI Providers
+### CI Providers
 
 * `buildkite` - Buildkite pipelines
 * `circleci` - CircleCI pipelines
@@ -72,21 +72,21 @@ This agent needs to be called **once per test framework** used in your repositor
 
 
 
-### Usage examples
+## Usage examples
 
-#### Basic setup
+### Basic setup
 
 ```
 Use the setup-trunk-uploads tool with testFramework="jest" and ciProvider="github"
 ```
 
-#### With Organization Slug
+### With Organization Slug
 
 ```
 Use the setup-trunk-uploads tool with testFramework="pytest", ciProvider="circleci", and orgSlug="my-company"
 ```
 
-#### Multiple Test Frameworks
+### Multiple Test Frameworks
 
 ```
 Use the setup-trunk-uploads tool with testFramework="jest" and ciProvider="github"
@@ -95,7 +95,7 @@ Use the setup-trunk-uploads tool with testFramework="playwright" and ciProvider=
 
 
 
-### Sample response
+## Sample response
 
 The tool returns detailed setup instructions as plain text:
 
@@ -123,7 +123,7 @@ Add a step to your GitHub Actions workflow to automatically upload test results 
 
 
 
-### Error handling
+## Error handling
 
 | Error                                      | Cause                                         | Resolution                                             |
 | ------------------------------------------ | --------------------------------------------- | ------------------------------------------------------ |

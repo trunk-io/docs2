@@ -2,7 +2,7 @@
 title: "Claude Code (CLI)"
 description: "Add Trunk's MCP Server to Claude Code"
 ---
-### CLI setup
+## CLI setup
 
 Run the following command to add the MCP server configuration. If you want to only enable it for yourself, use `--scope user` instead.
 
@@ -12,7 +12,7 @@ claude mcp add --transport http trunk https://mcp.trunk.io/mcp --scope project
 
 Once completed, reopen Claude Code.
 
-### Alternative: Update MCP configuration
+## Alternative: Update MCP configuration
 
 Add the following [configuration](https://docs.anthropic.com/en/docs/claude-code/mcp) to your project's `.mcp.json` file.
 
@@ -27,7 +27,7 @@ Add the following [configuration](https://docs.anthropic.com/en/docs/claude-code
 }
 ```
 
-### Authentication with OAuth (default)
+## Authentication with OAuth (default)
 
 After the MCP server was added to Claude Code, users need to authorize to communicate with the server. Follow these steps to complete auth.
 
@@ -57,7 +57,7 @@ Authentication successful. Connected to trunk.
 
 **With auth completed, Claude Code will be able to fetch the tools exposed by Trunk's MCP server.**
 
-### Alternative: Authentication with API token
+## Alternative: Authentication with API token
 
 If you are in a CI or headless environment, or prefer not to use the OAuth browser flow, you can authenticate with your Trunk organization API token instead.
 

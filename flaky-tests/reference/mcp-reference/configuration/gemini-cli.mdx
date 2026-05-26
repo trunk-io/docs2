@@ -2,7 +2,7 @@
 title: "Gemini (CLI)"
 description: "Add Trunk's MCP Server to Gemini"
 ---
-### CLI setup
+## CLI setup
 
 Run the following command to add the MCP server configuration. If you want to only enable it for yourself, use `--scope user` instead.
 
@@ -14,7 +14,7 @@ Once completed, reopen Gemini.
 
 
 
-### Alternative: Update MCP configuration
+## Alternative: Update MCP configuration
 
 Add the following [configuration](https://github.com/google-gemini/gemini-cli/blob/v0.1.19/docs/tools/mcp-server.md#oauth-support-for-remote-mcp-servers) to your project's `.gemini/settings.json` file.
 
@@ -30,7 +30,7 @@ Add the following [configuration](https://github.com/google-gemini/gemini-cli/bl
 
 
 
-### Authentication with OAuth (default)
+## Authentication with OAuth (default)
 
 After the MCP server was added to Gemini, users need to authorize to communicate with the server. Follow these steps to complete auth.
 
@@ -68,7 +68,7 @@ Follow instructions to get back to Gemini. A confirmation should be shown:
 
 **With auth completed, Gemini will be able to fetch the tools exposed by Trunk's MCP server.**
 
-### Alternative: Authentication with API token
+## Alternative: Authentication with API token
 
 If you prefer not to use the OAuth flow, you can authenticate with your Trunk organization API token. Find your token under **Settings > API** in the Trunk dashboard.
 
