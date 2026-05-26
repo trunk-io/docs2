@@ -12,13 +12,13 @@ Teams start with whichever problem hurts more, then expand. Caseware cut merge t
 [Schedule time here](https://calendly.com/trunk/demo) or email [support@trunk.io](mailto:support@trunk.io)
 </Accordion>
 
-#### Why This Matters Now
+## Why This Matters Now
 
 You check out `main` on Monday morning, grab your coffee, open a pull request, and CI fails for reasons that have nothing to do with your code. You're reading logs, pinging Slack, trying to figure out who broke what. That happens to every engineer, every day. Continuous delivery means every commit on main is known-good. Every CI failure is yours to fix, not something you inherited.
 
 That problem has existed for years. What makes it urgent now is volume. AI agents are generating 50+ PRs a day, and they hit the same merge queue serialization and flaky test noise that slows humans. Except agents can't context-switch to other work while they wait. Every bottleneck in your CI pipeline that used to cost you hours now costs you days.
 
-### Trunk Flaky Tests
+## Trunk Flaky Tests
 
 At tens of thousands of tests, even a 1% flake rate means false failures on nearly every run. Each flake costs 10 to 15 minutes: the developer waits, reads logs, reruns, confirms it was noise. If your CI target is five-minute PR jobs, every flake doubles or triples that.
 
@@ -28,7 +28,7 @@ On the repair side, we're working with design partners on AI-powered fixing thro
 
 [Full Flaky Tests documentation →](./flaky-tests/overview)
 
-### Trunk Merge Queue
+## Trunk Merge Queue
 
 Traditional merge queues guarantee main stability by testing PRs one at a time. At 100+ PRs/day, that becomes a bottleneck. Monorepos make this easier to solve. If you have mobile, frontend, and backend code in the same repo, those PRs can test and merge independently because they don't touch the same targets. Linear merge queues don't know that. They put everything in one line.
 
@@ -38,16 +38,16 @@ Validated at 250+ PRs/hour sustained over 24 hours. Peaked at 300+ simultaneous 
 
 [Full Merge Queue documentation →](./merge-queue/merge-queue)
 
-### How They Work Together
+## How They Work Together
 
 Without flaky test handling, a merge queue backs up every time a test becomes unreliable. One recurring flake means batches fail, need re-isolation, and the queue goes serial again. With both products running, flakes get quarantined by failure mode so CI stays clean, parallel mode and batching keep the queue moving, and anti-flake protection in the queue catches what slips through.
 
-#### Trusted by
+## Trusted by
 
 <img className="block dark:hidden" src="/assets/4x2_Logos_(Light-NoBG).png" alt="" />
 <img className="hidden dark:block" src="/assets/4x2_Logos_(Dark-NoBG).png" alt="" />
 
-#### Works With Your Stack
+## Works With Your Stack
 
 * **CI providers**: Works with any CI provider. Common setups include GitHub Actions, GitLab CI, Jenkins, BuildKite, CircleCI, and Azure DevOps. Integrates via CLI that uploads test results from existing pipelines.
 * **Languages**: Works with any language. We analyze test output formats, not source code, so there's nothing language-specific to configure.
@@ -55,7 +55,7 @@ Without flaky test handling, a merge queue backs up every time a test becomes un
 * **Build systems**: Bazel, Nx, Gradle with native impacted-target calculation. API for custom build systems.
 * **Integrations**: Full APIs for both products, webhooks with Svix transformations, CLI for local and CI use, Slack notifications, Jira and Linear ticket creation. [API documentation →](./setup-and-administration/apis/)
 
-#### Why Teams Choose Trunk
+## Why Teams Choose Trunk
 
 **vs. GitHub native merge queue, Bors, Mergify.** Sequential by design. No parallel lane logic, no flake protection, no batching with bisection.
 
@@ -63,7 +63,7 @@ Without flaky test handling, a merge queue backs up every time a test becomes un
 
 **vs. building in-house.** Merge queues at scale need parallel graph computation, bisection, and robust GitHub API orchestration. Flaky test detection at 50k+ tests needs real-time ETL, embeddings, and classification. If the engineers who built your internal system leave, you're maintaining deployment-path infrastructure without the knowledge to fix it.
 
-#### Getting Started
+## Getting Started
 
 Most teams schedule a 30-minute call before integrating. We help plan for security reviews, understand your CI architecture, and flag common gotchas.
 
@@ -76,7 +76,7 @@ Or explore on your own: [Create a Trunk account →](https://app.trunk.io/signup
 
 We set up a direct Slack Connect channel with our engineers for your team. Feature requests, debugging, planning. Not a vendor you file tickets with.
 
-#### Security & Compliance
+## Security & Compliance
 
 SOC 2 Type II certified. TLS/HSTS in transit, AES-256 at rest. AWS-hosted in U.S. data centers with private VPCs. MFA, least privilege, access logging. Regular vulnerability scans, annual third-party pen tests. 45-day test result retention. We don't access your source code, secrets, environment variables, or customer data. [Request SOC 2 report](mailto:security@trunk.io).
 
@@ -84,7 +84,7 @@ SOC 2 Type II certified. TLS/HSTS in transit, AES-256 at rest. AWS-hosted in U.S
 **Want to see how it works? Have questions?** [**Schedule time here**](https://calendly.com/trunk/demo) **or email** [**support@trunk.io**](mailto:support@trunk.io)
 </Info>
 
-#### Learn More
+## Learn More
 
 <Columns cols={2}>
   <Card

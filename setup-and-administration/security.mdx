@@ -4,9 +4,9 @@ description: "The security and privacy of your Trunk Platform usage"
 ---
 At Trunk, we prioritize the security and privacy of your data. Here's how we protect your information when using Trunk Merge Queue and Flaky Tests.
 
-### What data we access
+## What data we access
 
-#### Merge Queue
+### Merge Queue
 
 Trunk Merge Queue integrates with your GitHub repository via our GitHub App to safely automate code merging. Here's what we access:
 
@@ -20,7 +20,7 @@ Trunk Merge Queue integrates with your GitHub repository via our GitHub App to s
 * We do not clone or store your entire codebase
 * Your source code remains in your GitHub repository
 
-#### Flaky Tests
+### Flaky Tests
 
 Flaky Tests works by uploading test results from your CI jobs to Trunk's backend for analysis. Here's what we collect:
 
@@ -50,9 +50,9 @@ Flaky Tests works by uploading test results from your CI jobs to Trunk's backend
 
 **Data retention:** Test results and analytics data are retained for 45 days to provide historical flakiness analysis and trends over time.
 
-### How we protect your data
+## How we protect your data
 
-#### Infrastructure Security
+### Infrastructure Security
 
 * **Hosting**: All services are hosted on Amazon Web Services (AWS) in physically secure, U.S.-based data centers with 24/7 on-site security and access monitoring
 * **Encryption in transit**: All data transmitted to and from Trunk uses TLS (Transport Layer Security) and HSTS
@@ -60,7 +60,7 @@ Flaky Tests works by uploading test results from your CI jobs to Trunk's backend
 * **Network isolation**: Production services run in isolated AWS VPCs with restricted access; all services are within private subnets with no internet access and use a network gateway to permit specific traffic
 * **Clickjacking protection**: All Trunk app pages set `Content-Security-Policy: frame-ancestors 'self'` and `X-Frame-Options: SAMEORIGIN`, preventing Trunk pages from being embedded in external iframes
 
-#### Access Controls
+### Access Controls
 
 * **Authentication**: Multi-factor authentication (MFA) required for access to sensitive systems and applications
 * **Principle of least privilege**: Access to customer data is limited to authorized personnel with business need
@@ -69,16 +69,16 @@ Flaky Tests works by uploading test results from your CI jobs to Trunk's backend
 * **Access reviews**: User access is reviewed annually to ensure appropriate permissions
 * **Immediate revocation**: System access is revoked within one business day of employee termination
 
-#### Security Monitoring & Testing
+### Security Monitoring & Testing
 
 * **Continuous monitoring**: Automated logging and alerting for security events; alerts are sent to appropriate personnel and corrective actions are performed as necessary
 * **Vulnerability scanning**: Quarterly automated vulnerability scans to identify and remediate security issues
 * **Penetration testing**: Annual third-party penetration tests using industry-standard methodologies
 * **Incident response**: Formal incident response plan with defined procedures for security events
 
-### Compliance & Auditing
+## Compliance & Auditing
 
-#### SOC 2 Type II Certified
+### SOC 2 Type II Certified
 
 Trunk maintains **SOC 2 Type II compliance**, demonstrating our commitment to:
 
