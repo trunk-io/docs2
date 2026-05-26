@@ -9,7 +9,7 @@ Your merge experience directly impacts the velocity and productivity of your dev
 ![Health tab of the Trunk web app showing a Conclusion Counts stacked bar chart and a Time in Queue p50 line chart over a 30-day range](/assets/merge-health.png)
 </Frame>
 
-### Access metrics
+## Access metrics
 
 You can access the metrics in your Trunk Merge Queue by navigating to the **Merge Queue** > **Health** tab.
 
@@ -17,7 +17,7 @@ You can access the metrics in your Trunk Merge Queue by navigating to the **Merg
 CI Time and CI Jobs Triggered charts are only available for **GitHub Actions**.
 </Info>
 
-### Filter Metrics by Impacted Targets
+## Filter Metrics by Impacted Targets
 
 When running in Parallel Mode, you can filter your merge queue health metrics by impacted targets to analyze performance for specific parts of your codebase.
 
@@ -25,7 +25,7 @@ When running in Parallel Mode, you can filter your merge queue health metrics by
 ![Health dashboard filtered by PR Conclusion: Failed and Impacted Targets: //trunk/all-ts:node_modules/@trunkio, showing a single failure bar and a p50 Time in Queue line](/assets/1768426992-impacted-target-filtering.avif)
 </Frame>
 
-#### Why Filter by Impacted Targets?
+### Why Filter by Impacted Targets?
 
 In repositories with multiple teams or distinct components (like a TypeScript/Python monorepo), different parts of your codebase may have different merge characteristics. Filtering by impacted targets helps you:
 
@@ -35,7 +35,7 @@ In repositories with multiple teams or distinct components (like a TypeScript/Py
 * **Demonstrate value** - Show engineering leadership how parallel mode benefits specific teams or projects
 * **Check fairness** - Verify that all teams experience similar queue performance
 
-#### How to Use the Filter
+### How to Use the Filter
 
 1. Navigate to **Merge Queue** > your repository > **Health** tab in the Trunk web app
 2. Locate the **Impacted Targets** filter dropdown at the top of the metrics dashboard
@@ -44,35 +44,25 @@ In repositories with multiple teams or distinct components (like a TypeScript/Py
    * **Specific target names** - Shows metrics only for PRs affecting that target (e.g., `frontend`, `backend`, `//services/api`)
 4. All charts and metrics on the page will update to reflect only PRs impacting the selected targets
 
-#### Understanding the Data
+### Understanding the Data
 
-**Impacted targets are set when a PR enters the queue**
+**Impacted targets are set when a PR enters the queue.** Each PR's impacted targets are calculated based on which files changed and which parts of your codebase are affected. For details on how impacted targets are computed, see [Parallel Queues - Impacted Targets](../optimizations/parallel-queues/#posting-impacted-targets-from-your-pull-requests).
 
-Each PR's impacted targets are calculated based on which files changed and which parts of your codebase are affected. For details on how impacted targets are computed, see [Parallel Queues - Impacted Targets](../optimizations/parallel-queues/#posting-impacted-targets-from-your-pull-requests).
+**PRs can affect multiple targets.** A PR that changes both frontend and backend code will be counted in metrics when filtering by either `frontend` OR `backend`. This means the numbers may not sum to 100% when viewing multiple target filters separately.
 
-**PRs can affect multiple targets**
+**"All Targets" shows aggregate performance.** Selecting "All Targets" displays metrics for every PR, regardless of which targets it impacts. This is the default view and shows overall queue health.
 
-A PR that changes both frontend and backend code will be counted in metrics when filtering by either `frontend` OR `backend`. This means the numbers may not sum to 100% when viewing multiple target filters separately.
+### Requirements
 
-**"All Targets" shows aggregate performance**
+**Parallel Mode must be enabled.** Impacted target filtering is only available when your merge queue is running in Parallel Mode. Repositories in Single Mode do not track impacted targets.
 
-Selecting "All Targets" displays metrics for every PR, regardless of which targets it impacts. This is the default view and shows overall queue health.
-
-#### Requirements
-
-**Parallel Mode must be enabled**
-
-Impacted target filtering is only available when your merge queue is running in Parallel Mode. Repositories in Single Mode do not track impacted targets.
-
-**Impacted targets must be uploaded**
-
-Your CI workflow must calculate and upload impacted targets for each PR. See the Parallel Queues documentation for setup instructions using:
+**Impacted targets must be uploaded.** Your CI workflow must calculate and upload impacted targets for each PR. See the Parallel Queues documentation for setup instructions using:
 
 * Bazel
 * Nx
 * Custom build systems
 
-### Time buckets
+## Time buckets
 
 The date ranges selector at the top left of the dashboard allows you to filter the data displayed by date and time. You can display time buckets by the day or hour in the day/hour dropdown.
 
@@ -82,7 +72,7 @@ The metrics displayed only include data that have **completed within the time ra
 When working across multiple time zones, enable **Time in UTC** so everyone sees the same data.
 </Info>
 
-### Conclusion count
+## Conclusion count
 
 Conclusion count displays the number of pull requests that exited the merge queue during each time bucket. This includes passes, failures, and cancellations. Passes and failures signal a PR that was tested in the queue to completion, while canceled signals that the request to merge terminated before testing finished or before testing began.
 
@@ -110,7 +100,7 @@ Conclusions are tagged with a reason to give further insights into how merges pa
 | 🚫 Cancel | PR base branch changed | Base branch of PR in the merge queue changed |
 | 🚫 Cancel | Admin requested | Trunk employee canceled PR during a support session (extreme cases) |
 
-### Time in queue
+## Time in queue
 
 Time in queue shows how long each PR spends in the Merge Queue from the moment the PR enters the queue to the moment when it exits the queue, either from merging, failing, or being canceled.
 
@@ -128,11 +118,11 @@ The time in queue can be displayed as different statistical measures. You can sh
 | P95     | The value below 95% of the time in queue falls.     |
 | P99     | The value below 99% of the time in queue falls.     |
 
-### Drill down into metrics
+## Drill down into metrics
 
 From the **Conclusion count** and **Time in queue** charts, you can drill into any point or window on the graph to see the exact pull requests that made up those numbers.
 
-#### Why Drill Down?
+### Why Drill Down?
 
 Aggregated charts tell you _that_ something happened — drilling down tells you _which PRs_ caused it. This makes it easy to:
 
@@ -141,7 +131,7 @@ Aggregated charts tell you _that_ something happened — drilling down tells you
 * **Audit a time window** — pull the full list of PRs merged, failed, or canceled during an incident window or release cut.
 * **Answer one-off questions** — "which PRs merged between 2pm and 4pm yesterday?" without writing a query against the Prometheus endpoint.
 
-#### Select Data Points
+### Select Data Points
 
 You have two ways to select:
 
@@ -156,7 +146,7 @@ Once a selection is made, a **View PRs** button appears. Click it to open the li
 
 To pick a different window, drag a new selection. To clear the selection, change the time range, time bucket, or **Time in UTC** setting at the top of the dashboard.
 
-#### Review the PR List
+### Review the PR List
 
 The PR list page shows every PR included in your selection, along with:
 
@@ -178,7 +168,7 @@ Drill down and range selection are currently available on the Conclusion count a
 
 ***
 
-### Prometheus metrics endpoint
+## Prometheus metrics endpoint
 
 Trunk exposes merge queue metrics in [Prometheus text exposition format](https://prometheus.io/docs/instrumenting/exposition_formats/) via a scrapable API endpoint. Use this to build custom Grafana dashboards, set up alerts, or integrate merge queue health into your existing observability stack.
 
@@ -186,7 +176,7 @@ Trunk exposes merge queue metrics in [Prometheus text exposition format](https:/
 The Prometheus metrics endpoint is available to all Merge Queue users.
 </Info>
 
-#### Endpoint
+### Endpoint
 
 ```
 GET https://api.trunk.io/v1/getMergeQueueMetrics
@@ -203,7 +193,7 @@ Authenticate with your [Trunk API token](../../setup-and-administration/apis/#au
 
 The response uses content type `text/plain; version=0.0.4; charset=utf-8` (standard Prometheus format).
 
-#### Available metrics
+### Available metrics
 
 All metrics include these labels:
 
@@ -213,9 +203,7 @@ All metrics include these labels:
 | `branch` | Base branch name | `main`, `develop` |
 | `queue_type` | Queue type | `main` or `bisection` |
 
-##### Point-in-time gauges
-
-These metrics reflect the current state of your merge queue.
+**Point-in-time gauges** reflect the current state of your merge queue.
 
 | Metric | Type | Description |
 | --- | --- | --- |
@@ -223,9 +211,7 @@ These metrics reflect the current state of your merge queue.
 | `mq_awaiting_mergeability` | Gauge | Number of PRs waiting for prerequisites like required reviews or status checks |
 | `mq_testing_slots_active` | Gauge | Number of PRs currently in TESTING state (active CI slots in use) |
 
-##### Rolling 1-hour window metrics
-
-These metrics summarize activity over a sliding 1-hour window. They update continuously as the window advances.
+**Rolling 1-hour window metrics** summarize activity over a sliding 1-hour window. They update continuously as the window advances.
 
 | Metric | Type | Extra labels | Description |
 | --- | --- | --- | --- |
@@ -243,7 +229,7 @@ For clarity, PRs in the "Waiting to Enter Queue" state (submitted to the queue b
 Rolling window metrics use **gauge semantics**, not true Prometheus counters. They represent a snapshot of the last hour, not cumulative totals. PromQL functions like `rate()` and `increase()` are **not meaningful** on these metrics. Use the values directly instead.
 </Warning>
 
-#### Scrape configuration
+### Scrape configuration
 
 Configure your Prometheus instance to scrape the Trunk metrics endpoint:
 
@@ -265,7 +251,7 @@ scrape_configs:
 
 To scrape metrics for all repositories in your organization, omit both the `repo` and `repoHost` parameters.
 
-#### Datadog Agent configuration
+### Datadog Agent configuration
 
 You can ingest Trunk merge queue metrics into Datadog using the Datadog Agent's built-in [OpenMetrics integration](https://docs.datadoghq.com/integrations/openmetrics/). This lets Datadog scrape the Prometheus endpoint directly without requiring a separate Prometheus server.
 
@@ -307,7 +293,7 @@ sudo -u dd-agent -- datadog-agent check openmetrics
 All metrics are prefixed with your configured `namespace` value. For example, `mq_depth_current` becomes `trunk_merge_queue.mq_depth_current` in Datadog.
 </Info>
 
-#### Example queries
+### Example queries
 
 **Queue health alerts:**
 
@@ -347,7 +333,7 @@ mq_pr_wait_duration_1h_seconds_sum / mq_pr_wait_duration_1h_seconds_count
 mq_pr_restarts_1h_total / mq_pr_conclusions_1h_total{conclusion="merged"}
 ```
 
-#### Sample output
+### Sample output
 
 ```
 # HELP mq_depth_current PRs currently in the queue
