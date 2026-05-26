@@ -61,6 +61,45 @@ Another reason to restart a PR is if the proper tests don't get kicked off due t
 
 ***
 
+### Failure reason reference
+
+When Trunk drops a PR, it records a failure reason that appears in the Trunk Dashboard and in API responses. Use the tables below to understand what happened and how to recover.
+
+**Test and CI failures.** These indicate that something went wrong during the test run itself.
+
+| Failure reason | What it means | What to do |
+|---|---|---|
+| `TEST_RUN_REQUIRED_STATUS_FAILED` | A required CI status check failed during the test run. | Check the CI logs for the failing check. Fix the underlying test or code issue and re-queue the PR. |
+| `TEST_RUN_TIMEOUT` | The test run exceeded the configured timeout threshold. | Investigate why tests are running longer than expected. If the timeout is too short, adjust it in your Trunk configuration. Re-queue the PR once resolved. |
+| `TEST_RUN_FAILED_BY_OPTIMIZATION` | Trunk's optimization strategy (such as parallel testing or bisection) determined this PR caused a failure. | Check the test results to identify which tests failed. Fix the issue and re-queue the PR. |
+
+**Configuration issues.** These mean Trunk could not start a test run because of a problem with your configuration.
+
+| Failure reason | What it means | What to do |
+|---|---|---|
+| `START_TEST_RUN_CONFIG_PARSING_FAILURE` | Trunk could not parse your configuration file. | Check your `.trunk/trunk.yaml` for syntax errors. Fix the config and re-queue the PR. |
+| `START_TEST_RUN_CONFIG_BAD_VERSION` | Your Trunk configuration file specifies an unsupported version. | Update the `version` field in `.trunk/trunk.yaml` to a supported value. |
+| `START_TEST_RUN_CONFIG_BAD_REQUIRED_STATUSES` | The required status checks in your configuration are invalid. | Review the `required_statuses` in your Trunk config and ensure they match actual CI job names. |
+| `START_TEST_RUN_NO_REQUIRED_STATUSES` | No required status checks were found. Trunk needs at least one status check to validate a PR. | Add required status checks to your Trunk configuration or verify that your CI is reporting statuses correctly. |
+
+**GitHub and infrastructure.** These are usually transient issues with GitHub's API.
+
+| Failure reason | What it means | What to do |
+|---|---|---|
+| `GITHUB_API_MERGE_PR_FAILED` | The GitHub API call to merge the PR failed. This is usually a transient GitHub issue. | Re-queue the PR. If the problem persists, check [GitHub's status page](https://www.githubstatus.com/) and verify your repository's branch protection settings. |
+| `GITHUB_API_DIRECT_MERGE_PR_FAILED` | The GitHub API call to directly merge (squash or rebase) the PR failed. | Re-queue the PR. If it persists, check GitHub's status and your merge method settings in the repository. |
+| `GITHUB_API_RATE_LIMIT_EXCEEDED` | Trunk hit GitHub's API rate limit while processing this PR. This is a temporary condition. | Re-queue the PR. Trunk will retry normally once the rate limit window resets (typically within an hour). If this happens repeatedly, contact [support@trunk.io](mailto:support@trunk.io). |
+
+**PR state and timing.** These occur when the PR's state changed in a way that prevents Trunk from proceeding.
+
+| Failure reason | What it means | What to do |
+|---|---|---|
+| `START_TEST_RUN_MERGE_CONFLICT` | The PR has merge conflicts that prevent Trunk from creating a test branch. | Rebase or merge the target branch into your PR to resolve conflicts, then re-queue. |
+| `START_TEST_RUN_RETRY_EXHAUSTED` | Trunk retried starting the test run multiple times and all attempts failed. | Check for persistent infrastructure issues or configuration problems. Fix the underlying cause and re-queue. |
+| `START_TEST_RUN_DRAFT_PRS_NOT_ALLOWED` | Draft PRs are not permitted to enter the merge queue. | Mark the PR as ready for review, then re-queue it. |
+| `PR_UPDATED_AT_MERGE_TIME` | The PR was updated (new commits pushed) while Trunk was attempting to merge it. | Re-queue the PR. Trunk needs a stable PR to merge safely. |
+
+***
 ## Failures
 
 A tabulated view of all the items that have failed in the Merge Queue, e.g. due to testing.
