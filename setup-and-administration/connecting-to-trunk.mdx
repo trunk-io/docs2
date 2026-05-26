@@ -31,7 +31,18 @@ If your team is already on Trunk and you're looking to join an existing organiza
 
 After connecting to Trunk, you're ready to get started.
 
-## Next steps
+### Direct product links
+
+You can link directly to a product without knowing your organization slug. These shortcuts route you to the product page for your current organization, or prompt you to pick one if you have not yet selected an organization:
+
+| Shortcut | Destination |
+| --- | --- |
+| [`app.trunk.io/merge-queue`](https://app.trunk.io/merge-queue) | Merge Queue |
+| [`app.trunk.io/flaky-tests`](https://app.trunk.io/flaky-tests) | Flaky Tests |
+
+Query parameters are preserved through the redirect, so links like `app.trunk.io/flaky-tests?tab=history` land on the right view. Use these shortcuts when sharing links in docs, issues, or chat where the recipient's organization slug is unknown.
+
+### Next steps
 
 <Columns cols={2}>
   <Card
