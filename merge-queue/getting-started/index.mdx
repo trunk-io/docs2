@@ -58,9 +58,7 @@ The merge queue needs specific GitHub permissions to function. Follow the [Branc
 **Without proper branch protection configuration, the merge queue will not work.** You may see errors like "Permission denied on `trunk-merge/*` branch" or PRs will remain stuck in "Queued" state.
 </Warning>
 
-#### Optional: Enforce Merge Queue-Only Merges
-
-If you want your organization to merge _exclusively_ through the merge queue:
+**Optional: enforce Merge Queue-only merges.** If you want your organization to merge _exclusively_ through the merge queue:
 
 * Restrict who can push to your protected branch (e.g., main).
 * Then allow the Trunk GitHub App as the only actor permitted to push to that branch.
@@ -86,7 +84,7 @@ You can submit a PR to the merge queue at any time, even before CI checks pass o
 
 3. You can check the PR in the [Trunk Dashboard](https://app.trunk.io/) - once your PR passes all required checks, it will move from 'Queued' to 'Testing'. The merge queue will then test it again with changes ahead of it in the queue. When those tests pass, it will automatically merge.
 
-#### Troubleshooting common issues
+**Troubleshooting common issues.**
 
 <Info>
 Visit [Trunk Support](../../setup-and-administration/support) for additional assistance or to contact the support team.

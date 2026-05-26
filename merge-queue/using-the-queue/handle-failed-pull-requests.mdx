@@ -2,11 +2,11 @@
 title: "Handle failed pull requests"
 description: "Understand why PRs fail in the merge queue and how to fix and resubmit them."
 ---
-### Understanding failures
+## Understanding failures
 
 When a PR fails in the merge queue, it's automatically removed so it doesn't block other PRs. Understanding why it failed helps you fix it quickly.
 
-#### Why PRs fail in the queue
+### Why PRs fail in the queue
 
 **Legitimate test failures (most common):**
 
@@ -42,7 +42,7 @@ When a PR fails in the merge queue, it's automatically removed so it doesn't blo
 * Your branch needs to be rebased
 * Files were moved or renamed
 
-### Manually restarting failed pull requests
+## Manually restarting failed pull requests
 
 The PR Details panel has a dropdown "**Actions"** menu, where you can:
 
@@ -69,7 +69,7 @@ A tabulated view of all the items that have failed in the Merge Queue, e.g. due 
 ![](/assets/merge-failures.png)
 </Frame>
 
-### Retry failed pull requests
+### Retry failed pull requests from the Failures tab
 
 When a PR has been dropped from the queue, you can manually retry the PR by clicking the **Details** link in the Failures summary screen to open the merge details screen. Then, click the **Actions** dropdown, and select **Retry**
 

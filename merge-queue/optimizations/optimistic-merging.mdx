@@ -2,7 +2,7 @@
 title: "Optimistic merging"
 description: "Merge PRs faster by using passing test results from later PRs in the queue to validate earlier ones."
 ---
-### What it is
+## What it is
 
 Optimistic merging allows pull requests that fail tests to still get merged if pull requests behind them in the queue pass _their_ tests. The assumption is that the queue has proof that while one specific PR might fail tests, it passes them when combined with a pull request that is going to merge soon behind it.
 
@@ -16,14 +16,14 @@ With optimistic merging enabled, the queue uses results from pull requests later
 
 
 
-### Why use it
+## Why use it
 
 * **Eliminate idle time** - The queue doesn't sit idle waiting for merges to complete. As soon as a PR enters the "merging" phase, the next PR begins testing. Result: 20-30% reduction in average PR wait time.
 * **Increase throughput** - More PRs can be in-flight simultaneously. Queues using optimistic merging process 1.5-2x more PRs per hour compared to sequential testing.
 * **Faster time-to-production** - PRs merge faster because they don't wait for the previous PR to fully complete. What used to take 30 minutes might now take 20 minutes.
 * **Better resource utilization** - Your CI infrastructure isn't sitting idle between tests. Continuous testing means more efficient use of your CI capacity.
 
-### How to enable
+## How to enable
 
 <Info>
 Optimistic merging is **disabled by default** and should be enabled after you're confident in your basic queue setup.
@@ -31,7 +31,7 @@ Optimistic merging is **disabled by default** and should be enabled after you're
 
 Enable Optimistic merging in **Settings** > **Repositories** > your repository > **Merge Queue** > toggle **On** **Optimistic Merge Queue**.
 
-#### Verify it's working
+### Verify it's working
 
 After enabling, watch your queue:
 
@@ -41,26 +41,26 @@ After enabling, watch your queue:
 
 **Start conservative:** Enable optimistic merging after you've validated basic queue functionality. Don't enable it on day one.
 
-### Tradeoffs and considerations
+## Tradeoffs and considerations
 
 The downsides here are very limited. You essentially give up the proof that every pull request in complete isolation can safely be merged into your protected branch.&#x20;
 
 In the unlikely case that you have to revert a change from your protected branch, you will need to retest that revert or submit it to the queue to make sure nothing has broken. In practice, this re-testing is required in almost any case, regardless of how it was originally merged, and the downsides are fairly limited.
 
-#### What you gain
+### What you gain
 
 * **faster average merge time** - Less idle time between tests
 * **higher throughput** - More PRs processing simultaneously
 * **Better CI utilization** - Continuous testing instead of start-stop
 * **Faster incident response** - Critical PRs merge quicker
 
-#### What you give up or risk
+### What you give up or risk
 
 * **Wasted CI on retests (rare)** - If an optimistically-tested PR needs to retest, you've used some CI resources unnecessarily
 * **More complex queue state** - Multiple PRs in "testing" can be confusing initially
 * **Requires stable tests** - Flaky tests cause more retests with optimistic merging
 
-#### When NOT to use optimistic merging
+### When NOT to use optimistic merging
 
 Don't enable optimistic merging if:
 
@@ -69,7 +69,7 @@ Don't enable optimistic merging if:
 * **You're still learning the queue** - Get comfortable with basic functionality first
 * **Your merges frequently fail** - If PRs often fail during merge (not testing), optimistic assumptions will be wrong often
 
-#### Best practices
+### Best practices
 
 **Start without it:** Use Trunk Merge Queue for a week or two before enabling optimistic merging. Understand normal flow first.
 
@@ -81,7 +81,7 @@ Don't enable optimistic merging if:
 * [Predictive testing](./predictive-testing) - Required foundation for optimistic merging
 * [Anti-flake protection](/merge-queue/optimizations/anti-flake-protection) - Reduces unnecessary retests
 
-#### Common misconceptions
+### Common misconceptions
 
 * **Misconception:** "Optimistic merging is risky - it might merge broken code"&#x20;
   * **Reality:** No! Trunk still requires all tests to pass. Optimistic merging only affects _when_ testing starts, not _whether_ testing happens. Safety is never compromised.
@@ -90,7 +90,7 @@ Don't enable optimistic merging if:
 * **Misconception:** "I should enable every optimization immediately"&#x20;
   * **Reality:** Start with just predictive testing. Add batching once stable. Add optimistic merging last. Build confidence in each layer.
 
-### Next Steps
+## Next Steps
 
 **Before enabling optimistic merging:**
 

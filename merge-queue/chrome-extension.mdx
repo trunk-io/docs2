@@ -26,7 +26,7 @@ The Trunk Chrome Extension overlays merge queue controls and status onto your no
 
 When you are not signed in to Trunk, the extension toolbar icon shows a lock badge. On any pull request page in a queue-enabled repository, a **Sign in to Trunk** row appears in place of the normal merge queue panel, reminding you to sign in before queue controls become available.
 
-### Submit a pull request to the queue
+## Submit a pull request to the queue
 
 On any pull request in a queue-enabled repository, the extension adds a **Merge Queue** panel replacing GitHub's native merge controls.
 
@@ -37,14 +37,14 @@ On any pull request in a queue-enabled repository, the extension adds a **Merge 
 
 Submission goes through the same backend as the `/trunk merge` comment and the Trunk web app, so behavior is identical. See [Submit and cancel pull requests](./using-the-queue/reference) for the full lifecycle.
 
-### Remove a pull request from the queue
+## Remove a pull request from the queue
 
 If a PR is already in the queue, the panel shows a **Cancel** action.
 
 1. Click **Cancel** in the Trunk panel on the PR page.
 2. The PR is removed from the queue immediately, the same as running `/trunk cancel`.
 
-### Track testing progress
+## Track testing progress
 
 Once a PR is in the queue, the extension panel updates in real time as it moves through each state:
 
@@ -54,7 +54,7 @@ Once a PR is in the queue, the extension panel updates in real time as it moves 
 - **Tests Passed** - waiting for upstream PRs before merging
 - **Merged**, **Failed** - terminal states
 
-### Automatic bot comment hiding
+## Automatic bot comment hiding
 
 On pull requests managed by Trunk, the extension automatically hides Trunk bot comments that prompt you to submit a PR to the merge queue. These comments (from the `trunk-io`bot account) contain text like "To merge this pull request, check the box" or include a `/merge-queue/` link.
 
@@ -62,11 +62,11 @@ Because the extension adds its own in-page merge queue panel, these bot comments
 
 The hiding is applied only on PR pages where the extension overlay is active. Comments from other bot accounts and non-merge-queue Trunk comments are not affected.
 
-### Rolling the Extension out to an entire Org
+## Rolling the Extension out to an entire Org
 
 Chrome admins can install the Trunk extension for everyone in a Google Workspace organization using the [Chrome Web Store ID](https://chromewebstore.google.com/detail/liggeliamkammmieidmmfmmdnjilabgn) `liggeliamkammmieidmmfmmdnjilabgn`. See Google's [Automatically install apps and extensions](https://support.google.com/chrome/a/answer/6306504?hl=en) guide for the admin console steps.
 
-### Authentication and security
+## Authentication and security
 
 The extension does **not** ask you for credentials, API tokens, or a separate password. It authenticates by reusing your existing browser session at [app.trunk.io](https://app.trunk.io/) — the same session you already use for the Trunk web app.
 
@@ -76,7 +76,7 @@ The extension does **not** ask you for credentials, API tokens, or a separate pa
 - **Scoped to GitHub PR pages.** The content script runs on `github.com` pull request URLs so it can render the overlay; it does not read or transmit page contents beyond the repository and PR identifiers needed to query the Trunk API.
 - **Same transport guarantees as the rest of Trunk.** All extension traffic to Trunk uses TLS, and your data is handled per the [Trunk Security policy](../setup-and-administration/security).
 
-### Frequently asked questions
+## Frequently asked questions
 
 <AccordionGroup>
   <Accordion title="Do I need to setup anything besides the extension?" defaultOpen>

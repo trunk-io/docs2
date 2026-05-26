@@ -8,11 +8,11 @@ Emergency merges bypass the queue entirely and push directly to your main branch
 **Warning:** Emergency merges bypass all safety checks. Use sparingly.
 </Danger>
 
-### **Emergency bypass**
+## **Emergency bypass**
 
 If you need to completely bypass the merge queue, you can merge the PR directly through GitHub as you normally would. The merge queue will restart everything currently testing to account for the new head of the merge branch. However, this means your emergency PR won't be validated by the merge queue's predictive testing.
 
-#### **Recommended approach**
+### **Recommended approach**
 
 Use [PR Prioritization](../optimizations/priority-merging) to fast-track your PR through the queue while still validating it:
 
@@ -22,6 +22,6 @@ Use [PR Prioritization](../optimizations/priority-merging) to fast-track your PR
 
 The `urgent` priority is the only level that will interrupt currently testing PRs. Your PR will immediately begin testing, and other PRs will restart after yours completes.
 
-#### See also
+### See also
 
 If the blocker is branch protection (not the queue) — for example, a broken required status check — admins can use [Force merge](./force-merge) instead. Force merge still goes through the queue and still tests the PR; only the branch protection gate is bypassed at merge time.

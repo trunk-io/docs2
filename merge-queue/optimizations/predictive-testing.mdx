@@ -2,13 +2,13 @@
 title: "Predictive testing"
 description: "Test PRs against the projected future state of your main branch to catch conflicts before they reach production."
 ---
-### What it is
+## What it is
 
 Trunk Merge Queue tests pull requests against the projected future state of your main branch, not just the current state.&#x20;
 
 This means when multiple PRs are in the queue, each PR is tested as if all the PRs ahead of it have already been merged. This prevents "queue collapse" - where PRs pass tests individually but fail when merged together.
 
-### Why use it
+## Why use it
 
 Normally, pull requests are tested against a snapshot of the head of `main` when the pull request is posted to your source control provider. This can mean that by the time the pull request is actually merged - the results of the automated testing are **stale**.
 
@@ -16,7 +16,7 @@ When you merge a pull request with stale results, you are effectively merging in
 
 
 
-### What's Happening? The "Happy Path"
+## What's Happening? The "Happy Path"
 
 This example shows how pull requests (PRs) are tested in a queue. PR `B` is tested with the changes from `A`, and `C` is tested with the changes from both `A` and `B`.
 
@@ -28,7 +28,7 @@ This example shows how pull requests (PRs) are tested in a queue. PR `B` is test
 
 <table><thead><tr><th width="331">What's Happening?</th><th>Queue</th></tr></thead><tbody><tr><td><strong>A</strong> begins testing</td><td><code>main</code> &#x3C;- <mark style={{backgroundColor: 'orange'}}><strong>A</strong></mark></td></tr><tr><td><strong>B</strong> begins predictive testing by including the changes in <strong>A</strong></td><td><code>main</code> &#x3C;- <strong>A</strong> &#x3C;- <mark style={{backgroundColor: 'orange'}}><strong>B</strong>+a</mark> &#x3C;- <strong>C</strong>+ba</td></tr><tr><td><strong>C</strong> begins predictive testing by including the changes in both <strong>A</strong> and B</td><td><code>main</code> &#x3C;- <strong>A</strong> &#x3C;- <strong>B+a</strong> &#x3C;- <mark style={{backgroundColor: 'orange'}}><strong>C</strong>+ba</mark></td></tr><tr><td>as testing completes - pull requests can merge safely</td><td><code>merge</code> <strong>A</strong>, <strong>B</strong>, <strong>C</strong></td></tr></tbody></table>
 
-### The "Unhappy Path": How the Queue Handles Test Failures
+## The "Unhappy Path": How the Queue Handles Test Failures
 
 Predictive testing is effective, but it creates a new challenge: **failure cascades**.
 
@@ -38,7 +38,7 @@ A simple queue would kick `B` and `C` as soon as their tests failed. This would 
 
 This is solved by **Pending Failure**.
 
-#### How Pending Failure Works
+### How Pending Failure Works
 
 The main purpose of "pending failure" is to **minimize disruptions to the queue** by intelligently finding the _**true**_ source of a failure.
 

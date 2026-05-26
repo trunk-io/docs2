@@ -2,7 +2,7 @@
 title: "Anti-flake protection"
 description: "Combine optimistic merging and pending failure depth to prevent flaky test failures from blocking the merge queue."
 ---
-### What it is
+## What it is
 
 Some CI jobs fail for reasons unrelated to a PR's code change, such as due to [flaky tests](https://trunk.io/blog/the-ultimate-guide-to-flaky-tests) or a CI runner disconnecting. These failures are usually cleared when the CI job is rerun. If a second PR that depends on the first **does** pass, it is very likely that the first PR was good and experienced a transient failure.&#x20;
 
@@ -27,14 +27,14 @@ In the video below, you can see an example of this anti-flake protection:
 Optimistic Merging only works when the [Pending Failure Depth](./anti-flake-protection#pending-failure-depth) is set to **a value greater than zero**. When zero or disabled, Merge will not hold any failed tests in the queue.
 </Info>
 
-### Why use it
+## Why use it
 
 * **Eliminate false negatives** - Flaky tests frequently cause PR failures unrelated to actual code changes. Anti-flake protection helps get these under control, so developers don't waste time investigating non-issues.
 * **Maintain developer confidence** - When the queue rejects PRs for real reasons (not flaky tests), developers trust the system. Reduces "it's probably just flaky" dismissiveness of real failures.
 * **Reduce manual retries** - Developers don't need to manually resubmit PRs or click "retry" when tests flake. Trunk handles it automatically, saving time and frustration.
 * **Keep queue moving** - Flaky tests don't stall the queue. PRs that would have been blocked by transient failures merge successfully, increasing overall throughput.
 
-### How to enable
+## How to enable
 
 <Info>
 Anti Flake Protection is active when [**Optimistic Merge Queue**](./optimistic-merging) is **On** and [**Pending Failure Depth**](./pending-failure-depth) is **set to a value greater than zero**
@@ -44,23 +44,23 @@ Enable Optimistic merging in **Settings** > **Repositories** > your repository >
 
 Configure Pending Failure Depth in **Settings** > **Repositories** > your repository > **Merge Queue** > select a value from the **Pending Failure Depth** dropdown.
 
-### Tradeoffs and considerations
+## Tradeoffs and considerations
 
-#### What you gain
+### What you gain
 
 * **80-90% reduction in flaky test blocks** - Most flaky failures are caught and handled automatically
 * **Developer time saved** - No manual retries or investigation of flaky failures
 * **Higher queue throughput** - Flaky tests don't stall the queue
 * **Better developer experience** - Less frustration with non-deterministic failures
 
-#### What you give up or risk
+### What you give up or risk
 
 * **Increased CI cost** - Retrying tests costs additional CI resources (typically 10-20% increase)
 * **Slightly longer merge times** - PRs that fail then retry take longer than PRs that pass first time
 * **Potential false positives** - Occasionally a legitimate failure might be retried (though Trunk is conservative)
 * **Masks underlying problems** - Flaky tests indicate test quality issues; retrying treats symptom, not cause
 
-#### When NOT to use anti-flake protection
+### When NOT to use anti-flake protection
 
 Don't enable anti-flake protection if:
 
@@ -69,7 +69,7 @@ Don't enable anti-flake protection if:
 * **You're actively fixing flaky tests** - Better to fix than to mask
 * **Flaky tests indicate real issues** - Sometimes "flaky" failures reveal race conditions or timing issues in your code
 
-#### When to use anti-flake protection
+### When to use anti-flake protection
 
 Do enable anti-flake protection when:
 
@@ -78,7 +78,7 @@ Do enable anti-flake protection when:
 * **Infrastructure flakiness** - Network timeouts, resource contention you can't control
 * **Third-party dependencies are flaky** - External APIs or services cause transient failures
 
-#### The right long-term solution
+### The right long-term solution
 
 <Warning>
 ️ **Anti-flake protection is a band-aid, not a cure.**
@@ -98,7 +98,7 @@ Do enable anti-flake protection when:
 * Same tests flake repeatedly (specific tests need fixing)
 * All flakes are in one area (infrastructure or test framework issue)
 
-#### Common misconceptions
+### Common misconceptions
 
 * **Misconception:** "Anti-flake protection lets me ignore flaky tests"&#x20;
   * **Reality:** NO! This is a temporary solution. Flaky tests are a code/test quality problem that must be fixed. Anti-flake protection buys you time to fix them properly.
@@ -109,6 +109,6 @@ Do enable anti-flake protection when:
 * **Misconception:** "I should set retry limit to 10 to catch all flakes"&#x20;
   * **Reality:** If you need 10 retries, your tests are catastrophically broken. Fix the tests! Retry limit should be 1-3 max.
 
-### Next Steps
+## Next Steps
 
 If you have a lot of flaky tests in your projects, you should track and fix them with [Trunk Flaky Tests](../../flaky-tests/overview). Anti-flake protection helps reduce the impact of flaky tests but doesn't help you detect, track, and eliminate them.

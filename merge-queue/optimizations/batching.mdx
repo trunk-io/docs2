@@ -23,7 +23,7 @@ Batching is **disabled by default** and must be explicitly enabled.
 
 Batching is enabled in the Merge Settings of your repo at **Settings** > **Repositories** > your repository > **Merge Queue** > **Batching** and toggle batching **On**.
 
-#### Configuration options
+### Configuration options
 
 With Batching enabled, you can configure two options:
 
@@ -38,14 +38,14 @@ A good place to start is with the defaults, Maximum wait time set to 5 (minutes)
 
 Sometimes you need a specific PR to test in isolation, even when batching is enabled for your queue. You can prevent individual PRs from batching without changing your overall batching configuration.
 
-#### When to use this
+### When to use this
 
 * **High-risk changes** — Infrastructure updates, database migrations, or changes that could affect other PRs in unpredictable ways
 * **Debugging batch failures** — Isolate a suspected problematic PR to confirm it tests correctly on its own
 * **Critical hotfixes** — Make sure a time-sensitive fix isn't delayed or affected by other PRs in a batch
 * **Flaky PR isolation** — Test a PR with known flaky behavior separately to avoid impacting other PRs
 
-#### How to exclude a PR from batching
+### How to exclude a PR from batching
 
 **Option 1: Using the `/trunk merge` command**
 
@@ -77,7 +77,7 @@ curl -X POST https://api.trunk.io/v1/submitPullRequest \
   }'
 ```
 
-#### How it works
+### How it works
 
 When a PR is submitted with no-batch:
 
@@ -98,7 +98,7 @@ When a batch fails, Trunk automatically splits it apart (bisects) to identify wh
 ![](/assets/1768426960-batching-settings.avif)
 </Frame>
 
-#### Why Separate Bisection Concurrency?
+### Why separate bisection concurrency?
 
 By default, bisection tests use the same concurrency limit as your main queue. This means:
 
@@ -112,7 +112,7 @@ With independent bisection concurrency, you can:
 * **Maintain queue throughput** - Keep your main queue running at optimal capacity during bisection
 * **Optimize each workflow independently** - Be aggressive about isolating failures without impacting successful PR flow
 
-#### How It Works
+### How it works
 
 When you set a higher bisection concurrency:
 
@@ -128,7 +128,7 @@ When you set a higher bisection concurrency:
 The bisection process can spin up 15 test runners to quickly isolate which PR failed, while your main queue continues processing 5 PRs normally. Developers get faster feedback about failures without slowing down successful merges.
 </Accordion>
 
-#### Configuring Bisection Concurrency
+### Configuring bisection concurrency
 
 Navigate to **Settings** > **Repositories** > your repository > **Merge Queue** > **Batching**:
 
@@ -137,7 +137,7 @@ Navigate to **Settings** > **Repositories** > your repository > **Merge Queue** 
 3. Set a value higher than your main **Testing Concurrency** for faster failure isolation
 4. Monitor your CI resource usage and adjust as needed
 
-#### Recommended Settings
+### Recommended settings
 
 <Tabs>
 <Tab title="Conservative approach">
@@ -157,7 +157,7 @@ Navigate to **Settings** > **Repositories** > your repository > **Merge Queue** 
 </Tab>
 </Tabs>
 
-#### When to Use Higher Bisection Concurrency
+### When to use higher bisection concurrency
 
 Consider increasing bisection concurrency if:
 
@@ -166,7 +166,7 @@ Consider increasing bisection concurrency if:
 * Large batches fail and take a long time to isolate the culprit
 * Fast feedback on failures is critical to your workflow
 
-#### Monitoring and Optimization
+### Monitoring and optimization
 
 Track these metrics to optimize your bisection concurrency:
 
@@ -179,7 +179,7 @@ Track these metrics to optimize your bisection concurrency:
 Start with bisection concurrency 2x your main queue concurrency, monitor the impact, and adjust based on your team's priorities and CI capacity.
 </Info>
 
-#### Best Practices
+### Best practices
 
 ✅ **Set bisection concurrency higher than main queue** - This is the whole point of the feature
 
@@ -199,7 +199,7 @@ Start with bisection concurrency 2x your main queue concurrency, monitor the imp
 
 When a batch fails and Trunk splits it apart to identify the failing PR, the merge queue intelligently reuses test results it has already collected during the bisection process. This avoids redundant CI runs and speeds up failure isolation.
 
-#### How It Works
+### How it works
 
 During bisection, Trunk maintains a cache of test results as it progressively splits the failed batch. If the queue knows with certainty that a particular combination of PRs will fail (because it already tested that exact combination earlier in the bisection process), it skips running the test again and reuses the previous result.
 
@@ -214,7 +214,7 @@ During bisection, Trunk maintains a cache of test results as it progressively sp
 8. Skip redundant CI runs and identify the failing PR faster
 </Accordion>
 
-#### Benefits
+### Benefits
 
 **Faster failure isolation**: Skip tests you've already run during bisection, reducing time to identify the culprit PR
 
@@ -224,7 +224,7 @@ During bisection, Trunk maintains a cache of test results as it progressively sp
 
 **Automatic optimization**: No configuration required - the merge queue automatically detects and reuses applicable test results
 
-#### When Test Caching Applies
+### When test caching applies
 
 Test caching only applies during the bisection process when:
 
@@ -239,7 +239,7 @@ Test caching does **not** apply to:
 * PRs in the main queue that aren't undergoing bisection
 * Tests that haven't been run yet in the current bisection process
 
-#### Example Scenario
+### Example scenario
 
 **Without test caching:**
 
@@ -261,7 +261,7 @@ Test caching does **not** apply to:
 
 The exact savings depend on your batch size, bisection pattern, and which combinations have already been tested.
 
-#### Best Practices
+### Best practices
 
 ✅ **Use with larger batch sizes** - More PRs in a batch means more opportunities to cache results
 
@@ -275,7 +275,7 @@ The exact savings depend on your batch size, bisection pattern, and which combin
 
 ❌ **Don't rely on it for flaky tests** - Caching assumes consistent test behavior; flaky tests may bypass caching for safety
 
-#### How This Works with Other Features
+### How this works with other features
 
 Test caching complements other batching optimizations:
 
@@ -315,7 +315,7 @@ The downsides here are very limited. Since batching combines multiple pull reque
 
 In the unlikely case that you have to revert a change from your protected branch or do a rollback, you will need to retest that revert or submit it to the queue to make sure nothing has broken. In practice, this re-testing is required in almost any case, regardless of how it was originally merged, and the downsides are fairly limited.
 
-#### Common misconceptions
+### Common misconceptions
 
 * **Misconception:** "Batching merges multiple PRs into a single commit"&#x20;
   * **Reality:** No! Each PR is still merged as a separate commit. Batching only affects testing, not merging.
