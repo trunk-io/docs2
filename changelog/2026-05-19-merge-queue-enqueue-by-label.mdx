@@ -1,0 +1,19 @@
+---
+title: "Merge Queue: Enqueue Pull Requests by Label"
+description: "Apply a configured GitHub label to a PR to send it straight to the merge queue."
+date: 2026-05-19
+category: Merge Queue
+type: new-feature
+---
+
+**You can now send a PR to the merge queue by applying a configured GitHub label**, alongside the existing `/trunk merge` comment, web app, and CLI options.
+
+Configure a single label per repository (for example, `merge-queue` or `ready-to-merge`) under **Settings → Repositories → Merge Queue → Enqueue by label**. Once set, applying that label to any eligible open PR enqueues it automatically, and Trunk removes the label as soon as the queue picks the PR up.
+
+This makes it easy to plug Trunk Merge Queue into existing label-based GitHub workflows and automations — bots, GitHub Actions, and review tools that already manage labels can now drive the merge queue without learning a new command surface.
+
+<Note>
+Removing the label does **not** cancel a PR that has already been picked up. Use `/trunk cancel`, the web app, or the CLI to cancel an in-flight PR.
+</Note>
+
+[Read the docs](https://docs.trunk.io/merge-queue/using-the-queue/reference#enqueueing-by-label) to learn more.
