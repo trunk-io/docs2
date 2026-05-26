@@ -4,7 +4,7 @@ description: "A guide for generating Trunk-compatible test reports for Jest test
 ---
 You can automatically [detect and manage flaky tests](../../detection/) in your Jest projects by integrating with Trunk. This document explains how to configure Jest to output JUnit XML reports that can be uploaded to Trunk for analysis.
 
-### Setup steps
+## Setup steps
 
 Work through the steps below in order. Once you've finished the last one, you'll be ready to move on to [configure uploads in CI](../ci-providers/).
 
@@ -15,7 +15,7 @@ Work through the steps below in order. Once you've finished the last one, you'll
   <Step title={<a href="#try-it-locally">Test uploads locally</a>} />
 </Steps>
 
-### Generating Reports
+## Generating Reports
 
 Trunk detects flaky tests by analyzing test results automatically uploaded from your CI jobs. You can do this by generating XML reports from your test runs.
 
@@ -43,11 +43,11 @@ Update your Jest config to add `jest-junit` as a reporter:
 }
 ```
 
-#### Report File Path
+### Report File Path
 
 The `outputDirectory` and `outputName` options specify the path of the XML report. You'll need this path later when configuring automatic uploads to Trunk.
 
-#### Using `filePathPrefix`
+### Using `filePathPrefix`
 
 In a monorepo with `pnpm` workspaces (or similar), Jest runs from within the package directory, so the file paths it records in the XML report are relative to that package — not to the repository root. For example, a test at `packages/my-package/src/__tests__/foo.test.js` would be recorded as `src/__tests__/foo.test.js`.
 
@@ -74,15 +74,15 @@ To fix this, set the `filePathPrefix` option to the path of the package within t
 
 With `filePathPrefix` set, `jest-junit` will prepend the given path to every file path in the XML output, producing repo-root-relative paths that Trunk can correctly match against your codeowners file.
 
-#### Disable Retries
+### Disable Retries
 
 You need to disable automatic retries if you previously enabled them. Retries compromise the accurate detection of flaky tests. You should disable retries for accurate detection and use the [Quarantining](../../quarantining/) feature to stop flaky tests from failing your CI jobs.
 
 If you have retries configured using the [jest.retryTimes method](https://jestjs.io/docs/jest-object#jestretrytimesnumretries-options), disable them for more accurate results.
 
-### Try It Locally
+## Try It Locally
 
-#### **The Validate Command**
+### The Validate Command
 
 <CodeGroup>
 ```bash Linux (x64)
@@ -123,7 +123,7 @@ chmod +x trunk-analytics-cli
 ```
 </CodeGroup>
 
-#### Test Upload
+### Test Upload
 
 Before modifying your CI jobs to automatically upload test results to Trunk, try uploading a single test run manually.
 
@@ -142,7 +142,7 @@ You can find your Trunk organization slug and token in the settings or by follow
 <img className="hidden dark:block" src="/assets/data-uploads-dark.png" alt="" />
 </Frame>
 
-### Next Steps
+## Next Steps
 
 Configure your CI to upload test runs to Trunk. Find the guides for your CI framework below:
 

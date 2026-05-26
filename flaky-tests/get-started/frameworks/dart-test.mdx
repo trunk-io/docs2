@@ -4,7 +4,7 @@ description: "A guide for generating Trunk-compatible test reports for Dart test
 ---
 You can automatically [detect and manage flaky tests](../../detection/) in your Dart projects by integrating with Trunk. This document explains how to configure Dart to output JUnit XML reports that can be uploaded to Trunk for analysis.
 
-### Setup steps
+## Setup steps
 
 Work through the steps below in order. Once you've finished the last one, you'll be ready to move on to [configure uploads in CI](../ci-providers/).
 
@@ -15,7 +15,7 @@ Work through the steps below in order. Once you've finished the last one, you'll
   <Step title={<a href="#try-it-locally">Test uploads locally</a>} />
 </Steps>
 
-### Generating Reports
+## Generating Reports
 
 Before you can upload to Trunk, you need to output a Trunk-compatible report. Dart supports JUnit outputs by using the `tojunit` library. You can install the `tojunit` library using the following command:
 
@@ -29,19 +29,19 @@ Then, you can convert test reports to a JUnit format by piping it to `tojunit`an
 dart test <TEST_PATH> --reporter json | tojunit > junit.xml
 ```
 
-#### Report File Path
+### Report File Path
 
 The JUnit report is written to the location specified by the `tojunit >` pipe. In the example above, the test results will be written to `./junit.xml`.
 
-#### Disable Retries
+### Disable Retries
 
 You need to disable automatic retries if you previously enabled them. Retries compromise the accurate detection of flaky tests.
 
 Dart provides retries through the [retry class annotations](https://pub.dev/documentation/test/latest/test/Retry-class.html). Disable retry, use Trunk to [detect](../../detection/)[ flaky tests](../../detection/), and use Quarantining to isolate flaky tests dynamically at run time.
 
-### Try It Locally
+## Try It Locally
 
-#### **The Validate Command**
+### The Validate Command
 
 <CodeGroup>
 ```bash Linux (x64)
@@ -82,7 +82,7 @@ chmod +x trunk-analytics-cli
 ```
 </CodeGroup>
 
-#### Test Upload
+### Test Upload
 
 Before modifying your CI jobs to automatically upload test results to Trunk, try uploading a single test run manually.
 
@@ -94,7 +94,7 @@ You make an upload to Trunk using the following command:
     --token <TRUNK_ORG_TOKEN>
 ```
 
-### Next Steps
+## Next Steps
 
 Configure your CI to upload test runs to Trunk. Find the guides for your CI framework below:
 
