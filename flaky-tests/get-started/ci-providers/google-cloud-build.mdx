@@ -12,7 +12,7 @@ Flaky Test support for source control providers like GitLab and BitBucket is sti
 
 Before you start on these steps, see the [Test Frameworks](../frameworks/) docs for instructions on producing a Trunk-compatible output for your test framework.
 
-### Setup steps
+## Setup steps
 
 Work through the steps below in order. Once you've finished the last one, you're set up — head to [app.trunk.io](https://app.trunk.io) to see your results.
 
@@ -25,19 +25,19 @@ Work through the steps below in order. Once you've finished the last one, you're
   <Step title={<a href="#validate-your-uploads">Validate your uploads in Trunk</a>} />
 </Steps>
 
-### Trunk Organization Slug and Token
+## Trunk Organization Slug and Token
 
 Before setting up uploads to Trunk, you must sign in to [app.trunk.io](https://app.trunk.io/login?intent=flaky%20tests) and obtain your Trunk organization slug and token.
 
-#### Trunk Slug
+### Trunk Slug
 
 You can find your organization slug under **Settings > Organization > Manage > Organization Name > Slug**. You'll save this as a variable in CI in a later step.
 
-#### Trunk Token
+### Trunk Token
 
 You can find your token under **Settings > Organization > Manage > Organization API Token > View Organization API Token > View**. Since this is a secret, do not leak it publicly. Ensure you get your _organization token_, not your project/repo token.
 
-### Store the Trunk Token in GCP Secret Manager
+## Store the Trunk Token in GCP Secret Manager
 
 Store your Trunk API token in [GCP Secret Manager](https://console.cloud.google.com/security/secret-manager) so Cloud Build can securely access it during builds.
 
@@ -48,14 +48,14 @@ Store your Trunk API token in [GCP Secret Manager](https://console.cloud.google.
 
 You'll reference this secret in your `cloudbuild.yaml` using the `availableSecrets` and `secretEnv` fields.
 
-### Connect GitHub Repos to Cloud Build
+## Connect GitHub Repos to Cloud Build
 
 Ensure your GitHub repositories are connected to Cloud Build through the [Cloud Build GitHub App](https://cloud.google.com/build/docs/automating-builds/github/connect-repo-github).
 
 1. Open **GCP Console > Cloud Build > Repositories**.
 2. Connect your GitHub repository using the Cloud Build GitHub App.
 
-### Create Cloud Build Triggers
+## Create Cloud Build Triggers
 
 Create two Cloud Build triggers for each repository you want to upload test results from:
 
@@ -71,7 +71,7 @@ Trunk can also detect test flakes on PR and merge branches. To best detect flaky
 [Learn more about detection](../../detection)
 </Danger>
 
-### Upload to Trunk
+## Upload to Trunk
 
 Add an upload step in your `cloudbuild.yaml` that runs after your test steps. The Trunk CLI automatically detects Google Cloud Build when the `TRIGGER_NAME` environment variable is set.
 
@@ -79,7 +79,7 @@ Add an upload step in your `cloudbuild.yaml` that runs after your test steps. Th
 Google Cloud Build does not automatically provide environment variables to build steps. You must explicitly pass the required substitution variables in your `cloudbuild.yaml` using the `env` field. Without these variables, the CLI cannot detect your CI platform or link uploads to the correct branches and pull requests.
 </Warning>
 
-#### Required Environment Variables
+### Required Environment Variables
 
 The following environment variables must be passed to the upload step:
 
@@ -92,7 +92,7 @@ The following environment variables must be passed to the upload step:
 | `_HEAD_BRANCH` | Head branch for PR-triggered builds |
 | `_PR_NUMBER` | Pull request number for PR-triggered builds |
 
-#### Example `cloudbuild.yaml`
+### Example `cloudbuild.yaml`
 
 The following is an example of a `cloudbuild.yaml` configuration that runs tests and uploads results to Trunk. Note: you must either run `trunk` from the repo root when uploading test results or pass a `--repo-root` argument.
 
@@ -199,11 +199,11 @@ Replace the following placeholders in the example:
 
 See the [Trunk Analytics CLI](../../reference/cli-reference.md) for all available command line arguments and usage.
 
-#### Stale files
+### Stale files
 
 Ensure you report every test run in CI and **clean up stale files** produced by your test framework. If you're reusing test runners and using a glob like `**/junit.xml` to upload tests, stale files not cleaned up will be included in the current test run, throwing off detection of flakiness. You should clean up all your results files after every upload step.
 
-### Validate Your Uploads
+## Validate Your Uploads
 
 Once your pipeline has run on a stable branch, head to [app.trunk.io](https://app.trunk.io) and confirm Trunk received your results.
 

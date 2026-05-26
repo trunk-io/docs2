@@ -6,7 +6,7 @@ Trunk Flaky Tests integrates with your CI by adding a step in your GitHub Action
 
 Before you start these steps, see the [Test Frameworks](../frameworks/) docs for instructions on producing Trunk-compatible reports for your test framework.
 
-### Setup steps
+## Setup steps
 
 Work through the steps below in order. Once you've finished the last one, you're set up — head to [app.trunk.io](https://app.trunk.io) to see your results.
 
@@ -17,23 +17,23 @@ Work through the steps below in order. Once you've finished the last one, you're
   <Step title={<a href="#validate-your-uploads">Validate your uploads in Trunk</a>} />
 </Steps>
 
-### Trunk Organization Slug and Token
+## Trunk Organization Slug and Token
 
 Before setting up uploads to Trunk, you must sign in to [app.trunk.io](https://app.trunk.io/login?intent=flaky%20tests) and obtain your Trunk organization slug and token.
 
-#### Trunk Slug
+### Trunk Slug
 
 You can find your organization slug under **Settings > Organization > Manage > Organization Name > Slug**. You'll save this as a variable in CI in a later step.
 
-#### Trunk Token
+### Trunk Token
 
 You can find your token under **Settings > Organization > Manage > Organization API Token > View Organization API Token > View**. Since this is a secret, do not leak it publicly. Ensure you get your _organization token_, not your project/repo token.
 
-### Add Your Trunk Token and Organization Slug as Secrets
+## Add Your Trunk Token and Organization Slug as Secrets
 
 Store the Trunk slug and API token obtained in the previous step in your repo as [GitHub secrets](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions) named `TRUNK_ORG_SLUG` and `TRUNK_TOKEN` respectively.
 
-### Upload to Trunk
+## Upload to Trunk
 
 Add an `Upload Test Results` step after running tests in each of your CI jobs that run tests. This should minimally include all jobs that run on pull requests, as well as jobs that run on your main or [stable branches](../../detection/), for example, `main`, `master`, or `develop`.
 
@@ -45,7 +45,7 @@ Trunk can also detect test flakes on PR and merge branches. To best detect flaky
 [Learn more about detection](../../detection/)
 </Danger>
 
-#### Example GitHub Actions Workflow
+### Example GitHub Actions Workflow
 
 The following is an example of a GitHub Actions workflow step to upload test results after your tests using Trunk's [**Analytics Uploader Action**](https://github.com/trunk-io/analytics-uploader).
 
@@ -124,7 +124,7 @@ jobs:
 
 See the [GitHub Actions Reference page](https://github.com/trunk-io/analytics-uploader) for all available CLI arguments and usage.
 
-#### Enable quarantining
+### Enable quarantining
 
 You can quarantine flaky tests by wrapping the test command or as a follow-up step.
 
@@ -220,11 +220,11 @@ You can also wrap the test command with the Trunk Analytics CLI. When wrapping t
 </Tab>
 </Tabs>
 
-#### Stale files
+### Stale files
 
 Ensure you report every test run in CI and **clean up stale files** produced by your test framework. If you're reusing test runners and using a glob like `**/junit.xml` to upload tests, stale files not cleaned up will be included in the current test run, throwing off detection of flakiness. You should clean up all your results files after every upload step.
 
-### Validate Your Uploads
+## Validate Your Uploads
 
 Once your workflow has run on a stable branch, head to [app.trunk.io](https://app.trunk.io) and confirm Trunk received your results.
 
@@ -233,7 +233,7 @@ Once your workflow has run on a stable branch, head to [app.trunk.io](https://ap
 
 If a recent run isn't showing up, check the action logs for upload errors and confirm your `TRUNK_TOKEN` and `TRUNK_ORG_SLUG` secrets are set on the repo running the workflow.
 
-### Getting Direct Links to Job Logs
+## Getting Direct Links to Job Logs
 
 <Info>
 **Direct Links to Job Logs is an optional configuration, and relies on a** [**third-party actions dependency**](https://github.com/marketplace/actions/get-action-job-id)**.**
@@ -243,7 +243,7 @@ By default, Trunk Flaky Tests links to your overall workflow run when you click 
 
 If you want **direct links to individual job logs** instead of the workflow run, you can manually set the `JOB_URL` environment variable using a third-party action to extract the job ID.
 
-#### Setup
+### Setup
 
 1. **Add the job ID extraction step** to your workflow using a community action:
 
@@ -285,7 +285,7 @@ jobs:
           JOB_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/${{ steps.get-job-id.outputs.jobId }}
 ```
 
-#### Complete Example
+### Complete Example
 
 Here's a full workflow example with direct job linking:
 
@@ -326,14 +326,14 @@ jobs:
           JOB_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/${{ steps.get-job-id.outputs.jobId }}
 ```
 
-#### How It Works
+### How It Works
 
 * The `ayachensiyuan/get-action-job-id` [action](https://github.com/marketplace/actions/get-action-job-id) extracts the GitHub Actions job ID
 * We construct the full job URL using: `https://github.com/{repo}/actions/runs/{run_id}/job/{job_id}`
 * This URL is passed to Trunk via the `JOB_URL` environment variable
 * When you click "Logs" on a test failure in Trunk, you'll go directly to that job's logs instead of the workflow overview
 
-#### Notes
+### Notes
 
 * The `job-name` parameter must **exactly match** your job's `name` field
 * The `GITHUB_TOKEN` must have appropriate permissions to read workflow job information
