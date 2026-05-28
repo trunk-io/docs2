@@ -215,7 +215,7 @@ You can also wrap the test command with the Trunk Analytics CLI. When wrapping t
 
 If you have tests that should never be quarantined or should always be quarantined regardless of their current health status, you can do this by overriding individual tests.
 
-<Frame caption="overriding">
+<Frame caption="The row actions menu in the Flaky Tests table, with the Quarantine test and Never Quarantine test options.">
   <img className="block dark:hidden" src="/assets/qurantine-individual-tests-light.png" alt="overriding individual tests" />
   <img className="hidden dark:block" src="/assets/qurantine-individual-tests-dark.png" alt="overriding individual tests" />
 </Frame>
@@ -224,10 +224,10 @@ You can set a quarantine override from two places:
 
 **From the Flaky Tests table**
 
-Right-click any row in the Flaky Tests table to open the context menu. Two quarantine actions are available:
+Open the actions menu (the **⋮** button at the end of any row in the Flaky Tests table). Alongside **Copy link** and **Create ticket**, two quarantine actions are available:
 
-* **Quarantine test** / **Unquarantine test** — toggles the always-quarantine override for that test.
-* **Never Quarantine test** / **Remove Never Quarantine** — toggles the never-quarantine override. When set, the test is never quarantined, even if auto-quarantining is enabled for the repo.
+* **Quarantine test** / **Unquarantine test**: toggles the always-quarantine override for that test.
+* **Never Quarantine test** / **Remove Never Quarantine**: toggles the never-quarantine override. When set, the test is never quarantined, even if auto-quarantining is enabled for the repo.
 
 Access to these four options is controlled by the [Manual Quarantine Permissions](#quarantining-settings) setting. When set to **Admins only**, non-admin users see them as disabled with the tooltip "Only admins can set manual quarantine."
 
