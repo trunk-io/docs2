@@ -59,7 +59,14 @@ Mintlify's GitHub app watches the default branch, so merging to `main` deploys t
 
 ## PR labels
 
-PRs in this repo are tagged by automated workflows that verify each doc change against the underlying product state. Labels fall into three groups.
+PRs in this repo are tagged by automated workflows that verify each doc change against the underlying product state.
+
+> **Note:** The verification workflows referenced below (`verify-docs-pr` and `verify-docs-against-code`) are Trunk-internal Claude Code skills, not part of this repo. They read private Trunk repositories to check docs against product state and source, so the labels appear on PRs here but the tooling that applies them lives elsewhere and isn't runnable from this checkout. The reference below is for context only.
+
+<details>
+<summary>PR label reference (internal tooling)</summary>
+
+Labels fall into three groups.
 
 ### Feature lifecycle (set by `verify-docs-pr`)
 
@@ -84,14 +91,16 @@ Applied when the PR's factual claims are checked against trunk-io source. Exactl
 
 ### Source / review flow
 
-Sticky labels that mark how a PR was sourced or where it needs extra eyes. Additive — a PR can have multiple.
+Sticky labels that mark how a PR was sourced or where it needs extra eyes. Additive, so a PR can have more than one.
 
 | Label | Color | Meaning |
 |---|---|---|
 | `changelog` | blue | PR touches the changelog (auto-generated drafts, hosting, formatting, indexing). |
 | `needs review` | purple | PR sourced from customer-feedback-mining; needs human scrutiny for accuracy before merge. |
 
-GitHub's default labels (`bug`, `documentation`, `enhancement`, etc.) are also present but not used in our automated workflows.
+GitHub's default labels (`bug`, `documentation`, `enhancement`, etc.) are also present but not used in these workflows.
+
+</details>
 
 ## Changelog automation
 
