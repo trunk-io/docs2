@@ -49,12 +49,15 @@ To enable quarantining, navigate to **Settings** > **Repositories** > repository
 ![](/assets/enable_test_quarantining.png)
 </Frame>
 
-Here's what each of these options does when enabled:
+Here's what each of these options does:
 
 | Setting | Description |
 |---|---|
 | Enable Test Quarantining | This primary toggle activates the quarantining feature set, unlocking both manual override options and the ability to enable auto-quarantining. For any quarantining to work, the [necessary configurations](#updates-in-ci) must also be made in your CI pipeline. |
 | Auto-Quarantine Flaky Tests | When enabled, any test already identified by Trunk as "flaky" will be automatically quarantined. This saves you from having to manually quarantine each flaky test as it's discovered. |
+| Manual Quarantine Permissions | Controls who can set **Always Quarantine** or **Never Quarantine** overrides on individual tests. Set to **Anyone** to allow any user with repository access, or **Admins only** to restrict to organization admins. Disabled when **Enable Test Quarantining** is off. Only admins can change this setting. |
+| Manual Test Status Override Permissions | Controls who can use [Flag as Flaky](../detection/flag-as-flaky) to set a test's status. Set to **Anyone** to allow any user with repository access, or **Admins only** to restrict to organization admins. Only admins can change this setting. |
+| Summary Flaky Tests Reports | When enabled, Trunk posts [pull request comments](../management/github-pull-request-comments) on each PR summarizing tests that passed, failed, flaked, were skipped, or were quarantined. Enabled by default. |
 
 ### Collection-level quarantining settings
 
@@ -225,7 +228,7 @@ Right-click any row in the Flaky Tests table to open the context menu. Two quara
 * **Quarantine test** / **Unquarantine test** — toggles the always-quarantine override for that test.
 * **Never Quarantine test** / **Remove Never Quarantine** — toggles the never-quarantine override. When set, the test is never quarantined, even if auto-quarantining is enabled for the repo.
 
-All four options require admin permissions. Non-admin users see them as disabled with the tooltip "Only admins can set manual quarantine."
+Access to these four options is controlled by the [Manual Quarantine Permissions](#quarantining-settings) setting. When set to **Admins only**, non-admin users see them as disabled with the tooltip "Only admins can set manual quarantine."
 
 **From the test details page**
 
