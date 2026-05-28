@@ -1,6 +1,6 @@
 ---
 title: "Overview"
-description: "Trunk Merge Queue batches PRs, bisects failures, and routes non-overlapping changes into independent test lanes."
+description: "Trunk Merge Queue runs unrelated PRs in independent test lanes instead of one serial line, keeps merging when a flaky test would stall the queue, and batches changes to cut CI runs."
 og:title: "Trunk Merge Queue overview"
 ---
 
@@ -17,13 +17,6 @@ Trunk Merge Queue runs on four mechanics. Predictive testing is the correctness 
     <Icon icon="crystal-ball" size={48} />
   </Tile>
   <Tile
-    href="./optimizations/batching"
-    title="Batching"
-    description="Test many PRs in one CI run."
-  >
-    <Icon icon="boxes-stacked" size={48} />
-  </Tile>
-  <Tile
     href="./optimizations/parallel-queues/"
     title="Parallel queues"
     description="Lanes for unrelated PRs."
@@ -37,14 +30,21 @@ Trunk Merge Queue runs on four mechanics. Predictive testing is the correctness 
   >
     <Icon icon="shield-check" size={48} />
   </Tile>
+  <Tile
+    href="./optimizations/batching"
+    title="Batching"
+    description="Test many PRs in one CI run."
+  >
+    <Icon icon="boxes-stacked" size={48} />
+  </Tile>
 </Columns>
 
 
 ## When does this make sense?
 
-- 50+ PRs/day, CI bill climbing → batching
 - Monorepo with lanes of work that don't overlap → parallel queues
 - Flaky tests blocking real merges → anti-flake protection
+- 50+ PRs/day, CI bill climbing → batching
 - Single-track GitHub Merge Queue choking → all three
 
 ## More to dial in
