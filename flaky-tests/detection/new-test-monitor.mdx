@@ -1,0 +1,49 @@
+---
+title: "New Test Monitor"
+description: "Track recently added tests and apply labels until they have an established history."
+---
+
+The new test monitor identifies test cases the first time they are seen in your test uploads and keeps them labeled for a configurable number of days. It is designed for visibility, not classification: the monitor does not mark tests as flaky or broken. Instead, it applies the labels you configure so your team can distinguish brand-new tests from established ones during triage.
+
+## When to Use This Monitor
+
+- **New test tracking:** Apply a `new-test` label automatically so reviewers know a failing test may simply lack history.
+- **Coverage audits:** Identify which tests were added in the last sprint without manually diffing test suites.
+- **Noise reduction during ramp-up:** Suppress new tests from triggering alerts by combining this monitor's label with quarantine or alert filter rules.
+
+## How It Works
+
+When a test upload contains a test case ID that has never appeared before, the monitor records its first-seen timestamp. For the next `newDays` days, that test is considered "active" by this monitor and the configured labels are applied. After `newDays` days have passed since the first observation, the monitor resolves the test and the labels are removed.
+
+The monitor runs every five minutes. Detection lookback is capped at six hours per run to keep each pass bounded, so a test seen for the first time will be labeled within at most twenty minutes of its upload being processed.
+
+## Configuration
+
+| Setting | Description | Default |
+|---|---|---|
+| New days | Number of days after first observation before the monitor resolves and labels are removed | Required |
+| Action | Apply labels (the only available action — this monitor does not classify) | Apply labels |
+
+### New Days
+
+Set `newDays` to how long you want the "new" label to stay on a test. A value of 7 means any test added in the last week carries the label. A value of 30 gives a full month of ramp-up coverage before the label drops.
+
+### Action
+
+The new test monitor is a performance-type monitor. It applies labels only and does not change a test's health status (flaky or broken). Choose which labels to apply in the monitor configuration. When the monitor resolves, those labels are removed according to the monitor's label removal setting.
+
+## Resolution
+
+The monitor resolves a test automatically once `newDays` days have elapsed since `first_seen_at`. There is no manual resolution step — once the window passes, the label is removed on the next detection cycle.
+
+If a test is deleted and re-uploaded with the same test case ID, the original `first_seen_at` timestamp is used. The monitor does not reset the clock for re-appearing tests.
+
+## Choosing Between Monitors
+
+| Goal | Recommended monitor |
+|---|---|
+| Label brand-new tests for a grace period | New test monitor |
+| Detect tests that consistently skip runs | Skipped test monitor |
+| Flag tests whose runtime exceeds a threshold | Slow test monitor |
+| Detect tests that fail then pass on retry | Pass-on-retry monitor |
+| Alert on tests failing at a sustained rate | Failure rate monitor |

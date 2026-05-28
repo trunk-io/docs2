@@ -1,0 +1,55 @@
+---
+title: "Slow Test Monitor"
+description: "Flag tests whose average runtime exceeds a configured duration threshold."
+---
+
+The slow test monitor detects test cases whose measured duration exceeds a threshold you set, evaluated over a configurable time window and sample size. It applies labels to slow tests so your team can identify and prioritize performance improvements without classifying tests as flaky or broken.
+
+## When to Use This Monitor
+
+- **Identify tests slowing down CI:** Surface the specific tests adding the most wall time to your pipeline.
+- **Enforce duration budgets:** Label any test that exceeds an acceptable runtime so it gets reviewed before merging.
+- **Track regressions:** Catch tests that were fast but became slow after a code change.
+
+## How It Works
+
+The monitor evaluates average test duration across runs in a rolling time window. When a test's average duration exceeds the configured threshold and enough sample runs have been collected, the monitor activates and applies the configured labels.
+
+Resolution happens when the test's measured duration drops back below the threshold over subsequent runs. If `staleAfterMinutes` is set, the monitor also resolves any active test that has had no recent runs on monitored branches — this prevents labels from persisting on tests that have been removed from the suite.
+
+## Configuration
+
+| Setting | Description | Default |
+|---|---|---|
+| Duration threshold | Minimum average test duration (milliseconds) to trigger detection | Required |
+| Window | Time window (minutes) over which duration is measured | Required |
+| Sample size | Minimum number of runs required before the monitor can activate | Required |
+| Stale after | Minutes without any run on monitored branches before an active test resolves (optional) | Disabled |
+| Branch scope | Branch names or glob patterns to monitor | All branches |
+| Action | Apply labels (the only available action — this monitor does not classify) | Apply labels |
+
+### Duration Threshold
+
+Set the threshold in milliseconds. A value of 5000 flags any test averaging more than 5 seconds. Tune this based on your acceptable CI budget — tighter thresholds surface more tests but may require more review bandwidth.
+
+### Window and Sample Size
+
+The window controls how far back duration samples are collected. Sample size sets the minimum number of runs needed before the monitor will activate. This prevents a single slow run from triggering the monitor on a test with no history. For example, a window of 1440 minutes (one day) and a sample size of 5 means the monitor averages the last day's runs and requires at least five before drawing a conclusion.
+
+### Stale After
+
+When set, any test that has been active (labeled slow) but stops running on monitored branches for `staleAfterMinutes` minutes will be automatically resolved. Use this to clean up labels after a slow test is removed from the suite or renamed.
+
+### Branch Scope
+
+Scope the monitor to branches where test duration matters most, such as `main` or merge queue branches. Tests running on feature branches may have intentionally limited execution or variable infrastructure and may not represent a genuine slowness concern.
+
+## Choosing Between Monitors
+
+| Goal | Recommended monitor |
+|---|---|
+| Flag tests that are taking too long | Slow test monitor |
+| Track recently added tests | New test monitor |
+| Detect tests consistently being skipped | Skipped test monitor |
+| Detect tests that fail then pass on retry | Pass-on-retry monitor |
+| Alert on tests failing at a sustained rate | Failure rate monitor |
