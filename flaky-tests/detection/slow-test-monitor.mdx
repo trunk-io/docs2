@@ -4,7 +4,7 @@ description: "Flag tests whose duration percentile exceeds a configured threshol
 og:title: "The Slow Test Monitor in Trunk Flaky Tests"
 ---
 
-The slow test monitor detects test cases whose measured duration exceeds a threshold you set, evaluated over a configurable time window and sample size. It applies labels to slow tests so your team can identify and prioritize performance improvements without classifying tests as flaky or broken.
+The slow test monitor detects test cases whose measured duration exceeds a threshold you set, evaluated over a configurable percentile, time window, and sample size. It applies labels to slow tests so your team can identify and prioritize performance improvements without classifying tests as flaky or broken.
 
 ## When to Use This Monitor
 
@@ -14,9 +14,11 @@ The slow test monitor detects test cases whose measured duration exceeds a thres
 
 ## How It Works
 
-The monitor evaluates a configurable percentile of test duration across runs in a rolling time window. When the test's duration at that percentile exceeds the configured threshold and enough sample runs have been collected, the monitor activates and applies the configured labels.
+The monitor evaluates test duration at a configured percentile across runs in a rolling time window. When a test's percentile duration meets or exceeds the configured threshold and enough sample runs have been collected, the monitor activates and applies the configured labels.
 
 Resolution happens when the test's measured duration drops back below the threshold over subsequent runs. If `staleAfterMinutes` is set, the monitor also resolves any active test that has had no recent runs on monitored branches — this prevents labels from persisting on tests that have been removed from the suite.
+
+Once the monitor activates, detection evidence (the specific runs that triggered it) is visible in the **Events** tab on the test details page.
 
 ## Configuration
 
@@ -36,11 +38,16 @@ Set the threshold in milliseconds. With the percentile set to 0.5 (p50), a value
 
 ### Percentile
 
-The percentile controls which point in a test's duration distribution is compared against the threshold. A value of 0.5 evaluates the median (p50); 0.95 evaluates the p95 tail. Use a higher percentile to catch tests that are usually fast but spike, and a lower one to catch tests that are consistently slow.
+The percentile controls which point on the duration distribution is compared to the threshold.
+
+- **p95** means 95% of a test's runs are at or below the measured duration. A test only needs occasional slow runs to push its p95 above the threshold, making this a less strict setting that catches intermittent slowness.
+- **p50** means 50% of a test's runs are at or below the measured duration. A test must have the majority of its runs be slow before it triggers, making this a stricter setting that filters out one-off spikes.
+
+Choose a higher percentile (p75, p90, p95) to catch tests with sporadic slowness. Choose a lower percentile (p50) to surface only tests that are consistently slow.
 
 ### Window and Sample Size
 
-The window controls how far back duration samples are collected. Sample size sets the minimum number of runs needed before the monitor will activate. This prevents a single slow run from triggering the monitor on a test with no history. For example, a window of 1440 minutes (one day) and a sample size of 5 means the monitor evaluates the configured percentile over the last day's runs and requires at least five before drawing a conclusion.
+The window controls how far back duration samples are collected. Sample size sets the minimum number of runs needed before the monitor will activate. This prevents a single slow run from triggering the monitor on a test with no history. For example, a window of 1440 minutes (one day) and a sample size of 5 means the monitor evaluates the configured percentile over the last day's runs and requires at least five before drawing a conclusion. The preview panel shows up to 1000 tests that ran within the configured window.
 
 ### Stale After
 
