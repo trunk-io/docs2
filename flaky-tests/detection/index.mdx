@@ -36,21 +36,21 @@ Trunk groups monitors into two categories based on what they do when they activa
 
 ### Health Classification Monitors
 
-| Monitor                                      | What it detects                                                        | Available actions                                                                                        | Plan availability | Default state |
-| -------------------------------------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ----------------- | ------------- |
-| [**Pass-on-Retry**](./pass-on-retry-monitor) | A test fails then passes on the same commit (retry after failure)      | Classify (flaky) or [apply labels](../management/test-labels#automatic-labeling-from-monitors)           | Team and above    | Enabled       |
-| [**Failure Rate**](./failure-rate-monitor)   | Failure rate exceeds a configured percentage over a time window        | Classify (flaky or broken) or [apply labels](../management/test-labels#automatic-labeling-from-monitors) | Paid plans        | Disabled      |
-| [**Failure Count**](./failure-count-monitor) | A test accumulates a configured number of failures in a rolling window | Classify (flaky or broken) or [apply labels](../management/test-labels#automatic-labeling-from-monitors) | Paid plans        | Disabled      |
+| Monitor                                      | What it detects                                                        | Available actions                                                                                        | Default state |
+| -------------------------------------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ------------- |
+| [**Pass-on-Retry**](./pass-on-retry-monitor) | A test fails then passes on the same commit (retry after failure)      | Classify (flaky) or [apply labels](../management/test-labels#automatic-labeling-from-monitors)           | Enabled       |
+| [**Failure Rate**](./failure-rate-monitor)   | Failure rate exceeds a configured percentage over a time window        | Classify (flaky or broken) or [apply labels](../management/test-labels#automatic-labeling-from-monitors) | Disabled      |
+| [**Failure Count**](./failure-count-monitor) | A test accumulates a configured number of failures in a rolling window | Classify (flaky or broken) or [apply labels](../management/test-labels#automatic-labeling-from-monitors) | Disabled      |
 
 ### Lifecycle and Performance Monitors
 
 These monitors apply labels based on lifecycle events or performance characteristics. They do not classify tests as flaky or broken, and they do not contribute to the test's overall health status.
 
-| Monitor                                    | What it detects                                                              | Available actions                                                          | Plan availability | Default state |
-| ------------------------------------------ | ---------------------------------------------------------------------------- | -------------------------------------------------------------------------- | ----------------- | ------------- |
-| [**New Test**](./new-test-monitor)         | A test case seen for the first time, tracked for a configurable grace period | [Apply labels](../management/test-labels#automatic-labeling-from-monitors) | Paid plans        | Disabled      |
-| [**Skipped Test**](./skipped-test-monitor) | A test is consistently skipped across runs within a time window              | [Apply labels](../management/test-labels#automatic-labeling-from-monitors) | Paid plans        | Disabled      |
-| [**Slow Test**](./slow-test-monitor)       | A test's average duration exceeds a configured threshold                     | [Apply labels](../management/test-labels#automatic-labeling-from-monitors) | Paid plans        | Disabled      |
+| Monitor                                    | What it detects                                                              | Available actions                                                          | Default state |
+| ------------------------------------------ | ---------------------------------------------------------------------------- | -------------------------------------------------------------------------- | ------------- |
+| [**New Test**](./new-test-monitor)         | A test case seen for the first time, tracked for a configurable grace period | [Apply labels](../management/test-labels#automatic-labeling-from-monitors) | Disabled      |
+| [**Skipped Test**](./skipped-test-monitor) | A test is consistently skipped across runs within a time window              | [Apply labels](../management/test-labels#automatic-labeling-from-monitors) | Disabled      |
+| [**Slow Test**](./slow-test-monitor)       | A test's average duration exceeds a configured threshold                     | [Apply labels](../management/test-labels#automatic-labeling-from-monitors) | Disabled      |
 
 You can run multiple monitors simultaneously. For example, you might use pass-on-retry to catch classic retry-based flakiness while also running failure rate monitors scoped to different branches. A common pattern is to pair a broken-type failure rate monitor (catching consistently failing tests) with a flaky-type failure rate monitor (catching intermittently failing tests). See [Failure Rate Monitor: Recommended Configurations](./failure-rate-monitor#recommended-configurations) for details.
 

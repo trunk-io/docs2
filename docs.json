@@ -605,6 +605,7 @@
           {
             "group": "2026",
             "pages": [
+              "changelog/2026-05-28-flaky-tests-lifecycle-and-performance-monitors",
               "changelog/2026-05-19-flaky-tests-linear-improvements",
               "changelog/2026-05-19-merge-queue-chrome-extension-updates",
               "changelog/2026-05-19-merge-queue-enqueue-by-label",

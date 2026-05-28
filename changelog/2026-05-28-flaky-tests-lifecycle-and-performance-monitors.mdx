@@ -1,0 +1,22 @@
+---
+title: "Flaky Tests: Lifecycle & Performance Monitors"
+description: "Three new monitor types — new-test, skipped-test, and slow-test — apply labels to tests based on lifecycle and performance signals, without affecting health status."
+date: 2026-05-28
+category: Flaky Tests
+type: new-feature
+---
+
+**Three new monitor types — new-test, skipped-test, and slow-test — are now available in Flaky Tests detection.** They apply labels based on lifecycle events or performance characteristics, without changing whether a test is marked flaky or broken.
+
+The monitors page is now split into two sections to reflect this:
+
+- **Health classification monitors** — Pass-on-Retry, Failure Rate, and Failure Count. These determine whether a test is healthy, flaky, or broken, and their status flows through the dashboard, CI annotations, and notifications.
+- **Lifecycle and performance monitors** — the three new ones below. They only apply labels and do not contribute to a test's health status.
+
+The new monitors:
+
+- **[New Test Monitor](https://docs.trunk.io/flaky-tests/detection/new-test-monitor)** — labels test cases the first time they appear and keeps the label on for a configurable number of days. Useful for giving brand-new tests a grace period before treating their failures as signal.
+- **[Skipped Test Monitor](https://docs.trunk.io/flaky-tests/detection/skipped-test-monitor)** — labels tests that accumulate a configured number of skipped runs within a time window. Useful for surfacing tests that someone marked as `.skip` or `xtest` and never re-enabled.
+- **[Slow Test Monitor](https://docs.trunk.io/flaky-tests/detection/slow-test-monitor)** — labels tests whose average duration exceeds a configured threshold. Useful for enforcing duration budgets and catching performance regressions before they hit `main`.
+
+[Read the docs](https://docs.trunk.io/flaky-tests/detection) to learn more.
