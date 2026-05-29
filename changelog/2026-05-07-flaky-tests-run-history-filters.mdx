@@ -1,0 +1,18 @@
+---
+title: "Flaky Tests: Independent Result and Quarantined filters on run history"
+description: "Filter a test's run history by result and quarantine state with two independent controls instead of one combined picker."
+date: 2026-05-07
+category: Flaky Tests
+type: update
+---
+
+**The run history tab on a test's detail page now has separate Result and Quarantined filters.**
+
+The two controls used to be a single combined picker. They're now independent segmented controls:
+
+- **Result** — All, Pass, or Fail.
+- **Quarantined** — Include, Exclude, or Only.
+
+Combine them to answer questions the old picker couldn't, like "show only the failing runs that happened while this test was quarantined."
+
+[Read the docs](https://docs.trunk.io/flaky-tests/management/managing-detected-flaky-tests) to learn more.
