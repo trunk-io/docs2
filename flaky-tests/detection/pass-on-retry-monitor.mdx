@@ -1,6 +1,7 @@
 ---
 title: "Pass-on-Retry Monitor"
 description: "Detect tests that fail then pass on retry within the same commit"
+og:title: "The Pass-on-Retry Monitor in Trunk Flaky Tests"
 ---
 The pass-on-retry monitor detects the most common flakiness pattern: a test fails, is retried, and passes on the same commit. This indicates the failure wasn't caused by a code change and that the test is unreliable.
 

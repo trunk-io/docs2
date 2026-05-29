@@ -1,6 +1,7 @@
 ---
 title: "Flake Detection"
 description: "Learn how Trunk detects and labels flaky and broken tests"
+og:title: "How Trunk Flaky Tests detects flaky tests"
 ---
 
 Flake Detection automatically identifies problematic tests in your test suite by monitoring test behavior over time. Instead of a single set of built-in detection rules, Trunk uses **monitors**, independent detectors that each watch for a specific pattern. When a monitor activates on a test, it runs the **action** you configured on the monitor — either classifying the test as flaky or broken, or [applying labels](../management/test-labels#automatic-labeling-from-monitors) to it.
