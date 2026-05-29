@@ -1,0 +1,21 @@
+---
+title: "Flaky Tests: Repositories Overview Dashboard"
+description: "The Flaky Tests landing page now summarizes every repo's flaky test health instead of redirecting into a single repo."
+date: 2026-04-15
+category: Flaky Tests
+type: update
+---
+
+**The Flaky Tests landing page is now a multi-repo overview dashboard.**
+
+Visiting `/{org}/flaky-tests` drops you onto a dashboard summarizing every repo's flaky test health, instead of redirecting straight into a single repo. Each row shows:
+
+- **Tests** — total tracked test cases
+- **Flaky** — count of currently flaky tests, with a 10-day trend sparkline
+- **Broken** — count of currently broken tests, with a 10-day trend sparkline
+- **Runs / Day** — a 10-day bar chart with per-day hover tooltips
+- A shield icon on repos with quarantining enabled
+
+Active repos sort to the top. Repos with no data in the last 30 days collapse under an "Inactive Repositories" section, and orgs with no repos at all are redirected to onboarding. Test counts query the latest run state directly rather than approximating from cached status, so the numbers reflect what is actually in the repo right now.
+
+[Read the docs](https://docs.trunk.io/flaky-tests/dashboard) to learn more.
