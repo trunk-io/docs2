@@ -150,7 +150,7 @@ You make an upload to Trunk using the following command:
 ```sh
 curl -fL --retry 3 "https://github.com/trunk-io/analytics-cli/releases/latest/download/trunk-analytics-cli-x86_64-unknown-linux.tar.gz" | tar -xz && chmod +x trunk-analytics-cli
 ./trunk-analytics-cli upload --junit-paths "./junit.xml" \
-    --org-url-slug <TRUNK_ORG_SLUG> \
+    --org-url-slug <TRUNK_ORG_URL_SLUG> \
     --token <TRUNK_ORG_TOKEN>
 ```
 
