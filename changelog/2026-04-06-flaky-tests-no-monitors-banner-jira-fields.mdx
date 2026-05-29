@@ -1,0 +1,19 @@
+---
+title: "Flaky Tests: No-Monitors Banner and Jira Custom Fields"
+description: "The Flaky Tests page now warns when a repository has no detection monitors configured, and the Jira ticketing integration supports custom fields."
+date: 2026-04-06
+category: Flaky Tests
+type: update
+---
+
+**Two improvements to Flaky Tests: a clear prompt when a repository has no detection monitors set up, and support for Jira custom fields in ticketing.**
+
+### Banner when no monitors are configured
+
+When a repository has no detection monitors configured, the Flaky Tests page now shows an alert banner at the top prompting you to set one up, and the Monitors tab in the left nav shows a yellow notification dot. Previously an unconfigured repo just showed an empty state, so it was easy to miss that no detection was actually running. Create a monitor and both the banner and the dot clear.
+
+### Jira custom fields
+
+The Jira ticketing integration now accepts custom field values. Admins can configure default values for any supported Jira custom field on a per-issue-type basis from the ticketing settings page, and users can override those defaults when creating a ticket from the test detail page. Required fields in Jira are enforced — you either set a default or mark the field to be filled in at ticket creation. This unblocks teams whose Jira projects require fields beyond the standard set of project, issue type, labels, and assignee.
+
+[Read the docs](https://docs.trunk.io/flaky-tests/management/ticketing/jira-integration) to learn more.
