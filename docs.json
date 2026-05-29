@@ -624,6 +624,7 @@
               "changelog/2026-05-18-flaky-tests-test-labels",
               "changelog/2026-04-30-merge-queue-chrome-extension",
               "changelog/2026-04-21-merge-queue-drill-down-into-merge-metrics",
+              "changelog/2026-04-15-flaky-tests-linked-tickets-survive-moves",
               "changelog/2026-04-15-flaky-tests-repositories-overview-dashboard",
               "changelog/2026-04-13-merge-queue-terraform-provider",
               "changelog/2026-04-06-flaky-tests-no-monitors-banner-jira-fields",
