@@ -8,6 +8,8 @@ type: update
 
 **Tickets you have linked to Trunk no longer disappear when they are moved to a different Linear team or Jira project.**
 
+![A flaky test with an intact linked Linear ticket](/assets/changelog/flaky-tests-linked-tickets-survive-moves-mock.png)
+
 Previously, moving a linked ticket changed its display key (for example `ENG-123` becoming `MOBILE-456`). Trunk looked the ticket up by the old key, got a 404, and incorrectly marked it as deleted. Trunk now stores each ticket's immutable internal ID alongside its display key, so when a ticket moves and its key changes, Trunk recovers it using the stable ID on the next refresh and updates the stored key automatically. No action is required. Tickets linked before this change pick up the stable ID on their next successful refresh.
 
 [Read the docs](/flaky-tests/management/ticketing) to learn more.

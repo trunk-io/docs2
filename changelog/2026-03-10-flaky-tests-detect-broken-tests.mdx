@@ -8,6 +8,8 @@ type: new-feature
 
 **Tests that consistently fail can now be classified as Broken, distinct from Flaky.** This gives teams a clearer picture of test health when they need to triage real regressions separately from intermittent flakes.
 
+![Threshold monitor set to the Broken detection type with a red BROKEN badge](/assets/changelog/flaky-tests-detect-broken-tests-mock.png)
+
 When creating or editing a threshold monitor, set the **Detection type** to **Broken**. Monitors configured this way mark tests as **Broken** (shown in red) once the failure threshold is exceeded. Each monitor card shows its detection type with a color-coded badge: blue for Flaky, red for Broken.
 
 Test status priority is **Broken > Flaky > Healthy**, so a test flagged by both a broken and a flaky monitor shows as Broken until the broken monitor resolves. The `v2.test_case.status_changed` webhook now includes `BROKEN` as a status value, so you can route broken tests through a separate triage workflow than flaky ones.

@@ -8,6 +8,8 @@ type: update
 
 **Two improvements to Flaky Tests: a clear prompt when a repository has no detection monitors set up, and support for Jira custom fields in ticketing.**
 
+![Flaky Tests page banner warning that no detection monitors are configured](/assets/changelog/flaky-tests-no-monitors-banner-jira-fields-mock.png)
+
 ### Banner when no monitors are configured
 
 When a repository is uploading test results but has no detection monitors configured, the Flaky Tests page now shows an alert banner at the top prompting you to set one up, and the Monitors tab in the left nav shows a warning indicator. Previously an unconfigured repo just showed an empty state, so it was easy to miss that no detection was actually running. Create a monitor and both the banner and the indicator clear.

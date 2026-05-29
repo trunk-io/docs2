@@ -8,6 +8,8 @@ type: update
 
 **The merge queue testing details API now tells you exactly why a merge item is held up, instead of a generic "tests failed".**
 
+![Merge Queue item detail showing waiting-on pull requests and a specific failure status](/assets/changelog/merge-queue-failure-statuses-merge-item-ids-mock.png)
+
 When tests pass, the test-passed details include the merge item IDs the item is currently waiting on before it can merge or restart, so you can see what's actually blocking progress. When tests fail, the specific failure status is recorded directly on the test run, giving you precise failure attribution rather than a single catch-all message.
 
 [Read the docs](/merge-queue/reference/merge#post-getmergequeuetestingdetails) to learn more.

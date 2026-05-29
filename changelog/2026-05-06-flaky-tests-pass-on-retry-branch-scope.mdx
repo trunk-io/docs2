@@ -8,6 +8,8 @@ type: update
 
 **The pass-on-retry monitor now takes a configurable branch scope, so you can limit detection to the branches where retry behavior actually matters.**
 
+![Pass-on-retry monitor configuration with a Branch Scope field](/assets/changelog/flaky-tests-pass-on-retry-branch-scope-mock.png)
+
 By default the monitor still evaluates every branch (`*`). Set a branch scope to focus it on stable branches like `main` or `release/*` and stop counting the retries CI runs automatically on PR branches. Branch scope uses the same glob syntax as the failure rate monitor and accepts up to 10 patterns. Changes apply to newly detected events; tests already flagged aren't re-evaluated.
 
 [Read the docs](/flaky-tests/detection/pass-on-retry-monitor#branch-scope) to learn more.
