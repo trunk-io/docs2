@@ -12,4 +12,4 @@ When creating or editing a threshold monitor, set the **Detection type** to **Br
 
 Test status priority is **Broken > Flaky > Healthy**, so a test flagged by both a broken and a flaky monitor shows as Broken until the broken monitor resolves. The `v2.test_case.status_changed` webhook now includes `BROKEN` as a status value, so you can route broken tests through a separate triage workflow than flaky ones.
 
-[Read the docs](https://docs.trunk.io/flaky-tests/detection/failure-rate-monitor) to learn more.
+[Read the docs](/flaky-tests/detection/failure-rate-monitor#action) to learn more.

@@ -8,11 +8,11 @@ type: update
 
 **Monitors can now apply labels to tests instead of changing their health status.** This is useful when you want a monitor to surface a pattern for triage without marking tests flaky or broken — and it doubles as a dry-run while you tune a new monitor.
 
-When you create or edit a [pass-on-retry](https://docs.trunk.io/flaky-tests/detection/pass-on-retry-monitor), [failure rate](https://docs.trunk.io/flaky-tests/detection/failure-rate-monitor), or [failure count](https://docs.trunk.io/flaky-tests/detection/failure-count-monitor) monitor, the **Action** section now offers:
+When you create or edit a [pass-on-retry](/flaky-tests/detection/pass-on-retry-monitor), [failure rate](/flaky-tests/detection/failure-rate-monitor), or [failure count](/flaky-tests/detection/failure-count-monitor) monitor, the **Action** section now offers:
 
 - **Classify test status** (default) — the original behavior; the test is marked flaky or broken while the monitor is active.
 - **Apply labels** — one or more labels are added to the test while the monitor is active, with no change to the test's health status.
 
 By default, monitor-applied labels are removed when the monitor resolves; you can turn that off to keep the labels on the test. When the same label is applied by multiple sources (a user, multiple monitors, or both), it stays on the test until every source removes it.
 
-[Read the docs](https://docs.trunk.io/flaky-tests/management/test-labels#automatic-labeling-from-monitors) to learn more.
+[Read the docs](/flaky-tests/management/test-labels#automatic-labeling-from-monitors) to learn more.
