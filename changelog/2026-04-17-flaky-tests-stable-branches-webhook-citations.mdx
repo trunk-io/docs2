@@ -1,0 +1,14 @@
+---
+title: "Flaky Tests: master and develop as Default Stable Branches, Rendered Webhook Citations"
+description: "master and develop now count as stable branches by default, and AI investigation webhooks deliver fully rendered citation links."
+date: 2026-04-17
+category: Flaky Tests
+type: update
+---
+
+**Trunk Flaky Tests now recognizes `master` and `develop` as stable branches by default, alongside `main`.** Two improvements landed in this window.
+
+- **Default stable branches.** Uploads from `master` and `develop` are classified as stable-branch uploads automatically, the same as `main`. Repos using either as their primary branch no longer need a stable branch override to get accurate flake detection, and the setup banner that prompted you to configure one on the uploads page is gone for those repos.
+- **Rendered webhook citations.** The `test_case.investigation_completed` webhook now delivers fully rendered citation links in `markdown_summary` and in each `facts[].content` entry, instead of raw `CITE:TAG` placeholders. If you build on these payloads — a Slack bot, ticket automation — you can use the fields directly without post-processing.
+
+[Read the docs](https://docs.trunk.io/flaky-tests/get-started) to learn more.

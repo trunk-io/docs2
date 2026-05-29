@@ -628,6 +628,7 @@
               "changelog/2026-04-30-merge-queue-chrome-extension",
               "changelog/2026-04-28-merge-queue-failure-statuses-merge-item-ids",
               "changelog/2026-04-21-merge-queue-drill-down-into-merge-metrics",
+              "changelog/2026-04-17-flaky-tests-stable-branches-webhook-citations",
               "changelog/2026-04-15-flaky-tests-linked-tickets-survive-moves",
               "changelog/2026-04-15-flaky-tests-repositories-overview-dashboard",
               "changelog/2026-04-13-merge-queue-terraform-provider",
