@@ -215,12 +215,16 @@ You can also wrap the test command with the Trunk Analytics CLI. When wrapping t
 
 If you have tests that should never be quarantined or should always be quarantined regardless of their current health status, you can do this by overriding individual tests.
 
-<Frame caption="The row actions menu in the Flaky Tests table, with the Quarantine test and Never Quarantine test options.">
-  <img className="block dark:hidden" src="/assets/qurantine-individual-tests-light.png" alt="overriding individual tests" />
-  <img className="hidden dark:block" src="/assets/qurantine-individual-tests-dark.png" alt="overriding individual tests" />
+<Frame caption="The Choose quarantine status control on a test's details page, set to Always.">
+  <img className="block dark:hidden" src="/assets/qurantine-individual-tests-light.png" alt="quarantine override on the test details page" />
+  <img className="hidden dark:block" src="/assets/qurantine-individual-tests-dark.png" alt="quarantine override on the test details page" />
 </Frame>
 
-You can set a quarantine override from two places:
+You can set a quarantine override from two places: a test's details page, or the Flaky Tests table.
+
+**From the test details page**
+
+Open the test's details page and click the **Quarantine** button to reveal the **Choose quarantine status** control. Select **Always** to quarantine the test's failures or **Never** to keep it from being quarantined, add the required comment, and click **Save**. The control also shows whether repository auto-quarantining is on. To clear an override later, reopen the control and click **Remove Quarantine**.
 
 **From the Flaky Tests table**
 
@@ -229,12 +233,7 @@ Open the actions menu (the **⋮** button at the end of any row in the Flaky Tes
 * **Quarantine test** / **Unquarantine test**: toggles the always-quarantine override for that test.
 * **Never Quarantine test** / **Remove Never Quarantine**: toggles the never-quarantine override. When set, the test is never quarantined, even if auto-quarantining is enabled for the repo.
 
-Access to these four options is controlled by the [Manual Quarantine Permissions](#quarantining-settings) setting. When set to **Admins only**, non-admin users see them as disabled with the tooltip "Only admins can set manual quarantine."
-
-**From the test details page**
-
-* To set an override: open the quarantine status control to reveal **Choose quarantine status**, select **Always** (quarantine this test's failures) or **Never** (prevent it from being quarantined), add the required comment, and click **Save**.
-* To remove an override: open the control again and click **Remove Quarantine**.
+Access to these options is controlled by the [Manual Quarantine Permissions](#quarantining-settings) setting. When set to **Admins only**, non-admin users see the quarantine controls disabled with the tooltip "Only admins can set manual quarantine."
 
 When a manual override is active, a banner shows who set it and when.
 
