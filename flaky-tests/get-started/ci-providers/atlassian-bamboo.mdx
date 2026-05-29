@@ -38,7 +38,7 @@ You can find your token under **Settings > Organization > Manage > Organization 
 
 ## Add the Trunk Token as a Secret
 
-Store the Trunk slug and API token obtained in the previous step as [Bamboo plan variables](https://confluence.atlassian.com/bamboo/bamboo-variables-289277087.html). Name them `TRUNK_ORG_SLUG` and `TRUNK_TOKEN` respectively, and mark `TRUNK_TOKEN` as a **Secret** variable in the Bamboo UI to prevent it from appearing in build logs.
+Store the Trunk slug and API token obtained in the previous step as [Bamboo plan variables](https://confluence.atlassian.com/bamboo/bamboo-variables-289277087.html). Name them `TRUNK_ORG_URL_SLUG` and `TRUNK_API_TOKEN` respectively, and mark `TRUNK_API_TOKEN` as a **Secret** variable in the Bamboo UI to prevent it from appearing in build logs.
 
 ## Upload to Trunk
 
@@ -85,12 +85,12 @@ Run Tests and Upload to Trunk:
           chmod +x trunk-analytics-cli
           ./trunk-analytics-cli upload \
             --junit-paths "<XML_GLOB_PATH>" \
-            --org-url-slug ${bamboo.TRUNK_ORG_SLUG} \
-            --token ${bamboo.TRUNK_TOKEN}
+            --org-url-slug ${bamboo.TRUNK_ORG_URL_SLUG} \
+            --token ${bamboo.TRUNK_API_TOKEN}
 
 variables:
-  TRUNK_ORG_SLUG: <YOUR_TRUNK_ORG_SLUG>
-  TRUNK_TOKEN: <YOUR_TRUNK_TOKEN>
+  TRUNK_ORG_URL_SLUG: <YOUR_TRUNK_ORG_URL_SLUG>
+  TRUNK_API_TOKEN: <YOUR_TRUNK_API_TOKEN>
 ```
 ```yaml Bazel
 version: 2
@@ -118,12 +118,12 @@ Run Tests and Upload to Trunk:
           chmod +x trunk-analytics-cli
           ./trunk-analytics-cli upload \
             --bazel-bep-path <BEP_JSON_PATH> \
-            --org-url-slug ${bamboo.TRUNK_ORG_SLUG} \
-            --token ${bamboo.TRUNK_TOKEN}
+            --org-url-slug ${bamboo.TRUNK_ORG_URL_SLUG} \
+            --token ${bamboo.TRUNK_API_TOKEN}
 
 variables:
-  TRUNK_ORG_SLUG: <YOUR_TRUNK_ORG_SLUG>
-  TRUNK_TOKEN: <YOUR_TRUNK_TOKEN>
+  TRUNK_ORG_URL_SLUG: <YOUR_TRUNK_ORG_URL_SLUG>
+  TRUNK_API_TOKEN: <YOUR_TRUNK_API_TOKEN>
 ```
 ```yaml XCode
 version: 2
@@ -151,12 +151,12 @@ Run Tests and Upload to Trunk:
           chmod +x trunk-analytics-cli
           ./trunk-analytics-cli upload \
             --xcresult-path <XCRESULT_PATH> \
-            --org-url-slug ${bamboo.TRUNK_ORG_SLUG} \
-            --token ${bamboo.TRUNK_TOKEN}
+            --org-url-slug ${bamboo.TRUNK_ORG_URL_SLUG} \
+            --token ${bamboo.TRUNK_API_TOKEN}
 
 variables:
-  TRUNK_ORG_SLUG: <YOUR_TRUNK_ORG_SLUG>
-  TRUNK_TOKEN: <YOUR_TRUNK_TOKEN>
+  TRUNK_ORG_URL_SLUG: <YOUR_TRUNK_ORG_URL_SLUG>
+  TRUNK_API_TOKEN: <YOUR_TRUNK_API_TOKEN>
 ```
 </CodeGroup>
 
@@ -195,4 +195,4 @@ Once your pipeline has run on a stable branch, head to [app.trunk.io](https://ap
 - The **Uploads** tab lists every report Trunk has ingested, with status and any warnings (missing file paths, malformed XML, and so on).
 - The **Tests** tab shows individual test cases once an upload has been processed.
 
-If a recent run isn't showing up, check your CI logs for upload errors and confirm your `TRUNK_TOKEN` and `TRUNK_ORG_SLUG` secrets are set on the project running the pipeline.
+If a recent run isn't showing up, check your CI logs for upload errors and confirm your `TRUNK_API_TOKEN` and `TRUNK_ORG_URL_SLUG` secrets are set on the project running the pipeline.

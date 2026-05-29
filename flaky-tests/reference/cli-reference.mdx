@@ -100,7 +100,7 @@ Trunk can accept JUnit XMLs through the `--junit-paths` argument:
 
 ```
 ./trunk-analytics-cli upload --junit-paths "test_output.xml" \
-   --org-url-slug <TRUNK_ORG_SLUG> \
+   --org-url-slug <TRUNK_ORG_URL_SLUG> \
    --token $TRUNK_API_TOKEN
 ```
 </Tab>
@@ -109,7 +109,7 @@ Trunk can accept Bazel through the `--bazel-bep-path` argument:
 
 ```
 ./trunk-analytics-cli upload --bazel-bep-path <BEP_JSON_PATH> \
-   --org-url-slug <TRUNK_ORG_SLUG> \
+   --org-url-slug <TRUNK_ORG_URL_SLUG> \
    --token $TRUNK_API_TOKEN
 ```
 </Tab>
@@ -118,7 +118,7 @@ Trunk can accept XCode through the `--xcresult-path` argument:
 
 ```
 ./trunk-analytics-cli upload --xcresult-path <XCRESULT_PATH> \
-   --org-url-slug <TRUNK_ORG_SLUG> \
+   --org-url-slug <TRUNK_ORG_URL_SLUG> \
    --token $TRUNK_API_TOKEN
 ```
 </Tab>
@@ -134,7 +134,7 @@ You can specify a variant during upload using the `--variant` option:
 
 ```sh Upload an iOS variant
 ./trunk-analytics-cli upload --junit-paths "test_output.xml" \
-   --org-url-slug <TRUNK_ORG_SLUG> \
+   --org-url-slug <TRUNK_ORG_URL_SLUG> \
    --token $TRUNK_API_TOKEN \
    --variant ios
 ```
@@ -158,7 +158,7 @@ Trunk can accept JUnit XMLs through the `--junit-paths` argument:
 
 ```
 ./trunk-analytics-cli test --junit-paths "test_output.xml" \
-   --org-url-slug <TRUNK_ORG_SLUG> \
+   --org-url-slug <TRUNK_ORG_URL_SLUG> \
    --token $TRUNK_API_TOKEN \
    <YOUR_TEST_COMMAND>
 ```
@@ -168,7 +168,7 @@ Trunk can accept Bazel through the `--bazel-bep-path` argument:
 
 ```
 ./trunk-analytics-cli test --bazel-bep-path <BEP_JSON_PATH> \
-   --org-url-slug <TRUNK_ORG_SLUG> \
+   --org-url-slug <TRUNK_ORG_URL_SLUG> \
    --token $TRUNK_API_TOKEN \
    <YOUR_TEST_COMMAND>
 ```
@@ -178,7 +178,7 @@ Trunk can accept XCode through the `--xcresult-path` argument:
 
 ```
 ./trunk-analytics-cli test --xcresult-path <XCRESULT_PATH> \
-   --org-url-slug <TRUNK_ORG_SLUG> \
+   --org-url-slug <TRUNK_ORG_URL_SLUG> \
    --token $TRUNK_API_TOKEN \
    <YOUR_TEST_COMMAND>
 ```

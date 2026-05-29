@@ -38,7 +38,7 @@ You can find your token under **Settings > Organization > Manage > Organization 
 
 ## Add the Trunk Token as a Secret
 
-Store the Trunk slug and API token obtained in the previous step in your BitBucket as a new variable named `TRUNK_ORG_SLUG` and `TRUNK_TOKEN` respectively.
+Store the Trunk slug and API token obtained in the previous step in your BitBucket as a new variable named `TRUNK_ORG_URL_SLUG` and `TRUNK_API_TOKEN` respectively.
 
 ## Upload to Trunk
 
@@ -76,8 +76,8 @@ pipelines:
             curl -fL --retry 3 "https://github.com/trunk-io/analytics-cli/releases/latest/download/trunk-analytics-cli-x86_64-unknown-linux.tar.gz" | tar -xz
             chmod +x trunk-analytics-cli
             ./trunk-analytics-cli upload --junit-paths "**/junit.xml" \
-              --org-url-slug $TRUNK_ORG_SLUG \
-              --token $TRUNK_TOKEN
+              --org-url-slug $TRUNK_ORG_URL_SLUG \
+              --token $TRUNK_API_TOKEN
 ```
 ```yaml Bazel
 image: <BITBUCKET_IMAGE>
@@ -96,8 +96,8 @@ pipelines:
             curl -fL --retry 3 "https://github.com/trunk-io/analytics-cli/releases/latest/download/trunk-analytics-cli-x86_64-unknown-linux.tar.gz" | tar -xz
             chmod +x trunk-analytics-cli
             ./trunk-analytics-cli upload --bazel-bep-path <BEP_JSON_PATH> \
-              --org-url-slug $TRUNK_ORG_SLUG \
-              --token $TRUNK_TOKEN
+              --org-url-slug $TRUNK_ORG_URL_SLUG \
+              --token $TRUNK_API_TOKEN
 ```
 ```yaml XCode
 image: <BITBUCKET_IMAGE>
@@ -116,8 +116,8 @@ pipelines:
             curl -fL --retry 3 "https://github.com/trunk-io/analytics-cli/releases/latest/download/trunk-analytics-cli-x86_64-unknown-linux.tar.gz" | tar -xz
             chmod +x trunk-analytics-cli
             ./trunk-analytics-cli upload --xcresult-path <XCRESULT_PATH> \
-              --org-url-slug $TRUNK_ORG_SLUG \
-              --token $TRUNK_TOKEN
+              --org-url-slug $TRUNK_ORG_URL_SLUG \
+              --token $TRUNK_API_TOKEN
 ```
 ```yaml RSpec plugin
 image: <BITBUCKET_IMAGE>
@@ -130,8 +130,8 @@ pipelines:
         name: Run Tests and Upload Results
         script:
           - |
-            TRUNK_ORG_URL_SLUG=$TRUNK_ORG_SLUG \
-            TRUNK_API_TOKEN=$TRUNK_TOKEN \
+            TRUNK_ORG_URL_SLUG=$TRUNK_ORG_URL_SLUG \
+            TRUNK_API_TOKEN=$TRUNK_API_TOKEN \
             bundle exec rspec
 ```
 </CodeGroup>
@@ -156,4 +156,4 @@ Once your pipeline has run on a stable branch, head to [app.trunk.io](https://ap
 - The **Uploads** tab lists every report Trunk has ingested, with status and any warnings (missing file paths, malformed XML, and so on).
 - The **Tests** tab shows individual test cases once an upload has been processed.
 
-If a recent run isn't showing up, check your CI logs for upload errors and confirm your `TRUNK_TOKEN` and `TRUNK_ORG_SLUG` secrets are set on the project running the pipeline.
+If a recent run isn't showing up, check your CI logs for upload errors and confirm your `TRUNK_API_TOKEN` and `TRUNK_ORG_URL_SLUG` secrets are set on the project running the pipeline.

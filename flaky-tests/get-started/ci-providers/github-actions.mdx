@@ -32,7 +32,7 @@ You can find your token under **Settings > Organization > Manage > Organization 
 
 ## Add Your Trunk Token and Organization Slug as Secrets
 
-Store the Trunk slug and API token obtained in the previous step in your repo as [GitHub secrets](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions) named `TRUNK_ORG_SLUG` and `TRUNK_TOKEN` respectively.
+Store the Trunk slug and API token obtained in the previous step in your repo as [GitHub secrets](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions) named `TRUNK_ORG_URL_SLUG` and `TRUNK_API_TOKEN` respectively.
 
 ## Upload to Trunk
 
@@ -69,8 +69,8 @@ jobs:
         uses: trunk-io/analytics-uploader@v1
         with:
           junit-paths: **/junit.xml        
-          org-slug: <TRUNK_ORG_SLUG>
-          token: ${{ secrets.TRUNK_TOKEN }}
+          org-slug: <TRUNK_ORG_URL_SLUG>
+          token: ${{ secrets.TRUNK_API_TOKEN }}
 ```
 ```yaml XCResult Path
 jobs:
@@ -88,8 +88,8 @@ jobs:
         uses: trunk-io/analytics-uploader@v1
         with:
           xcresult-path: ./test-results.xcresult        
-          org-slug: <TRUNK_ORG_SLUG>
-          token: ${{ secrets.TRUNK_TOKEN }}
+          org-slug: <TRUNK_ORG_URL_SLUG>
+          token: ${{ secrets.TRUNK_API_TOKEN }}
 ```
 ```yaml Bazel BEP JSON
 jobs:
@@ -107,8 +107,8 @@ jobs:
         uses: trunk-io/analytics-uploader@v1
         with:
           bazel-bep-path: ./build_events.json        
-          org-slug: <TRUNK_ORG_SLUG>
-          token: ${{ secrets.TRUNK_TOKEN }}
+          org-slug: <TRUNK_ORG_URL_SLUG>
+          token: ${{ secrets.TRUNK_API_TOKEN }}
 ```
 ```yaml RSpec plugin
 jobs:
@@ -118,7 +118,7 @@ jobs:
 
     steps:
       - name: Run Tests and Upload Results to Trunk.io
-        run: TRUNK_ORG_URL_SLUG=${{ secrets.TRUNK_ORG_SLUG }} TRUNK_API_TOKEN=${{ secrets.TRUNK_TOKEN }} bundle exec rspec
+        run: TRUNK_ORG_URL_SLUG=${{ secrets.TRUNK_ORG_URL_SLUG }} TRUNK_API_TOKEN=${{ secrets.TRUNK_API_TOKEN }} bundle exec rspec
 
 ```
 </CodeGroup>
@@ -160,7 +160,7 @@ Here's an example file.
 	      with:
 	        junit-paths: <TEST OUTPUT PATH>
 	        org-slug: my-trunk-org-slug
-	        token: ${{ secrets.TRUNK_TOKEN }}
+	        token: ${{ secrets.TRUNK_API_TOKEN }}
 ```
 
 If you want to run the test command and upload in a single step, the test command must be **run via the Analytics Uploader** through the `run: <COMMAND TO RUN TESTS>` parameter.
@@ -185,7 +185,7 @@ This will override the response code of the test command. Make sure to set `cont
 	          junit-paths: <TEST OUTPUT PATH>
 	          run: <COMMAND TO RUN TESTS> # command to run tests goes here
 	          org-slug: my-trunk-org-slug
-	          token: ${{ secrets.TRUNK_TOKEN }}
+	          token: ${{ secrets.TRUNK_API_TOKEN }}
 ```
 </Tab>
 <Tab title="Using The Trunk Analytics CLI Directly">
@@ -201,8 +201,8 @@ When quarantining is enabled, the `trunk-analytics-cli upload` command will **re
 <run my tests> || true # doesn't fail job on failure
 |
     ./trunk-analytics-cli upload \
-        --org-url-slug $TRUNK_ORG_SLUG \
-        --token $TRUNK_TOKEN \
+        --org-url-slug $TRUNK_ORG_URL_SLUG \
+        --token $TRUNK_API_TOKEN \
         --junit-paths $JUNIT_PATH
 ```
 
@@ -212,8 +212,8 @@ You can also wrap the test command with the Trunk Analytics CLI. When wrapping t
 
 ```bash
 ./trunk-analytics-cli test \
-    --org-url-slug <TRUNK_ORG_SLUG> \
-    --token $TRUNK_TOKEN \
+    --org-url-slug <TRUNK_ORG_URL_SLUG> \
+    --token $TRUNK_API_TOKEN \
     --junit-paths $JUNIT_PATH \
     --allow-empty-test-results \
     <Test Command>
@@ -232,7 +232,7 @@ Once your workflow has run on a stable branch, head to [app.trunk.io](https://ap
 - The **Uploads** tab lists every report Trunk has ingested, with status and any warnings (missing file paths, malformed XML, and so on).
 - The **Tests** tab shows individual test cases once an upload has been processed.
 
-If a recent run isn't showing up, check the action logs for upload errors and confirm your `TRUNK_TOKEN` and `TRUNK_ORG_SLUG` secrets are set on the repo running the workflow.
+If a recent run isn't showing up, check the action logs for upload errors and confirm your `TRUNK_API_TOKEN` and `TRUNK_ORG_URL_SLUG` secrets are set on the repo running the workflow.
 
 ## Getting Direct Links to Job Logs
 
@@ -281,7 +281,7 @@ jobs:
         with:
           junit-paths: <TEST OUTPUT PATH>
           org-slug: my-trunk-org-slug
-          token: ${{ secrets.TRUNK_TOKEN }}
+          token: ${{ secrets.TRUNK_API_TOKEN }}
         env:
           JOB_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/${{ steps.get-job-id.outputs.jobId }}
 ```
@@ -322,7 +322,7 @@ jobs:
         with:
           junit-paths: junit.xml
           org-slug: my-trunk-org-slug
-          token: ${{ secrets.TRUNK_TOKEN }}
+          token: ${{ secrets.TRUNK_API_TOKEN }}
         env:
           JOB_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/${{ steps.get-job-id.outputs.jobId }}
 ```

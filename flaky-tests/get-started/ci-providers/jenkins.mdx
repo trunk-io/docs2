@@ -38,7 +38,7 @@ You can find your token under **Settings > Organization > Manage > Organization 
 
 ## Add the Trunk Token as a Secret
 
-Store the Trunk slug and API token obtained in the previous step in your Jenkins as new credentials named `TRUNK_ORG_SLUG` and `TRUNK_TOKEN` respectively.
+Store the Trunk slug and API token obtained in the previous step in your Jenkins as new credentials named `TRUNK_ORG_URL_SLUG` and `TRUNK_API_TOKEN` respectively.
 
 ## Upload to Trunk
 
@@ -62,7 +62,7 @@ To find out how to produce the report files the uploader needs, see the instruct
 ```groovy XML
 pipeline {
   environment {
-    TRUNK_TOKEN = credentials('TRUNK_TOKEN')
+    TRUNK_API_TOKEN = credentials('TRUNK_API_TOKEN')
   }
   stages {
     stage('Run Tests'){
@@ -70,7 +70,7 @@ pipeline {
     }
     stage('Upload Test Results'){
       sh 'curl -fL --retry 3 "https://github.com/trunk-io/analytics-cli/releases/latest/download/trunk-analytics-cli-x86_64-unknown-linux.tar.gz" | tar -xz && chmod +x trunk-analytics-cli'
-      sh './trunk-analytics-cli upload --junit-paths "<XML_GLOB_PATH>" --org-url-slug <TRUNK_ORG_SLUG> --token $TRUNK_TOKEN'
+      sh './trunk-analytics-cli upload --junit-paths "<XML_GLOB_PATH>" --org-url-slug <TRUNK_ORG_URL_SLUG> --token $TRUNK_API_TOKEN'
     }
   }
 }
@@ -78,7 +78,7 @@ pipeline {
 ```yaml Bazel
 pipeline {
   environment {
-    TRUNK_TOKEN = credentials('TRUNK_TOKEN')
+    TRUNK_API_TOKEN = credentials('TRUNK_API_TOKEN')
   }
   stages {
     stage('Run Tests'){
@@ -86,7 +86,7 @@ pipeline {
     }
     stage('Upload Test Results'){
       sh 'curl -fL --retry 3 "https://github.com/trunk-io/analytics-cli/releases/latest/download/trunk-analytics-cli-x86_64-unknown-linux.tar.gz" | tar -xz && chmod +x trunk-analytics-cli'
-      sh './trunk-analytics-cli upload --bazel-bep-path <BEP_JSON_PATH> --org-url-slug <TRUNK_ORG_SLUG> --token $TRUNK_TOKEN'
+      sh './trunk-analytics-cli upload --bazel-bep-path <BEP_JSON_PATH> --org-url-slug <TRUNK_ORG_URL_SLUG> --token $TRUNK_API_TOKEN'
     }
   }
 }
@@ -94,7 +94,7 @@ pipeline {
 ```yaml XCode
 pipeline {
   environment {
-    TRUNK_TOKEN = credentials('TRUNK_TOKEN')
+    TRUNK_API_TOKEN = credentials('TRUNK_API_TOKEN')
   }
   stages {
     stage('Run Tests'){
@@ -102,7 +102,7 @@ pipeline {
     }
     stage('Upload Test Results'){
       sh 'curl -fL --retry 3 "https://github.com/trunk-io/analytics-cli/releases/latest/download/trunk-analytics-cli-x86_64-unknown-linux.tar.gz" | tar -xz && chmod +x trunk-analytics-cli'
-      sh './trunk-analytics-cli upload --xcresult-path <XCRESULT_PATH> --org-url-slug <TRUNK_ORG_SLUG> --token $TRUNK_TOKEN'
+      sh './trunk-analytics-cli upload --xcresult-path <XCRESULT_PATH> --org-url-slug <TRUNK_ORG_URL_SLUG> --token $TRUNK_API_TOKEN'
     }
   }
 }
@@ -110,12 +110,12 @@ pipeline {
 ```groovy RSpec plugin
 pipeline {
   environment {
-    TRUNK_ORG_SLUG = credentials('TRUNK_ORG_SLUG')
-    TRUNK_TOKEN = credentials('TRUNK_TOKEN')
+    TRUNK_ORG_URL_SLUG = credentials('TRUNK_ORG_URL_SLUG')
+    TRUNK_API_TOKEN = credentials('TRUNK_API_TOKEN')
   }
   stages {
     stage('Run Tests and Upload Results to Trunk.io'){
-      sh 'TRUNK_ORG_URL_SLUG=$TRUNK_ORG_SLUG TRUNK_API_TOKEN=$TRUNK_TOKEN bundle exec rspec'
+      sh 'TRUNK_ORG_URL_SLUG=$TRUNK_ORG_URL_SLUG TRUNK_API_TOKEN=$TRUNK_API_TOKEN bundle exec rspec'
     }
   }
 }
@@ -140,4 +140,4 @@ Once your pipeline has run on a stable branch, head to [app.trunk.io](https://ap
 - The **Uploads** tab lists every report Trunk has ingested, with status and any warnings (missing file paths, malformed XML, and so on).
 - The **Tests** tab shows individual test cases once an upload has been processed.
 
-If a recent run isn't showing up, check your CI logs for upload errors and confirm your `TRUNK_TOKEN` and `TRUNK_ORG_SLUG` secrets are set on the project running the pipeline.
+If a recent run isn't showing up, check your CI logs for upload errors and confirm your `TRUNK_API_TOKEN` and `TRUNK_ORG_URL_SLUG` secrets are set on the project running the pipeline.
