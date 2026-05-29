@@ -1,0 +1,13 @@
+---
+title: "Flaky Tests: Switch a Monitor's Action Type After Creation"
+description: "Change a monitor's action between Classify test status and Apply labels, or flip flaky and broken, without deleting and recreating it."
+date: 2026-05-14
+category: Flaky Tests
+type: update
+---
+
+**You can now change a Failure Rate or Failure Count monitor's action after it's created, instead of deleting and recreating the monitor.** Switch between **Classify test status** and **Apply labels**, or flip a classification monitor between **flaky** and **broken**, and Trunk reconciles every active test against the new configuration right away.
+
+Before this, the action you chose at creation was locked in — changing it meant deleting the monitor and starting over, which dropped the monitor's existing state. Now you can iterate on a detection strategy in place. A common pattern: create a monitor with **Apply labels** to watch live test data without touching health status, confirm it activates on the right tests, then switch it to **Classify test status** once you trust the configuration.
+
+[Read the docs](https://docs.trunk.io/flaky-tests/detection/failure-rate-monitor#action) to learn more.
