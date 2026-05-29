@@ -1,0 +1,13 @@
+---
+title: "Flaky Tests: AI Investigations Delivered via Webhooks"
+description: "AI-powered investigations run automatically when a test first becomes flaky, with the findings delivered to your configured webhook endpoint."
+date: 2026-04-06
+category: Flaky Tests
+type: new-feature
+---
+
+**AI-powered investigations now run automatically when a test first becomes flaky, and the findings are delivered to your configured webhook endpoint.**
+
+When the detection engine marks a test as flaky for the first time, Trunk kicks off an AI investigation in the background. The investigation gathers context from CI runs, Git history, and related code, then emits a structured payload to your webhook. This is useful for teams that want flaky test triage to land directly in Slack, a ticket, or any internal automation, without engineers chasing down context by hand.
+
+[Read the docs](https://docs.trunk.io/flaky-tests/webhooks) to learn more.
