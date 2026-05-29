@@ -12,6 +12,6 @@ A collection is a named group of tests within a repository. Upload test results 
 
 - **Create, edit, and delete collections** from the Flaky Tests app. Organization admins manage collections; all members can view collections and the tests within them.
 - **Collection-level quarantine settings.** Each collection has its own quarantine settings page, so a critical test collection can run different rules than the rest of your suite.
-- **Scoped uploads via the CLI.** Pass the collection's short ID with `trunk flakytests upload --collection <short-id>` to route results into a specific collection.
+- **Scoped uploads via the CLI.** Pass the collection's short ID with `--test-collection-short-id <short-id>` when uploading results to route them into a specific collection.
 
 [Read the docs](https://docs.trunk.io/flaky-tests/get-started/test-collections) to learn more.
