@@ -38,7 +38,7 @@ You can find your token under **Settings > Organization > Manage > Organization 
 
 ## Add the Trunk Token as a Secret
 
-Store the Trunk slug and API token obtained in the previous step in your as a new [Buildkite CI secret](https://buildkite.com/docs/pipelines/security/secrets/managing) named `TRUNK_ORG_URL_SLUG` and `TRUNK_TOKEN` respectively.
+Store the Trunk slug and API token obtained in the previous step in your as a new [Buildkite CI secret](https://buildkite.com/docs/pipelines/security/secrets/managing) named `TRUNK_ORG_URL_SLUG` and `TRUNK_API_TOKEN` respectively.
 
 ## Upload to Trunk
 
@@ -68,7 +68,7 @@ steps:
   - label: Upload Test Results to Trunk.io
     commands:
       - curl -fL --retry 3 "https://github.com/trunk-io/analytics-cli/releases/latest/download/trunk-analytics-cli-x86_64-unknown-linux.tar.gz" | tar -xz && chmod +x trunk-analytics-cli
-      - ./trunk-analytics-cli upload --junit-paths "<XML_GLOB_PATH>" --org-url-slug <TRUNK_ORG_URL_SLUG> --token $TRUNK_TOKEN
+      - ./trunk-analytics-cli upload --junit-paths "<XML_GLOB_PATH>" --org-url-slug <TRUNK_ORG_URL_SLUG> --token $TRUNK_API_TOKEN
     key: upload
     depends_on:
       - tests
@@ -82,7 +82,7 @@ steps:
   - label: Upload Test Results to Trunk.io
     commands:
       - curl -fL --retry 3 "https://github.com/trunk-io/analytics-cli/releases/latest/download/trunk-analytics-cli-x86_64-unknown-linux.tar.gz" | tar -xz && chmod +x trunk-analytics-cli
-      - ./trunk-analytics-cli upload --bazel-bep-path <BEP_JSON_PATH> --org-url-slug <TRUNK_ORG_URL_SLUG> --token $TRUNK_TOKEN
+      - ./trunk-analytics-cli upload --bazel-bep-path <BEP_JSON_PATH> --org-url-slug <TRUNK_ORG_URL_SLUG> --token $TRUNK_API_TOKEN
     key: upload
     depends_on:
       - tests
@@ -96,7 +96,7 @@ steps:
   - label: Upload Test Results to Trunk.io
     commands:
       - curl -fL --retry 3 "https://github.com/trunk-io/analytics-cli/releases/latest/download/trunk-analytics-cli-x86_64-unknown-linux.tar.gz" | tar -xz && chmod +x trunk-analytics-cli
-      - ./trunk-analytics-cli upload --xcresult-path <XCRESULT_PATH> --org-url-slug <TRUNK_ORG_URL_SLUG> --token $TRUNK_TOKEN
+      - ./trunk-analytics-cli upload --xcresult-path <XCRESULT_PATH> --org-url-slug <TRUNK_ORG_URL_SLUG> --token $TRUNK_API_TOKEN
     key: upload
     depends_on:
       - tests
@@ -104,7 +104,7 @@ steps:
 ```yaml RSpec plugin
 steps:
   - label: Run Tests and Upload Results to Trunk.io
-    command: TRUNK_ORG_URL_SLUG=$TRUNK_ORG_URL_SLUG TRUNK_API_TOKEN=$TRUNK_TOKEN bundle exec rspec
+    command: TRUNK_ORG_URL_SLUG=$TRUNK_ORG_URL_SLUG TRUNK_API_TOKEN=$TRUNK_API_TOKEN bundle exec rspec
     key: tests
 ```
 </CodeGroup>
@@ -127,4 +127,4 @@ Once your pipeline has run on a stable branch, head to [app.trunk.io](https://ap
 - The **Uploads** tab lists every report Trunk has ingested, with status and any warnings (missing file paths, malformed XML, and so on).
 - The **Tests** tab shows individual test cases once an upload has been processed.
 
-If a recent run isn't showing up, check your CI logs for upload errors and confirm your `TRUNK_TOKEN` and `TRUNK_ORG_URL_SLUG` secrets are set on the project running the pipeline.
+If a recent run isn't showing up, check your CI logs for upload errors and confirm your `TRUNK_API_TOKEN` and `TRUNK_ORG_URL_SLUG` secrets are set on the project running the pipeline.
