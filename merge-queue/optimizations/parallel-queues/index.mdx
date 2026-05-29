@@ -1,6 +1,7 @@
 ---
 title: "Parallel queues"
 description: "Create dynamic parallel queues to reduce queue time"
+og:title: "Parallel queues in Trunk Merge Queue"
 ---
 
 Normally, a merge queue behaves by enqueueing all submitted pull requests into a single line. Under this mode of operation, every pull request is [predictively tested ](/merge-queue/optimizations/predictive-testing)against the pull requests ahead of it. While this guarantees the correctness of the protected branch at all times, under a high submission load, the wait time for an item in the queue can be negatively impacted.
