@@ -1,0 +1,24 @@
+---
+title: "Flaky Tests: API Token Auth for the Trunk MCP Server"
+description: "The Trunk MCP server now accepts a Trunk organization API token via the Authorization: Bearer header, so you can use Trunk's MCP tools from CI jobs, scripts, and any client that doesn't support an OAuth flow."
+date: 2026-04-08
+category: Flaky Tests
+type: update
+---
+
+**The Trunk MCP server now accepts API token authentication as an alternative to OAuth, so you can use Trunk's MCP tools from CI jobs, scripts, and any client that doesn't support an OAuth flow.**
+
+OAuth stays the default for interactive clients. For headless and CI use, pass a Trunk organization API token via the standard `Authorization: Bearer <token>` header. The server first tries the OAuth (JWT) path; if the token isn't a valid JWT, it looks the token up as an org API token and authenticates the request at the org level. Authorization checks still apply.
+
+```json
+{
+  "mcpServers": {
+    "trunk": {
+      "url": "https://mcp.trunk.io/mcp",
+      "headers": { "Authorization": "Bearer <your-trunk-api-token>" }
+    }
+  }
+}
+```
+
+[Read the docs](https://docs.trunk.io/flaky-tests/reference/mcp-reference/configuration/bearer-auth) to learn more.

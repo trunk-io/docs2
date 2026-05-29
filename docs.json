@@ -625,6 +625,7 @@
               "changelog/2026-04-30-merge-queue-chrome-extension",
               "changelog/2026-04-21-merge-queue-drill-down-into-merge-metrics",
               "changelog/2026-04-13-merge-queue-terraform-provider",
+              "changelog/2026-04-08-flaky-tests-mcp-api-token-auth",
               "changelog/2026-03-27-flaky-tests-automatically-create-jira-issues-from-webhooks",
               "changelog/2026-03-26-merge-queue-testing-details-api-now-includes-impacted-target-information",
               "changelog/2026-03-25-merge-queue-multiple-queues-per-repo-with-grouped-selector",
