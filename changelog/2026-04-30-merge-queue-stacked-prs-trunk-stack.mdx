@@ -1,0 +1,19 @@
+---
+title: "Merge Queue: Move a Stack Through the Queue as One Unit with /trunk stack"
+description: "Comment /trunk stack on a chain of dependent pull requests and Trunk merges the whole stack through the queue together."
+date: 2026-04-30
+category: Merge Queue
+type: new-feature
+---
+
+**Comment `/trunk stack` on any PR in a dependent chain and Trunk merges the whole stack through the queue as a single unit.**
+
+A stack is a chain of PRs where each one's base is the PR below it. Instead of rebasing each PR onto main as the stack progresses or merging bottom-up by hand, `/trunk stack` combines the chain into one stacked PR that the queue tests and merges together. When that stacked PR merges, every member PR auto-closes since its code is already in the target branch.
+
+You can tell a stack apart in the dashboard at a glance:
+
+* A **Stacked** pill marks stacked PRs in the Queue and Graph views.
+* The merge item detail page header lists every member PR and its title.
+* Stack-specific cancellation reasons show up in the conclusion chart, so you can see exactly why a stack left the queue.
+
+[Read the docs](https://docs.trunk.io/merge-queue/using-the-queue/stacked-pull-requests) to learn more.
