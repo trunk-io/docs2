@@ -640,6 +640,7 @@
               "changelog/2026-03-19-merge-queue-route-slack-notifications-to-multiple-channels",
               "changelog/2026-03-13-merge-queue-isolate-prs-from-batching-with-nobatch",
               "changelog/2026-03-13-merge-queue-prometheus-compatible-metrics-endpoint",
+              "changelog/2026-03-10-flaky-tests-detect-broken-tests",
               "changelog/2026-03-10-flaky-tests-flag-as-flaky-one-click",
               "changelog/2026-03-09-merge-queue-impacted-targets-visible-on-the-merge-graph",
               "changelog/2026-03-05-merge-queue-custom-merge-commit-titles",
