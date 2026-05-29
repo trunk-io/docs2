@@ -1,7 +1,6 @@
 ---
 title: "Test Collections"
 description: "Organize your flaky tests into named collections to track and analyze specific subsets of your test suite."
-hidden: true
 ---
 Test Collections let you group tests from any repository into named sets. Use collections to focus on a subset of your test suite, such as tests owned by a specific team, tests covering a critical service, or any grouping that matters to your workflow.
 
@@ -29,7 +28,7 @@ https://app.trunk.io/<org>/flaky-tests/collections/<short-id>
 Pass the short ID when uploading results using the Trunk CLI:
 
 ```bash
-trunk flakytests upload --collection <short-id> ...
+trunk flakytests upload --test-collection-short-id <short-id> ...
 ```
 
 See the [Uploader reference](../reference/cli-reference) for full upload options.
@@ -38,8 +37,6 @@ See the [Uploader reference](../reference/cli-reference) for full upload options
 
 Once tests are uploaded to a collection, the **Tests** and **Uploads** tabs become active on the collection detail page.
 
-* **Tests** tab: Shows all tests associated with this collection, with their flaky status, failure rates, and labels.
-* **Uploads** tab: Shows the history of test uploads sent to this collection.
 * **Overview** tab: Shows setup instructions and the upload configuration for this collection.
 * **Tests** tab: Shows all tests associated with this collection, with their flaky status, failure rates, and labels.
 * **Uploads** tab: Shows the history of test uploads sent to this collection.
@@ -62,6 +59,12 @@ Only organization admins can delete collections.
 3. Confirm deletion in the dialog.
 
 Deleting a collection removes it from the **Collections** list. Test data uploaded to the collection is not deleted from your overall test suite.
+
+## Collection-level quarantining
+
+Each collection has its own quarantining settings that override the repository-level settings for any uploads routed to that collection. This lets you apply a different quarantine policy to a critical collection than to the rest of your suite — for example, aggressive auto-quarantining for one group and none for another.
+
+Configure it from the collection's **Settings** > **Quarantining** tab. See [Collection-level quarantining settings](../quarantining/index#collection-level-quarantining-settings) for the available toggles and how the override behaves.
 
 ## Permissions
 

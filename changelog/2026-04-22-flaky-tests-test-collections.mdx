@@ -1,0 +1,22 @@
+---
+title: "Flaky Tests: Test Collections"
+description: "Group tests from a repository into named collections with their own views and quarantine settings."
+date: 2026-04-22
+category: Flaky Tests
+type: new-feature
+---
+
+**Test Collections let you organize tests from a repository into named groups, each with its own views, settings, and quarantine policy.**
+
+A collection is a named group of tests within a repository. Create one from **Flaky Tests > Collections**, then upload results to it by passing its short ID to the Trunk CLI:
+
+```bash
+trunk flakytests upload --test-collection-short-id <short-id> ...
+```
+
+Tests, uploads, and configuration are all scoped to the collection across the Flaky Tests app.
+
+- **Create, edit, and delete collections** — organization admins manage collections from the Flaky Tests app; all members can view them and the tests inside.
+- **Collection-level quarantining** — each collection has its own quarantine settings that override the repository defaults, so a critical collection can quarantine aggressively while another never auto-quarantines.
+
+[Read the docs](https://docs.trunk.io/flaky-tests/get-started/test-collections) to learn more.
