@@ -631,6 +631,7 @@
               "changelog/2026-04-15-flaky-tests-linked-tickets-survive-moves",
               "changelog/2026-04-15-flaky-tests-repositories-overview-dashboard",
               "changelog/2026-04-13-merge-queue-terraform-provider",
+              "changelog/2026-04-06-flaky-tests-ai-investigations-webhooks",
               "changelog/2026-04-06-flaky-tests-no-monitors-banner-jira-fields",
               "changelog/2026-03-27-flaky-tests-automatically-create-jira-issues-from-webhooks",
               "changelog/2026-03-26-merge-queue-testing-details-api-now-includes-impacted-target-information",
