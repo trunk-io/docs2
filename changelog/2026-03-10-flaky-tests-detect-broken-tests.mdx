@@ -1,0 +1,15 @@
+---
+title: "Flaky Tests: Detect Consistently Failing Tests as Broken"
+description: "Threshold monitors can now classify consistently failing tests as Broken, distinct from Flaky."
+date: 2026-03-10
+category: Flaky Tests
+type: new-feature
+---
+
+**Tests that consistently fail can now be classified as Broken, distinct from Flaky.** This gives teams a clearer picture of test health when they need to triage real regressions separately from intermittent flakes.
+
+When creating or editing a threshold monitor, set the **Detection type** to **Broken**. Monitors configured this way mark tests as **Broken** (shown in red) once the failure threshold is exceeded. Each monitor card shows its detection type with a color-coded badge: blue for Flaky, red for Broken.
+
+Test status priority is **Broken > Flaky > Healthy**, so a test flagged by both a broken and a flaky monitor shows as Broken until the broken monitor resolves. The `v2.test_case.status_changed` webhook now includes `BROKEN` as a status value, so you can route broken tests through a separate triage workflow than flaky ones.
+
+[Read the docs](https://docs.trunk.io/flaky-tests/detection/failure-rate-monitor) to learn more.
