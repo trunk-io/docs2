@@ -11,14 +11,10 @@ Test labels are organization-scoped tags you can apply to individual test cases 
 
 ## Manage labels
 
-Labels are created, edited, and deleted at **Settings > Organization > Test Labels**. Each label has a name, an optional description, and a color used for its chip in the UI. The settings page also shows how many test cases each label is currently applied to.
-
-<Info>
-Any organization member can create, edit, assign, and unassign labels. Deleting a label requires organization admin access. The Delete option in each label's menu is disabled for non-admins.
-</Info>
+Labels are created, edited, and deleted at **Settings > Organization > Test Labels**. Each label has a name, an optional description, and a color used for its chip in the UI. The settings page also shows how many test cases each label is currently applied to. Any organization member can create, edit, assign, and unassign labels.
 
 <Warning>
-Deleting a label removes it from every test case it's applied to; this cannot be undone. A label that is referenced by a monitor's [label action](#automatic-labeling-from-monitors) cannot be deleted — the settings page lists the monitors that still reference it so you can clear those references first.
+Only organization admins can delete labels — the Delete option in each label's menu is disabled for non-admins. Deleting a label removes it from every test case it's applied to; this cannot be undone. A label that is referenced by a monitor's [label action](#automatic-labeling-from-monitors) cannot be deleted — the settings page lists the monitors that still reference it so you can clear those references first.
 </Warning>
 
 <Frame>
