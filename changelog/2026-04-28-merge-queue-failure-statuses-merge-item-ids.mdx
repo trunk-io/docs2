@@ -1,0 +1,13 @@
+---
+title: "Merge Queue: Failure Statuses and Merge Item IDs on Test Runs"
+description: "The testing details API now reports which PRs a merge item is waiting on when tests pass, and the specific failure status when tests fail."
+date: 2026-04-28
+category: Merge Queue
+type: update
+---
+
+**The merge queue testing details API now tells you exactly why a merge item is held up, instead of a generic "tests failed".**
+
+When tests pass, the test-passed details include the merge item IDs the item is currently waiting on before it can merge or restart, so you can see what's actually blocking progress. When tests fail, the specific failure status is recorded directly on the test run, giving you precise failure attribution rather than a single catch-all message.
+
+[Read the docs](https://docs.trunk.io/merge-queue/reference/merge/get-details-about-testing-that-merge-queue-is-performing) to learn more.
