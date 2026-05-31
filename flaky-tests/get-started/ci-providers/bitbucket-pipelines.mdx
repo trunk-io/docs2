@@ -5,11 +5,11 @@ og:title: "Using BitBucket Pipelines with Trunk Flaky Tests"
 ---
 Trunk Flaky Tests integrates with your CI by adding a step in your BitBucket Pipelines to upload tests with the [Trunk Analytics CLI](../../reference/cli-reference).
 
-<Warning>
+<Info>
 **Not using GitHub for source control?**
 
 Flaky Test support for source control providers like GitLab and BitBucket is still experimental. If you're using a source control provider other than GitHub, [**contact us**](mailto:support@trunk.io) **to get started**.&#x20;
-</Warning>
+</Info>
 
 Before you start on these steps, see the [Test Frameworks](../frameworks/) docs for instructions on producing a Trunk-compatible output for your test framework.
 
@@ -44,13 +44,13 @@ Store the Trunk slug and API token obtained in the previous step in your BitBuck
 
 Add an `after-script` step after running tests in each of your CI jobs that run tests. This should be minimally all jobs that run on pull requests, as well as from jobs that run on your [stable branches](../../detection/), for example, `main`, `master`, or `develop`.
 
-<Danger>
+<Tip>
 It is important to upload test results from CI runs on [**stable branches**](../../detection/), such as `main`, `master`, or `develop`. This will give you a stronger signal about the health of your code and tests.
 
 Trunk can also detect test flakes on PR and merge branches. To best detect flaky tests, it is recommended to upload test results from stable, PR, and merge branch CI runs.
 
 [Learn more about detection](../../detection/)
-</Danger>
+</Tip>
 
 ### Add Uploader to Testing Pipelines
 

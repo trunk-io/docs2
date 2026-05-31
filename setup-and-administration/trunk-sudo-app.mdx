@@ -51,9 +51,9 @@ In GitHub, navigate to **Settings → Rules → Rulesets**. For every active rul
 ![GitHub ruleset bypass list with Trunk Sudo set to Exempt](/assets/trunk-sudo-ruleset-bypass-mode.png)
 </Frame>
 
-<Warning>
+<Note>
 **This is the most common setup mistake.** When you add an actor to a ruleset's bypass list, GitHub defaults the bypass mode to **Always** — which sounds like it covers everything but does not cover pull request merges. Trunk Sudo must be set to **Exempt**; it's the only mode that lets a GitHub App merge a PR without interactive confirmation. If Trunk Sudo isn't set to Exempt, merges will silently fail.
-</Warning>
+</Note>
 
 ### Option B — Classic branch protection
 
@@ -64,9 +64,9 @@ If you're using classic branch protection rules, navigate to **Settings → Bran
 3. Remove any entries under **"Require status checks to pass before merging"**. Classic branch protection does not allow apps to bypass required status checks.
 4. Disable the nested **"Require branches to be up to date before merging"** checkbox. This setting also cannot be bypassed on classic protection.
 
-<Danger>
+<Note>
 **Classic branch protection has unbypassable rules.** Required status checks and "Require branches to be up to date" cannot be bypassed by any GitHub App. If you need those protections, move the rule to a ruleset with Trunk Sudo listed as an exempt bypass actor — otherwise Trunk Sudo will be unable to merge.
-</Danger>
+</Note>
 
 ## Verify your setup
 

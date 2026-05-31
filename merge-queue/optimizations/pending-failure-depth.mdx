@@ -34,9 +34,9 @@ The value of waiting for successors depends on whether [optimistic merging](./op
 * **With optimistic merging (primary use case):** If the failure was caused by a flake rather than a real code problem, a successor further down the queue may pass its tests. Because that successor's test run includes the failed group's changes, a passing result is proof that those changes work. Optimistic merging uses this to retroactively clear the failed group and merge it. The Pending Failure Depth window gives those successors time to finish testing before the system prematurely fails or bisects the group. This is the automated [anti-flake protection](./anti-flake-protection) path.
 * **Without optimistic merging:** The hold window gives you time to manually inspect the failure and restart the test run if it looks transient, before the system auto-transitions the group to Failed (or bisection, if [batching](./batching) is enabled). This is the only benefit without optimistic merging.
 
-<Warning>
+<Info>
 Pending Failure Depth only helps with transient (flaky) failures. For legitimate failures that propagate to successors, those successors will also fail, and the hold window expires without clearing the failure.
-</Warning>
+</Info>
 
 ### Example: Anti-Flake Protection in Action
 

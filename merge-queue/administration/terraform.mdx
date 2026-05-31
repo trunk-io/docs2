@@ -163,9 +163,9 @@ A merge queue must be empty before it can be deleted. If the queue still has PRs
 
 To empty a queue, you can set `state = "DRAINING"` and wait for all in-flight PRs to finish testing and merge. Once the queue is empty, run `terraform destroy` or remove the resource from your configuration and apply.
 
-<Warning>
+<Info>
 Terraform will fail to delete a queue that still has PRs in it. Ensure the queue is empty before destroying the resource.
-</Warning>
+</Info>
 
 ***
 
