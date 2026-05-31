@@ -28,11 +28,11 @@ If the GitHub App is already installed, step 3 will be skipped automatically.
 
 3. If the Trunk GitHub App is not already installed, you'll be prompted to install it.
 
-<Warning>
+<Note>
 **You must be a GitHub admin to complete the following steps.** If you are not a GitHub admin in your organization, go to `Settings` → `Team Members` to invite a GitHub admin to your Trunk organization so they can complete the following.
 
 The GitHub App installation must be initiated from the Trunk web app to properly associate your Trunk organization with the GitHub App. If you have previously installed the Trunk GitHub App directly through GitHub, you'll need to uninstall it first and then reinstall it by starting the installation process from the Trunk web app as described below.
-</Warning>
+</Note>
 
 * Click **Install GitHub App** and follow the installation flow:
   * Select whether to install on all repositories or only specific ones
@@ -55,9 +55,9 @@ The merge queue needs specific GitHub permissions to function. Follow the [Branc
 2. **Disable “Require branches to be up to date before merging.” -** This setting is one of the most common sources of confusion. Many teams enable it to keep their branch green, but it conflicts with how merge queues work. If this is on, PRs will often sit in the “Queued” state forever because GitHub blocks Trunk from updating them.
 3. **Exclude Trunk's temporary branches** - Make sure `trunk-temp/*` and `trunk-merge/*` branches are not protected. They are created and cleaned up automatically by the queue.
 
-<Warning>
+<Note>
 **Without proper branch protection configuration, the merge queue will not work.** You may see errors like "Permission denied on `trunk-merge/*` branch" or PRs will remain stuck in "Queued" state.
-</Warning>
+</Note>
 
 **Optional: enforce Merge Queue-only merges.** If you want your organization to merge _exclusively_ through the merge queue:
 

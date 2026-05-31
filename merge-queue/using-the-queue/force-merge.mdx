@@ -7,9 +7,9 @@ og:title: "Force merge in Trunk Merge Queue"
 
 Force merge lets a GitHub repository admin push a pull request through the Trunk Merge Queue even when branch protection requirements are not satisfied. The PR is still tested by the queue exactly like any other PR — only the final protection gate is bypassed at merge time, using the [Trunk Sudo GitHub App](../../setup-and-administration/trunk-sudo-app).
 
-<Warning>
+<Info>
 **Force merge is admin-only and can only be triggered by a GitHub comment.** Trunk verifies admin identity via GitHub comment authorship, which is why other submission paths (CLI, checkbox, web app) don't support `--force`. If a non-admin posts `/trunk merge --force`, Trunk will reply on the PR with a rejection comment explaining that the command requires admin access.
-</Warning>
+</Info>
 
 ## Why use it
 

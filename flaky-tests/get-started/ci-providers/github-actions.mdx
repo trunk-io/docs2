@@ -38,13 +38,13 @@ Store the Trunk slug and API token obtained in the previous step in your repo as
 
 Add an `Upload Test Results` step after running tests in each of your CI jobs that run tests. This should minimally include all jobs that run on pull requests, as well as jobs that run on your main or [stable branches](../../detection/), for example, `main`, `master`, or `develop`.
 
-<Danger>
+<Tip>
 It is important to upload test results from CI runs on [**stable branches**](../../detection/), such as `main`, `master`, or `develop`. This will give you a stronger signal about the health of your code and tests.
 
 Trunk can also detect test flakes on PR and merge branches. To best detect flaky tests, it is recommended to upload test results from stable, PR, and merge branch CI runs.
 
 [Learn more about detection](../../detection/)
-</Danger>
+</Tip>
 
 ### Example GitHub Actions Workflow
 
@@ -131,11 +131,11 @@ You can quarantine flaky tests by wrapping the test command or as a follow-up st
 
 <Tabs>
 <Tab title="GitHub Actions Workflow">
-<Warning>
+<Note>
 Using the Trunk Analytics Uploader Action in your GitHub Actions Workflow files, may need modifications to your workflow files to support quarantining.
 
 If you upload your test results as a second step after you run your tests, **you need to add** `continue-on-error: true` **on your test step so your CI** job will continue even on failures.
-</Warning>
+</Note>
 
 Here's an example file.
 
@@ -191,11 +191,11 @@ This will override the response code of the test command. Make sure to set `cont
 <Tab title="Using The Trunk Analytics CLI Directly">
 **Using Flaky Tests as a separate step**
 
-<Warning>
+<Note>
 If you upload your test results as a second step after you run your tests, you need to make sure your test step **continues on errors** so the upload step that's run after can quarantine failed tests.&#x20;
 
 When quarantining is enabled, the `trunk-analytics-cli upload` command will **return an error** if there are unquarantined failures and return a status code 0 if all tests are quarantined.
-</Warning>
+</Note>
 
 ```sh 
 <run my tests> || true # doesn't fail job on failure

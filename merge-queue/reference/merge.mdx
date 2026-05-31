@@ -136,9 +136,9 @@ The response includes the queue state (`RUNNING`, `PAUSED`, `DRAINING`, or `SWIT
   <Card title="Get details about testing that Merge Queue is performing" href="/merge-queue/reference/merge/get-details-about-testing-that-merge-queue-is-performing"/>
 </CardGroup>
 
-<Warning>
+<Info>
 Large monorepos can produce target lists that exceed the 20 MiB request body limit. If you hit this limit, send `"ALL"` as the `impactedTargets` value to mark the PR as impacting every target.
-</Warning>
+</Info>
 
 ## Metrics endpoints
 
@@ -170,9 +170,9 @@ Use these endpoints to create, configure, and manage merge queues. Each queue ta
   <Card title="Update the merge queue." href="/merge-queue/reference/merge/update-the-merge-queue"/>
 </CardGroup>
 
-<Warning>
+<Info>
 The queue must be empty before it can be deleted. Cancel or merge all enqueued PRs first.
-</Warning>
+</Info>
 
 
 ## Related resources
