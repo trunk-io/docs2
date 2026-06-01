@@ -1,6 +1,6 @@
 ---
 title: "Multiple Repositories and Forks"
-description: "Learn how Trunk identifies repositories and how to track tests across forks and multiple repositories without mixing results."
+description: "Learn how Trunk identifies repositories, track tests across forks and multiple repositories, and enable test uploads from fork PR workflows."
 og:title: "Tracking tests across repos and forks in Trunk"
 ---
 Trunk Flaky Tests identifies repositories by their **git remote URL**, not by the API token. You can safely use the same organization API token across multiple repositories, including forks, without mixing test results.
@@ -17,19 +17,17 @@ These three components together uniquely identify the repository in Trunk. The A
 
 ### Uploading from Fork Pull Requests
 
-Fork pull requests present a challenge for test uploads. The fork's CI workflow runs with limited permissions — the org API token cannot be stored in a public fork without exposing it. Trunk addresses this with a per-repo opt-in that gives the fork a non-secret identifier to use instead.
+Fork pull requests can't upload with your org API token. GitHub Actions workflows triggered by `pull_request` events from a fork run with read-only permissions and can't read repository secrets, so `$TRUNK_API_TOKEN` isn't available. Trunk solves this with a per-repo opt-in that mints a non-secret **public repo identifier** the fork workflow uses instead.
 
-#### Enable Fork PR Uploads
+<Info>
+This is intended for public repositories that accept external contributions. For private repositories or internal forks, keep using the standard `$TRUNK_API_TOKEN` approach.
+</Info>
 
-1. Go to **Settings > Repositories > \[your repo\] > Flaky Tests**.
-2. Toggle on **Fork PR Uploads**.
-3. Copy the **Public Repo Identifier** — an 8-character alphanumeric code shown below the toggle.
+**Enable fork PR uploads.** In the Trunk web app, go to **Settings > Repositories > \[your repo\] > Flaky Tests** and toggle on **Fork PR Uploads**. Copy the **Public Repo Identifier** that appears below the toggle — an 8-character alphanumeric code scoped to that one repository.
 
-The identifier persists across toggles. You can disable and re-enable without generating a new one.
+The identifier persists across toggles. Disabling stops accepting fork PR uploads, but re-enabling reuses the same identifier rather than generating a new one.
 
-#### Use the Identifier in Your Fork Workflow
-
-In your GitHub Actions workflow file, use the identifier in place of the org API token:
+**Use the identifier in your fork workflow.** Pass it in place of the org API token. With the Trunk uploader action, set the `public-repo-id` input:
 
 ```yaml
 jobs:
@@ -49,22 +47,18 @@ jobs:
           public-repo-id: <YOUR_8_CHAR_IDENTIFIER>
 ```
 
+If you call the CLI directly instead of the action, pass `--public-repo-id <YOUR_8_CHAR_IDENTIFIER>` (or set the `TRUNK_PUBLIC_REPO_ID` environment variable). Either way the CLI sends the value on the `X-Trunk-Public-Repo-Id` header.
+
 <Info>
 The public repo identifier is not a secret. It is safe to commit directly in your workflow file. Do not use your org API token in fork PR workflows.
 </Info>
 
-#### How Authorization Works
-
-Trunk validates fork PR uploads with two independent checks:
+**How authorization works.** The identifier is a routing and rate-limiting key, not a credential. Trunk accepts a fork PR upload only when two independent checks both pass:
 
 1. The repository has **Fork PR Uploads** enabled in settings.
 2. GitHub confirms the workflow run belongs to a pull request against the original repository.
 
-Both checks must pass. The identifier alone does not grant upload access.
-
-<Warning>
-If you believe the identifier has been misused, disable Fork PR Uploads in settings. Re-enabling mints a new identifier and stops accepting uploads via the old one.
-</Warning>
+The identifier alone does not grant upload access. To stop accepting fork PR uploads, disable **Fork PR Uploads** in settings.
 
 ### Using Trunk with Forks
 
