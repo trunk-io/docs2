@@ -1,14 +1,10 @@
 ---
 title: "Webhooks"
-description: "Subscribe to events from Trunk Merge Queue using Trunk's Svix-powered webhooks."
+description: "Reference for Trunk Merge Queue webhook events, lifecycle, and payload behavior."
 og:title: "Trunk Merge Queue webhooks"
 ---
 
-Trunk provides a variety of webhooks to allow responding to various events from Trunk. Each event corresponds to a Trunk feature and an action within that feature (for example, a Pull Request being submitted to Trunk Merge).
-
-## Supported events
-
-Trunk provides various webhooks to respond to events from Trunk Merge Queue. Merge Queue events are named with a `pull_request` prefix, you can find the events you can respond to in the Webhook Events reference from Svix.&#x20;
+Trunk emits webhooks for Merge Queue events so you can react to PR and batch lifecycle changes from your own systems. Subscriptions are managed in the Trunk web app under **Merge Queue > Settings > Webhooks** and are powered by [Svix](https://docs.svix.com/). The full event catalog with JSON schemas lives in the Svix portal.
 
 <Card
   horizontal
@@ -19,10 +15,77 @@ Trunk provides various webhooks to respond to events from Trunk Merge Queue. Mer
   www.svix.com
 </Card>
 
-You can learn about the Svix event catalog in the [Svix docs](https://docs.svix.com/receiving/using-app-portal/event-catalog).
+***
+
+### Subscribing to events
+
+Merge Queue events fall into two families and each must be subscribed to explicitly:
+
+- `pull_request.*` — events about an individual PR moving through the queue (queued, testing, merged, failed).
+- `pull_request_batch.*` — events about a batch of PRs being tested together (for example, `pull_request_batch.pending_failure`).
 
 <Info>
-  If you don't currently have an endpoint ready to receive webhooks, you can
-  quickly set up a URL for testing by clicking the "use Svix Play" link - you'll
-  be able to inspect all webhook events sent there.
+If you only see `pull_request.*` events arriving at your endpoint, you likely haven't subscribed to the batch family. Edit the **Events** list on your webhook subscription in the Trunk web app and enable `pull_request_batch.*` entries.
 </Info>
+
+***
+
+### Event lifecycle reference
+
+A typical PR moves through the queue as follows:
+
+1. The PR is added to the queue and a `pull_request.queued` event fires.
+2. Once Trunk starts testing the PR (either alone or as part of a batch), a `pull_request.testing` event fires.
+3. On a clean run, the PR merges and `pull_request.merged` fires.
+4. If the PR is kicked from the queue at any point, `pull_request.failed` fires.
+
+When a batch run reports failures, `pull_request_batch.pending_failure` fires for the batch. **This does not always lead to bisection.** If a PR higher in the queue fails first, the PRs above it can get kicked out and the surviving PRs are re-queued. The PRs that show up in subsequent `pull_request.queued` events won't necessarily map back to the original `pending_failure` batch.
+
+When Trunk does run a bisection to identify the failing PR in a batch, there is no dedicated `bisection_completed` event. Instead, watch the `queued_reason` field on `pull_request.queued`:
+
+- `BISECTION_REQUIRED` — the PR is entering bisection.
+- `BISECTION_TEST_RUN_PASSED` — the PR passed its bisection test run and is returning to the queue.
+
+***
+
+### Multiple PRs in a batch
+
+For most events the PR lifecycle and the batch lifecycle are the same — events fire per PR even when PRs are tested together. A 4-PR batch produces four `pull_request.testing` events, one per PR in the batch. `pull_request.failed` fires for each PR that is kicked out of the queue.
+
+***
+
+### Payload notes
+
+All webhook payloads include an ISO 8601 `timestamp` field marking when the state transition occurred. Use this for ordering events rather than your endpoint's receive time — receive time is subject to retry delays and out-of-order delivery.
+
+***
+
+### `test_case.status_changed` v1 vs v2
+
+The original `test_case.status_changed` event is being phased out in favor of `v2.test_case.status_changed`. The v2 event intentionally **omits aggregate metrics** like `failure_rate_last_7d` — those fields will be `0` or missing on the v1 event today and are not present in v2 at all.
+
+To enrich a status-change webhook with current metrics, call the [`flaky-tests/get-test-details`](https://api.trunk.io/docs#tag/flaky-tests) API from your webhook handler using the `test_case.id` from the payload.
+
+See the [Flaky Tests webhooks reference](/flaky-tests/webhooks) for the full `v2.test_case.status_changed` payload schema and other flaky-tests event types.
+
+***
+
+### Quarantining events
+
+`test_case.quarantining_setting_changed` fires only when a quarantining setting is manually overridden to `ALWAYS_QUARANTINE` or `NEVER_QUARANTINE`. It does **not** fire when Trunk auto-quarantines a test based on flakiness.
+
+To react to auto-quarantine, listen to `v2.test_case.status_changed` and check `new_status == "FLAKY"` in the payload.
+
+***
+
+### AI investigation events
+
+`test_case.investigation_completed` fires only when an AI/autofix flaky test analysis finishes — this is a beta feature scoped to AI investigations, not general status changes.
+
+For "this test just became flaky" reactions (Linear ticket creation, Slack alerts, and so on), subscribe to `v2.test_case.status_changed` instead.
+
+***
+
+### Getting help
+
+If you or your team are running into issues with webhook subscriptions or payloads, contact [support@trunk.io](mailto:support@trunk.io) for assistance.
