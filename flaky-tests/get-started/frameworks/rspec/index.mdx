@@ -57,7 +57,11 @@ You can find the Gem for `rspec_trunk_flaky_tests` [here](https://rubygems.org/g
 bundle update rspec_trunk_flaky_tests
 ```
 
-## Environment Variables
+<Info>
+If a failing test raises `RSpec::Core::MultipleExceptionError`, only one of the captured exceptions appears in the failure detail view today. See [Known limitations](../../../dashboard#known-limitations) for the current status and workaround.
+</Info>
+
+### Environment Variables
 
 These optional environment variables can be set in your project to change the behavior of the RSpec plugin.
 
