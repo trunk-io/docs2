@@ -22,11 +22,7 @@ If you're setting up Trunk Flaky Tests for the first time, you can follow the gu
 
 The CLI should be **downloaded as part of your test workflow** in your CI system. You can download the appropriate binary for your platform directly from the [GitHub releases page](https://github.com/trunk-io/analytics-cli/releases).
 
-<Warning>
-Install `trunk-analytics-cli` from [github.com/trunk-io/analytics-cli/releases](https://github.com/trunk-io/analytics-cli/releases/latest), not from `get.trunk.io` or `trunk.io/releases`. Those URLs install the legacy `trunk` launcher used by Code Quality, which is in maintenance mode and is not the recommended path for Flaky Tests.
-</Warning>
-
-### Manual Download
+## Manual Download
 
 You can find the list of releases on [the GitHub release page](https://github.com/trunk-io/analytics-cli/releases). We provide executables for Linux and OS X. It’s a single file inside a tar and upon downloading the tar you will find a single binary - `trunk-analytics-cli` to use.
 
@@ -156,14 +152,6 @@ You can also execute tests and upload results to Trunk in a single step using th
 
 This is especially useful for [Quarantining](../quarantining/), where the Trunk Analytics CLI will **override the exit code** of the test command if all failures can be quarantined, **preventing** flaky tests from failing your builds in CI.
 
-<Info>
-**When to use `upload` vs `test`**
-
-Use `test` when you want Trunk to run your test command directly and set the build exit code based on quarantine status.
-
-Use `upload` when an external runner (or a post-processing step) has already produced JUnit XML and you only need to ship the results. `upload` will not re-run tests; it ingests the report and sets the exit code based on quarantine status. This is the right command when your test framework's JUnit reporter can't be configured for Trunk's needs and you have to post-process the XML before uploading.
-</Info>
-
 <Tabs>
 <Tab title="XML">
 Trunk can accept JUnit XMLs through the `--junit-paths` argument:
@@ -240,77 +228,7 @@ The CLI is preconfigured to work with a set [ci-providers](/flaky-tests/get-star
 
 > More information on using [otherci.md](/flaky-tests/get-started/ci-providers/otherci) is documented here.
 
-### Troubleshooting
-
-<AccordionGroup>
-<Accordion title='"No tests were found" on upload, even though tests ran'>
-This message means the CLI parsed the report inputs and found zero test cases. A few common causes:
-
-* **The test runner exited before writing JUnit XML.** A fatal exception in Playwright, Storybook, or any runner that produces JUnits at the end of the run will leave you with no XML file (or an empty one). Check the CI logs for an error from the runner that happened before the upload step.
-* **Bazel BEP JSON ingestion.** Trunk currently parses Bazel BEP more reliably from the binary format than from JSON. If you're passing `--bazel-bep-path` with a JSON file produced by `--build_event_json_file`, switch to the binary BEP:
-
-  ```bash
-  bazel test //... \
-    --build_event_binary_file=bep.bin
-
-  ./trunk-analytics-cli upload --bazel-bep-path bep.bin \
-     --org-url-slug <TRUNK_ORG_SLUG> \
-     --token $TRUNK_API_TOKEN
-  ```
-
-* **Globs didn't match any files.** Confirm that `--junit-paths` resolves to actual `.xml` files in the working directory the CLI is run from. Wrap globs in quotes so the shell doesn't expand them before the CLI sees them, and check that the report files contain `<testcase>` entries — not just `<testsuite>` shells.
-
-If you've checked all three and still see "no tests found," share a sample JUnit XML and the CI logs with Trunk support so they can look at the specific upload.
-</Accordion>
-
-<Accordion title="403 unauthorized on upload, but the slug and token are correct">
-The CLI infers the repository URL from the local git remote. If your remote uses an SSH host alias (for example, `git@github-most:org/repo.git` from a custom `~/.ssh/config` entry), the CLI parses the alias as the host and the upload is rejected as not belonging to a recognized GitHub or GitLab repo.
-
-Pass `--repo-url` explicitly with the canonical remote URL:
-
-```bash
-./trunk-analytics-cli upload --junit-paths "test_output.xml" \
-   --org-url-slug <TRUNK_ORG_SLUG> \
-   --token $TRUNK_API_TOKEN \
-   --repo-url git@github.com:org/repo.git
-```
-
-This bypasses the inferred host and uses the value you pass directly.
-</Accordion>
-
-<Accordion title='"test case name too short" or "classname too short" from validate'>
-These warnings come from the `validate` command (and the same checks run server-side on upload). They mean a test case has a name or classname so short it's likely to collide with another test case in your suite — Trunk uses name + classname to identify a test across runs, and very short values increase the chance of false matches.
-
-Today, the warning surfaces the offending value but does not name the source file. If you see these:
-
-* Grep your JUnit XML for the short value to find the originating test case.
-* Where possible, configure your test framework to emit fully-qualified classnames (for example, including the file path or package).
-
-We're tracking better source attribution for these warnings.
-</Accordion>
-
-<Accordion title="Wrapping an external test runner without re-running tests">
-If your test framework's JUnit reporter doesn't expose enough configuration (for example, Cypress's `mocha-junit-reporter` doesn't support `filePathPrefix`), you may need to post-process the XML before sending it to Trunk. In that case, don't use `test` — it will re-run your tests. Use `upload` instead:
-
-```bash
-# 1. Run your tests through your existing runner
-npm test
-
-# 2. Post-process the JUnit XML however you need to
-node scripts/fix-junit-paths.js
-
-# 3. Upload the corrected XML to Trunk
-./trunk-analytics-cli upload --junit-paths "test_output.xml" \
-   --org-url-slug <TRUNK_ORG_SLUG> \
-   --token $TRUNK_API_TOKEN \
-   --test-process-exit-code $?
-```
-
-Pass `--test-process-exit-code` so Trunk knows whether the original test process succeeded or failed; this is what the upload command uses to decide whether to override the exit code based on quarantine status.
-</Accordion>
-</AccordionGroup>
-
-### Full command reference
+## Full command reference
 
 The `trunk` command-line tool can upload and analyze test results. The `trunk-analytics-cli` command accepts the following subcommands:
 
