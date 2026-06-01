@@ -15,7 +15,58 @@ When the Trunk Analytics CLI uploads test results, it reads the git remote URL f
 
 These three components together uniquely identify the repository in Trunk. The API token determines which _organization_ the upload belongs to, but does not affect which _repository_ the results are associated with.
 
-## Using Trunk with Forks
+### Uploading from Fork Pull Requests
+
+Fork pull requests present a challenge for test uploads. The fork's CI workflow runs with limited permissions — the org API token cannot be stored in a public fork without exposing it. Trunk addresses this with a per-repo opt-in that gives the fork a non-secret identifier to use instead.
+
+#### Enable Fork PR Uploads
+
+1. Go to **Settings > Repositories > \[your repo\] > Flaky Tests**.
+2. Toggle on **Fork PR Uploads**.
+3. Copy the **Public Repo Identifier** — an 8-character alphanumeric code shown below the toggle.
+
+The identifier persists across toggles. You can disable and re-enable without generating a new one.
+
+#### Use the Identifier in Your Fork Workflow
+
+In your GitHub Actions workflow file, use the identifier in place of the org API token:
+
+```yaml
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Tests
+        run: ...
+
+      - name: Upload Test Results to Trunk.io
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        uses: trunk-io/analytics-uploader@v1
+        with:
+          junit-paths: "**/junit.xml"
+          org-slug: ${{ vars.TRUNK_ORG_SLUG }}
+          public-repo-id: <YOUR_8_CHAR_IDENTIFIER>
+```
+
+<Info>
+The public repo identifier is not a secret. It is safe to commit directly in your workflow file. Do not use your org API token in fork PR workflows.
+</Info>
+
+#### How Authorization Works
+
+Trunk validates fork PR uploads with two independent checks:
+
+1. The repository has **Fork PR Uploads** enabled in settings.
+2. GitHub confirms the workflow run belongs to a pull request against the original repository.
+
+Both checks must pass. The identifier alone does not grant upload access.
+
+<Warning>
+If you believe the identifier has been misused, disable Fork PR Uploads in settings. Re-enabling mints a new identifier and stops accepting uploads via the old one.
+</Warning>
+
+### Using Trunk with Forks
 
 If you run tests from a fork, Trunk automatically keeps test results separate based on the fork's remote URL.
 
