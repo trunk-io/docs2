@@ -3,10 +3,7 @@ title: "Settings and configurations"
 description: "Explanation of settings for states, timeouts, concurrency, and branch protection."
 og:title: "Trunk Merge Queue settings and configuration"
 ---
-All of the following settings are specific to individual Merge Queues and can be accessed in two ways:
-
-* From the **Settings** menu: Navigate to `Settings > Repositories > Repo-Name > Merge Queue`
-* From the **Merge Queue** tab: Select your repository, then click the **Settings** tab
+All of the following settings are specific to individual Merge Queues and can be accessed from the **Merge Queue** tab: Select your queue, then click the **Settings** tab.
 
 <Info>
 Organization admin access is required to change any of these settings. Non-admins see all controls in a disabled state. Hovering over a disabled button shows a tooltip explaining the restriction.
@@ -204,7 +201,7 @@ All three work regardless of which testing mode you chose (Draft PR or Push-Trig
 
 ### Configure in the Trunk UI
 
-1. Navigate to **Settings** > **Repositories** > your repository > **Merge Queue**
+1. Navigate to the **Merge Queue** tab, select your queue, then click **Settings**
 2. Find the **Required Status Checks** section
 3. Use the CI job selector to choose which status checks must pass. The selector shows CI jobs that have been seen on recent PRs.
 4. Selected statuses override the GitHub branch protection defaults for the merge queue
@@ -246,7 +243,7 @@ Merge PRs immediately when they're already based on the tip of main and the queu
 * **Benefit:** Eliminates 5-30 minutes of wait time for up-to-date PRs
 * **Best for:** Teams that keep PRs current with main before merging
 
-Toggle this setting in **Settings** > **Repositories** > your repository > **Merge Queue**. Learn more in [Direct Merge to Main](../optimizations/direct-merge-to-main).
+Toggle this setting in the **Merge Queue** tab by selecting your queue, then clicking **Settings**. Learn more in [Direct Merge to Main](../optimizations/direct-merge-to-main).
 
 ***
 
@@ -345,7 +342,7 @@ Configure how many PRs can be tested simultaneously during batch failure isolati
 
 **How to configure:**
 
-1. Navigate to **Settings** > **Repositories** > your repository > **Merge Queue** > **Batching**
+1. Navigate to the **Merge Queue** tab, select your queue, click **Settings**, then scroll to **Batching**
 2. Make sure **Batching** is enabled
 3. Set **Bisection Testing Concurrency** to your desired value
 4. Monitor CI resource usage and adjust as needed
