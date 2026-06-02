@@ -852,6 +852,10 @@
   },
   "redirects": [
     {
+      "source": "/support",
+      "destination": "/setup-and-administration/support"
+    },
+    {
       "source": "/ci-autopilot",
       "destination": "/"
     },
