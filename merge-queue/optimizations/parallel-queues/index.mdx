@@ -16,8 +16,8 @@ For example, the following four pull requests:
 
 * PR A with impacted target list `[ frontend ]`
 * PR B with impacted target list `[ backend ]`
-* PR C with impacted target list `[ frontend, backend]`
-* PR D with impacted target list `[ docs]`
+* PR C with impacted target list `[ frontend, backend ]`
+* PR D with impacted target list `[ docs ]`
 
 Without parallelization, the PRs **A**, **B**, **C**, and **D** would all be tested in a single predictive path **A** \<- **B** \<- **C** \<- **D**. Using the impacted target information we can instead build three dynamically provisioned queues and the predictive testing can yield higher throughput - which means your pull request spends less time in the queue stuck testing with unrelated code changes.
 
@@ -62,15 +62,12 @@ We ship several pre-built solutions for popular build systems to automatically c
 **Enable Parallel Modes**\
 Merge can be swapped between `Single` and `Parallel` mode at any time. If there are no PRs in the merge queue when switching, the switch will be immediate. If there are PRs in the queue, then Merge will go into the `Switching Modes` state, where it'll wait for all currently testing PRs to merge before switching modes. During this time, PRs will not be able to enter the queue.
 
-Switching modes can be done from the `Merge Queue Mode` section of the `Settings > Repositories > repo name > Merge` panel
+Switching modes can be done from the `Merge Queue Mode` section of your queue's `Settings` tab (open `Merge Queue`, select your queue, then `Settings`).
 
 <Frame caption="enabling parallel mode">
-![](/assets/enable-parallel-mode)
+<img className="block dark:hidden" src="/assets/enable-parallel-mode-light.png" alt="Enabling parallel mode in the Merge Queue Mode settings" />
+<img className="hidden dark:block" src="/assets/enable-parallel-mode-dark.png" alt="Enabling parallel mode in the Merge Queue Mode settings" />
 </Frame>
-
-**Find your Trunk API Token**
-
-## Store your Organization Token as a GitHub Secret
 
 ## Monitoring Parallel Queue Performance
 
