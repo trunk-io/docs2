@@ -36,6 +36,7 @@ default 7-day recovery period visible. */}
 | **Enabled** | Whether the monitor is active | On |
 | **Recovery days** | Days without pass-on-retry behavior before a test is resolved as healthy. Range: 1 to 15 days. | 7 |
 | **Branch scope** | Which branches the monitor evaluates. Accepts branch names and glob patterns. | All branches (`*`) |
+| **Minimum POR count** | The minimum number of distinct commits that must show pass-on-retry behavior before the monitor activates. Increase this to reduce noise from occasional retries. | 1 |
 | **Action** | What happens when the monitor activates. Either classify the test as flaky or apply labels. | Classify as flaky |
 
 ### What Recovery Days Controls
@@ -55,6 +56,14 @@ Branch scope uses the same glob syntax as [failure rate monitor branch patterns]
 - `*` (default): all branches
 
 Changes to branch scope take effect for newly detected events. Previously detected flaky tests are not re-evaluated.
+
+### Minimum POR Count
+
+By default, a single commit where a test fails and then passes on retry is enough to activate the monitor. A minimum of 1 means: as soon as one commit shows the pattern, the test is flagged.
+
+Raising the minimum (for example, to 2 or 3) requires the same test to show that pattern on multiple distinct commits within the detection window before the monitor activates. This reduces false positives in environments where CI retries most failures automatically, producing one-off retry events for otherwise reliable tests.
+
+Set a higher minimum when your retry rate is high enough that a single commit's retry event is not a reliable flakiness signal.
 
 ### Action
 
