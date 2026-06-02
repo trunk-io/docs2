@@ -845,6 +845,11 @@
       }
     ]
   },
+  "integrations": {
+    "plausible": {
+      "domain": "docs.trunk.io"
+    }
+  },
   "seo": {
     "metatags": {
       "robots": "noindex"
