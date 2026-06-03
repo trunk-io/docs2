@@ -3,7 +3,12 @@
 
   window.addEventListener('load', function () {
     if (typeof plausible === 'function') {
-      plausible('404', { props: { path: document.location.pathname } });
+      plausible('404', {
+        props: {
+          path: document.location.pathname,
+          referrer: document.referrer || '(direct)',
+        },
+      });
     }
   });
 })();
