@@ -1849,6 +1849,10 @@
       "destination": "/merge-queue/optimizations/optimistic-merging"
     },
     {
+      "source": "/merge",
+      "destination": "/merge-queue/merge-queue"
+    },
+    {
       "source": "/merge-queue",
       "destination": "/merge-queue/merge-queue"
     },
