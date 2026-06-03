@@ -48,6 +48,12 @@ From this page you can copy the member invite link or revoke the invite using th
 ![](/assets/setup-and-administration/org-team-pending-invites.png)
 </Frame>
 
+### Verified domain auto-join and pending invites
+
+If your organization uses verified-domain auto-join (any user with a matching email domain is automatically added), a pending invite's role takes precedence over the default Member role. When a user signs in for the first time and a pending invite exists for their email address, they join with the invited role (for example, Admin) and the invite is marked accepted.
+
+If a user was already auto-joined as a Member before a higher-role invite was sent, re-clicking the invite link upgrades their membership to the invited role rather than producing an error.
+
 <Tip>
 Trunk also supports SSO login. If you wish to use SSO, please contact us at support@trunk.io.
 </Tip>

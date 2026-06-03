@@ -51,9 +51,18 @@ Once a PR is in the queue, the extension panel updates in real time as it moves 
 
 - **Queued** - waiting for prerequisites such as branch protection or mergeability
 - **Pending** - admitted to the queue, waiting for capacity
+- **Waiting to batch** - admitted to the queue, waiting for a batch window to open
 - **Testing** - actively running required status checks against a merge candidate
 - **Tests Passed** - waiting for upstream PRs before merging
-- **Merged**, **Failed** - terminal states
+- **Merged** - terminal success state; polling stops
+- **Failed** - terminal failure state; shows which required checks failed or were cancelled, with links to the CI job
+- **Cancelled** - terminal cancellation state; shows who cancelled the PR when that information is available
+
+## Resubmit after failure or cancellation
+
+When a PR leaves the queue in a **Failed** or **Cancelled** state, the extension panel shows a **Resubmit** action that re-enqueues the PR in one click. You do not need to switch to the Trunk web app or post a `/trunk merge` comment.
+
+Failed check details come from the most recent merge attempt only. If a PR was re-enqueued after a previous failure and then cancelled, the extension shows the cancellation state rather than check failures from the earlier run.
 
 ## Automatic bot comment hiding
 
