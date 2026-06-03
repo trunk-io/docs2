@@ -12,7 +12,6 @@ Work through the steps below in order. Once you've finished the last one, you'll
 <Steps>
   <Step title={<a href="#generating-reports">Generate a compatible test report</a>} />
   <Step title={<a href="#report-file-path">Configure the report file path or glob</a>} />
-  <Step title={<a href="#disable-retries">Disable retries for better detection accuracy</a>} />
   <Step title={<a href="#try-it-locally">Test uploads locally</a>} />
 </Steps>
 
@@ -53,12 +52,6 @@ If your CI environment is set up to [build without the bytes](https://blog.bazel
 ```sh
 --remote_download_regex='.*/test.xml'
 ```
-
-### Disable Retries
-
-You need to disable automatic retries if you previously enabled them for more accurate detection results.
-
-Disable retries if you're retrying tests using the `--flaky_test_attempts` command line option or retrying in your test runner.
 
 ## Try It Locally
 
