@@ -31,7 +31,7 @@ If you have the [Trunk GitHub App installed](../../setup-and-administration/gith
 It's recommended that the Trunk GitHub App be used to manage GitHub comments. If you need to generate comments without the Trunk GitHub app, you can do so with a service account and an API token.
 
 1. Create a dedicated GitHub SVC account (Service Account) with access to the repositories in your GitHub Organization that Flaky Tests will comment on e.g., `trunk-analytics-user`.
-2. On [github.com](https://github.com/), for `trunk-analytics-user` (or whichever user you wish to use), generate a [_Personal access token_](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) by navigating to **Settings** > **Developer settings** > **Personal access token** > **Fine-grained tokens** > **Generate new token**.
+2. On [github.com](https://github.com/), for `trunk-analytics-user` (or whichever user you wish to use), generate a [_Personal access token_](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) by navigating to **Settings** → **Developer settings** → **Personal access token** → **Fine-grained tokens** → **Generate new token**.
 3. Name the new token something memorable. ex: `trunk-flaky-tests-token`.
 4. The expiry time is up to you - however long you wish to try out Flaky Tests comments/how often you are willing to rotate the token. For a longer-term solution, consider installing the Trunk GitHub App.
 5. The resource owner should be the GitHub Organization or user that owns the appropriate repositories. [See note on GitHub Org Ownership settings.](./github-pull-request-comments#github-org-ownership)
@@ -42,19 +42,19 @@ It's recommended that the Trunk GitHub App be used to manage GitHub comments. If
     <Frame>
     ![](/assets/Screenshot_2024-06-12_at_9.52.28_AM.png)
     </Frame>
-9. Once the token is generated, go back to the Trunk App ([app.trunk.io](https://app.trunk.io/login?intent=flaky%20tests)) > click on your profile > **Settings** > **Manage** (under _Organization_) > **Organization GitHub Token** and enter the copied token into the text field, then finally press **Submit**.
+9. Once the token is generated, go back to the Trunk App ([app.trunk.io](https://app.trunk.io/login?intent=flaky%20tests)), click your profile, then navigate to **Settings** → **Manage** (under _Organization_) → **Organization GitHub Token** and enter the copied token into the text field, then finally press **Submit**.
 
 You should see comments posted by your service account on your next PR.
 </Accordion>
 
 ## Disable commenting
 
-Pull Request comments are enabled by default. If you wish to disable the comments, you can do so by navigating to the Trunk App > click on your profile > **Settings** > **RepoName**. In the **Flaky Tests** heading, toggle the **Summary Flaky Tests Reports** setting.
+Pull Request comments are enabled by default. If you wish to disable the comments, you can do so by navigating to the Trunk App, clicking your profile, then **Settings** → **[RepoName]**. In the **Flaky Tests** heading, toggle the **Summary Flaky Tests Reports** setting.
 
 ## Troubleshooting
 
-**GitHub Organization ownership.** If you wish to set the resource owner to be a GitHub Organization, you should double check that this is allowed by navigating to your **GitHub Organization** > **Settings** > **Personal access tokens** > **Settings**. Make sure under "_Fine-grained personal access tokens_", you have _"Allow access via fine-grained personal access tokens"_ selected.
+**GitHub Organization ownership.** If you wish to set the resource owner to be a GitHub Organization, you should double check that this is allowed by navigating to your **GitHub Organization** → **Settings** → **Personal access tokens** → **Settings**. Make sure under "_Fine-grained personal access tokens_", you have _"Allow access via fine-grained personal access tokens"_ selected.
 
-Once the token is created, the Organization admin may need to approve the request for the token. This can be done by going to **GitHub Organization** > **Settings** > **Personal access tokens** > **Pending requests**. To confirm that the token was set, you should be able to see it under **Active tokens**.
+Once the token is created, the Organization admin may need to approve the request for the token. This can be done by navigating to **GitHub Organization** → **Settings** → **Personal access tokens** → **Pending requests**. To confirm that the token was set, you should be able to see it under **Active tokens**.
 
 At any point, feel free to reach out to our team at [support@trunk.io](mailto:support@trunk.io).

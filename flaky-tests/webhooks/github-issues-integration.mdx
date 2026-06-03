@@ -11,11 +11,11 @@ This guide will walk you through integrating Trunk Flaky Tests with GitHub Issue
 
 Before you can create a webhook to automate GitHub Issue creation, you need to create an API token to authorize your requests.
 
-1. Navigate to GitHub Developer Settings under **Settings** > **Developer settings**
-2. Under **Personal access token** > **Fine-grained tokens** > Click **Generate new token**
+1. Navigate to GitHub Developer Settings under **Settings** → **Developer settings**
+2. Under **Personal access token** → **Fine-grained tokens**, click **Generate new token**
 3. Name the token something like `Trunk Flaky Tests` so you can recognize your token and set it never to expire.
 4. Select the repositories you need to create issues to under **Repository access**
-5.  Under **Permissions** > **Repository Permissions**, select **Read and Write** access for **Issues.**
+5.  Under **Permissions** → **Repository Permissions**, select **Read and Write** access for **Issues.**
 
     <Frame>
     <img className="block dark:hidden" src="/assets/example-webhook-github-permissions-light.png" alt="" />
