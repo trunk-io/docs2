@@ -58,10 +58,11 @@ Use one verb per action and do not alternate:
 | Verb | Use for |
 | --- | --- |
 | **Navigate to** | A multi-step path through menus or settings (uses arrows). |
+| **Open** | A tab or panel. |
 | **Click** | A single button or link. |
 | **Select** | Choosing an option from a list or dropdown. |
 
-Retire: *Go to*, *Head to*, *Open the…*, *Choose*.
+Retire: *Go to*, *Head to*, *Choose*.
 
 ### Example
 
