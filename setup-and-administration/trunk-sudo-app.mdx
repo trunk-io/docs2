@@ -40,7 +40,7 @@ Installing the app isn't enough on its own — your branch protection configurat
 
 ### Option A — GitHub Rulesets (recommended)
 
-In GitHub, navigate to **Settings → Rules → Rulesets**. For every active ruleset that applies to your merge branch:
+In GitHub, navigate to **Settings** → **Rules** → **Rulesets**. For every active ruleset that applies to your merge branch:
 
 1. Open the ruleset.
 2. Under **Bypass list**, add the **Trunk Sudo** GitHub App.
@@ -57,7 +57,7 @@ In GitHub, navigate to **Settings → Rules → Rulesets**. For every active rul
 
 ### Option B — Classic branch protection
 
-If you're using classic branch protection rules, navigate to **Settings → Branches → Branch protection rules** and edit the rule for your merge branch.
+If you're using classic branch protection rules, navigate to **Settings** → **Branches** → **Branch protection rules** and edit the rule for your merge branch.
 
 1. If **"Require a pull request before merging" → "Require approvals"** is enabled, enable **"Allow specified actors to bypass required pull requests"** and add **Trunk Sudo** to the allow list.
 2. If **"Restrict who can push to matching branches"** is enabled, add **Trunk Sudo** to the allowed actors list.
