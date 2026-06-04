@@ -18,7 +18,7 @@ The "Investigate Flaky Tests" setting can only be changed by organization admins
 </Info>
 
 <Frame>
-![Setting to enable Flaky Test investigation](/assets/investigate-flaky-tests-setting.png)
+![Setting to enable Flaky Test investigation](/assets/flaky-tests/agents/investigate-flaky-tests-setting.png)
 </Frame>
 
 ## Auto-Investigate Flaky Tests
@@ -26,7 +26,7 @@ The "Investigate Flaky Tests" setting can only be changed by organization admins
 Once enabled, any time that Trunk [detects a flaky test](../detection/index), Trunk analyzes the failure patterns, failure output, and git history of the test to provide a number of insights.
 
 <Frame>
-![Results of an automatic flaky tests analysis](/assets/investigate-flaky-tests.png)
+![Results of an automatic flaky tests analysis](/assets/flaky-tests/agents/investigate-flaky-tests.png)
 </Frame>
 
 Flaky tests can also be analyzed manually via the UI and via the [MCP server](../reference/mcp-reference/fix-flaky-test).
@@ -47,7 +47,7 @@ Whenever an investigation is completed, Trunk will emit a [webhook](../webhooks/
 You can then set up a [Cursor Automation](https://cursor.com/automations) to trigger when webhooks are received.
 
 <Frame>
-![Configuration for Cursor Automation](/assets/autofix-cursor-automation.png)
+![Configuration for Cursor Automation](/assets/flaky-tests/agents/autofix-cursor-automation.png)
 </Frame>
 
 <Accordion title="Recommended Cursor Automation Config">

@@ -22,7 +22,7 @@ For example, the following four pull requests:
 Without parallelization, the PRs **A**, **B**, **C**, and **D** would all be tested in a single predictive path **A** \<- **B** \<- **C** \<- **D**. Using the impacted target information we can instead build three dynamically provisioned queues and the predictive testing can yield higher throughput - which means your pull request spends less time in the queue stuck testing with unrelated code changes.
 
 <Frame caption="Three Dynamic Parallel Queues">
-<img src="/assets/file.excalidraw_(6).svg" alt="Three Dynamic Parallel Queues" class="gitbook-drawing"/>
+<img src="/assets/merge-queue/optimizations/parallel-queues/file.excalidraw_(6).svg" alt="Three Dynamic Parallel Queues" class="gitbook-drawing"/>
 </Frame>
 
 ## How does it work?
@@ -45,17 +45,17 @@ We ship several pre-built solutions for popular build systems to automatically c
   <Card
     title="Bazel"
     href="./bazel"
-    img="/assets/bazel-dark.png"
+    img="/assets/merge-queue/optimizations/parallel-queues/bazel-dark.png"
   />
   <Card
     title="Nx"
     href="./nx"
-    img="/assets/NX.png"
+    img="/assets/merge-queue/optimizations/parallel-queues/NX.png"
   />
   <Card
     title="Other"
     href="./api"
-    img="/assets/Group_1277.png"
+    img="/assets/merge-queue/optimizations/parallel-queues/Group_1277.png"
   />
 </Columns>
 
@@ -65,8 +65,8 @@ Merge can be swapped between `Single` and `Parallel` mode at any time. If there 
 Switching modes can be done from the `Merge Queue Mode` section of your queue's `Settings` tab (open `Merge Queue`, select your queue, then `Settings`).
 
 <Frame caption="enabling parallel mode">
-<img className="block dark:hidden" src="/assets/enable-parallel-mode-light.png" alt="Enabling parallel mode in the Merge Queue Mode settings" />
-<img className="hidden dark:block" src="/assets/enable-parallel-mode-dark.png" alt="Enabling parallel mode in the Merge Queue Mode settings" />
+<img className="block dark:hidden" src="/assets/merge-queue/optimizations/parallel-queues/enable-parallel-mode-light.png" alt="Enabling parallel mode in the Merge Queue Mode settings" />
+<img className="hidden dark:block" src="/assets/merge-queue/optimizations/parallel-queues/enable-parallel-mode-dark.png" alt="Enabling parallel mode in the Merge Queue Mode settings" />
 </Frame>
 
 ## Monitoring Parallel Queue Performance

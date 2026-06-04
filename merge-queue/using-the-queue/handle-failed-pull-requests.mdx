@@ -53,7 +53,7 @@ The PR Details panel has a dropdown "**Actions"** menu, where you can:
 Trunk Merge Queue will automatically restart failed PRs when it can under certain conditions (see PR states). Since the restart is usually from a failed PR being removed from the queue, other PRs behind it will also be restarted. If you want to manually restart a PR, you can restart it _**in place**_ by clicking the **Details** link in the **Needs Resubmission** tab to open the merge details screen. Then, click the **Actions** dropdown, and select **Restart tests**
 
 <Frame>
-![](/assets/merge-pr-details-action.png)
+![](/assets/merge-queue/using-the-queue/merge-pr-details-action.png)
 </Frame>
 
 There are a couple of reasons you might want to manually retry a PR. First, if a PR ends up in the `PENDING_FAILURE` state because of something transient like a CI runner disconnecting or flakey tests, you can retry the PR right away instead of waiting for PRs in front of it to pass or fail.
@@ -106,7 +106,7 @@ When Trunk drops a PR, it records a failure reason that appears in the Trunk Das
 A table of the PRs that failed testing and were removed from the queue. Address the failures, then resubmit them to rejoin the merge queue.
 
 <Frame>
-![](/assets/merge-failures.png)
+![](/assets/merge-queue/using-the-queue/merge-failures.png)
 </Frame>
 
 ### Retry failed pull requests from the Needs Resubmission tab
@@ -114,5 +114,5 @@ A table of the PRs that failed testing and were removed from the queue. Address 
 When a PR has been dropped from the queue, you can manually retry the PR by clicking the **Details** link in the **Needs Resubmission** tab to open the merge details screen. Then, click the **Actions** dropdown, and select **Retry**
 
 <Frame caption="Re-queue a PR if it is currently not in the queue that has failed or been cancelled.">
-![](/assets/merge-failure-retry.png)
+![](/assets/merge-queue/using-the-queue/merge-failure-retry.png)
 </Frame>
