@@ -28,6 +28,8 @@ When you disable or delete a monitor, it is immediately set to **resolved** for 
 
 For example, if you have a broken failure rate monitor and a flaky pass-on-retry monitor, and you disable the broken monitor, any test that was only flagged by the broken monitor will become healthy. A test flagged by both will transition from broken to flaky (because pass-on-retry is still active).
 
+Each affected test case records a **Monitor disabled** or **Monitor deleted** event in its [Events tab](../dashboard#test-case-details), attributed to the person who performed the action. These events are visible under the **Monitors** filter category and show the same monitor name and type as the original detection events, making it straightforward to trace why a test transitioned back to healthy.
+
 ## Monitor Types
 
 Trunk groups monitors into two categories based on what they do when they activate:
