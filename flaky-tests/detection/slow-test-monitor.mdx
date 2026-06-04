@@ -1,6 +1,6 @@
 ---
 title: "Slow Test Monitor"
-description: "Flag tests whose average runtime exceeds a configured duration threshold."
+description: "Flag tests whose duration percentile exceeds a configured threshold."
 og:title: "The Slow Test Monitor in Trunk Flaky Tests"
 ---
 
@@ -14,7 +14,7 @@ The slow test monitor detects test cases whose measured duration exceeds a thres
 
 ## How It Works
 
-The monitor evaluates average test duration across runs in a rolling time window. When a test's average duration exceeds the configured threshold and enough sample runs have been collected, the monitor activates and applies the configured labels.
+The monitor evaluates a configurable percentile of test duration across runs in a rolling time window. When the test's duration at that percentile exceeds the configured threshold and enough sample runs have been collected, the monitor activates and applies the configured labels.
 
 Resolution happens when the test's measured duration drops back below the threshold over subsequent runs. If `staleAfterMinutes` is set, the monitor also resolves any active test that has had no recent runs on monitored branches — this prevents labels from persisting on tests that have been removed from the suite.
 
@@ -22,7 +22,8 @@ Resolution happens when the test's measured duration drops back below the thresh
 
 | Setting | Description | Default |
 |---|---|---|
-| Duration threshold | Minimum average test duration (milliseconds) to trigger detection | Required |
+| Duration threshold | Duration (milliseconds) at the configured percentile that triggers detection | Required |
+| Percentile | Which duration percentile to evaluate, as a value between 0 and 1 (for example, 0.5 for p50) | Required |
 | Window | Time window (minutes) over which duration is measured | Required |
 | Sample size | Minimum number of runs required before the monitor can activate | Required |
 | Stale after | Minutes without any run on monitored branches before an active test resolves (optional) | Disabled |
@@ -31,11 +32,15 @@ Resolution happens when the test's measured duration drops back below the thresh
 
 ### Duration Threshold
 
-Set the threshold in milliseconds. A value of 5000 flags any test averaging more than 5 seconds. Tune this based on your acceptable CI budget — tighter thresholds surface more tests but may require more review bandwidth.
+Set the threshold in milliseconds. With the percentile set to 0.5 (p50), a value of 5000 flags any test whose median run exceeds 5 seconds. Tune this based on your acceptable CI budget — tighter thresholds surface more tests but may require more review bandwidth.
+
+### Percentile
+
+The percentile controls which point in a test's duration distribution is compared against the threshold. A value of 0.5 evaluates the median (p50); 0.95 evaluates the p95 tail. Use a higher percentile to catch tests that are usually fast but spike, and a lower one to catch tests that are consistently slow.
 
 ### Window and Sample Size
 
-The window controls how far back duration samples are collected. Sample size sets the minimum number of runs needed before the monitor will activate. This prevents a single slow run from triggering the monitor on a test with no history. For example, a window of 1440 minutes (one day) and a sample size of 5 means the monitor averages the last day's runs and requires at least five before drawing a conclusion.
+The window controls how far back duration samples are collected. Sample size sets the minimum number of runs needed before the monitor will activate. This prevents a single slow run from triggering the monitor on a test with no history. For example, a window of 1440 minutes (one day) and a sample size of 5 means the monitor evaluates the configured percentile over the last day's runs and requires at least five before drawing a conclusion.
 
 ### Stale After
 
