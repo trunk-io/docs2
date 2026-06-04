@@ -117,6 +117,14 @@ mvn -Dsurefire.rerunFailingTestsCount=0 test
 
 You can validate your test reports using the [Trunk Analytics CLI](../../reference/cli-reference). If you don't have it installed already, you can install and run the `validate` command like this:
 
+<Note>
+  The `validate` and `upload` examples below use the **Gradle default** output path. Point `--junit-paths` at the glob that matches your build:
+
+  - **Gradle** (default): `./app/build/test-results/test/*.xml`
+  - **Gradle** with the `testResultsDir` override shown above: `./app/build/junit-reports/test/*.xml`
+  - **Maven**: `./target/junit/*.xml`
+</Note>
+
 <CodeGroup>
 ```bash Linux (x64)
 SKU="trunk-analytics-cli-x86_64-unknown-linux.tar.gz"
