@@ -41,6 +41,10 @@ java.testResultsDir = layout.buildDirectory.dir("junit-reports")
 
 This example will write report files to `"./app/build/junit-reports/test/*.xml"`
 
+<Note>
+  The `validate` and `upload` commands below use the default path. If you apply this override, point `--junit-paths` at `./app/build/junit-reports/test/*.xml` instead.
+</Note>
+
 ### Disable Retries
 
 You need to disable automatic retries if you previously enabled them. Retries compromise the accurate detection of flaky tests. You should disable retries for accurate detection and use the [Quarantining](../../quarantining/) feature to stop flaky tests from failing your CI jobs.
@@ -61,7 +65,7 @@ curl -fL --retry 3 \
   | tar -xz
 
 chmod +x trunk-analytics-cli
-./trunk-analytics-cli validate --junit-paths "./app/build/junit-reports/*.xml"
+./trunk-analytics-cli validate --junit-paths "./app/build/test-results/test/*.xml"
 ```
 ```bash Linux (arm64)
 SKU="trunk-analytics-cli-aarch64-unknown-linux.tar.gz"
@@ -70,7 +74,7 @@ curl -fL --retry 3 \
   | tar -xz
 
 chmod +x trunk-analytics-cli
-./trunk-analytics-cli validate --junit-paths "./app/build/junit-reports/*.xml"
+./trunk-analytics-cli validate --junit-paths "./app/build/test-results/test/*.xml"
 ```
 ```bash macOS (arm64)
 SKU="trunk-analytics-cli-aarch64-apple-darwin.tar.gz"
@@ -79,7 +83,7 @@ curl -fL --retry 3 \
   | tar -xz
 
 chmod +x trunk-analytics-cli
-./trunk-analytics-cli validate --junit-paths "./app/build/junit-reports/*.xml"
+./trunk-analytics-cli validate --junit-paths "./app/build/test-results/test/*.xml"
 ```
 ```bash macOS (x64)
 SKU="trunk-analytics-cli-x86_64-apple-darwin.tar.gz"
@@ -88,7 +92,7 @@ curl -fL --retry 3 \
   | tar -xz
 
 chmod +x trunk-analytics-cli
-./trunk-analytics-cli validate --junit-paths "./app/build/junit-reports/*.xml"
+./trunk-analytics-cli validate --junit-paths "./app/build/test-results/test/*.xml"
 ```
 </CodeGroup>
 
@@ -101,7 +105,7 @@ Before modifying your CI jobs to automatically upload test results to Trunk, try
 You make an upload to Trunk using the following command:
 
 ```sh
-./trunk-analytics-cli upload --junit-paths "./app/build/junit-reports/test/" \
+./trunk-analytics-cli upload --junit-paths "./app/build/test-results/test/*.xml" \
     --org-url-slug <TRUNK_ORG_URL_SLUG> \
     --token <TRUNK_ORG_TOKEN>
 ```

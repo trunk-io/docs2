@@ -117,6 +117,14 @@ mvn -Dsurefire.rerunFailingTestsCount=0 test
 
 You can validate your test reports using the [Trunk Analytics CLI](../../reference/cli-reference). If you don't have it installed already, you can install and run the `validate` command like this:
 
+<Note>
+  The `validate` and `upload` examples below use the **Gradle default** output path. Point `--junit-paths` at the glob that matches your build:
+
+  - **Gradle** (default): `./app/build/test-results/test/*.xml`
+  - **Gradle** with the `testResultsDir` override shown above: `./app/build/junit-reports/test/*.xml`
+  - **Maven**: `./target/junit/*.xml`
+</Note>
+
 <CodeGroup>
 ```bash Linux (x64)
 SKU="trunk-analytics-cli-x86_64-unknown-linux.tar.gz"
@@ -125,7 +133,7 @@ curl -fL --retry 3 \
   | tar -xz
 
 chmod +x trunk-analytics-cli
-./trunk-analytics-cli validate --junit-paths "./app/junit-reports/*.xml"
+./trunk-analytics-cli validate --junit-paths "./app/build/test-results/test/*.xml"
 ```
 ```bash Linux (arm64)
 SKU="trunk-analytics-cli-aarch64-unknown-linux.tar.gz"
@@ -134,7 +142,7 @@ curl -fL --retry 3 \
   | tar -xz
 
 chmod +x trunk-analytics-cli
-./trunk-analytics-cli validate --junit-paths "./app/junit-reports/*.xml"
+./trunk-analytics-cli validate --junit-paths "./app/build/test-results/test/*.xml"
 ```
 ```bash macOS (arm64)
 SKU="trunk-analytics-cli-aarch64-apple-darwin.tar.gz"
@@ -143,7 +151,7 @@ curl -fL --retry 3 \
   | tar -xz
 
 chmod +x trunk-analytics-cli
-./trunk-analytics-cli validate --junit-paths "./app/junit-reports/*.xml"
+./trunk-analytics-cli validate --junit-paths "./app/build/test-results/test/*.xml"
 ```
 ```bash macOS (x64)
 SKU="trunk-analytics-cli-x86_64-apple-darwin.tar.gz"
@@ -152,7 +160,7 @@ curl -fL --retry 3 \
   | tar -xz
 
 chmod +x trunk-analytics-cli
-./trunk-analytics-cli validate --junit-paths "./app/junit-reports/*.xml"
+./trunk-analytics-cli validate --junit-paths "./app/build/test-results/test/*.xml"
 ```
 </CodeGroup>
 
@@ -167,7 +175,7 @@ Before modifying your CI jobs to automatically upload test results to Trunk, try
 You make an upload to Trunk using the following command:
 
 ```sh
-./trunk-analytics-cli upload --junit-paths "./app/junit-reports/*.xml" \
+./trunk-analytics-cli upload --junit-paths "./app/build/test-results/test/*.xml" \
     --org-url-slug <TRUNK_ORG_URL_SLUG> \
     --token <TRUNK_ORG_TOKEN>
 ```

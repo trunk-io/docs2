@@ -34,11 +34,14 @@ Update your Cypress config:
 
 ```javascript title="cypress.config.js"
 const { defineConfig } = require('cypress')
+const { setupJUnitPlugin } = require('@saucelabs/cypress-junit-plugin')
 
 module.exports = defineConfig({
-  reporter: '@saucelabs/cypress-junit-plugin',
-  reporterOptions: {
-    mochaFile: './junit.xml',
+  e2e: {
+    setupNodeEvents(on, config) {
+      setupJUnitPlugin(on, config, { filename: './junit.xml' })
+      return config
+    },
   },
 })
 ```
@@ -65,7 +68,7 @@ The built-in Mocha JUnit reporter places the `file` attribute on `<testsuite>` e
 
 ### Report File Path
 
-The JUnit report location is specified by the `mochaFile` property in your Cypress config. In the above example, the file will be at `./junit.xml`.
+The JUnit report location is specified by the `filename` option passed to `setupJUnitPlugin` (or the `mochaFile` property when using the built-in reporter). In the above examples, the file will be at `./junit.xml`.
 
 ### Disable Retries
 
