@@ -1,0 +1,21 @@
+---
+title: "Merge Queue: Chrome Extension Terminal State Improvements"
+description: "Failed and cancelled queue items now show structured details and a resubmit button directly in the extension panel."
+date: 2026-06-03
+category: Merge Queue
+type: update
+---
+
+**The [Chrome Extension](https://docs.trunk.io/merge-queue/chrome-extension) now shows richer context when a PR leaves the queue.**
+
+Previously, a failed or cancelled PR reverted to a generic "Add to Merge Queue" state with no indication of what happened. The panel now distinguishes terminal outcomes and gives you the information you need to act:
+
+- **Failed** — the panel lists each required check that did not pass, with a link to the run log for each. A **Resubmit** button re-enqueues the PR without leaving the GitHub PR page.
+- **Cancelled** — the panel shows who removed the PR from the queue (for example, "Cancelled by alice") when that information is available. A **Resubmit** button is also available.
+- **Waiting to Batch** — when batching is enabled and the queue is accumulating PRs before testing begins, the panel now shows a distinct waiting-to-batch state instead of the generic pending state.
+
+Failed check details are parsed from the most recent testing attempt only. If you re-enqueue a PR and then cancel it, the panel reflects the cancellation rather than surfacing checks from the earlier failed run.
+
+[Read the docs](https://docs.trunk.io/merge-queue/chrome-extension#track-testing-progress) to learn more.
+
+Co-Authored-By: Claude <noreply@anthropic.com>

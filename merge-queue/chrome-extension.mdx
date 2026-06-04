@@ -51,9 +51,12 @@ Once a PR is in the queue, the extension panel updates in real time as it moves 
 
 - **Queued** - waiting for prerequisites such as branch protection or mergeability
 - **Pending** - admitted to the queue, waiting for capacity
+- **Waiting to Batch** - admitted to the queue and waiting for additional PRs to form a batch before testing begins (shown when batching is enabled and the queue is accumulating PRs)
 - **Testing** - actively running required status checks against a merge candidate
 - **Tests Passed** - waiting for upstream PRs before merging
-- **Merged**, **Failed** - terminal states
+- **Merged** - the PR was successfully merged; the panel shows a success state and stops polling
+- **Failed** - the PR was removed because one or more required checks did not pass; the panel lists the failed checks by name with links to their run logs, and offers a **Resubmit** button to re-enqueue the PR
+- **Cancelled** - the PR was removed from the queue; the panel shows who cancelled it (for example, "Cancelled by alice") when that information is available, and offers a **Resubmit** button
 
 ## Automatic bot comment hiding
 
