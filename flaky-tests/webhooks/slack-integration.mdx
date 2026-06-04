@@ -22,12 +22,12 @@ You can add the new Slack Webhook URL to Svix by following these steps:
 3.  Under **Organization > Webhooks**, click **Slack**
 
     <Frame>
-    ![](/assets/example-webhook-connector-light.png)
+    ![](/assets/flaky-tests/webhooks/example-webhook-connector-light.png)
     </Frame>
 4.  Click **Connect to Slack** and select the server and channel to connect to.
 
     <Frame>
-    ![](/assets/example-webhook-connector-slack_(1).png)
+    ![](/assets/flaky-tests/webhooks/example-webhook-connector-slack_(1).png)
     </Frame>
 5. Review the transformation code automatically generated for Slack messages. You can customize this transformation at any time. Learn more about [customizing transformations](./slack-integration#id-2.-customize-your-transformation).
 6. By default, this connection will send messages about Trunk Merge and Flaky Tests events. If you only want Flaky Tests events, unselect all events other than `v2.test_case.status_changed`.
@@ -138,13 +138,13 @@ You can monitor the events and the webhook's delivery logs in the **Overview** t
 You can see an overview of how many webhook deliveries have been attempted, how many are successful, how many are in flight, and how many fail in the **Attempt Delivery Status** modal.
 
 <Frame>
-![](/assets/example-webhook-delivery-status.png)
+![](/assets/flaky-tests/webhooks/example-webhook-delivery-status.png)
 </Frame>
 
 You can see a list of past delivery attempts in the **Message Attempts** modal. You can filter this list by **Succeeded** and **Failed** status, and you can click on each message to see the **Message content**, response code, and error message of each attempt. You can learn more about [replaying messages](https://docs.svix.com/receiving/using-app-portal/replaying-messages) and [filtering logs](https://docs.svix.com/receiving/using-app-portal/filtering-logs) in the Svix docs.
 
 <Frame>
-![](/assets/example-webhook-logs.png)
+![](/assets/flaky-tests/webhooks/example-webhook-logs.png)
 </Frame>
 
 ## Congratulations!

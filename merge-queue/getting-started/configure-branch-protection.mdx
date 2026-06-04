@@ -98,7 +98,7 @@ Splitting them keeps Trunk's bypass scope minimal: GitHub bypass permissions app
 6. Save.
 
 <Frame caption="Ruleset #1: Trunk on the bypass list as Exempt so it can update main.">
-![GitHub ruleset with Restrict updates and Restrict deletions enabled, Trunk.io and Trunk Sudo on the bypass list as Exempt](/assets/merge-github-ruleset-push.png)
+![GitHub ruleset with Restrict updates and Restrict deletions enabled, Trunk.io and Trunk Sudo on the bypass list as Exempt](/assets/merge-queue/getting-started/merge-github-ruleset-push.png)
 </Frame>
 
 <Note>
@@ -117,7 +117,7 @@ Splitting them keeps Trunk's bypass scope minimal: GitHub bypass permissions app
 6. Save.
 
 <Frame caption="Ruleset #2: Trunk is not on the bypass list, so the queue respects these requirements when admitting PRs.">
-![GitHub ruleset with Require a pull request before merging and Require status checks to pass enabled, Trunk.io not on the bypass list](/assets/merge-github-ruleset-prs.png)
+![GitHub ruleset with Require a pull request before merging and Require status checks to pass enabled, Trunk.io not on the bypass list](/assets/merge-queue/getting-started/merge-github-ruleset-prs.png)
 </Frame>
 
 See [Required Status Checks](../administration/advanced-settings#required-status-checks) for how the queue uses required status checks while testing PRs already in the queue.
@@ -152,7 +152,7 @@ For each Branch ruleset whose **Branch targeting criteria** could match `trunk-t
 3. Save.
 
 <Frame caption="Add `trunk-temp/**/*` and `trunk-merge/**/*` as exclude patterns on any Branch ruleset whose targeting could otherwise match them.">
-   <img src="/assets/branch-ruleset-exclusions.png" alt="GitHub Branch targeting criteria with All branches included and trunk-temp/**/* and trunk-merge/**/* listed as exclude patterns"/>
+   <img src="/assets/merge-queue/getting-started/branch-ruleset-exclusions.png" alt="GitHub Branch targeting criteria with All branches included and trunk-temp/**/* and trunk-merge/**/* listed as exclude patterns"/>
 </Frame>
 
 <a id="verify-your-ruleset-configuration"></a>
@@ -182,7 +182,7 @@ Classic branch protection still works with Trunk Merge Queue, but is no longer t
 Trunk Merge Queue needs permission to push to your protected branch. Configure these settings using Classic branch protection rules:
 
 <Frame>
-![](/assets/merge-github-classic-branch-rules.png)
+![](/assets/merge-queue/getting-started/merge-github-classic-branch-rules.png)
 </Frame>
 
 1. Navigate to **Settings** → **Branches** in your repository on GitHub.

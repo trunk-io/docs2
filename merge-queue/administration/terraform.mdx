@@ -134,13 +134,13 @@ These attributes are computed by the API if not specified. You only need to set 
 When a merge queue is managed by Terraform, the Trunk UI displays a banner indicating that the queue is under Terraform management.
 
 <Frame caption="Banner for Merge Queue settings showing that the Merge Queue is managed by Terraform.">
-![](/assets/terraform-in-sync.png)
+![](/assets/merge-queue/administration/terraform-in-sync.png)
 </Frame>
 
 Users can still adjust merge queue settings through the UI. However, any changes made in the UI will cause **drift** between the live configuration and your Terraform state. The UI highlights when drift exists so your team is aware of the discrepancy.
 
 <Frame caption="Banner for Merge Queue settings showing that the Merge Queue is managed by Terraform but has since drifted due to settings being changed manually in the UI.">
-![](/assets/terraform-drift-mergequeue.png)
+![](/assets/merge-queue/administration/terraform-drift-mergequeue.png)
 </Frame>
 
 To detect drift, run:

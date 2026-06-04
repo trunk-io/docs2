@@ -8,7 +8,7 @@ The Metrics and Monitoring dashboard provides deep analytics on your merge queue
 Your merge experience directly impacts the velocity and productivity of your development team. Merge Queue Metrics provides observability for the **health** of your Trunk Merge Queue, so you can discover issues early and make informed optimizations.
 
 <Frame caption="The Health tab showing metrics in the Trunk Web App.">
-![Health tab of the Trunk web app showing a Conclusion Counts stacked bar chart and a Time in Queue p50 line chart over a 30-day range](/assets/merge-health.png)
+![Health tab of the Trunk web app showing a Conclusion Counts stacked bar chart and a Time in Queue p50 line chart over a 30-day range](/assets/merge-queue/administration/merge-health.png)
 </Frame>
 
 ## Access metrics
@@ -24,7 +24,7 @@ CI Time and CI Jobs Triggered charts are only available for **GitHub Actions**.
 When running in Parallel Mode, you can filter your merge queue health metrics by impacted targets to analyze performance for specific parts of your codebase.
 
 <Frame>
-![Health dashboard filtered by PR Conclusion: Failed and Impacted Targets: //trunk/all-ts:node_modules/@trunkio, showing a single failure bar and a p50 Time in Queue line](/assets/1768426992-impacted-target-filtering.avif)
+![Health dashboard filtered by PR Conclusion: Failed and Impacted Targets: //trunk/all-ts:node_modules/@trunkio, showing a single failure bar and a p50 Time in Queue line](/assets/merge-queue/administration/1768426992-impacted-target-filtering.avif)
 </Frame>
 
 ### Why Filter by Impacted Targets?
@@ -143,7 +143,7 @@ You have two ways to select:
 Once a selection is made, a **View PRs** button appears. Click it to open the list of PRs that make up the selection.
 
 <Frame caption="The View PRs button appears after selecting a data point or range.">
-![PR Outcomes and Time in Queue charts with a selected Apr 20–21 range broken out into 998 merged, 30 cancelled, and 30 failed, and a selection bar showing the View PRs button](/assets/drill-down-overview.png)
+![PR Outcomes and Time in Queue charts with a selected Apr 20–21 range broken out into 998 merged, 30 cancelled, and 30 failed, and a selection bar showing the View PRs button](/assets/merge-queue/administration/drill-down-overview.png)
 </Frame>
 
 To pick a different window, drag a new selection. To clear the selection, change the time range, time bucket, or **Time in UTC** setting at the top of the dashboard.
@@ -159,7 +159,7 @@ The PR list page shows every PR included in your selection, along with:
 Both columns are sortable, so you can quickly surface the longest-running PRs in a window or group all failures of the same type together.
 
 <Frame caption="The drill-down PR list, sortable by conclusion and time in queue.">
-![PRs in Range table listing individual PRs with Conclusion (Merged or Failed), Reason, and Time in Queue columns, sorted by Time in Queue descending](/assets/pr-drill-down-list.png)
+![PRs in Range table listing individual PRs with Conclusion (Merged or Failed), Reason, and Time in Queue columns, sorted by Time in Queue descending](/assets/merge-queue/administration/pr-drill-down-list.png)
 </Frame>
 
 The PR list page shows the selected date range as a subtitle and a **Back to Health** link to return to the charts. If the selection contains more than 2,500 PRs, the list shows the first 2,500 with a notice indicating the total. Narrow the time bucket on the chart to drill into a smaller window.
