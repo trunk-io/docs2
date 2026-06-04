@@ -857,6 +857,34 @@
   },
   "redirects": [
     {
+      "source": "/check/advanced-setup/cli/install-trunk",
+      "destination": "/code-quality/overview/getting-started/install"
+    },
+    {
+      "source": "/check/configuration/custom-linters/commands/custom-parsers",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/output-parsing"
+    },
+    {
+      "source": "/code-quality/ide-integration/vscode",
+      "destination": "/code-quality/overview/ide-integration/vscode"
+    },
+    {
+      "source": "/code-quality/overview/how-does-it-work",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/code-quality/overview/why-code-quality",
+      "destination": "/code-quality/overview/linters"
+    },
+    {
+      "source": "/code-quality/linters/supported",
+      "destination": "/code-quality/overview/linters/supported"
+    },
+    {
+      "source": "/code-quality/setup-and-installation/initialize-trunk",
+      "destination": "/code-quality/overview/getting-started/install"
+    },
+    {
       "source": "/support",
       "destination": "/setup-and-administration/support"
     },
