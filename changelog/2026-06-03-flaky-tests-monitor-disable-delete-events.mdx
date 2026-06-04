@@ -1,0 +1,19 @@
+---
+title: "Flaky Tests: Monitor Disable and Delete Events in Test History"
+description: "Disabling or deleting a monitor now writes a deactivation event visible in each affected test's Events tab."
+date: 2026-06-03
+category: Flaky Tests
+type: update
+---
+
+**When you disable or delete a monitor, the action is now recorded in the test detection history.**
+
+Previously, disabling or deleting a monitor resolved the monitor for every affected test (transitioning health status and removing labels as configured), but left no visible trail in the test's history. The deactivation was invisible to anyone later reviewing why a test's status changed.
+
+Now each affected test gets a **Monitor disabled** or **Monitor deleted** detection event written at the time of the action. These events appear in the **Events** tab on the test detail page alongside threshold crossings and other detection events, showing the monitor name and the timestamp of the change.
+
+The monitors list column that previously read **Last detection** now reads **Last event** to reflect that it tracks both detection activations and deactivation events.
+
+[Read the docs](https://docs.trunk.io/flaky-tests/detection#disabling-or-deleting-a-monitor) to learn more.
+
+Co-Authored-By: Claude <noreply@anthropic.com>
