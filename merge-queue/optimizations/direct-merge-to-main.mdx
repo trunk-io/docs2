@@ -32,13 +32,13 @@ With Direct Merge to Main enabled, Trunk recognizes this situation and merges yo
 
 Direct Merge to Main only activates when **ALL** of these conditions are met:
 
-✅ **PR is based on the tip of main** - The PR's base commit matches the current HEAD of your main branch
+**PR is based on the tip of main** - The PR's base commit matches the current HEAD of your main branch
 
-✅ **Queue is empty** - No other PRs are currently in the queue waiting to test or merge
+**Queue is empty** - No other PRs are currently in the queue waiting to test or merge
 
-✅ **PR's tests have passed** - The PR's CI checks passed on GitHub (before entering the queue)
+**PR's tests have passed** - The PR's CI checks passed on GitHub (before entering the queue)
 
-✅ **Direct Merge is enabled** - The setting is turned on in your merge queue configuration
+**Direct Merge is enabled** - The setting is turned on in your merge queue configuration
 
 If any of these conditions are not met, the PR enters the queue normally and tests predictively as usual.
 

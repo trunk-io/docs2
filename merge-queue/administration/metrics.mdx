@@ -84,23 +84,23 @@ Conclusions are tagged with a reason to give further insights into how merges pa
 
 | Category | Reason | Description |
 | --- | --- | --- |
-| ✅ Pass | Merged by Trunk | Passed all tests in Merge Queue and merged by Trunk |
-| ✅ Pass | Merged manually | User manually merged the PR in Git |
-| ❌ Failure | Test run timeout | User-defined timeout for tests exceeded |
-| ❌ Failure | Failed Tests | Required test failed while testing the PR in the merge queue |
-| ❌ Failure | Merge conflict | A (git) merge conflict encountered |
-| ❌ Failure | Config parsing failure | Malformed `trunk.yaml` that couldn't be parsed |
-| ❌ Failure | Config bad version | Invalid version field in `trunk.yaml` |
-| ❌ Failure | Config bad required statuses | Failed to parse required statuses in `trunk.yaml` |
-| ❌ Failure | No required statuses | No source for required tests was found in `trunk.yaml` or branch protection settings |
-| ❌ Failure | GitHub API Failed | GitHub returned an error to us that could not be resolved while processing the PR |
-| ❌ Failure | PR updated at merge time | PR updated as Trunk was attempting to merge it |
-| 🚫 Cancel | Canceled by user | PR explicitly canceled by user |
-| 🚫 Cancel | PR closed | PR closed (not merged) |
-| 🚫 Cancel | PR pushed to | New commits pushed to the PR branch while in the merge queue |
-| 🚫 Cancel | PR draft | PR was converted to a draft, which cannot be merged |
-| 🚫 Cancel | PR base branch changed | Base branch of PR in the merge queue changed |
-| 🚫 Cancel | Admin requested | Trunk employee canceled PR during a support session (extreme cases) |
+| Pass | Merged by Trunk | Passed all tests in Merge Queue and merged by Trunk |
+| Pass | Merged manually | User manually merged the PR in Git |
+| Failure | Test run timeout | User-defined timeout for tests exceeded |
+| Failure | Failed Tests | Required test failed while testing the PR in the merge queue |
+| Failure | Merge conflict | A (git) merge conflict encountered |
+| Failure | Config parsing failure | Malformed `trunk.yaml` that couldn't be parsed |
+| Failure | Config bad version | Invalid version field in `trunk.yaml` |
+| Failure | Config bad required statuses | Failed to parse required statuses in `trunk.yaml` |
+| Failure | No required statuses | No source for required tests was found in `trunk.yaml` or branch protection settings |
+| Failure | GitHub API Failed | GitHub returned an error to us that could not be resolved while processing the PR |
+| Failure | PR updated at merge time | PR updated as Trunk was attempting to merge it |
+| Cancel | Canceled by user | PR explicitly canceled by user |
+| Cancel | PR closed | PR closed (not merged) |
+| Cancel | PR pushed to | New commits pushed to the PR branch while in the merge queue |
+| Cancel | PR draft | PR was converted to a draft, which cannot be merged |
+| Cancel | PR base branch changed | Base branch of PR in the merge queue changed |
+| Cancel | Admin requested | Trunk employee canceled PR during a support session (extreme cases) |
 
 ## Time in queue
 

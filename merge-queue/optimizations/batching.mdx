@@ -182,17 +182,17 @@ Start with bisection concurrency 2x your main queue concurrency, monitor the imp
 
 ### Best practices
 
-✅ **Set bisection concurrency higher than main queue** - This is the whole point of the feature
+**Set bisection concurrency higher than main queue** - This is the whole point of the feature
 
-✅ **Monitor CI costs** - Higher bisection concurrency means more runners during failures
+**Monitor CI costs** - Higher bisection concurrency means more runners during failures
 
-✅ **Start conservative** - Begin with 2x main concurrency and increase gradually
+**Start conservative** - Begin with 2x main concurrency and increase gradually
 
-✅ **Combine with other optimizations** - Works best alongside Pending Failure Depth and Anti-flake Protection
+**Combine with other optimizations** - Works best alongside Pending Failure Depth and Anti-flake Protection
 
-❌ **Don't set too high** - Extremely high bisection concurrency can overwhelm CI systems
+**Don't set too high** - Extremely high bisection concurrency can overwhelm CI systems
 
-❌ **Don't set lower than main queue** - This defeats the purpose and slows down bisection
+**Don't set lower than main queue** - This defeats the purpose and slows down bisection
 
 
 
@@ -264,17 +264,17 @@ The exact savings depend on your batch size, bisection pattern, and which combin
 
 ### Best practices
 
-✅ **Use with larger batch sizes** - More PRs in a batch means more opportunities to cache results
+**Use with larger batch sizes** - More PRs in a batch means more opportunities to cache results
 
-✅ **Combine with bisection concurrency** - Fast bisection + test caching = maximum efficiency
+**Combine with bisection concurrency** - Fast bisection + test caching = maximum efficiency
 
-✅ **Enable batching** - This feature only works when batching is enabled
+**Enable batching** - This feature only works when batching is enabled
 
-✅ **Monitor your metrics** - Track CI spend and bisection time to see the impact
+**Monitor your metrics** - Track CI spend and bisection time to see the impact
 
-❌ **Don't try to configure it** - Test caching is automatic and always enabled when batching
+**Don't try to configure it** - Test caching is automatic and always enabled when batching
 
-❌ **Don't rely on it for flaky tests** - Caching assumes consistent test behavior; flaky tests may bypass caching for safety
+**Don't rely on it for flaky tests** - Caching assumes consistent test behavior; flaky tests may bypass caching for safety
 
 ### How this works with other features
 
