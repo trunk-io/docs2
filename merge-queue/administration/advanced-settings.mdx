@@ -17,9 +17,9 @@ You can change the state of your Merge Queue to control whether new PRs can ente
 
 | State | Will PRs Enter the Queue? | Will PRs Merge After Testing? | Example use case |
 |-------|--------------------------|-------------------------------|------------------|
-| `Running` | Yes ✅ | Yes ✅ | **Everyday merging**: protect your mainline and merges successful PRs. |
-| `Paused` | No ❌ | No ❌ | **CI failure recovery**: stop merges and testing in the queue until failure is resolved. |
-| `Draining` | No ❌ | Yes ✅ | **Code freeze**: merge PRs currently in the queue but don't start testing additional PRs. |
+| `Running` | Yes | Yes | **Everyday merging**: protect your mainline and merges successful PRs. |
+| `Paused` | No | No | **CI failure recovery**: stop merges and testing in the queue until failure is resolved. |
+| `Draining` | No | Yes | **Code freeze**: merge PRs currently in the queue but don't start testing additional PRs. |
 
 
 **Note:** The Merge Queue may automatically enter a `Switching Modes` state, which functions exactly like `Draining`. This occurs when you switch the queue mode while PRs are still being tested.
@@ -149,9 +149,9 @@ See [Submit and cancel pull requests](../using-the-queue/reference#custom-merge-
 
 Configure how many PRs may be tested in parallel. A larger number may increase throughput since more PRs are tested in parallel, but at the expense of CI since more jobs are running in parallel. When the queue is at capacity, PRs will still be submitted to it, but they will not begin testing until a PR leaves the queue.
 
-<Info>
+<Tip>
 If your testing workload contains some flaky tests, a deeper queue (i.e., a higher concurrency) may struggle. Running Merge in Parallel mode can help with this, as it will reduce the average depth of your merge queue since all PRs won't be queued directly behind each other.
-</Info>
+</Tip>
 
 For example, assuming a concurrency of 3:
 

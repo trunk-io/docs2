@@ -93,9 +93,9 @@ After importing, run `terraform plan` to compare the Terraform configuration aga
 | `repo.name` | string | Repository name. Changing this forces a new resource. |
 | `target_branch` | string | Branch the merge queue targets (e.g., `main`). Changing this forces a new resource. |
 
-<Info>
+<Note>
 The `repo` and `target_branch` attributes are immutable. Changing any of them will destroy the existing queue and create a new one.
-</Info>
+</Note>
 
 ### Optional Attributes With API Defaults
 
@@ -151,9 +151,9 @@ terraform plan
 
 This shows any differences between your Terraform configuration and the current queue state. Run `terraform apply` to reconcile the configuration back to what is defined in Terraform, or update your `.tf` files to match the desired state.
 
-<Info>
+<Tip>
 If your team adjusts settings through the UI, run `terraform plan` periodically to detect drift. Apply to reconcile, or update your Terraform configuration to match the desired state.
-</Info>
+</Tip>
 
 ***
 
@@ -163,9 +163,9 @@ A merge queue must be empty before it can be deleted. If the queue still has PRs
 
 To empty a queue, you can set `state = "DRAINING"` and wait for all in-flight PRs to finish testing and merge. Once the queue is empty, run `terraform destroy` or remove the resource from your configuration and apply.
 
-<Info>
+<Note>
 Terraform will fail to delete a queue that still has PRs in it. Ensure the queue is empty before destroying the resource.
-</Info>
+</Note>
 
 ***
 

@@ -47,8 +47,8 @@ Without uploading PR results, you lose:
 * A Clear Test Report Summary: A quick overview of `Total`, `Pass`, `Fail`, and `Quarantined` tests.
 * In-Log Failure Details: A snippet of the stack trace and assertion error for any failed test, providing immediate context without digging through full CI logs.
 * Actionable Exit Codes: The CLI intelligently determines the job's outcome.
-  * When a real test fails, it exits with a non-zero code: `⚠️ Some test failures were not quarantined, using exit code: 1`
-  * When _only_ a known flaky test fails, it passes the job: `🎉 All test failures were quarantined, overriding exit code to be exit_success (0)`
+  * When a real test fails, it exits with a non-zero code: `Not all test failures were quarantined, using exit code 1 from command`
+  * When _only_ a known flaky test fails, it passes the job: `All test failures were quarantined, overriding exit code to be exit_success`
 
 This immediate, in-CI feedback loop is invaluable for developers trying to quickly understand why their build failed.
 
@@ -64,4 +64,4 @@ Now that you understand why uploading test results from pull requests is essenti
 
 Our documentation provides step-by-step guides for all major CI providers to make this setup simple.
 
-[➡️ Find your CI provider and start uploading test results](../get-started/ci-providers/index)
+[Find your CI provider and start uploading test results](../get-started/ci-providers/index)
