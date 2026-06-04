@@ -70,9 +70,9 @@ The date ranges selector at the top left of the dashboard allows you to filter t
 
 The metrics displayed only include data that have **completed within the time range**, jobs started but not completed during the selected time **will not be displayed**.
 
-<Info>
+<Tip>
 When working across multiple time zones, enable **Time in UTC** so everyone sees the same data.
-</Info>
+</Tip>
 
 ## Conclusion count
 
@@ -227,9 +227,9 @@ Each histogram emits `_bucket{le="..."}`, `_sum`, and `_count` series. Bucket bo
 
 For clarity, PRs in the "Waiting to Enter Queue" state (submitted to the queue but still waiting on prerequisites such as GitHub mergeability before they can be admitted to the queue) are not considered to be "in the queue" yet. So any time spent in this state is not counted in the Wait Duration or Time in Queue metrics.
 
-<Info>
+<Note>
 Rolling window metrics use **gauge semantics**, not true Prometheus counters. They represent a snapshot of the last hour, not cumulative totals. PromQL functions like `rate()` and `increase()` are **not meaningful** on these metrics. Use the values directly instead.
-</Info>
+</Note>
 
 ### Scrape configuration
 

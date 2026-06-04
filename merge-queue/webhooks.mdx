@@ -24,7 +24,7 @@ Merge Queue events fall into two families and each must be subscribed to explici
 - `pull_request.*` — events about an individual PR moving through the queue (queued, testing, merged, failed).
 - `pull_request_batch.*` — events about a batch of PRs being tested together (for example, `pull_request_batch.pending_failure`).
 
-<Info>
+<Note>
 If you only see `pull_request.*` events arriving at your endpoint, you likely haven't subscribed to the batch family. Edit the **Events** list on your webhook subscription in the Trunk web app and enable `pull_request_batch.*` entries.
 </Info>
 
