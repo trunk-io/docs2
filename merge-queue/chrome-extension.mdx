@@ -55,13 +55,17 @@ Once a PR is in the queue, the extension panel updates in real time as it moves 
 - **Tests Passed** - waiting for upstream PRs before merging
 - **Merged**, **Failed** - terminal states
 
-## Automatic bot comment hiding
+## Configuring row hiding
 
-On pull requests managed by Trunk, the extension automatically hides Trunk bot comments that prompt you to submit a PR to the merge queue. These comments (from the `trunk-io`bot account) contain text like "To merge this pull request, check the box" or include a `/merge-queue/` link.
+On pull requests managed by Trunk, the extension can hide native GitHub rows that its overlay replaces or duplicates. Each toggle defaults to on and is saved per browser profile in `chrome.storage.local`. To configure them, click the Trunk toolbar icon, open **Settings**, and find the **Hide rows** card.
 
-Because the extension adds its own in-page merge queue panel, these bot comments are redundant. Hiding them reduces clutter without removing any queue controls — all submit, cancel, and status actions remain available through the extension panel.
+| Toggle | What it hides | Default |
+|---|---|---|
+| **Merging is blocked** | GitHub's "Merging is blocked" merge-box status row, replaced by the Trunk panel | On |
+| **Branch out of date** | GitHub's informational Conflicts row when there are no actionable conflicts. Rows with "This branch has conflicts that must be resolved" or a **Resolve conflicts** control are always left visible. | On |
+| **Trunk bot comments** | Trunk bot comments that prompt you to submit a PR to the merge queue | On |
 
-The hiding is applied only on PR pages where the extension overlay is active. Comments from other bot accounts and non-merge-queue Trunk comments are not affected.
+All submit, cancel, and status actions remain available through the extension panel regardless of these settings. Hiding is applied only on PR pages where the Trunk overlay is active.
 
 ## Rolling the Extension out to an entire Org
 
@@ -96,8 +100,16 @@ The extension does **not** ask you for credentials, API tokens, or a separate pa
     Both go through the same Trunk Merge Queue backend. The extension is a faster, in-page surface for the same actions and adds live status without polling the PR comments.
   </Accordion>
 
-  <Accordion title="How do I enable Celebration Mode?" defaultOpen>
-    Click the Trunk extension icon and open **Options** (or right-click the icon and choose **Options**) to access the extension settings page.
+  <Accordion title="How do I configure extension settings?" defaultOpen>
+    Click the Trunk toolbar icon and open **Settings** in the popup to access the in-popup settings panel. Settings are organized into cards:
+
+    | Card | Settings |
+    | --- | --- |
+    | **Hide rows** | Three toggles for hiding GitHub rows the Trunk overlay replaces. See [Configuring row hiding](#configuring-row-hiding) above. |
+    | **Verbose logging** | Enable detailed debug logging; the title shows the current log size. Disabling stops new writes but does not clear buffered logs — use **Review** or **Clear** to manage them. |
+    | **Keyboard shortcuts** | Shortcut configuration. |
+
+    For **Celebration Mode**, right-click the Trunk toolbar icon and choose **Options** (or click the icon and choose **Options**) to open the full-page options view.
 
     | Setting | Description | Default |
     | --- | --- | --- |
