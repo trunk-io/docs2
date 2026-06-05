@@ -24,9 +24,9 @@ bazel test <TARGETS> \
     --nobuild_event_json_file_path_conversion
 ```
 
-<Note>
-  Leave `--test_keep_going` at its default (`true`) when you intend to quarantine tests. With `--test_keep_going=false` (or `--notest_keep_going`), Bazel stops at the first test failure, so subsequent tests never run and never appear in the BEP report. Trunk can only quarantine failures it sees, so any test skipped because of an earlier failure will still break your CI even if it's quarantined.
-</Note>
+<Warning>
+  Leave `--test_keep_going` at its default (`true`) when you quarantine tests. With `--test_keep_going=false` (or `--notest_keep_going`), Bazel stops at the first test failure, so the remaining tests never run and never reach the BEP report. If that first failure is a quarantined test, the only failure Trunk sees is already quarantined, so it marks the run as passing and your PR can merge even though the skipped tests never ran and may have failed.
+</Warning>
 
 ### Report File Path
 
