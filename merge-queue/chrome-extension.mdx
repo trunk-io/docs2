@@ -4,7 +4,7 @@ description: "Submit, cancel, and track Trunk Merge Queue pull requests directly
 og:title: "The Trunk Merge Queue Chrome extension"
 ---
 
-The Trunk Chrome Extension overlays merge queue controls and status onto your normal GitHub experience, so you can submit a PR to the queue, cancel it, and watch its testing progress without leaving the pull request page.\\
+The Trunk Chrome Extension overlays merge queue controls and status onto your normal GitHub experience, so you can submit a PR to the queue, cancel it, and watch its testing progress without leaving the pull request page.
 
 <br />
 
@@ -67,6 +67,10 @@ Failed check details come from the most recent testing attempt only. If a PR was
 ## Configuring row hiding
 
 On pull requests managed by Trunk, the extension can hide parts of GitHub's native UI that its own panel makes redundant. Two toggles hide status rows in GitHub's **merge box** (the panel at the bottom of a pull request that shows whether it can be merged); a third hides Trunk's own merge-queue bot comments. Each toggle defaults to on and is saved per browser profile. To configure them, click the Trunk toolbar icon, open **Settings**, and find the **Hide rows** card.
+
+<Frame>
+  ![The Hide rows settings card in the Trunk extension popup, with toggles for Merging is blocked, Branch out of date, and Trunk (bot) GitHub Comments](/assets/merge-queue/chrome-extension-hide-rows.png)
+</Frame>
 
 | Toggle | What it hides | Default |
 | --- | --- | --- |
