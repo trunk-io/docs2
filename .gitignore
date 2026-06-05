@@ -1,2 +1,6 @@
 *.py
 !scripts/*.py
+
+# macOS
+.DS_Store
+**/.DS_Store
