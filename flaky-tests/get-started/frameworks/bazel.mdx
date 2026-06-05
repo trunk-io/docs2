@@ -45,6 +45,10 @@ Trunk can parse the `build_events.json` file to locate your test reports. You wi
   Pass either file to the analytics CLI's `--bazel-bep-path`. The CLI detects the format automatically, so you don't need to tell it which one you used.
 </Info>
 
+<Warning>
+  Do not use `--test_keep_going=false` (or `--notest_keep_going`) when running tests you intend to quarantine. With keep-going disabled, Bazel stops at the first test failure, so subsequent tests never run and never appear in the BEP report. Trunk can only quarantine failures it sees, so any tests that were skipped due to an earlier failure will still break your CI even if they're quarantined. Leave `--test_keep_going` at its default (`true`) so every test runs and reports a result.
+</Warning>
+
 ### Build Without the Bytes
 
 If your CI environment is set up to [build without the bytes](https://blog.bazel.build/2023/10/06/bwob-in-bazel-7.html), you will need the following flag to pull the reports from the remote execution engine:
