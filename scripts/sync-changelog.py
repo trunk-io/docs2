@@ -189,17 +189,26 @@ def render_docs_json(entries: list[dict]) -> str:
     if changelog_tab is None:
         raise SystemExit("FATAL: docs.json has no Changelog tab")
 
-    # Bucket entries by year for the year-group pages arrays.
-    by_year: dict[int, list[dict]] = {}
+    # Bucket entries by year, then by month within each year.
+    by_year: dict[int, dict[int, list[dict]]] = {}
     for e in entries:
-        by_year.setdefault(e["date"].year, []).append(e)
+        by_year.setdefault(e["date"].year, {}).setdefault(e["date"].month, []).append(e)
 
-    # Preserve the leading "changelog/index" entry and rebuild the year groups.
+    # Preserve the leading "changelog/index" entry and rebuild the nav as
+    # year -> month -> entries, newest first, so the sidebar is parseable by
+    # both year and month. Month labels are unqualified (e.g. "June") since the
+    # parent group already carries the year.
     new_pages: list = ["changelog/index"]
     for year in sorted(by_year.keys(), reverse=True):
+        month_groups: list = []
+        for month in sorted(by_year[year].keys(), reverse=True):
+            month_groups.append({
+                "group": MONTHS[month - 1],
+                "pages": [e["path"] for e in by_year[year][month]],
+            })
         new_pages.append({
             "group": str(year),
-            "pages": [e["path"] for e in by_year[year]],
+            "pages": month_groups,
         })
     changelog_tab["pages"] = new_pages
 
