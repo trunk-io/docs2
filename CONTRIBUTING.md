@@ -44,6 +44,10 @@ a screen reader user would read it aloud. Accuracy first, then consistency.
 - **Labels.** Bold every clickable UI label exactly as it appears on screen:
   `**Settings** → **Repositories**`.
 - **Placeholders.** Put variable steps in bold brackets: `**[your repository]**`.
+- **Section headers.** Always include the section header an item sits under, even
+  when the header is not itself clickable. A sidebar groups its items under headers,
+  and the header tells the reader where to look. Write
+  `**Settings** → **Organization** → **General**`, not `**Settings** → **General**`.
 - **Element type.** Name the kind of control when it is not obvious from context:
   the **Merge Queue** tab, the **Save** button, toggle **GitHub Comments** off,
   the **[repository]** dropdown. Use: tab, button, toggle, dropdown, menu, link.
