@@ -1,0 +1,18 @@
+---
+title: "Merge Queue: Resubmit From the Chrome Extension and Hide Noisy GitHub Rows"
+description: "The Trunk for GitHub Chrome Extension now shows why a PR left the queue with one-click resubmit, and lets you hide the GitHub merge-box rows it replaces."
+date: 2026-06-04
+category: Merge Queue
+type: update
+---
+
+**The [Chrome Extension](https://docs.trunk.io/merge-queue/chrome-extension) now tells you why a PR left the queue, lets you put it back in one click, and cleans up GitHub's merge box.**
+
+Two changes shipped in version 0.8.0:
+
+- **Resubmit after a failure or cancellation.** When a PR fails its checks or gets cancelled out of the queue, the panel now shows a structured terminal state instead of a generic "Add to Merge Queue" fallback. A **Failed** PR lists which required checks did not pass, with links to each run log. A **Cancelled** PR shows who removed it, when that information is available. Both show a **Resubmit** button that re-enqueues the PR without leaving the GitHub PR page. A new **Waiting to Batch** state also appears when batching is accumulating PRs before testing begins. See [Resubmit after failure or cancellation](https://docs.trunk.io/merge-queue/chrome-extension#resubmit-after-failure-or-cancellation).
+- **Configurable row hiding.** The popup **Settings** now has a **Hide rows** card with three opt-out toggles: hide GitHub's "Merging is blocked" status row, hide the informational "branch out of date" conflicts row (actionable conflicts always stay visible), and hide the Trunk bot's merge-queue prompt comments. All default to on and save per browser profile. See [Configuring row hiding](https://docs.trunk.io/merge-queue/chrome-extension#configuring-row-hiding).
+
+Plus bug fixes.
+
+[Read the docs](https://docs.trunk.io/merge-queue/chrome-extension) to learn more.
