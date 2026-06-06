@@ -4,6 +4,14 @@ description: "Common Trunk Merge Queue issues and how to fix them, including per
 og:title: "Troubleshooting Trunk Merge Queue"
 ---
 
+## Configuration issues panel
+
+When Trunk detects a ruleset or merge-instance setting that will cause PRs to fail or behave unexpectedly, an **Issues** tab appears in the Merge Queue navigation. Each issue card names the affected ruleset, explains the problem, and tells you what to change. The tab only appears when problems exist.
+
+Common issues detected:
+
+- **Trunk on bypass list for a rules-enforcement ruleset.** If Trunk Merge is on the bypass list for a ruleset that enforces required reviews or status checks, PRs can enter the queue before those gates are satisfied. Remove Trunk from the bypass list; Trunk only needs bypass permission for branch update and push protection rules.
+
 ## If your test PR doesn't merge automatically
 
 <Info>

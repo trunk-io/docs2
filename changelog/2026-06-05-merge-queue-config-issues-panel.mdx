@@ -1,0 +1,23 @@
+---
+title: "Merge Queue: Configuration Issues Panel"
+description: "The Merge Queue dashboard now surfaces detected ruleset configuration problems in a dedicated Issues tab, with plain-language explanations and links to the affected settings."
+date: 2026-06-05
+category: Merge Queue
+type: new-feature
+---
+
+**The Merge Queue dashboard now shows a dedicated Issues tab when Trunk detects configuration problems on your merge instance.**
+
+When a ruleset or merge-instance setting is misconfigured in a way that will cause PRs to fail or behave unexpectedly, an **Issues** tab appears in the Merge Queue navigation. Each issue card explains the specific problem, why it matters, and what to change to fix it, with direct links to the affected ruleset and relevant docs.
+
+Issues are grouped by impact category:
+
+- **Enqueue** — configuration that prevents PRs from entering the queue correctly
+- **Test** — configuration that affects how testing branches are created or validated
+- **Merge** — configuration that interferes with the final merge step
+
+Each issue displays the severity level (warning or error) and the name of the ruleset involved, so you can act on it without hunting through your GitHub settings.
+
+One example check: if Trunk Merge is on the bypass list for a ruleset that enforces required reviews or status checks, it appears as a warning. Trunk relies on GitHub to enforce those gates before a PR enters the queue — bypassing them makes PRs mergeable before they are ready.
+
+The Issues tab only appears when problems exist. Merge instances with no detected issues show no Issues tab.
