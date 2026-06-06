@@ -48,7 +48,7 @@ The enqueue label only triggers enqueueing when applied to an open PR that is el
 
 ### Removing from the queue
 
-Removing the configured label from a PR does **not** cancel it from the queue. Use `/trunk cancel`, the Web App, or the CLI to cancel an in-progress PR.
+Removing the configured label from a PR dequeues it from the merge queue. PRs are enqueued when the label is added and dequeued when the label is removed. You can also use `/trunk cancel`, the Web App, or the CLI to cancel an in-progress PR.
 
 ## Pull request processing
 
