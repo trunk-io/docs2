@@ -100,7 +100,7 @@
                 ]
               },
               "merge-queue/integration-for-slack",
-              "merge-queue/chrome-extension",
+              "merge-queue/browser-extensions",
               "merge-queue/reference/merge-queue-cli-reference",
               "merge-queue/webhooks",
               {
@@ -1028,6 +1028,10 @@
     }
   },
   "redirects": [
+    {
+      "source": "/merge-queue/chrome-extension",
+      "destination": "/merge-queue/browser-extensions"
+    },
     {
       "source": "/check/advanced-setup/cli/install-trunk",
       "destination": "/code-quality/overview/getting-started/install"
