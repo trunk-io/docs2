@@ -12,7 +12,7 @@ Test labels are organization-scoped tags you can apply to individual test cases 
 
 ## Manage labels
 
-Labels are created, edited, and deleted at **Settings > Organization > Test Labels**. Each label has a name, an optional description, and a color used for its chip in the UI. The settings page also shows how many test cases each label is currently applied to. Any organization member can create, edit, assign, and unassign labels.
+Labels are created, edited, and deleted at **Settings** → **Organization** → **Test Labels**. Each label has a name, an optional description, and a color used for its chip in the UI. The settings page also shows how many test cases each label is currently applied to. Any organization member can create, edit, assign, and unassign labels.
 
 <Warning>
 Only organization admins can delete labels — the Delete option in each label's menu is disabled for non-admins. Deleting a label removes it from every test case it's applied to; this cannot be undone. A label that is referenced by a monitor's [label action](#automatic-labeling-from-monitors) cannot be deleted — the settings page lists the monitors that still reference it so you can clear those references first.
@@ -53,7 +53,7 @@ A monitor uses one action or the other, not both.
 
 ### Configure the label action
 
-After selecting **Apply labels**, pick one or more labels from your organization's label set. You can create a new label inline if the one you need doesn't exist yet — the new label is added to the org-wide set in [Settings > Organization > Test Labels](#manage-labels).
+After selecting **Apply labels**, pick one or more labels from your organization's label set. You can create a new label inline if the one you need doesn't exist yet — the new label is added to the org-wide set in [**Settings** → **Organization** → **Test Labels**](#manage-labels).
 
 By default, the labels are removed when the monitor resolves. Turn off **Remove these labels when the monitor resolves** to keep them on the test after the monitor stops reporting.
 

@@ -89,7 +89,7 @@ If automated detection hasn't caught a test you know is flaky, you can manually 
 
 Flaky tests slow down CI and have a high negative impact on merge queue throughput. You can minimize or eliminate this CI slowdown by [quarantining](../quarantining/) flaky tests at runtime.
 
-* Enable quarantining for your repo at **Settings > your repo > Enable Test Quarantining**.
+* Enable quarantining for your repo at **Settings** → **[your repo]** → **Enable Test Quarantining**.
 * Manually quarantine flaky tests by going to the test details page, clicking **Quarantine**, and setting the status to **Always**. Leave a comment detailing why you are quarantining this test to keep your team informed. The comment and quarantine status change will appear in the timeline on the test details page.
 
 After quarantining a test, Trunk will ignore the test result (pass/fail) on CI runs, preventing this flaky test from failing CI.
@@ -106,7 +106,7 @@ There is also built-in automation support that handles tasks such as assigning f
 
 * [`CODEOWNERS` files](../dashboard#code-owners) can automatically assign ownership of test flakes.
 * Tickets can be [auto-created using webhooks](../webhooks/) as triggers, similar to Slack or MS Teams notifications.
-* Automatically quarantine flaky tests by enabling **Settings > your repo > Auto-Quarantine Flaky Tests**.
+* Automatically quarantine flaky tests by enabling **Settings** → **[your repo]** → **Auto-Quarantine Flaky Tests**.
 
 You can customize how flaky and quarantined tests are handled to suit your team and organization best.
 
