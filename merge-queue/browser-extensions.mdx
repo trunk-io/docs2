@@ -1,10 +1,10 @@
 ---
-title: "Chrome Extension"
-description: "Submit, cancel, and track Trunk Merge Queue pull requests directly from GitHub with the Trunk Chrome Extension."
-og:title: "The Trunk Merge Queue Chrome extension"
+title: "Browser Extensions"
+description: "Submit, cancel, and track Trunk Merge Queue pull requests directly from GitHub with the Trunk browser extension for Chrome and Firefox."
+og:title: "The Trunk Merge Queue browser extension"
 ---
 
-The Trunk Chrome Extension overlays merge queue controls and status onto your normal GitHub experience, so you can submit a PR to the queue, cancel it, and watch its testing progress without leaving the pull request page.
+The Trunk browser extension overlays merge queue controls and status onto your normal GitHub experience, so you can submit a PR to the queue, cancel it, and watch its testing progress without leaving the pull request page. It ships for Chrome and Firefox from the same codebase, so the panel and its controls work the same in both.
 
 <br />
 
@@ -16,12 +16,24 @@ The Trunk Chrome Extension overlays merge queue controls and status onto your no
   The extension is a companion to Trunk Merge Queue — you still need a configured queue for your repository. The extension only surfaces controls and status for queues your Trunk organization already owns.
 </Info>
 
-**Install the extension**
+## Install the extension
 
-1. Open the [Trunk for GitHub](https://chromewebstore.google.com/detail/liggeliamkammmieidmmfmmdnjilabgn?utm_source=item-share-cb) listing in the Chrome Web Store.
-2. Click **Add to Chrome** and approve the requested permissions.
-3. Pin the Trunk icon to your toolbar so the popup is one click away.
-4. Click the Trunk icon and sign in. The extension uses your existing browser session at [app.trunk.io](https://app.trunk.io/) - if you're already logged in, no additional sign-in is needed. 
+Install it from your browser's store:
+
+<CardGroup cols={2}>
+  <Card title="Chrome Web Store" icon="chrome" iconType="brands" href="https://chromewebstore.google.com/detail/liggeliamkammmieidmmfmmdnjilabgn?utm_source=item-share-cb">
+    Chrome, plus Chromium browsers like Edge, Brave, and Arc.
+  </Card>
+  <Card title="Firefox Add-ons" icon="firefox" iconType="brands" href="https://addons.mozilla.org/en-US/firefox/addon/trunk-for-github/">
+    Firefox 140+ on desktop, Firefox 142+ on Android.
+  </Card>
+</CardGroup>
+
+Once it's added:
+
+1. Approve the requested permissions when your browser prompts you.
+2. Pin the Trunk icon to your toolbar so the popup is one click away.
+3. Click the Trunk icon and sign in. The extension uses your existing browser session at [app.trunk.io](https://app.trunk.io/) - if you're already logged in, no additional sign-in is needed.
 
 **Signed-out indicator**
 
@@ -106,7 +118,11 @@ The extension does **not** ask you for credentials, API tokens, or a separate pa
   </Accordion>
 
   <Accordion title="Does the extension work in other Chromium browsers?" defaultOpen>
-    The extension targets Chrome. Chromium-based browsers (Edge, Brave, Arc) generally work via the Chrome Web Store, but only Chrome is officially supported.
+    The Chrome build also runs on Chromium-based browsers (Edge, Brave, Arc) via the Chrome Web Store, but Chrome and Firefox are the only officially supported browsers.
+  </Accordion>
+
+  <Accordion title="Does the extension work in Firefox?" defaultOpen>
+    Yes. Install it from the [Firefox Add-ons listing](https://addons.mozilla.org/en-US/firefox/addon/trunk-for-github/). The Firefox build has full feature parity with Chrome and supports Firefox 140+ on desktop and Firefox 142+ on Android.
   </Accordion>
 
   <Accordion title="How does the extension differ from the `/trunk merge` comment?" defaultOpen>
