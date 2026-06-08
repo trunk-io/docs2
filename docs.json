@@ -2210,6 +2210,98 @@
     {
       "source": "/merge-queue/references/apis/merge",
       "destination": "/merge-queue/reference/merge"
+    },
+    {
+      "source": "/flaky-tests/detection/failure-rate",
+      "destination": "/flaky-tests/detection/failure-rate-monitor"
+    },
+    {
+      "source": "/administration/security",
+      "destination": "/setup-and-administration/security"
+    },
+    {
+      "source": "/check/configuration/linter-types/runtimes",
+      "destination": "/code-quality/overview/cli/getting-started/configuration/runtimes"
+    },
+    {
+      "source": "/cli/compatibility",
+      "destination": "/code-quality/overview/cli/getting-started/compatibility"
+    },
+    {
+      "source": "/cli/configuration/plugins/external-repositories",
+      "destination": "/code-quality/overview/cli/getting-started/configuration/plugins/external-repositories"
+    },
+    {
+      "source": "/code-quality/ci-setup",
+      "destination": "/code-quality/ci-setup/get-started"
+    },
+    {
+      "source": "/code-quality/configuration/ignoring-issues",
+      "destination": "/code-quality/overview/linters/ignoring-issues-and-files"
+    },
+    {
+      "source": "/code-quality/linters/configure-linters",
+      "destination": "/code-quality/overview/linters/configure-linters"
+    },
+    {
+      "source": "/code-quality/linters/ignoring-issues-and-files",
+      "destination": "/code-quality/overview/linters/ignoring-issues-and-files"
+    },
+    {
+      "source": "/code-quality/linters/supported/isort",
+      "destination": "/code-quality/overview/linters/supported/isort"
+    },
+    {
+      "source": "/code-quality/linters/supported/stylua",
+      "destination": "/code-quality/overview/linters/supported/stylua"
+    },
+    {
+      "source": "/code-quality/linters/supported/tflint",
+      "destination": "/code-quality/overview/linters/supported/tflint"
+    },
+    {
+      "source": "/code-quality/linters/upgrades",
+      "destination": "/code-quality/overview/linters/upgrades"
+    },
+    {
+      "source": "/code-quality/setup-and-installation/prevent-new-issues",
+      "destination": "/code-quality/overview/prevent-new-issues"
+    },
+    {
+      "source": "/code-quality/setup-and-installation/prevent-new-issues/migration-guide",
+      "destination": "/code-quality/overview/prevent-new-issues/migration-guide"
+    },
+    {
+      "source": "/flaky-tests/github-pull-request-comments",
+      "destination": "/flaky-tests/management/github-pull-request-comments"
+    },
+    {
+      "source": "/merge-queue/anti-flake-protection",
+      "destination": "/merge-queue/optimizations/anti-flake-protection"
+    },
+    {
+      "source": "/merge-queue/batching",
+      "destination": "/merge-queue/optimizations/batching"
+    },
+    {
+      "source": "/references/apis",
+      "destination": "/setup-and-administration/apis"
+    },
+    {
+      "source": "/references/cli/configuration/lint/commands",
+      "destination": "/code-quality/overview/cli/getting-started/configuration/lint/commands"
+    },
+    {
+      "source": "/references/cli/configuration/lint/output",
+      "destination": "/code-quality/overview/cli/getting-started/configuration/lint/output"
+    },
+    {
+      "source": "/references/cli/configuration/runtimes",
+      "destination": "/code-quality/overview/cli/getting-started/configuration/runtimes"
+    },
+    {
+      "source": "/references/cli/getting-started/actions/git-hooks",
+      "destination": "/code-quality/overview/cli/getting-started/actions/git-hooks"
     }
   ]
 }
