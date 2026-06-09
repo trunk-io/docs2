@@ -1,0 +1,17 @@
+---
+title: "Flaky Tests: Test Collections Have Quarantining On by Default"
+description: "New test collections now start with quarantining enabled, so uploads are protected from day one without requiring a manual settings change."
+date: 2026-06-08
+category: Flaky Tests
+type: update
+---
+
+**New test collections now start with quarantining enabled.**
+
+Previously, creating a test collection required a separate step to enable quarantining in the collection's Settings page. The default was off, so uploads to a new collection were unprotected until an admin remembered to toggle the setting.
+
+The default is now on. Test collections created after this change have quarantining active from the moment they are created. Auto-Quarantine Flaky Tests remains off by default; turn it on separately when you are ready to automatically quarantine flaky tests in that collection.
+
+Existing collections are not affected. If quarantining was already disabled for a collection, it stays disabled.
+
+[Collection-level quarantining settings](https://docs.trunk.io/flaky-tests/quarantining#collection-level-quarantining-settings) explains how to view and change the setting for any collection.
