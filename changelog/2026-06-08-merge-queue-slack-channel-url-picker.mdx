@@ -1,0 +1,15 @@
+---
+title: "Merge Queue: Connect Slack Channels by Pasting a Link"
+description: "The Add Slack Channel dialog now accepts a pasted channel link instead of a searchable dropdown, fixing failures for workspaces with large channel counts."
+date: 2026-06-08
+category: Merge Queue
+type: update
+---
+
+**Adding a Slack channel for merge queue notifications now asks you to paste a channel link.**
+
+Previously, the **Add Slack Channel** dialog listed all channels in your Slack workspace for you to search and pick. Workspaces with a large number of channels could exhaust the Slack API rate limit before the list finished loading, leaving the dialog empty or broken.
+
+The dialog now shows a text field. Paste the channel link (right-click the channel name in Slack and choose **Copy link**) and Trunk resolves the channel name directly. The connection flow is otherwise unchanged: toggle which notification topics you want, then click **Connect**.
+
+[Set up Slack channel notifications](https://docs.trunk.io/merge-queue/integration-for-slack#connecting-slack-channels) for step-by-step instructions.
