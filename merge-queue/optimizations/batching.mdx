@@ -331,6 +331,11 @@ Batching works exceptionally well with these optimizations:
 
 Enabling batching along with Pending Failure Depth and Optimistic Merging can help you realize the major cost savings of batching while still reaping the [anti-flake](./anti-flake-protection) protection of optimistic merging and pending failure depth.
 
+{/* SVG prototype below shows the CORE batching idea as a without-vs-with speed comparison (6 individual test runs vs 2 batched runs). The existing video also layers in pending failure depth + optimistic merging. Timing lives in the .svg. */}
+<Frame caption="SVG prototype — fewer test runs with batching">
+<img src="/assets/merge-queue/optimizations/batching-prototype.svg" alt="A comparison of testing six pull requests without versus with batching. Without batching there are six test runs, one PR at a time, so they reach main slowly. With batching the PRs are grouped into two batches, ABC and DEF, each tested in a single run, so the same six PRs reach main much sooner. Main is on the right and PRs flow right to left." />
+</Frame>
+
 <Frame caption="example of testing pull requests in batches of 3">
 <iframe allow="autoplay; fullscreen; picture-in-picture; display-capture; clipboard-write" allowfullscreen="" allowtransparency="true" referrerpolicy="no-referrer-when-downgrade" class="vidyard-iframe-BsPi6f1KHvsa6wE18ySAJf" frameborder="0" height="100%" width="100%" scrolling="no" src="https://play.vidyard.com/BsPi6f1KHvsa6wE18ySAJf?disable_popouts=1&amp;disable_analytics=0&amp;preload=auto&amp;disable_larger_player=false&amp;theater_button=0&amp;pip_button=0&amp;controller=hubs&amp;action=show&amp;type=inline&amp;v=4.3.20" title="trunk.io merge queue // batching" spellcheck="false"></iframe>
 </Frame>
