@@ -1,0 +1,21 @@
+---
+title: "Flaky Tests: Multiple Pass-on-Retry Monitors Per Repository"
+description: "You can now create more than one pass-on-retry monitor per repository, each with independent settings."
+date: 2026-06-09
+category: Flaky Tests
+type: update
+---
+
+**You can now create more than one pass-on-retry monitor per repository.**
+
+Previously, each repository was limited to a single pass-on-retry monitor. Now you can add multiple monitors, each with its own branch scope, recovery period, and action. This lets you apply different detection settings to different parts of your test suite.
+
+Common uses:
+
+- **Different recovery periods by branch.** Run a 3-day recovery monitor on `main` for fast feedback and a 14-day monitor on `release/*` for builds where resolving tests too quickly would be disruptive.
+- **Different actions by scope.** Classify tests as flaky on stable branches while only applying labels on PR branches.
+- **Targeted detection.** Scope one monitor tightly to a branch pattern where pass-on-retry noise is high, while leaving a broader monitor in place for everything else.
+
+To add a monitor, go to **Settings** in the Trunk web app, open the repository, and navigate to the **Monitors** tab. Each monitor appears as a separate row and can be individually enabled, disabled, or deleted.
+
+[Read the docs](https://docs.trunk.io/flaky-tests/detection/pass-on-retry-monitor) to learn more.
