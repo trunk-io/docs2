@@ -1,0 +1,17 @@
+---
+title: "Merge Queue: Browser Extension Adds High Priority Submissions"
+description: "The Trunk browser extension now supports submitting pull requests at High priority, and the Urgent option shows a warning icon to discourage casual use."
+date: 2026-06-09
+category: Merge Queue
+type: update
+---
+
+**The Trunk browser extension now supports submitting pull requests at High priority.**
+
+The priority dropdown in the extension panel has been updated:
+
+- **High priority is now available.** High priority places the PR at the front of the queue ahead of Normal and Low priority work, but does not interrupt currently running tests. It corresponds to [priority level 10](https://docs.trunk.io/merge-queue/optimizations/priority-merging#valid-priority-levels), the same value supported by `/trunk merge --priority=high`.
+- **Urgent priority now shows a warning icon.** A triangle warning indicator appears next to the Urgent option to make the consequences clearer before you click. Urgent forces the PR to the front of the queue and restarts all in-progress testing.
+- **Priority menu order updated.** The options now appear as Normal, Low, High, Urgent, from least to most disruptive.
+
+The priority selector is available on any pull request in a queue-enabled repository. See [Priority merging](https://docs.trunk.io/merge-queue/optimizations/priority-merging) for guidance on when to use each level.
