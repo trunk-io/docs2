@@ -1,56 +1,51 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 296" width="660" height="296" role="img" aria-label="A right-anchored predictive queue ordered front to back: PR a is at the front (far right) with only its own tile; PR b is tested with a's code ahead; PR c is tested with a and b's code ahead. The three test bundles run concurrently with no idle time. As soon as c (the back PR) passes, the queue knows a, b and c are proven together, so all three merge at once in a single synchronized step.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 296" width="660" height="296" role="img" aria-label="A right-anchored predictive queue ordered front to back: PR a is at the front (far right) with only its own tile; PR b is tested with a's code ahead; PR c is tested with a and b's code ahead. All three test at once at different speeds. The moment c (the back PR) passes, a and b snap to finished, a green check badge appears on each, and all three merge together.">
   <!--
     Optimistic merging prototype animation (editable, no source video needed).
     Queue runs front-to-back, right-to-left: a is at the front (far right),
-    then b, then c at the back (far left). Each row's test bundle extends
-    RIGHTWARD to include the PRs ahead of it (the verified code ahead):
+    then b, then c at the back (far left). Each row's bundle extends RIGHTWARD to
+    include the PRs ahead of it:
       row a: tile [a]            (front, nothing ahead)
       row b: tiles [b][a]
       row c: tiles [c][b][a]
-    Columns: a x=590 (front/right), b x=536, c x=482 (back/left).
 
-    THE KEY TEACHING (what makes this "optimistic" vs plain predictive testing):
-    all three test bundles run CONCURRENTLY (no idle time), and the moment c
-    (the back PR, whose bundle already contains a and b) PASSES, the queue KNOWS
-    a + b + c all work together, so all three merge AT ONCE, without waiting for
-    a and b to merge individually.
+    CONVENTION shared across all merge-queue animation prototypes:
+      - 9s loop. Action plays out in the first ~66% (about 6s), then the finished
+        frame HOLDS for ~3s before the loop resets (the linger).
+      - When a row's progress bar completes, a green check BADGE pops into that
+        row's upper-right corner and stays lit through the hold.
+      - Bars carry state by COLOR (amber = testing, green = done).
 
-    One 6s CSS loop on a single timeline. The teaching is the SNAP:
-      all three bars START AT THE SAME TIME (8%) and fill at slightly different
-        speeds (each row is a separate test running concurrently)
-      c is fastest and finishes first at ~42% (its bundle already contains a + b)
-      the instant c passes, a and b SNAP from partial fill straight to full and
-        turn green (44%->45%) — they are done because c's pass proved them
-      proof note + all three merge glows fire together (50%, then 72%->92%)
-    Bars carry state by COLOR too (amber = testing, green = done), so the frozen
-    / reduced-motion end-state reads as "all done". To retime, edit the
-    @keyframes percentages; to change a bar's speed, edit its scaleX value at 44%.
+    THE TEACHING (the SNAP): all three bars START AT THE SAME TIME (6%) and fill
+    at slightly different speeds. c is fastest and finishes first (~44%). The
+    instant c passes, a and b SNAP from partial fill straight to full and green
+    (45%->46%) — they are done because c's bundle already proved them. Then the
+    proof note and the single merge fire (merge done ~66%, holds to 100%).
   -->
   <style>
     .bar { transform-box: fill-box; transform-origin: left center; }
-    .barA { animation: omBarA 6s linear infinite; }
-    .barB { animation: omBarB 6s linear infinite; }
-    .barC { animation: omBarC 6s linear infinite; }
-    .checkA { animation: omCheckA 6s linear infinite; }
-    .checkB { animation: omCheckB 6s linear infinite; }
-    .checkC { animation: omCheckC 6s linear infinite; }
-    .proof { animation: omProof 6s linear infinite; }
-    .mergeGlow { animation: omMerge 6s linear infinite; }
-    /* c: fastest, completes 42%, turns green 44% (the trigger) */
-    @keyframes omBarC { 0%,8% { transform: scaleX(0); fill: #e8932a; } 42% { transform: scaleX(1); fill: #e8932a; } 44%,100% { transform: scaleX(1); fill: #1d9b54; } }
+    .barA { animation: omBarA 9s linear infinite; }
+    .barB { animation: omBarB 9s linear infinite; }
+    .barC { animation: omBarC 9s linear infinite; }
+    .badgeA { animation: omBadgeA 9s linear infinite; }
+    .badgeB { animation: omBadgeB 9s linear infinite; }
+    .badgeC { animation: omBadgeC 9s linear infinite; }
+    .proof { animation: omProof 9s linear infinite; }
+    .mergeGlow { animation: omMerge 9s linear infinite; }
+    /* c: fastest, completes 44%, turns green 45% (the trigger) */
+    @keyframes omBarC { 0%,6% { transform: scaleX(0); fill: #e8932a; } 44% { transform: scaleX(1); fill: #e8932a; } 45%,100% { transform: scaleX(1); fill: #1d9b54; } }
     /* b: medium speed, only ~69% done when c passes, then SNAPS to full+green */
-    @keyframes omBarB { 0%,8% { transform: scaleX(0); fill: #e8932a; } 44% { transform: scaleX(0.69); fill: #e8932a; } 45%,100% { transform: scaleX(1); fill: #1d9b54; } }
+    @keyframes omBarB { 0%,6% { transform: scaleX(0); fill: #e8932a; } 45% { transform: scaleX(0.69); fill: #e8932a; } 46%,100% { transform: scaleX(1); fill: #1d9b54; } }
     /* a: slowest, only ~58% done when c passes, then SNAPS to full+green */
-    @keyframes omBarA { 0%,8% { transform: scaleX(0); fill: #e8932a; } 44% { transform: scaleX(0.58); fill: #e8932a; } 45%,100% { transform: scaleX(1); fill: #1d9b54; } }
-    @keyframes omCheckC { 0%,42% { opacity: 0; } 44%,94% { opacity: 1; } 98%,100% { opacity: 0; } }
-    @keyframes omCheckA { 0%,44% { opacity: 0; } 46%,94% { opacity: 1; } 98%,100% { opacity: 0; } }
-    @keyframes omCheckB { 0%,44% { opacity: 0; } 46%,94% { opacity: 1; } 98%,100% { opacity: 0; } }
-    @keyframes omProof { 0%,44% { opacity: 0; } 50%,94% { opacity: 1; } 98%,100% { opacity: 0; } }
-    @keyframes omMerge { 0%,72% { opacity: 0; } 76%,92% { opacity: 1; } 96%,100% { opacity: 0; } }
+    @keyframes omBarA { 0%,6% { transform: scaleX(0); fill: #e8932a; } 45% { transform: scaleX(0.58); fill: #e8932a; } 46%,100% { transform: scaleX(1); fill: #1d9b54; } }
+    @keyframes omBadgeC { 0%,44% { opacity: 0; } 46%,100% { opacity: 1; } }
+    @keyframes omBadgeA { 0%,46% { opacity: 0; } 48%,100% { opacity: 1; } }
+    @keyframes omBadgeB { 0%,46% { opacity: 0; } 48%,100% { opacity: 1; } }
+    @keyframes omProof { 0%,46% { opacity: 0; } 51%,100% { opacity: 1; } }
+    @keyframes omMerge { 0%,60% { opacity: 0; } 66%,100% { opacity: 1; } }
     @media (prefers-reduced-motion: reduce) {
-      .barA, .barB, .barC, .checkA, .checkB, .checkC, .proof, .mergeGlow { animation: none; }
+      .barA, .barB, .barC, .badgeA, .badgeB, .badgeC, .proof, .mergeGlow { animation: none; }
       .bar { transform: scaleX(1); fill: #1d9b54; }
-      .checkA, .checkB, .checkC, .proof, .mergeGlow { opacity: 1; }
+      .badgeA, .badgeB, .badgeC, .proof, .mergeGlow { opacity: 1; }
     }
   </style>
 
@@ -68,25 +63,18 @@
   <g font-family="ui-sans-serif, system-ui, sans-serif">
     <rect x="16" y="44" width="64" height="34" rx="8" fill="#e3edfc" stroke="#346DDB" stroke-width="1.5"/>
     <text x="48" y="65" text-anchor="middle" font-size="12" font-weight="700" fill="#1f5fc0">PR a</text>
-    <g class="checkA">
-      <circle cx="74" cy="46" r="8.5" fill="#1d9b54"/>
-      <polyline points="70,46 73,49 78,43" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-    </g>
     <text x="92" y="65" font-size="11.5" fill="#5b6573">front of the queue, bundle is just <tspan font-weight="600" fill="#1f5fc0">a</tspan></text>
     <rect x="590" y="44" width="46" height="34" rx="6" fill="#e3edfc" stroke="#346DDB" stroke-width="1.5"/>
     <text x="613" y="65" text-anchor="middle" font-size="12" font-weight="700" fill="#1f5fc0">a</text>
     <rect x="590" y="83" width="46" height="5" rx="2.5" fill="#d9dee6"/>
     <rect class="bar barA" x="590" y="83" width="46" height="5" rx="2.5" fill="#e8932a"/>
+    <g class="badgeA"><circle cx="632" cy="46" r="6.5" fill="#1d9b54" stroke="#fff" stroke-width="1.3"/><polyline points="629,46 631,48.4 635,43.6" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>
   </g>
 
   <!-- Row b: bundle [b][a] -->
   <g font-family="ui-sans-serif, system-ui, sans-serif">
     <rect x="16" y="108" width="64" height="34" rx="8" fill="#eee7fb" stroke="#7c5cdb" stroke-width="1.5"/>
     <text x="48" y="129" text-anchor="middle" font-size="12" font-weight="700" fill="#5a3fb0">PR b</text>
-    <g class="checkB">
-      <circle cx="74" cy="110" r="8.5" fill="#1d9b54"/>
-      <polyline points="70,110 73,113 78,107" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-    </g>
     <text x="92" y="129" font-size="11.5" fill="#5b6573">bundle includes <tspan font-weight="600" fill="#1f5fc0">a</tspan> ahead of it</text>
     <rect x="536" y="108" width="46" height="34" rx="6" fill="#eee7fb" stroke="#7c5cdb" stroke-width="1.5"/>
     <text x="559" y="129" text-anchor="middle" font-size="12" font-weight="700" fill="#5a3fb0">b</text>
@@ -94,16 +82,13 @@
     <text x="613" y="129" text-anchor="middle" font-size="12" font-weight="700" fill="#1f5fc0">a</text>
     <rect x="536" y="147" width="100" height="5" rx="2.5" fill="#d9dee6"/>
     <rect class="bar barB" x="536" y="147" width="100" height="5" rx="2.5" fill="#e8932a"/>
+    <g class="badgeB"><circle cx="632" cy="110" r="6.5" fill="#1d9b54" stroke="#fff" stroke-width="1.3"/><polyline points="629,110 631,112.4 635,107.6" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>
   </g>
 
   <!-- Row c: bundle [c][b][a], the back PR and the trigger -->
   <g font-family="ui-sans-serif, system-ui, sans-serif">
     <rect x="16" y="172" width="64" height="34" rx="8" fill="#e2f4f1" stroke="#18a394" stroke-width="1.5"/>
     <text x="48" y="193" text-anchor="middle" font-size="12" font-weight="700" fill="#0e7d70">PR c</text>
-    <g class="checkC">
-      <circle cx="74" cy="174" r="8.5" fill="#1d9b54"/>
-      <polyline points="70,174 73,177 78,171" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-    </g>
     <text x="92" y="193" font-size="11.5" fill="#5b6573">bundle includes <tspan font-weight="600" fill="#1f5fc0">a</tspan> and <tspan font-weight="600" fill="#5a3fb0">b</tspan> ahead of it</text>
     <rect x="482" y="172" width="46" height="34" rx="6" fill="#e2f4f1" stroke="#18a394" stroke-width="1.5"/>
     <text x="505" y="193" text-anchor="middle" font-size="12" font-weight="700" fill="#0e7d70">c</text>
@@ -113,6 +98,7 @@
     <text x="613" y="193" text-anchor="middle" font-size="12" font-weight="700" fill="#1f5fc0">a</text>
     <rect x="482" y="211" width="154" height="5" rx="2.5" fill="#d9dee6"/>
     <rect class="bar barC" x="482" y="211" width="154" height="5" rx="2.5" fill="#e8932a"/>
+    <g class="badgeC"><circle cx="632" cy="174" r="6.5" fill="#1d9b54" stroke="#fff" stroke-width="1.3"/><polyline points="629,174 631,176.4 635,171.6" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>
   </g>
 
   <!-- Merge result: all three rows land together in one synchronized step -->
