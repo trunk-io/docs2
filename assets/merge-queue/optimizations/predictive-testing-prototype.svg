@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 296" width="660" height="296" role="img" aria-label="A merge queue ordered front to back: PR A is at the front (far right) with nothing ahead of it; PR B is tested with A's changes; PR C is tested with A and B's changes. Each PR carries the code ahead of it. Tests pass in queue order, then all three merge into main.">
+  <!--
+    Predictive testing prototype animation (editable, no source video needed).
+    Queue runs front-to-back, right-to-left: A is at the front (far right),
+    then B, then C at the back (far left). Each PR's row extends RIGHTWARD to
+    include the PRs ahead of it (the code ahead). No "main" tile, matching the
+    source video.
+
+    One 6s CSS loop, staggered so each PR tests then passes in queue order:
+      A tests  6%->19%  -> A check stays lit
+      B tests 28%->41%  -> B check stays lit
+      C tests 50%->63%  -> C check stays lit
+      merge glow 72%->92%: A, B, C land in main
+    Reads correctly frozen: the column-aligned tiles + labels carry the meaning;
+    the amber progress bars / green checks / merge glow only enhance.
+    To retime, edit the @keyframes percentages. To add a PR, add a row plus a
+    tile in a new left column, and widen that row's grey track + amber bar.
+    Columns: A x=590 (front/right), B x=536, C x=482 (back/left).
+  -->
+  <style>
+    .bar { transform-box: fill-box; transform-origin: left center; }
+    .barA { animation: ptBarA 6s linear infinite; }
+    .barB { animation: ptBarB 6s linear infinite; }
+    .barC { animation: ptBarC 6s linear infinite; }
+    .checkA { animation: ptCheckA 6s linear infinite; }
+    .checkB { animation: ptCheckB 6s linear infinite; }
+    .checkC { animation: ptCheckC 6s linear infinite; }
+    .mergeGlow { animation: ptMerge 6s linear infinite; }
+    @keyframes ptBarA { 0%,6% { transform: scaleX(0); opacity: 0; } 7% { opacity: 1; } 19% { transform: scaleX(1); opacity: 1; } 23%,100% { transform: scaleX(1); opacity: 0; } }
+    @keyframes ptBarB { 0%,28% { transform: scaleX(0); opacity: 0; } 29% { opacity: 1; } 41% { transform: scaleX(1); opacity: 1; } 45%,100% { transform: scaleX(1); opacity: 0; } }
+    @keyframes ptBarC { 0%,50% { transform: scaleX(0); opacity: 0; } 51% { opacity: 1; } 63% { transform: scaleX(1); opacity: 1; } 67%,100% { transform: scaleX(1); opacity: 0; } }
+    @keyframes ptCheckA { 0%,20% { opacity: 0; } 24%,94% { opacity: 1; } 98%,100% { opacity: 0; } }
+    @keyframes ptCheckB { 0%,42% { opacity: 0; } 46%,94% { opacity: 1; } 98%,100% { opacity: 0; } }
+    @keyframes ptCheckC { 0%,64% { opacity: 0; } 68%,94% { opacity: 1; } 98%,100% { opacity: 0; } }
+    @keyframes ptMerge { 0%,72% { opacity: 0; } 76%,92% { opacity: 1; } 96%,100% { opacity: 0; } }
+    @media (prefers-reduced-motion: reduce) {
+      .barA, .barB, .barC, .checkA, .checkB, .checkC, .mergeGlow { animation: none; }
+      .bar { transform: scaleX(1); opacity: .85; }
+      .checkA, .checkB, .checkC, .mergeGlow { opacity: 1; }
+    }
+  </style>
+
+  <rect x="0" y="0" width="660" height="296" rx="10" fill="#ffffff"/>
+  <text x="16" y="24" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12.5" font-weight="700" fill="#3a4350">Test newer code with the code ahead of it in the queue</text>
+  <text x="636" y="24" text-anchor="end" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10.5" font-weight="600" fill="#9aa3b0">front of queue &#8594;</text>
+
+  <!-- Row A: front of the queue, nothing ahead -->
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    <rect x="16" y="44" width="64" height="34" rx="8" fill="#e3edfc" stroke="#346DDB" stroke-width="1.5"/>
+    <text x="48" y="65" text-anchor="middle" font-size="12" font-weight="700" fill="#1f5fc0">PR A</text>
+    <g class="checkA">
+      <circle cx="74" cy="46" r="8.5" fill="#1d9b54"/>
+      <polyline points="70,46 73,49 78,43" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <text x="92" y="65" font-size="11.5" fill="#5b6573">front of the queue, nothing ahead of it</text>
+    <rect x="590" y="44" width="46" height="34" rx="6" fill="#e3edfc" stroke="#346DDB" stroke-width="1.5"/>
+    <text x="613" y="65" text-anchor="middle" font-size="12" font-weight="700" fill="#1f5fc0">A</text>
+    <rect x="590" y="83" width="46" height="5" rx="2.5" fill="#d9dee6"/>
+    <rect class="bar barA" x="590" y="83" width="46" height="5" rx="2.5" fill="#e8932a"/>
+  </g>
+
+  <!-- Row B: tested with A (the PR ahead of it) -->
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    <rect x="16" y="108" width="64" height="34" rx="8" fill="#eee7fb" stroke="#7c5cdb" stroke-width="1.5"/>
+    <text x="48" y="129" text-anchor="middle" font-size="12" font-weight="700" fill="#5a3fb0">PR B</text>
+    <g class="checkB">
+      <circle cx="74" cy="110" r="8.5" fill="#1d9b54"/>
+      <polyline points="70,110 73,113 78,107" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <text x="92" y="129" font-size="11.5" fill="#5b6573">tested with <tspan font-weight="600" fill="#1f5fc0">A</tspan>, the PR ahead of it</text>
+    <rect x="536" y="108" width="46" height="34" rx="6" fill="#eee7fb" stroke="#7c5cdb" stroke-width="1.5"/>
+    <text x="559" y="129" text-anchor="middle" font-size="12" font-weight="700" fill="#5a3fb0">B</text>
+    <rect x="590" y="108" width="46" height="34" rx="6" fill="#e3edfc" stroke="#346DDB" stroke-width="1.5"/>
+    <text x="613" y="129" text-anchor="middle" font-size="12" font-weight="700" fill="#1f5fc0">A</text>
+    <rect x="536" y="147" width="100" height="5" rx="2.5" fill="#d9dee6"/>
+    <rect class="bar barB" x="536" y="147" width="100" height="5" rx="2.5" fill="#e8932a"/>
+  </g>
+
+  <!-- Row C: tested with A and B (the PRs ahead of it) -->
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    <rect x="16" y="172" width="64" height="34" rx="8" fill="#e2f4f1" stroke="#18a394" stroke-width="1.5"/>
+    <text x="48" y="193" text-anchor="middle" font-size="12" font-weight="700" fill="#0e7d70">PR C</text>
+    <g class="checkC">
+      <circle cx="74" cy="174" r="8.5" fill="#1d9b54"/>
+      <polyline points="70,174 73,177 78,171" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <text x="92" y="193" font-size="11.5" fill="#5b6573">tested with <tspan font-weight="600" fill="#1f5fc0">A</tspan> and <tspan font-weight="600" fill="#5a3fb0">B</tspan>, the PRs ahead of it</text>
+    <rect x="482" y="172" width="46" height="34" rx="6" fill="#e2f4f1" stroke="#18a394" stroke-width="1.5"/>
+    <text x="505" y="193" text-anchor="middle" font-size="12" font-weight="700" fill="#0e7d70">C</text>
+    <rect x="536" y="172" width="46" height="34" rx="6" fill="#eee7fb" stroke="#7c5cdb" stroke-width="1.5"/>
+    <text x="559" y="193" text-anchor="middle" font-size="12" font-weight="700" fill="#5a3fb0">B</text>
+    <rect x="590" y="172" width="46" height="34" rx="6" fill="#e3edfc" stroke="#346DDB" stroke-width="1.5"/>
+    <text x="613" y="193" text-anchor="middle" font-size="12" font-weight="700" fill="#1f5fc0">A</text>
+    <rect x="482" y="211" width="154" height="5" rx="2.5" fill="#d9dee6"/>
+    <rect class="bar barC" x="482" y="211" width="154" height="5" rx="2.5" fill="#e8932a"/>
+  </g>
+
+  <!-- Merge result: all three land in main, in queue order -->
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    <text x="92" y="262" font-size="11.5" fill="#5b6573">tests pass in order, then merge safely</text>
+    <rect x="400" y="238" width="236" height="40" rx="8" fill="#eef1f5" stroke="#9aa3b0" stroke-width="1.5"/>
+    <rect class="mergeGlow" x="400" y="238" width="236" height="40" rx="8" fill="#e4f5ea" stroke="#1d9b54" stroke-width="1.8"/>
+    <text x="518" y="263" text-anchor="middle" font-size="12" font-weight="700" fill="#1d7a4d">A &#8594; B &#8594; C merge into main</text>
+  </g>
+</svg>
