@@ -1,0 +1,159 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 300" width="660" height="300" role="img" aria-label="A right-anchored predictive merge queue: PR a at the front, then PR b, then PR c at the back, each tested with the changes ahead of it. b fails what looks like a flaky test but is held in the queue by pending failure depth instead of being evicted. c then passes with b's changes included, proving b's failure was flaky. Optimistic merging then merges a, b, and c together.">
+  <!--
+    Anti-flake protection prototype animation (editable, no source video needed).
+    Right-anchored predictive queue, front-to-back = right-to-left:
+      a at the front (x=590), b middle (x=536), c at the back (x=482).
+    Each row's bundle extends rightward to the PRs ahead of it:
+      row a: [a]      row b: [b][a]      row c: [c][b][a]
+
+    One 6s CSS loop, staggered into the rescue story:
+      a/b/c test           6%->24%  (amber bars)
+      a passes            ~22%      (green check on chip a, stays lit)
+      b FAILS             ~28%      (row b chip turns red, red X badge, "flaky?" label)
+      b held              ~30%->58% ("held by pending failure depth" pill, b stays in queue)
+      c keeps testing     28%->54%  (amber bar continues)
+      c passes            ~56%      (green check on chip c, "passed with b's changes")
+      b resolves          ~60%      (b flips red -> green, "flaky, b is fine" callout)
+      merge glow          72%->92%  (a, b, c merge together)
+    Reads correctly frozen: the column-aligned tiles + labels carry the meaning;
+    the amber bars / red+green states / merge glow only enhance.
+    The b-row state labels live in the open space between chip (ends x=80)
+    and the bundle (starts x=536) to avoid collisions.
+  -->
+  <style>
+    .bar { transform-box: fill-box; transform-origin: left center; }
+    .barA { animation: afBarA 6s linear infinite; }
+    .barB { animation: afBarB 6s linear infinite; }
+    .barC { animation: afBarC 6s linear infinite; }
+    .checkA { animation: afCheckA 6s linear infinite; }
+    .checkC { animation: afCheckC 6s linear infinite; }
+    .bFail { animation: afBFail 6s linear infinite; }
+    .bFailGood { animation: afBFailGood 6s linear infinite; }
+    .bFailX { animation: afBFailX 6s linear infinite; }
+    .bFlakyLbl { animation: afBFlakyLbl 6s linear infinite; }
+    .bHold { animation: afBHold 6s linear infinite; }
+    .checkBGood { animation: afCheckBGood 6s linear infinite; }
+    .cPassLbl { animation: afCPassLbl 6s linear infinite; }
+    .bResolvedLbl { animation: afBResolvedLbl 6s linear infinite; }
+    .mergeGlow { animation: afMerge 6s linear infinite; }
+    @keyframes afBarA { 0%,6% { transform: scaleX(0); opacity: 0; } 7% { opacity: 1; } 22% { transform: scaleX(1); opacity: 1; } 26%,100% { transform: scaleX(1); opacity: 0; } }
+    @keyframes afBarB { 0%,6% { transform: scaleX(0); opacity: 0; } 7% { opacity: 1; } 26% { transform: scaleX(1); opacity: 1; } 28%,100% { transform: scaleX(0); opacity: 0; } }
+    @keyframes afBarC { 0%,6% { transform: scaleX(0); opacity: 0; } 7% { opacity: 1; } 54% { transform: scaleX(1); opacity: 1; } 58%,100% { transform: scaleX(1); opacity: 0; } }
+    @keyframes afCheckA { 0%,20% { opacity: 0; } 24%,94% { opacity: 1; } 98%,100% { opacity: 0; } }
+    @keyframes afCheckC { 0%,56% { opacity: 0; } 60%,94% { opacity: 1; } 98%,100% { opacity: 0; } }
+    @keyframes afBFail { 0%,28% { opacity: 0; } 30%,58% { opacity: 1; } 60%,100% { opacity: 0; } }
+    @keyframes afBFailX { 0%,28% { opacity: 0; } 30%,58% { opacity: 1; } 60%,100% { opacity: 0; } }
+    @keyframes afBFlakyLbl { 0%,28% { opacity: 0; } 31%,58% { opacity: 1; } 60%,100% { opacity: 0; } }
+    @keyframes afBHold { 0%,30% { opacity: 0; } 33%,58% { opacity: 1; } 60%,100% { opacity: 0; } }
+    @keyframes afBFailGood { 0%,58% { opacity: 0; } 61%,94% { opacity: 1; } 98%,100% { opacity: 0; } }
+    @keyframes afCheckBGood { 0%,58% { opacity: 0; } 61%,94% { opacity: 1; } 98%,100% { opacity: 0; } }
+    @keyframes afCPassLbl { 0%,56% { opacity: 0; } 59%,92% { opacity: 1; } 96%,100% { opacity: 0; } }
+    @keyframes afBResolvedLbl { 0%,60% { opacity: 0; } 63%,92% { opacity: 1; } 96%,100% { opacity: 0; } }
+    @keyframes afMerge { 0%,72% { opacity: 0; } 76%,92% { opacity: 1; } 96%,100% { opacity: 0; } }
+    @media (prefers-reduced-motion: reduce) {
+      .barA, .barB, .barC, .checkA, .checkC, .bFail, .bFailX, .bFlakyLbl, .bHold, .bFailGood, .checkBGood, .cPassLbl, .bResolvedLbl, .mergeGlow { animation: none; }
+      .barA, .barC { transform: scaleX(1); opacity: .85; }
+      .barB, .bFail, .bFailX, .bFlakyLbl, .bHold { opacity: 0; }
+      .checkA, .checkC, .bFailGood, .checkBGood, .cPassLbl, .bResolvedLbl, .mergeGlow { opacity: 1; }
+    }
+  </style>
+
+  <rect x="0" y="0" width="660" height="300" rx="10" fill="#ffffff"/>
+  <text x="16" y="24" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12.5" font-weight="700" fill="#3a4350">A flaky failure on b doesn't block the queue: c's pass proves b was fine</text>
+  <text x="636" y="24" text-anchor="end" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10.5" font-weight="600" fill="#9aa3b0">front of queue &#8594;</text>
+
+  <!-- Row a: front of the queue, nothing ahead -->
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    <rect x="16" y="44" width="64" height="34" rx="8" fill="#e3edfc" stroke="#346DDB" stroke-width="1.5"/>
+    <text x="48" y="65" text-anchor="middle" font-size="12" font-weight="700" fill="#1f5fc0">PR a</text>
+    <g class="checkA">
+      <circle cx="74" cy="46" r="8.5" fill="#1d9b54"/>
+      <polyline points="70,46 73,49 78,43" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <text x="92" y="65" font-size="11.5" fill="#5b6573">front of the queue, passes</text>
+    <rect x="590" y="44" width="46" height="34" rx="6" fill="#e3edfc" stroke="#346DDB" stroke-width="1.5"/>
+    <text x="613" y="65" text-anchor="middle" font-size="12" font-weight="700" fill="#1f5fc0">a</text>
+    <rect x="590" y="83" width="46" height="5" rx="2.5" fill="#d9dee6"/>
+    <rect class="bar barA" x="590" y="83" width="46" height="5" rx="2.5" fill="#e8932a"/>
+  </g>
+
+  <!-- Row b: tested with a; fails flaky, held, then proven fine -->
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    <!-- base (purple) chip + bundle, frozen-readable -->
+    <rect x="16" y="108" width="64" height="34" rx="8" fill="#eee7fb" stroke="#7c5cdb" stroke-width="1.5"/>
+    <text x="48" y="129" text-anchor="middle" font-size="12" font-weight="700" fill="#5a3fb0">PR b</text>
+
+    <!-- red overlay state: b fails -->
+    <g class="bFail">
+      <rect x="16" y="108" width="64" height="34" rx="8" fill="#fde7e7" stroke="#d64545" stroke-width="1.5"/>
+      <text x="48" y="129" text-anchor="middle" font-size="12" font-weight="700" fill="#b22222">PR b</text>
+    </g>
+    <!-- resolved green overlay state: b proven fine -->
+    <g class="bFailGood">
+      <rect x="16" y="108" width="64" height="34" rx="8" fill="#e2f4f1" stroke="#1d9b54" stroke-width="1.5"/>
+      <text x="48" y="129" text-anchor="middle" font-size="12" font-weight="700" fill="#1d7a4d">PR b</text>
+    </g>
+
+    <!-- red X badge replacing the check when b fails -->
+    <g class="bFailX">
+      <circle cx="74" cy="110" r="8.5" fill="#d64545"/>
+      <line x1="71" y1="107" x2="77" y2="113" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="77" y1="107" x2="71" y2="113" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+    </g>
+    <!-- green check badge when b is proven fine -->
+    <g class="checkBGood">
+      <circle cx="74" cy="110" r="8.5" fill="#1d9b54"/>
+      <polyline points="70,110 73,113 78,107" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+
+    <!-- middle-space state labels (open area x=92..520) -->
+    <g class="bFlakyLbl">
+      <text x="92" y="124" font-size="11.5" fill="#b22222">flaky? <tspan fill="#5b6573">b's test failed unrelated to its code</tspan></text>
+    </g>
+    <g class="bHold">
+      <rect x="92" y="130" width="232" height="18" rx="9" fill="#fbf0e0" stroke="#e8932a" stroke-width="1.2"/>
+      <text x="208" y="142.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="#9a6311">held by pending failure depth</text>
+    </g>
+    <g class="cPassLbl">
+      <text x="92" y="124" font-size="11.5" fill="#0e7d70">c passed with <tspan font-weight="600">b's</tspan> changes included</text>
+    </g>
+    <g class="bResolvedLbl">
+      <text x="92" y="142" font-size="11.5" fill="#1d7a4d">b's failure was flaky, c proves b is fine</text>
+    </g>
+
+    <!-- bundle [b][a] -->
+    <rect x="536" y="108" width="46" height="34" rx="6" fill="#eee7fb" stroke="#7c5cdb" stroke-width="1.5"/>
+    <text x="559" y="129" text-anchor="middle" font-size="12" font-weight="700" fill="#5a3fb0">b</text>
+    <rect x="590" y="108" width="46" height="34" rx="6" fill="#e3edfc" stroke="#346DDB" stroke-width="1.5"/>
+    <text x="613" y="129" text-anchor="middle" font-size="12" font-weight="700" fill="#1f5fc0">a</text>
+    <rect x="536" y="147" width="100" height="5" rx="2.5" fill="#d9dee6"/>
+    <rect class="bar barB" x="536" y="147" width="100" height="5" rx="2.5" fill="#e8932a"/>
+  </g>
+
+  <!-- Row c: tested with a and b; passes, proving b -->
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    <rect x="16" y="172" width="64" height="34" rx="8" fill="#e2f4f1" stroke="#18a394" stroke-width="1.5"/>
+    <text x="48" y="193" text-anchor="middle" font-size="12" font-weight="700" fill="#0e7d70">PR c</text>
+    <g class="checkC">
+      <circle cx="74" cy="174" r="8.5" fill="#1d9b54"/>
+      <polyline points="70,174 73,177 78,171" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <text x="92" y="193" font-size="11.5" fill="#5b6573">tested with <tspan font-weight="600" fill="#1f5fc0">a</tspan> and <tspan font-weight="600" fill="#5a3fb0">b</tspan>, the PRs ahead of it</text>
+    <rect x="482" y="172" width="46" height="34" rx="6" fill="#e2f4f1" stroke="#18a394" stroke-width="1.5"/>
+    <text x="505" y="193" text-anchor="middle" font-size="12" font-weight="700" fill="#0e7d70">c</text>
+    <rect x="536" y="172" width="46" height="34" rx="6" fill="#eee7fb" stroke="#7c5cdb" stroke-width="1.5"/>
+    <text x="559" y="193" text-anchor="middle" font-size="12" font-weight="700" fill="#5a3fb0">b</text>
+    <rect x="590" y="172" width="46" height="34" rx="6" fill="#e3edfc" stroke="#346DDB" stroke-width="1.5"/>
+    <text x="613" y="193" text-anchor="middle" font-size="12" font-weight="700" fill="#1f5fc0">a</text>
+    <rect x="482" y="211" width="154" height="5" rx="2.5" fill="#d9dee6"/>
+    <rect class="bar barC" x="482" y="211" width="154" height="5" rx="2.5" fill="#e8932a"/>
+  </g>
+
+  <!-- Merge result: optimistic merging lands a, b, c together -->
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    <text x="92" y="262" font-size="11.5" fill="#5b6573">optimistic merging lands all three together</text>
+    <rect x="400" y="238" width="236" height="40" rx="8" fill="#eef1f5" stroke="#9aa3b0" stroke-width="1.5"/>
+    <rect class="mergeGlow" x="400" y="238" width="236" height="40" rx="8" fill="#e4f5ea" stroke="#1d9b54" stroke-width="1.8"/>
+    <text x="518" y="263" text-anchor="middle" font-size="12" font-weight="700" fill="#1d7a4d">a, b, c merge into main</text>
+  </g>
+</svg>
