@@ -641,6 +641,7 @@
                 "group": "April",
                 "pages": [
                   "changelog/2026-04-30-merge-queue-chrome-extension",
+                  "changelog/2026-04-28-flaky-tests-filterable-uploads-history",
                   "changelog/2026-04-28-merge-queue-failure-statuses-merge-item-ids",
                   "changelog/2026-04-21-merge-queue-drill-down-into-merge-metrics",
                   "changelog/2026-04-15-flaky-tests-linked-tickets-survive-moves",
