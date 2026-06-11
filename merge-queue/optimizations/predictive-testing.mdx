@@ -35,7 +35,7 @@ Predictive testing is effective, but it creates a new challenge: **failure casca
 
 In the "Happy Path" example, if PR `A` introduces a failing test, the predictive tests for `B` and `C` are _also_ guaranteed to fail, because they both include the broken code from `A`.
 
-A simple queue would kick `B` and `C` as soon as their tests failed. This would disrupt their authors, who did nothing wrong, and force them to restart their PRs multiple times, wasting valuable CI time .
+A simple queue would kick `B` and `C` as soon as their tests failed. This would disrupt their authors, who did nothing wrong, and force them to restart their PRs multiple times, wasting valuable CI time.
 
 This is solved by **Pending Failure**.
 

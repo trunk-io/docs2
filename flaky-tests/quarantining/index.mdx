@@ -106,7 +106,7 @@ For complex setups where Trunk can’t wrap test commands, run tests first and l
 
 **Advanced: Handling build errors outside test runs**
 
-To handle build issues that occur outside test runs, use the --test-process-exit-code option. This provides a fallback exit code if the upload runs without detecting any Junit results.
+To handle build issues that occur outside test runs, use the --test-process-exit-code option. This provides a fallback exit code if the upload runs without detecting any JUnit results.
 
 **Example**
 
@@ -132,7 +132,7 @@ If you're using the Trunk Analytics CLI directly or other CI providers, check th
 
 <Tabs>
 <Tab title="GitHub Actions Workflow">
-Using the Trunk Analytics Uploader Action in your GitHub Actions Workflow files, may need modifications to your workflow files to support quarantining.
+Using the Trunk Analytics Uploader Action in your GitHub Actions Workflow files may need modifications to your workflow files to support quarantining.
 
 If you upload your test results as a second step after you run your tests, **you need to add** `continue-on-error: true` **on your test step so your CI** job will continue even on failures.
 
