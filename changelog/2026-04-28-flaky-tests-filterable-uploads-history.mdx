@@ -1,0 +1,13 @@
+---
+title: "Flaky Tests: Filterable Uploads History"
+description: "Browse a filterable, paginated history of every CI test upload, with a daily status breakdown chart and multi-value filters."
+date: 2026-04-28
+category: Flaky Tests
+type: new-feature
+---
+
+**The uploads page now shows a filterable, paginated history of every CI test upload sent to Trunk.**
+
+A stacked bar chart breaks down uploads by day and processing status; click a range on the chart to filter the table to that date window. The filter bar narrows results by upload status, job conclusion, PR number, SHA, branch, and author — upload status, PR, SHA, branch, and author each accept multiple values. A column customizer lets you pick which columns to show, with that state persisted in the URL so you can share or bookmark a view. A polling refresh button keeps the list current and badges the count of new uploads since your last fetch.
+
+[Read the docs](https://docs.trunk.io/flaky-tests/get-started) to learn more.
