@@ -7,23 +7,27 @@
       row a: [a]      row b: [b][a]      row c: [c][b][a]
 
     CONVENTION shared across all merge-queue animation prototypes:
-      - 9s loop. All action plays out in the first ~66% (about 6s), then the
-        finished frame HOLDS for ~3s before the loop resets (the linger).
+      - 6s loop. Tests run SEQUENTIALLY (one cycle after another, never
+        concurrent), then the finished frame HOLDS ~2.5s before the loop resets.
+      - Each test progress-bar fill (scaleX 0->1) takes exactly 0.5s = 8.333%
+        of the loop; a brief ~0.3s (~5%) readable pause sits between steps.
       - When a row's test completes, a green check BADGE pops into that row's
         bundle upper-right corner (cx=632) and stays lit through the hold.
-      - Row b carries its red fail state during the failure window; only the
-        right-side completion badge turns green, and only AFTER the rescue.
+      - Row b's red fail state PERSISTS (chip red, red X, flaky label, held
+        pill) from the moment b fails until c passes; the instant c passes
+        (its bundle includes b) b is CLEARED, flipping red -> green.
 
-    One 9s CSS loop, staggered into the rescue story (held to 100%):
-      a/b/c test           4%->17%  (amber bars)
-      a passes            ~15%      (green check on chip a + right-side badge a)
-      b FAILS             ~19%->40% (row b chip turns red, red X badge, "flaky?" label)
-      b held              ~21%->40% ("held by pending failure depth" pill)
-      c keeps testing     ->37%     (amber bar continues)
-      c passes            ~39%      (green check on chip c + right-side badge c)
-      b resolves          ~42%      (b flips red -> green, right-side badge b appears)
-      merge glow          ~50%->63% (a, b, c merge together)
-      HOLD                63%->100% (everything stays lit ~3s before reset)
+    One 6s CSS loop, sequential test cycles (held to 100%):
+      a tests             0%->8.33%      (amber bar fills, 0.5s)
+      a passes            ~10%           (bar green, green check on chip a + badge a)
+      b tests             13.33%->21.67% (amber bar fills, 0.5s)
+      b FAILS             ~23%->40%      (chip red, red X badge, "flaky?" label, held pill)
+                                         red fail state PERSISTS until c passes
+      c tests             28.33%->36.67% (amber bar fills, 0.5s)
+      c passes            ~38.33%        (bar green, green check on chip c + badge c)
+      b CLEARED           ~40%           (b flips red -> green, badge b, resolved label)
+      merge glow          ~46%->58%      (a, b, c merge together)
+      HOLD                58%->100%      (everything stays lit ~2.5s before reset)
     Reads correctly frozen: the column-aligned tiles + labels carry the meaning;
     the amber bars / red+green states / merge glow only enhance.
     The b-row state labels live in the open space between chip (ends x=80)
@@ -31,35 +35,37 @@
   -->
   <style>
     .bar { transform-box: fill-box; transform-origin: left center; }
-    .barA { animation: afBarA 9s linear infinite; }
-    .barB { animation: afBarB 9s linear infinite; }
-    .barC { animation: afBarC 9s linear infinite; }
-    .bFail { animation: afBFail 9s linear infinite; }
-    .bFailGood { animation: afBFailGood 9s linear infinite; }
-    .bFailX { animation: afBFailX 9s linear infinite; }
-    .bFlakyLbl { animation: afBFlakyLbl 9s linear infinite; }
-    .bHold { animation: afBHold 9s linear infinite; }
-    .cPassLbl { animation: afCPassLbl 9s linear infinite; }
-    .bResolvedLbl { animation: afBResolvedLbl 9s linear infinite; }
-    .mergeGlow { animation: afMerge 9s linear infinite; }
+    .barA { animation: afBarA 6s linear infinite; }
+    .barB { animation: afBarB 6s linear infinite; }
+    .barC { animation: afBarC 6s linear infinite; }
+    .bFail { animation: afBFail 6s linear infinite; }
+    .bFailGood { animation: afBFailGood 6s linear infinite; }
+    .bFailX { animation: afBFailX 6s linear infinite; }
+    .bFlakyLbl { animation: afBFlakyLbl 6s linear infinite; }
+    .bHold { animation: afBHold 6s linear infinite; }
+    .cPassLbl { animation: afCPassLbl 6s linear infinite; }
+    .bResolvedLbl { animation: afBResolvedLbl 6s linear infinite; }
+    .mergeGlow { animation: afMerge 6s linear infinite; }
     /* right-side completion badges: pop into bundle upper-right, hold to 100% */
-    .bdgRowA { animation: afBdgRowA 9s linear infinite; }
-    .bdgRowB { animation: afBdgRowB 9s linear infinite; }
-    .bdgRowC { animation: afBdgRowC 9s linear infinite; }
-    @keyframes afBarA { 0%,4% { transform: scaleX(0); opacity: 1; fill: #e8932a; } 15% { transform: scaleX(1); fill: #e8932a; } 17%,100% { transform: scaleX(1); opacity: 1; fill: #1d9b54; } }
-    @keyframes afBarB { 0%,4% { transform: scaleX(0); opacity: 1; fill: #e8932a; } 18%,40% { transform: scaleX(1); fill: #e8932a; } 42%,100% { transform: scaleX(1); opacity: 1; fill: #1d9b54; } }
-    @keyframes afBarC { 0%,4% { transform: scaleX(0); opacity: 1; fill: #e8932a; } 37% { transform: scaleX(1); fill: #e8932a; } 39%,100% { transform: scaleX(1); opacity: 1; fill: #1d9b54; } }
-    @keyframes afBFail { 0%,19% { opacity: 0; } 21%,40% { opacity: 1; } 42%,100% { opacity: 0; } }
-    @keyframes afBFailX { 0%,19% { opacity: 0; } 21%,40% { opacity: 1; } 42%,100% { opacity: 0; } }
-    @keyframes afBFlakyLbl { 0%,19% { opacity: 0; } 21%,40% { opacity: 1; } 42%,100% { opacity: 0; } }
-    @keyframes afBHold { 0%,21% { opacity: 0; } 23%,40% { opacity: 1; } 42%,100% { opacity: 0; } }
+    .bdgRowA { animation: afBdgRowA 6s linear infinite; }
+    .bdgRowB { animation: afBdgRowB 6s linear infinite; }
+    .bdgRowC { animation: afBdgRowC 6s linear infinite; }
+    /* SEQUENTIAL cycles: a fills 0->8.33, b fills 13.33->21.67, c fills 28.33->36.67.
+       b fails at ~23 and stays amber-failed until c passes; b clears (->green) at ~40. */
+    @keyframes afBarA { 0% { transform: scaleX(0); opacity: 1; fill: #e8932a; } 8.33% { transform: scaleX(1); fill: #e8932a; } 10%,100% { transform: scaleX(1); opacity: 1; fill: #1d9b54; } }
+    @keyframes afBarB { 0%,13.33% { transform: scaleX(0); opacity: 1; fill: #e8932a; } 21.67%,40% { transform: scaleX(1); fill: #e8932a; } 42%,100% { transform: scaleX(1); opacity: 1; fill: #1d9b54; } }
+    @keyframes afBarC { 0%,28.33% { transform: scaleX(0); opacity: 1; fill: #e8932a; } 36.67% { transform: scaleX(1); fill: #e8932a; } 38.33%,100% { transform: scaleX(1); opacity: 1; fill: #1d9b54; } }
+    @keyframes afBFail { 0%,21.67% { opacity: 0; } 23%,40% { opacity: 1; } 42%,100% { opacity: 0; } }
+    @keyframes afBFailX { 0%,21.67% { opacity: 0; } 23%,40% { opacity: 1; } 42%,100% { opacity: 0; } }
+    @keyframes afBFlakyLbl { 0%,21.67% { opacity: 0; } 23%,40% { opacity: 1; } 42%,100% { opacity: 0; } }
+    @keyframes afBHold { 0%,24% { opacity: 0; } 25.5%,40% { opacity: 1; } 42%,100% { opacity: 0; } }
     @keyframes afBFailGood { 0%,40% { opacity: 0; } 42%,100% { opacity: 1; } }
-    @keyframes afCPassLbl { 0%,39% { opacity: 0; } 41%,100% { opacity: 1; } }
-    @keyframes afBResolvedLbl { 0%,41% { opacity: 0; } 43%,100% { opacity: 1; } }
-    @keyframes afMerge { 0%,50% { opacity: 0; } 63%,100% { opacity: 1; } }
-    @keyframes afBdgRowA { 0%,15% { opacity: 0; } 17%,100% { opacity: 1; } }
-    @keyframes afBdgRowB { 0%,41% { opacity: 0; } 43%,100% { opacity: 1; } }
-    @keyframes afBdgRowC { 0%,39% { opacity: 0; } 41%,100% { opacity: 1; } }
+    @keyframes afCPassLbl { 0%,38.33% { opacity: 0; } 40%,100% { opacity: 1; } }
+    @keyframes afBResolvedLbl { 0%,40% { opacity: 0; } 42%,100% { opacity: 1; } }
+    @keyframes afMerge { 0%,46% { opacity: 0; } 58%,100% { opacity: 1; } }
+    @keyframes afBdgRowA { 0%,10% { opacity: 0; } 12%,100% { opacity: 1; } }
+    @keyframes afBdgRowB { 0%,40% { opacity: 0; } 42%,100% { opacity: 1; } }
+    @keyframes afBdgRowC { 0%,38.33% { opacity: 0; } 40%,100% { opacity: 1; } }
     @media (prefers-reduced-motion: reduce) {
       .barA, .barB, .barC, .bFail, .bFailX, .bFlakyLbl, .bHold, .bFailGood, .cPassLbl, .bResolvedLbl, .mergeGlow,
       .bdgRowA, .bdgRowB, .bdgRowC { animation: none; }

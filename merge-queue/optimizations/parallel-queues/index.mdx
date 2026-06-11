@@ -8,13 +8,8 @@ Normally, a merge queue behaves by enqueueing all submitted pull requests into a
 
 A regular merge queue operates like a grocery store with only a single checkout lane. When a lot of folks are trying to checkout at the same time - the line will grow (sometimes intolerably). With a dynamic parallel queue, trunk merge creates additional checkout lanes in real-time while still guaranteeing that the protected branch doesn't break.​
 
-{/* Animated SVG prototype of parallel queues, sits above the source video */}
-<Frame caption="SVG prototype — track impacted code of each pull request to create dynamic queues">
-<img src="/assets/merge-queue/optimizations/parallel-queues/parallel-queues-prototype.svg" alt="Two stacked panels contrast a single queue with parallel queues. A single lane runs PRs A, B, C, D in one slow chain, while three lanes split by impacted target (frontend, backend, docs) run concurrently and finish sooner." />
-</Frame>
-
 <Frame caption="track impacted code of each pull request to create dynamic queues">
-<iframe allow="autoplay; fullscreen; picture-in-picture; display-capture; clipboard-write" allowfullscreen="" allowtransparency="true" referrerpolicy="no-referrer-when-downgrade" class="vidyard-iframe-XeTFxCCLuDUU3kip2RnykW" frameborder="0" height="100%" width="100%" scrolling="no" src="https://play.vidyard.com/XeTFxCCLuDUU3kip2RnykW?disable_popouts=1&amp;disable_analytics=0&amp;preload=auto&amp;disable_larger_player=false&amp;theater_button=0&amp;pip_button=0&amp;controller=hubs&amp;action=show&amp;type=inline&amp;v=4.3.20" title="trunk.io merge queue // parallel queues" spellcheck="false"></iframe>
+<img src="/assets/merge-queue/optimizations/parallel-queues/parallel-queues-prototype.svg" alt="Two stacked panels contrast a single queue with parallel queues. A single lane runs PRs A, B, C, D in one slow chain, while three lanes split by impacted target (frontend, backend, docs) run concurrently and finish sooner." />
 </Frame>
 
 For example, the following four pull requests:

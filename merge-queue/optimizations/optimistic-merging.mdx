@@ -11,13 +11,8 @@ The foundation of our merge queue starts with [predictive testing](/merge-queue/
 \
 With optimistic merging enabled, the queue uses results from pull requests later in the queue to merge faster. In the illustration below you can see that pull request 'c' includes the verified testing results of pull requests 'b' and 'a'. As soon as 'c' passes testing, we can safely merge 'a', 'b', and 'c' and know they will all work correctly together.
 
-{/* Editable SVG prototype of the optimistic-merging animation. Timing lives in the .svg (@keyframes on a single 6s loop). Edit the asset to retime, not this page. */}
-<Frame caption="SVG prototype — optimistic merging to merge faster">
-<img src="/assets/merge-queue/optimizations/optimistic-merging-prototype.svg" alt="A right-anchored predictive queue: PR a at the front, b and c behind it, each bundle including the verified code ahead. The three test bundles run concurrently, and as soon as c passes, a, b and c merge together in one synchronized step." />
-</Frame>
-
 <Frame caption="Optimistic merging to merge faster">
-<iframe allow="autoplay; fullscreen; picture-in-picture; display-capture; clipboard-write" allowfullscreen="" allowtransparency="true" referrerpolicy="no-referrer-when-downgrade" class="vidyard-iframe-5iy2KdNFKHM1Nc13zDv8g8" frameborder="0" height="100%" width="100%" scrolling="no" src="https://play.vidyard.com/5iy2KdNFKHM1Nc13zDv8g8?disable_popouts=1&amp;disable_analytics=0&amp;preload=auto&amp;disable_larger_player=false&amp;theater_button=0&amp;pip_button=0&amp;controller=hubs&amp;action=show&amp;type=inline&amp;v=4.3.20" title="trunk.io merge queue // optimistic merging" spellcheck="false"></iframe>
+<img src="/assets/merge-queue/optimizations/optimistic-merging-prototype.svg" alt="A right-anchored predictive queue: PR a at the front, b and c behind it, each bundle including the verified code ahead. The three test bundles run concurrently, and as soon as c passes, a, b and c merge together in one synchronized step." />
 </Frame>
 
 

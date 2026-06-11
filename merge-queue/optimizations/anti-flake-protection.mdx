@@ -15,13 +15,8 @@ If you have a lot of flaky tests in your projects, you should track and fix them
 
 In the video below, you can see an example of this anti-flake protection:
 
-{/* Animated SVG prototype: stands in for the video while it renders, and reads correctly when motion is reduced. */}
-<Frame caption="SVG prototype — anti-flake protection with optimistic merging + pending failure depth">
-<img src="/assets/merge-queue/optimizations/anti-flake-protection-prototype.svg" alt="A right-anchored predictive merge queue: a at the front, then b, then c at the back. b fails a flaky test but is held by pending failure depth instead of being evicted. c then passes with b's changes included, proving b's failure was flaky, so optimistic merging lands a, b, and c together." />
-</Frame>
-
 <Frame caption="Anti-flake protection with optimistic merging + pending failure depth">
-<iframe src="https://cdn.iframe.ly/nO8lIvz" allowfullscreen="" scrolling="no" allow="encrypted-media *;" spellcheck="false"></iframe>
+<img src="/assets/merge-queue/optimizations/anti-flake-protection-prototype.svg" alt="A right-anchored predictive merge queue: a at the front, then b, then c at the back. b fails a flaky test but is held by pending failure depth instead of being evicted. c then passes with b's changes included, proving b's failure was flaky, so optimistic merging lands a, b, and c together." />
 </Frame>
 
 
