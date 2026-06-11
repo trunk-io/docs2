@@ -1,0 +1,19 @@
+---
+title: "Merge Queue: Testing Duration Chart"
+description: "Track how long PRs spend in the testing phase of the merge queue, then drill into individual test runs."
+date: 2026-05-13
+category: Merge Queue
+type: new-feature
+---
+
+**The Merge Queue Health tab now has a Testing Duration chart that shows how long PRs spend in the testing phase**, separate from Time in Queue, which measures total entry-to-exit time. This isolates CI execution time from queue wait time, so you can tell whether a slow queue is a testing problem or a scheduling one.
+
+Each data point is one testing-to-final-state transition, so a PR appears more than once if its cycle restarted. The chart buckets and filters its data independently from the Conclusion count and Time in queue charts, so it does not share their hover sync.
+
+- **Outcome filter:** Passed, Failed, Interrupted, Cancelled
+- **Cycle ended in filter:** Merged, Failed, Cancelled, In Flight
+- **Statistical measures:** Average, Min, Max, Sum, p50, p95, p99
+
+Click a data point on the chart and an inline table appears below it, breaking out the individual test runs behind that period so you can spot slow or outlier runs without leaving the page.
+
+[Read the docs](https://docs.trunk.io/merge-queue/administration/metrics) to learn more.
