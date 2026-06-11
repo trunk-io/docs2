@@ -1,0 +1,149 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 250" width="660" height="250" role="img" aria-label="An illustration of the merge queue concurrency limit set to two. Six pull requests A to F wait in a queue, with A at the front on the right. With concurrency equal to two, only two pull requests test at once: an active testing window of two amber progress bars sits at the front of the queue. As each pair finishes its tests turn green, the active window advances down the queue and the next two pull requests start testing. By the end the front pair has merged and the window has moved on. A green check badge appears on each box as its test run completes.">
+  <!--
+    Concurrency-limit prototype animation (editable, no source video needed).
+    Page: merge-queue/administration/advanced-settings.
+    The queue runs right to left: A is at the FRONT (right), F at the back (left).
+    main is the pill on the far right.
+
+    TEACHING: concurrency = the size of the active TESTING WINDOW. With
+    concurrency = 2, only TWO PRs test at the same time. As a pair finishes
+    (amber -> green), the next two start, sliding the 2-wide window down the
+    queue. A highlight frame marks the currently-testing pair.
+
+    CONVENTION shared across all merge-queue animation prototypes:
+      - 6s loop. Each PR's test progress bar fills in 0.5s = 8.333% of the loop.
+        A pair tests TOGETHER (both bars fill over the same 0.5s), then a brief
+        ~0.3s (5%) pause before the window slides to the next pair. After all
+        three pairs finish (~2.1s in) the finished frame HOLDS for the rest of
+        the loop (~3.9s) before it resets (the linger).
+      - When a box's progress bar completes, a green check BADGE pops into that
+        box's upper-right corner and stays lit through the hold.
+      - Bars carry state by COLOR (amber = testing, green = done), so the
+        frozen / reduced-motion end-state reads as "all done".
+
+    Three pairs run in sequence (timeline on the 6s = 100% loop):
+      pair AB   0%   -> 8.333%   (window at the front)         green @ 9.333%
+      ~0.3s pause, window slides one step
+      pair CD  13.333% -> 21.667% (window advances one step)   green @ 22.667%
+      ~0.3s pause, window slides one step
+      pair EF  26.667% -> 35%    (window advances again)       green @ 36%
+    main glows green ~10%, after the front pair (A,B) has merged.
+    To change the concurrency, add/remove bars in a window and retime the
+    @keyframes percentages.
+  -->
+  <style>
+    .bar { transform-box: fill-box; transform-origin: left center; }
+    .bA { animation: bgA 6s linear infinite; }
+    .bB { animation: bgB 6s linear infinite; }
+    .bC { animation: bgC 6s linear infinite; }
+    .bD { animation: bgD 6s linear infinite; }
+    .bE { animation: bgE 6s linear infinite; }
+    .bF { animation: bgF 6s linear infinite; }
+    .bdgA { animation: bdgA 6s linear infinite; }
+    .bdgB { animation: bdgB 6s linear infinite; }
+    .bdgC { animation: bdgC 6s linear infinite; }
+    .bdgD { animation: bdgD 6s linear infinite; }
+    .bdgE { animation: bdgE 6s linear infinite; }
+    .bdgF { animation: bdgF 6s linear infinite; }
+    .win { animation: winMove 6s linear infinite; }
+    .glow { animation: bgGlow 6s linear infinite; }
+    /* three pairs in sequence: AB (0->8.333%), CD (13.333->21.667%), EF (26.667->35%).
+       Each bar fills in 0.5s = 8.333%; ~0.3s (5%) pause between pairs. */
+    @keyframes bgA { 0% { transform: scaleX(0); fill: #e8932a; } 8.333% { transform: scaleX(1); fill: #e8932a; } 9.333%,100% { transform: scaleX(1); fill: #1d9b54; } }
+    @keyframes bgB { 0% { transform: scaleX(0); fill: #e8932a; } 8.333% { transform: scaleX(1); fill: #e8932a; } 9.333%,100% { transform: scaleX(1); fill: #1d9b54; } }
+    @keyframes bgC { 0%,13.333% { transform: scaleX(0); fill: #e8932a; } 21.667% { transform: scaleX(1); fill: #e8932a; } 22.667%,100% { transform: scaleX(1); fill: #1d9b54; } }
+    @keyframes bgD { 0%,13.333% { transform: scaleX(0); fill: #e8932a; } 21.667% { transform: scaleX(1); fill: #e8932a; } 22.667%,100% { transform: scaleX(1); fill: #1d9b54; } }
+    @keyframes bgE { 0%,26.667% { transform: scaleX(0); fill: #e8932a; } 35% { transform: scaleX(1); fill: #e8932a; } 36%,100% { transform: scaleX(1); fill: #1d9b54; } }
+    @keyframes bgF { 0%,26.667% { transform: scaleX(0); fill: #e8932a; } 35% { transform: scaleX(1); fill: #e8932a; } 36%,100% { transform: scaleX(1); fill: #1d9b54; } }
+    /* completion badges: pop in right after each bar finishes, hold to 100% */
+    @keyframes bdgA { 0%,9.333% { opacity: 0; } 11%,100% { opacity: 1; } }
+    @keyframes bdgB { 0%,9.333% { opacity: 0; } 11%,100% { opacity: 1; } }
+    @keyframes bdgC { 0%,22.667% { opacity: 0; } 24.333%,100% { opacity: 1; } }
+    @keyframes bdgD { 0%,22.667% { opacity: 0; } 24.333%,100% { opacity: 1; } }
+    @keyframes bdgE { 0%,36% { opacity: 0; } 37.667%,100% { opacity: 1; } }
+    @keyframes bdgF { 0%,36% { opacity: 0; } 37.667%,100% { opacity: 1; } }
+    /* the 2-wide active window slides left one pair-step at each handoff.
+       AB front pair left x=526; CD x=418; EF x=310. step = 108.
+       Window holds over each pair while it tests, then slides during the
+       ~0.3s pause to arrive over the next pair as it starts. */
+    @keyframes winMove {
+      0%,9.333% { transform: translateX(0); }
+      13.333%,21.667% { transform: translateX(-108px); }
+      26.667%,100% { transform: translateX(-216px); }
+    }
+    @keyframes bgGlow { 0%,9.333% { opacity: 0; } 11%,100% { opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) {
+      .bA, .bB, .bC, .bD, .bE, .bF,
+      .bdgA, .bdgB, .bdgC, .bdgD, .bdgE, .bdgF,
+      .win, .glow { animation: none; }
+      .bar { transform: scaleX(1); fill: #1d9b54; }
+      .bdgA, .bdgB, .bdgC, .bdgD, .bdgE, .bdgF, .glow { opacity: 1; }
+      .win { transform: translateX(-216px); }
+    }
+  </style>
+
+  <rect x="0" y="0" width="660" height="250" rx="10" fill="#ffffff"/>
+  <text x="16" y="22" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12.5" font-weight="700" fill="#3a4350">Concurrency limit: how many PRs test at once</text>
+  <text x="644" y="22" text-anchor="end" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10.5" font-weight="600" fill="#9aa3b0">Front of queue &#8594;</text>
+
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    <text x="16" y="48" font-size="12" font-weight="700" fill="#3a4350">concurrency = 2</text>
+    <text x="16" y="64" font-size="11" fill="#5b6573">Only two PRs test at a time. As each pair finishes, the next two start.</text>
+
+    <!-- ===== Queue of 6 PRs, A nearest main (right). Tiles w46 gap8 step54 =====
+         A x=580, B x=526, C x=472, D x=418, E x=364, F x=310 -->
+    <rect x="310" y="92" width="46" height="34" rx="6" fill="#e2f4f1" stroke="#18a394" stroke-width="1.5"/>
+    <text x="333" y="114" text-anchor="middle" font-size="13" font-weight="700" fill="#0e7d70">F</text>
+    <rect x="364" y="92" width="46" height="34" rx="6" fill="#eee7fb" stroke="#7c5cdb" stroke-width="1.5"/>
+    <text x="387" y="114" text-anchor="middle" font-size="13" font-weight="700" fill="#5a3fb0">E</text>
+    <rect x="418" y="92" width="46" height="34" rx="6" fill="#e3edfc" stroke="#346DDB" stroke-width="1.5"/>
+    <text x="441" y="114" text-anchor="middle" font-size="13" font-weight="700" fill="#1f5fc0">D</text>
+    <rect x="472" y="92" width="46" height="34" rx="6" fill="#e2f4f1" stroke="#18a394" stroke-width="1.5"/>
+    <text x="495" y="114" text-anchor="middle" font-size="13" font-weight="700" fill="#0e7d70">C</text>
+    <rect x="526" y="92" width="46" height="34" rx="6" fill="#eee7fb" stroke="#7c5cdb" stroke-width="1.5"/>
+    <text x="549" y="114" text-anchor="middle" font-size="13" font-weight="700" fill="#5a3fb0">B</text>
+    <rect x="580" y="92" width="46" height="34" rx="6" fill="#e3edfc" stroke="#346DDB" stroke-width="1.5"/>
+    <text x="603" y="114" text-anchor="middle" font-size="13" font-weight="700" fill="#1f5fc0">A</text>
+
+    <!-- progress bars under each tile -->
+    <rect x="580" y="131" width="46" height="4" rx="2" fill="#d9dee6"/>
+    <rect class="bar bA" x="580" y="131" width="46" height="4" rx="2" fill="#e8932a"/>
+    <rect x="526" y="131" width="46" height="4" rx="2" fill="#d9dee6"/>
+    <rect class="bar bB" x="526" y="131" width="46" height="4" rx="2" fill="#e8932a"/>
+    <rect x="472" y="131" width="46" height="4" rx="2" fill="#d9dee6"/>
+    <rect class="bar bC" x="472" y="131" width="46" height="4" rx="2" fill="#e8932a"/>
+    <rect x="418" y="131" width="46" height="4" rx="2" fill="#d9dee6"/>
+    <rect class="bar bD" x="418" y="131" width="46" height="4" rx="2" fill="#e8932a"/>
+    <rect x="364" y="131" width="46" height="4" rx="2" fill="#d9dee6"/>
+    <rect class="bar bE" x="364" y="131" width="46" height="4" rx="2" fill="#e8932a"/>
+    <rect x="310" y="131" width="46" height="4" rx="2" fill="#d9dee6"/>
+    <rect class="bar bF" x="310" y="131" width="46" height="4" rx="2" fill="#e8932a"/>
+
+    <!-- main pill (right edge), glows green once the front PRs merge (~60%) -->
+    <rect x="636" y="92" width="0" height="34" rx="6" fill="none"/>
+    <text x="644" y="84" text-anchor="end" font-size="10.5" font-weight="600" fill="#9aa3b0">merged</text>
+
+    <!-- completion badges, upper-right corner of each tile -->
+    <g class="bdgA"><circle cx="623" cy="94" r="7" fill="#1d9b54" stroke="#fff" stroke-width="1.4"/><polyline points="619.5,94 622,96.5 626.5,91.5" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+    <g class="bdgB"><circle cx="569" cy="94" r="7" fill="#1d9b54" stroke="#fff" stroke-width="1.4"/><polyline points="565.5,94 568,96.5 572.5,91.5" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+    <g class="bdgC"><circle cx="515" cy="94" r="7" fill="#1d9b54" stroke="#fff" stroke-width="1.4"/><polyline points="511.5,94 514,96.5 518.5,91.5" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+    <g class="bdgD"><circle cx="461" cy="94" r="7" fill="#1d9b54" stroke="#fff" stroke-width="1.4"/><polyline points="457.5,94 460,96.5 464.5,91.5" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+    <g class="bdgE"><circle cx="407" cy="94" r="7" fill="#1d9b54" stroke="#fff" stroke-width="1.4"/><polyline points="403.5,94 406,96.5 410.5,91.5" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+    <g class="bdgF"><circle cx="353" cy="94" r="7" fill="#1d9b54" stroke="#fff" stroke-width="1.4"/><polyline points="349.5,94 352,96.5 356.5,91.5" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+
+    <!-- the 2-wide active testing window: highlight frame over the front pair,
+         slides left one pair-step at each handoff -->
+    <g class="win">
+      <rect x="520" y="84" width="112" height="56" rx="9" fill="none" stroke="#e8932a" stroke-width="2.2" stroke-dasharray="5 4"/>
+    </g>
+  </g>
+
+  <line x1="16" y1="162" x2="644" y2="162" stroke="#ececec" stroke-width="1"/>
+
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    <text x="16" y="184" font-size="12" font-weight="700" fill="#3a4350">The active window is the concurrency limit</text>
+    <text x="16" y="204" font-size="11" fill="#5b6573">Two PRs test together; the window advances one pair at a time down the queue.</text>
+    <text x="16" y="222" font-size="11" fill="#5b6573">Raise concurrency to widen the window and test more PRs at once.</text>
+    <text x="16" y="240" font-size="11" fill="#5b6573">Lower it to reduce CI load when capacity is tight.</text>
+  </g>
+</svg>

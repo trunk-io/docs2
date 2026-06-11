@@ -72,6 +72,10 @@ Another exception: Admins can still merge PRs in absolutely necessary cases outs
 
 ### Example:
 
+<Frame caption="The full sequence: a HIGH PR slots in behind the PRs already testing, then an URGENT PR preempts the front and the displaced test restarts.">
+<img src="/assets/merge-queue/optimizations/priority-merging.svg" alt="A merge queue where a HIGH priority PR slides in ahead of pending PRs without interrupting the testing PR, then an URGENT PR takes the front and the front test restarts." />
+</Frame>
+
 Say you have a queue that is configured to test two PRs at once. The queue currently looks like this:
 
 <Frame>

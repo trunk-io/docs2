@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 312" width="660" height="312" role="img" aria-label="A before and after comparison of one CI job running three tests. Without quarantine: the CI job runs test_login (passes), test_search (passes), and test_checkout (fails); because test_checkout failed, the job result is exit code 1 and the PR is blocked. With quarantine: the same CI job runs the same three tests, test_checkout still fails at the same width, but a purple rounded box labeled quarantined wraps around it; because the failing test is quarantined, the job result is exit code 0 and the PR merges. The only difference between the two rows is the purple quarantined box wrapping the failing test, which flips the outcome from exit 1 to exit 0.">
+  <!--
+    Flaky Tests quarantining before/after prototype animation (editable, no source video).
+    Two stacked rows share the SAME CI job + SAME three tests. test_checkout fails at
+    the SAME width in both rows. The only difference is the purple "quarantined" box
+    wrapping the failing test in row 2, which flips the job result from
+    exit 1 (PR blocked) to exit 0 (PR merges).
+
+    CONVENTION shared with the merge-queue / flaky-tests prototypes:
+      - amber #e8932a bars fill (scaleX 0->1) over 0.5s as each test runs, then lock
+        to green #1d9b54 (pass) or red #d64545 (fail).
+      - completion badges (green check / red X) pop in just after a bar settles.
+      - QUARANTINE styling = purple: #eee7fb fill, #7c5cdb stroke, #5a3fb0 text. The
+        wrapper is ALSO labeled "quarantined" in text so it never relies on color alone.
+      - state carried by COLOR + LABEL so the frozen / reduced-motion end-state reads done.
+
+    TIMING (6s loop): both rows run their three tests together.
+      login   fills  3.33%->11.67%  (green-lock 12.5%, badge 14.5%)
+      search  fills 16.67%->25%     (green-lock 25.8%, badge 27.8%)
+      checkout fills 30%->38.33%    (red-lock   39.2%, X badge 41.2%)
+      result chips land ~44%->50% (top exit 1 red, bottom exit 0 green)
+      HOLD 50%->100% (~3s, well past the 2.5s min) before the loop resets.
+    To retime, edit the @keyframes percentages.
+  -->
+  <style>
+    .bar { transform-box: fill-box; transform-origin: left center; }
+    .bLogin  { animation: barLogin 6s linear infinite; }
+    .bSearch { animation: barSearch 6s linear infinite; }
+    .bChkPass { animation: barChkPass 6s linear infinite; }
+    .bChkFail { animation: barChkFail 6s linear infinite; }
+    .bdgLogin1  { animation: bdgPass 6s linear infinite; }
+    .bdgSearch1 { animation: bdgPass2 6s linear infinite; }
+    .bdgChk1    { animation: bdgFail 6s linear infinite; }
+    .bdgLogin2  { animation: bdgPass 6s linear infinite; }
+    .bdgSearch2 { animation: bdgPass2 6s linear infinite; }
+    .bdgChk2    { animation: bdgFail 6s linear infinite; }
+    .res1 { animation: resLand 6s linear infinite; }
+    .res2 { animation: resLand 6s linear infinite; }
+    /* test bars fill together, lock pass(green)/fail(red) */
+    @keyframes barLogin { 0%,3.33% { transform: scaleX(0); fill: #e8932a; } 11.67% { transform: scaleX(1); fill: #e8932a; } 12.5%,100% { transform: scaleX(1); fill: #1d9b54; } }
+    @keyframes barSearch { 0%,16.67% { transform: scaleX(0); fill: #e8932a; } 25% { transform: scaleX(1); fill: #e8932a; } 25.8%,100% { transform: scaleX(1); fill: #1d9b54; } }
+    @keyframes barChkPass { 0% { transform: scaleX(0); } 100% { transform: scaleX(0); } }
+    @keyframes barChkFail { 0%,30% { transform: scaleX(0); fill: #e8932a; } 38.33% { transform: scaleX(1); fill: #e8932a; } 39.2%,100% { transform: scaleX(1); fill: #d64545; } }
+    /* completion badges pop ~0.12s after each bar settles */
+    @keyframes bdgPass { 0%,12.5% { opacity: 0; } 14.5%,100% { opacity: 1; } }
+    @keyframes bdgPass2 { 0%,25.8% { opacity: 0; } 27.8%,100% { opacity: 1; } }
+    @keyframes bdgFail { 0%,39.2% { opacity: 0; } 41.2%,100% { opacity: 1; } }
+    /* job result chips land after all three tests settle, hold to 100% */
+    @keyframes resLand { 0%,44% { opacity: 0; } 50%,100% { opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) {
+      .bLogin, .bSearch, .bChkFail,
+      .bdgLogin1, .bdgSearch1, .bdgChk1, .bdgLogin2, .bdgSearch2, .bdgChk2,
+      .res1, .res2 { animation: none; }
+      .bLogin, .bSearch { transform: scaleX(1); fill: #1d9b54; }
+      .bChkFail { transform: scaleX(1); fill: #d64545; }
+      .bdgLogin1, .bdgSearch1, .bdgChk1, .bdgLogin2, .bdgSearch2, .bdgChk2,
+      .res1, .res2 { opacity: 1; }
+    }
+  </style>
+
+  <rect x="0" y="0" width="660" height="312" rx="10" fill="#ffffff"/>
+  <text x="16" y="24" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12.5" font-weight="700" fill="#3a4350">Quarantining a failing test flips the job from exit 1 (blocked) to exit 0 (merges)</text>
+
+  <line x1="16" y1="158" x2="644" y2="158" stroke="#ececec" stroke-width="1"/>
+
+  <!-- ===== ROW 1: WITHOUT QUARANTINE ===== -->
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    <text x="16" y="48" font-size="12" font-weight="700" fill="#3a4350">Without quarantine</text>
+
+    <!-- CI job box (left) running 3 tests -->
+    <rect x="16" y="58" width="300" height="86" rx="9" fill="#f7f9fc" stroke="#9aa3b0" stroke-width="1.5"/>
+    <text x="30" y="76" font-size="10.5" font-weight="700" fill="#5b6573">CI job</text>
+
+    <!-- test_login: pass -->
+    <rect x="30" y="83" width="272" height="16" rx="5" fill="#eef1f5"/>
+    <rect class="bar bLogin" x="30" y="83" width="272" height="16" rx="5" fill="#e8932a"/>
+    <text x="38" y="95" font-size="10.5" font-weight="600" fill="#33414f">test_login</text>
+    <g class="bdgLogin1"><circle cx="291" cy="91" r="6" fill="#1d9b54" stroke="#fff" stroke-width="1.2"/><polyline points="288,91 290,93.2 294,89" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></g>
+
+    <!-- test_search: pass -->
+    <rect x="30" y="101" width="272" height="16" rx="5" fill="#eef1f5"/>
+    <rect class="bar bSearch" x="30" y="101" width="272" height="16" rx="5" fill="#e8932a"/>
+    <text x="38" y="113" font-size="10.5" font-weight="600" fill="#33414f">test_search</text>
+    <g class="bdgSearch1"><circle cx="291" cy="109" r="6" fill="#1d9b54" stroke="#fff" stroke-width="1.2"/><polyline points="288,109 290,111.2 294,107" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></g>
+
+    <!-- test_checkout: FAILS -->
+    <rect x="30" y="119" width="272" height="16" rx="5" fill="#eef1f5"/>
+    <rect class="bar bChkFail" x="30" y="119" width="272" height="16" rx="5" fill="#e8932a"/>
+    <text x="38" y="131" font-size="10.5" font-weight="600" fill="#33414f">test_checkout</text>
+    <g class="bdgChk1"><circle cx="291" cy="127" r="6" fill="#d64545"/><line x1="288.7" y1="124.7" x2="293.3" y2="129.3" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><line x1="293.3" y1="124.7" x2="288.7" y2="129.3" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></g>
+
+    <!-- arrow to result -->
+    <text x="332" y="105" text-anchor="middle" font-size="16" fill="#9aa3b0">&#8594;</text>
+
+    <!-- job result: exit code 1, PR blocked -->
+    <g class="res1">
+      <rect x="356" y="76" width="288" height="50" rx="9" fill="#fde7e7" stroke="#d64545" stroke-width="1.6"/>
+      <circle cx="382" cy="101" r="10" fill="#d64545"/>
+      <line x1="378.5" y1="97.5" x2="385.5" y2="104.5" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+      <line x1="385.5" y1="97.5" x2="378.5" y2="104.5" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+      <text x="402" y="98" font-size="12.5" font-weight="700" fill="#b22222">exit code 1</text>
+      <text x="402" y="113" font-size="11" font-weight="600" fill="#b22222">PR blocked</text>
+    </g>
+  </g>
+
+  <!-- ===== ROW 2: WITH QUARANTINE ===== -->
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    <text x="16" y="180" font-size="12" font-weight="700" fill="#3a4350">With quarantine</text>
+
+    <!-- CI job box (left) running the SAME 3 tests -->
+    <rect x="16" y="190" width="300" height="111" rx="9" fill="#f7f9fc" stroke="#9aa3b0" stroke-width="1.5"/>
+    <text x="30" y="207" font-size="10.5" font-weight="700" fill="#5b6573">CI job</text>
+
+    <!-- test_login: pass -->
+    <rect x="30" y="213" width="272" height="16" rx="5" fill="#eef1f5"/>
+    <rect class="bar bLogin" x="30" y="213" width="272" height="16" rx="5" fill="#e8932a"/>
+    <text x="38" y="225" font-size="10.5" font-weight="600" fill="#33414f">test_login</text>
+    <g class="bdgLogin2"><circle cx="291" cy="221" r="6" fill="#1d9b54" stroke="#fff" stroke-width="1.2"/><polyline points="288,221 290,223.2 294,219" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></g>
+
+    <!-- test_search: pass -->
+    <rect x="30" y="231" width="272" height="16" rx="5" fill="#eef1f5"/>
+    <rect class="bar bSearch" x="30" y="231" width="272" height="16" rx="5" fill="#e8932a"/>
+    <text x="38" y="243" font-size="10.5" font-weight="600" fill="#33414f">test_search</text>
+    <g class="bdgSearch2"><circle cx="291" cy="239" r="6" fill="#1d9b54" stroke="#fff" stroke-width="1.2"/><polyline points="288,239 290,241.2 294,237" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></g>
+
+    <!-- quarantine WRAP box: purple rounded box ENCLOSING the test_checkout bar with a few px padding on all sides.
+         The bar keeps the SAME width/position (x=30,w=272) as the without-quarantine row; the box is slightly larger. -->
+    <rect x="24" y="259" width="284" height="36" rx="6" fill="#eee7fb" stroke="#7c5cdb" stroke-width="1.8"/>
+    <!-- "quarantined" tag pill straddling the wrap box's top edge, left of the fail X badge, with >=5px clearance from test_search above and the test_checkout bar below so nothing clips or crowds it -->
+    <rect x="150" y="252" width="78" height="15" rx="7.5" fill="#ffffff" stroke="#7c5cdb" stroke-width="1.2"/>
+    <text x="189" y="263" text-anchor="middle" font-size="9.5" font-weight="700" fill="#5a3fb0">quarantined</text>
+
+    <!-- test_checkout: FAILS (SAME width/position as the without-quarantine row), nudged down so the wrap box clears test_search -->
+    <rect x="30" y="274" width="272" height="16" rx="5" fill="#eef1f5"/>
+    <rect class="bar bChkFail" x="30" y="274" width="272" height="16" rx="5" fill="#e8932a"/>
+    <text x="38" y="286" font-size="10.5" font-weight="600" fill="#33414f">test_checkout</text>
+    <g class="bdgChk2"><circle cx="291" cy="282" r="6" fill="#d64545"/><line x1="288.7" y1="279.7" x2="293.3" y2="284.3" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><line x1="293.3" y1="279.7" x2="288.7" y2="284.3" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></g>
+
+    <!-- arrow to result -->
+    <text x="332" y="240" text-anchor="middle" font-size="16" fill="#9aa3b0">&#8594;</text>
+
+    <!-- job result: exit code 0, PR merges -->
+    <g class="res2">
+      <rect x="356" y="211" width="288" height="50" rx="9" fill="#e4f5ea" stroke="#1d9b54" stroke-width="1.6"/>
+      <circle cx="382" cy="236" r="10" fill="#1d9b54"/>
+      <polyline points="377.5,236 381,239.5 387,232.5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="402" y="233" font-size="12.5" font-weight="700" fill="#1d7a4d">exit code 0</text>
+      <text x="402" y="248" font-size="11" font-weight="600" fill="#1d7a4d">PR merges</text>
+    </g>
+  </g>
+</svg>

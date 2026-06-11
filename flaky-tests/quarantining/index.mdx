@@ -21,6 +21,10 @@ A quarantined test continues running in CI and uploading results to Trunk Flaky 
 
 **Why this matters:** You maintain complete test coverage and historical data while preventing known problematic tests from disrupting your development cycle.
 
+<Frame caption="The same failing test blocks the PR without quarantine (exit code 1); quarantined, its failure is ignored and the PR merges (exit code 0).">
+<img src="/assets/flaky-tests/quarantining/quarantining.svg" alt="A CI job runs three tests where test_checkout fails. Without quarantine the job exits 1 and the PR is blocked; with the failing test wrapped in a quarantine box the job exits 0 and the PR merges." />
+</Frame>
+
 ## How tests get quarantined
 
 Tests can be quarantined through two methods:

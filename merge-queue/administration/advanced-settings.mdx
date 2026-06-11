@@ -149,6 +149,10 @@ See [Submit and cancel pull requests](../using-the-queue/reference#custom-merge-
 
 Configure how many PRs may be tested in parallel. A larger number may increase throughput since more PRs are tested in parallel, but at the expense of CI since more jobs are running in parallel. When the queue is at capacity, PRs will still be submitted to it, but they will not begin testing until a PR leaves the queue.
 
+<Frame caption="Concurrency caps how many PRs test at once; the active testing window slides down the queue as PRs finish.">
+<img src="/assets/merge-queue/administration/testing-concurrency.svg" alt="A queue of six PRs where only two test at a time inside a concurrency window; as the front pair finishes, the window slides to the next pair." />
+</Frame>
+
 <Tip>
 If your testing workload contains some flaky tests, a deeper queue (i.e., a higher concurrency) may struggle. Running Merge in Parallel mode can help with this, as it will reduce the average depth of your merge queue since all PRs won't be queued directly behind each other.
 </Tip>
