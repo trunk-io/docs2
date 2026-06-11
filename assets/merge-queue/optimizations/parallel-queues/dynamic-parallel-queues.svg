@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 250" width="660" height="250" role="img" aria-label="Three dynamic parallel queues split by impacted target. Four PRs are routed into three independent lane boxes by what they touch. The frontend lane holds PR A and PR C. The backend lane holds PR B and PR C. The docs lane holds PR D. PR A is a blue frontend tile, PR B is a purple backend tile, PR D is a teal docs tile. PR C touches both frontend and backend so its tile is split half blue and half purple, and it appears in both the frontend and backend lanes. PRs are column-aligned with the front of each queue on the right.">
+  <rect x="0" y="0" width="660" height="250" rx="10" fill="#ffffff"/>
+  <text x="16" y="24" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12.5" font-weight="700" fill="#3a4350">Three dynamic parallel queues, split by impacted target</text>
+
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    <text x="636" y="50" text-anchor="end" font-size="11" fill="#9aa3b0">front of queue &#8594;</text>
+
+    <!-- ===================== frontend lane: A (front/right) and C ===================== -->
+    <rect x="198" y="60" width="148" height="40" rx="8" fill="#f7f9fc" stroke="#9aa3b0" stroke-width="1.5"/>
+    <text x="16" y="84" font-size="11.5" font-weight="600" fill="#1f5fc0">frontend</text>
+    <!-- C split blue/purple (both targets, no divider line) -->
+    <clipPath id="ccFe"><rect x="204" y="63" width="46" height="34" rx="6"/></clipPath>
+    <g clip-path="url(#ccFe)"><rect x="204" y="63" width="23" height="34" fill="#e3edfc"/><rect x="227" y="63" width="23" height="34" fill="#eee7fb"/></g>
+    <rect x="204" y="63" width="46" height="34" rx="6" fill="none" stroke="#8b93a0" stroke-width="1.5"/>
+    <text x="227" y="84" text-anchor="middle" font-size="12" font-weight="700" fill="#3a4350">C</text>
+    <!-- A frontend blue (front, right) -->
+    <rect x="294" y="63" width="46" height="34" rx="6" fill="#e3edfc" stroke="#346DDB" stroke-width="1.5"/>
+    <text x="317" y="84" text-anchor="middle" font-size="12" font-weight="700" fill="#1f5fc0">A</text>
+
+    <!-- ===================== backend lane: B (front/right) and C ===================== -->
+    <rect x="246" y="112" width="100" height="40" rx="8" fill="#f7f9fc" stroke="#9aa3b0" stroke-width="1.5"/>
+    <text x="16" y="136" font-size="11.5" font-weight="600" fill="#5a3fb0">backend</text>
+    <!-- C split blue/purple -->
+    <clipPath id="ccBe"><rect x="252" y="115" width="46" height="34" rx="6"/></clipPath>
+    <g clip-path="url(#ccBe)"><rect x="252" y="115" width="23" height="34" fill="#e3edfc"/><rect x="275" y="115" width="23" height="34" fill="#eee7fb"/></g>
+    <rect x="252" y="115" width="46" height="34" rx="6" fill="none" stroke="#8b93a0" stroke-width="1.5"/>
+    <text x="275" y="136" text-anchor="middle" font-size="12" font-weight="700" fill="#3a4350">C</text>
+    <!-- B backend purple (front, right) -->
+    <rect x="294" y="115" width="46" height="34" rx="6" fill="#eee7fb" stroke="#7c5cdb" stroke-width="1.5"/>
+    <text x="317" y="136" text-anchor="middle" font-size="12" font-weight="700" fill="#5a3fb0">B</text>
+
+    <!-- ===================== docs lane: D ===================== -->
+    <rect x="294" y="164" width="52" height="40" rx="8" fill="#f7f9fc" stroke="#9aa3b0" stroke-width="1.5"/>
+    <text x="16" y="188" font-size="11.5" font-weight="600" fill="#0e7d70">docs</text>
+    <rect x="294" y="167" width="46" height="34" rx="6" fill="#e2f4f1" stroke="#18a394" stroke-width="1.5"/>
+    <text x="317" y="188" text-anchor="middle" font-size="12" font-weight="700" fill="#0e7d70">D</text>
+
+    <!-- note: C is tested in both lanes because it touches both targets -->
+    <line x1="16" y1="224" x2="644" y2="224" stroke="#e3e7ee" stroke-width="1"/>
+    <text x="16" y="242" font-size="11.5" fill="#5b6573">PR C touches frontend and backend, so it is tested in both lanes; each queue runs on its own.</text>
+  </g>
+</svg>

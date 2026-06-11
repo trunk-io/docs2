@@ -8,10 +8,6 @@ Normally, a merge queue behaves by enqueueing all submitted pull requests into a
 
 A regular merge queue operates like a grocery store with only a single checkout lane. When a lot of folks are trying to checkout at the same time - the line will grow (sometimes intolerably). With a dynamic parallel queue, trunk merge creates additional checkout lanes in real-time while still guaranteeing that the protected branch doesn't break.​
 
-<Frame caption="track impacted code of each pull request to create dynamic queues">
-<img src="/assets/merge-queue/optimizations/parallel-queues/parallel-queues-prototype.svg" alt="Two stacked panels contrast a single queue with parallel queues. A single lane runs PRs A, B, C, D in one slow chain, while three lanes split by impacted target (frontend, backend, docs) run concurrently and finish sooner." />
-</Frame>
-
 For example, the following four pull requests:
 
 * PR A with impacted target list `[ frontend ]`
@@ -21,8 +17,8 @@ For example, the following four pull requests:
 
 Without parallelization, the PRs **A**, **B**, **C**, and **D** would all be tested in a single predictive path **A** \<- **B** \<- **C** \<- **D**. Using the impacted target information we can instead build three dynamically provisioned queues and the predictive testing can yield higher throughput - which means your pull request spends less time in the queue stuck testing with unrelated code changes.
 
-<Frame caption="Three Dynamic Parallel Queues">
-<img src="/assets/merge-queue/optimizations/parallel-queues/file.excalidraw_(6).svg" alt="Three Dynamic Parallel Queues" class="gitbook-drawing"/>
+<Frame caption="Three dynamically provisioned queues split by impacted target: frontend runs A then C, backend runs B then C, and docs runs D. C tests predictively against both A and B.">
+<img src="/assets/merge-queue/optimizations/parallel-queues/dynamic-parallel-queues.svg" alt="Three dynamic parallel queues split by impacted target. A frontend lane runs PR A then PR C, a backend lane runs PR B then PR C, and a docs lane runs PR D. PR C appears in both the frontend and backend lanes because it impacts both targets." />
 </Frame>
 
 ## How does it work?
