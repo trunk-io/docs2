@@ -1,0 +1,237 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 250" width="660" height="250" role="img" aria-label="An 8-day timeline for one test on one commit abc123. On day 1, CI runs the test twice on the same commit: attempt 1 runs and fails, shown with a red bar and red X badge; CI auto-retries the same commit and attempt 2 runs and passes, shown with a green bar and green check badge. The monitor detects the fail-then-pass pair on the same commit and flags the test Flaky with an amber chip. Then on each of days 2 through 8 a clean passing run appears as a green check on the day axis, giving seven clean days in a row with no new fail-then-pass. After that 7-day quiet window since the flag, the monitor resolves and the test returns to Healthy with a green chip.">
+  <!--
+    Pass-on-retry monitor prototype animation (editable, no source video needed).
+    Timeline for ONE test on ONE commit (abc123), mapped onto an 8-DAY axis:
+      DAY 1: BOTH attempts happen here on the same commit.
+        1. Attempt 1 runs (amber), then FAILS (bar red + red X badge).
+        2. CI auto-retries the SAME commit. Attempt 2 runs (amber), then
+           PASSES (bar green + green check badge).
+        3. The monitor sees fail-then-pass on the same commit and flags the
+           test Flaky (amber Flaky chip pops in). The day-1 axis marker shows
+           the fail-then-pass pair (small red dot + green dot).
+      DAYS 2..8: one clean PASSING run on each day. A green pass marker pops
+        on day 2, day 3, day 4, day 5, day 6, day 7, day 8 (seven clean days
+        in a row), each ~0.5s apart, so it reads as "7 clean days since the
+        flag, no new fail-then-pass".
+      AFTER DAY 8: the 7-day quiet window (days 2..8) is clear, so the monitor
+        resolves and the test returns to Healthy (green chip).
+
+    CONVENTION shared across all prototypes:
+      - Bars / markers carry state by COLOR (amber = running, red = fail,
+        green = pass), so the frozen / reduced-motion end-state reads as
+        "resolved, Healthy".
+
+    One 6s CSS loop, staggered (held to 100%), ~0.5s cadence (~8.33% / step):
+      attempt 1 runs    2%->8%    (amber bar)
+      attempt 1 FAILS   ~9%       (bar red + red X badge + "attempt 1: fail")
+      attempt 2 runs    10%->16%  (amber bar)
+      attempt 2 PASSES  ~17%      (bar green + green check + "attempt 2: pass")
+      flagged Flaky     ~17%      (amber Flaky chip + "same commit, fail then pass")
+      8-day axis fades  ~18%      (day 1..8 axis appears, day-1 pair marker)
+      daily passes pop every ~0.5s along days 2..8:
+        day 2 pass      ~25%
+        day 3 pass      ~33%
+        day 4 pass      ~42%
+        day 5 pass      ~50%
+        day 6 pass      ~58%
+        day 7 pass      ~67%
+        day 8 pass      ~75%
+      resolved Healthy  ~67%      (green Healthy chip + green check)  ~4s in
+      HOLD              67%->100% (everything stays lit ~2s before reset)
+    Reads correctly frozen: the static boxes + labels carry the meaning; the
+    bars / red+green states / chips / pass markers only enhance.
+  -->
+  <style>
+    .bar { transform-box: fill-box; transform-origin: left; }
+    .bar1 { animation: a1 6s linear infinite; }
+    .bar2 { animation: a2 6s linear infinite; }
+    .bdg1X { animation: bdg1X 6s linear infinite; }
+    .bdg2 { animation: bdg2 6s linear infinite; }
+    .lbl1 { animation: lbl1 6s linear infinite; }
+    .lbl2 { animation: lbl2 6s linear infinite; }
+    .flakyChip { animation: flakyChip 6s linear infinite; }
+    .flakyNote { animation: flakyNote 6s linear infinite; }
+    .recTrack { animation: recTrack 6s linear infinite; }
+    /* day-1 axis marker (fail-then-pass pair) appears with the axis */
+    .day1mark { animation: day1mark 6s linear infinite; }
+    /* each daily pass marker (days 2..8) pops every ~0.5s (~8.33%) along the axis */
+    .pass2 { animation: pass2 6s linear infinite; }
+    .pass3 { animation: pass3 6s linear infinite; }
+    .pass4 { animation: pass4 6s linear infinite; }
+    .pass5 { animation: pass5 6s linear infinite; }
+    .pass6 { animation: pass6 6s linear infinite; }
+    .pass7 { animation: pass7 6s linear infinite; }
+    .pass8 { animation: pass8 6s linear infinite; }
+    .healthyChip { animation: healthyChip 6s linear infinite; }
+    .healthyNote { animation: healthyNote 6s linear infinite; }
+    /* attempt 1: runs amber, then flips RED on fail and holds */
+    @keyframes a1 { 0%,2% { transform: scaleX(0); fill: #e8932a; } 8% { transform: scaleX(1); fill: #e8932a; } 9%,100% { transform: scaleX(1); fill: #d64545; } }
+    /* attempt 2: runs amber, then flips GREEN on pass and holds */
+    @keyframes a2 { 0%,10% { transform: scaleX(0); fill: #e8932a; } 16% { transform: scaleX(1); fill: #e8932a; } 17%,100% { transform: scaleX(1); fill: #1d9b54; } }
+    /* red X badge on attempt 1 fail, holds to 100% */
+    @keyframes bdg1X { 0%,8% { opacity: 0; } 10%,100% { opacity: 1; } }
+    /* green check badge on attempt 2 pass, holds to 100% */
+    @keyframes bdg2 { 0%,16% { opacity: 0; } 18%,100% { opacity: 1; } }
+    @keyframes lbl1 { 0%,8% { opacity: 0; } 10%,100% { opacity: 1; } }
+    @keyframes lbl2 { 0%,16% { opacity: 0; } 18%,100% { opacity: 1; } }
+    @keyframes flakyChip { 0%,16% { opacity: 0; } 18%,100% { opacity: 1; } }
+    @keyframes flakyNote { 0%,16% { opacity: 0; } 18%,100% { opacity: 1; } }
+    /* 8-day axis fades in once the Flaky flag lands, holds */
+    @keyframes recTrack { 0%,17% { opacity: 0; } 20%,100% { opacity: 1; } }
+    @keyframes day1mark { 0%,18% { opacity: 0; } 21%,100% { opacity: 1; } }
+    /* green pass markers accumulate one per day, ~0.5s apart, pop+settle */
+    @keyframes pass2 { 0%,24% { opacity: 0; transform: scale(0.4); } 26% { opacity: 1; transform: scale(1.25); } 28%,100% { opacity: 1; transform: scale(1); } }
+    @keyframes pass3 { 0%,32% { opacity: 0; transform: scale(0.4); } 34% { opacity: 1; transform: scale(1.25); } 36%,100% { opacity: 1; transform: scale(1); } }
+    @keyframes pass4 { 0%,41% { opacity: 0; transform: scale(0.4); } 43% { opacity: 1; transform: scale(1.25); } 45%,100% { opacity: 1; transform: scale(1); } }
+    @keyframes pass5 { 0%,49% { opacity: 0; transform: scale(0.4); } 51% { opacity: 1; transform: scale(1.25); } 53%,100% { opacity: 1; transform: scale(1); } }
+    @keyframes pass6 { 0%,57% { opacity: 0; transform: scale(0.4); } 59% { opacity: 1; transform: scale(1.25); } 61%,100% { opacity: 1; transform: scale(1); } }
+    @keyframes pass7 { 0%,66% { opacity: 0; transform: scale(0.4); } 68% { opacity: 1; transform: scale(1.25); } 70%,100% { opacity: 1; transform: scale(1); } }
+    @keyframes pass8 { 0%,74% { opacity: 0; transform: scale(0.4); } 76% { opacity: 1; transform: scale(1.25); } 78%,100% { opacity: 1; transform: scale(1); } }
+    @keyframes healthyChip { 0%,66% { opacity: 0; } 69%,100% { opacity: 1; } }
+    @keyframes healthyNote { 0%,66% { opacity: 0; } 69%,100% { opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) {
+      .bar1, .bar2, .bdg1X, .bdg2, .lbl1, .lbl2,
+      .flakyChip, .flakyNote, .recTrack, .day1mark,
+      .pass2, .pass3, .pass4, .pass5, .pass6, .pass7, .pass8,
+      .healthyChip, .healthyNote { animation: none; }
+      .bar { transform: scaleX(1); }
+      .bar1 { fill: #d64545; }
+      .bar2 { fill: #1d9b54; }
+      .bdg1X, .bdg2, .lbl1, .lbl2,
+      .flakyChip, .flakyNote, .recTrack, .day1mark,
+      .healthyChip, .healthyNote { opacity: 1; }
+      .pass2, .pass3, .pass4, .pass5, .pass6, .pass7, .pass8 { opacity: 1; transform: scale(1); }
+    }
+    .passMark { transform-box: fill-box; transform-origin: center; }
+  </style>
+
+  <rect x="0" y="0" width="660" height="250" rx="10" fill="#ffffff"/>
+  <text x="16" y="24" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12.5" font-weight="700" fill="#3a4350">A test that fails then passes on retry is flaky</text>
+  <text x="644" y="24" text-anchor="end" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10.5" font-weight="600" fill="#9aa3b0">commit abc123</text>
+
+  <!-- ===== Day 1: two attempts on the SAME commit, side by side ===== -->
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    <text x="16" y="50" font-size="11.5" fill="#5b6573">Day 1: CI runs the test, then auto-retries the same commit</text>
+
+    <!-- Attempt 1 box: fails -->
+    <rect x="16" y="60" width="300" height="52" rx="8" fill="#eef1f5" stroke="#9aa3b0" stroke-width="1.5"/>
+    <text x="32" y="82" font-size="11.5" font-weight="700" fill="#3a4350">attempt 1</text>
+    <text class="lbl1" x="32" y="98" font-size="11" fill="#b22222" font-weight="600">fail</text>
+    <rect x="100" y="89" width="200" height="6" rx="3" fill="#d9dee6"/>
+    <rect class="bar bar1" x="100" y="89" width="200" height="6" rx="3" fill="#e8932a"/>
+    <!-- red X badge, upper-right corner of attempt 1 box -->
+    <g class="bdg1X">
+      <circle cx="306" cy="62" r="6.5" fill="#d64545" stroke="#fff" stroke-width="1.3"/>
+      <polyline points="303.5,59.5 308.5,64.5" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+      <polyline points="308.5,59.5 303.5,64.5" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+    </g>
+
+    <!-- retry arrow between the two attempts -->
+    <text x="328" y="92" text-anchor="middle" font-size="14" font-weight="700" fill="#9aa3b0">&#8594;</text>
+
+    <!-- Attempt 2 box: passes (same commit) -->
+    <rect x="344" y="60" width="300" height="52" rx="8" fill="#eef1f5" stroke="#9aa3b0" stroke-width="1.5"/>
+    <text x="360" y="82" font-size="11.5" font-weight="700" fill="#3a4350">attempt 2</text>
+    <text class="lbl2" x="360" y="98" font-size="11" fill="#1d7a4d" font-weight="600">pass (same commit)</text>
+    <rect x="500" y="89" width="128" height="6" rx="3" fill="#d9dee6"/>
+    <rect class="bar bar2" x="500" y="89" width="128" height="6" rx="3" fill="#e8932a"/>
+    <!-- green check badge, upper-right corner of attempt 2 box -->
+    <g class="bdg2">
+      <circle cx="634" cy="62" r="6.5" fill="#1d9b54" stroke="#fff" stroke-width="1.3"/>
+      <polyline points="631,62 633,64.4 637,59.6" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </g>
+
+  <line x1="16" y1="126" x2="644" y2="126" stroke="#ececec" stroke-width="1"/>
+
+  <!-- ===== Detection row: monitor flags Flaky ===== -->
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    <text x="16" y="148" font-size="11.5" fill="#5b6573">The monitor detects the fail-then-pass pair</text>
+    <!-- Flaky chip -->
+    <g class="flakyChip">
+      <rect x="16" y="158" width="74" height="22" rx="11" fill="#fff3e0" stroke="#e8932a" stroke-width="1.3"/>
+      <text x="53" y="173" text-anchor="middle" font-size="11" font-weight="700" fill="#a85d00">Flaky</text>
+    </g>
+    <text class="flakyNote" x="102" y="173" font-size="11.5" fill="#5b6573">same commit, fail then pass = flaky</text>
+  </g>
+
+  <!-- ===== Recovery row: one clean pass per day across days 2..8, resolves to Healthy ===== -->
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    <text x="16" y="206" font-size="11.5" fill="#5b6573">7 clean days (day 2 to day 8), one passing run each day, no new fail-then-pass</text>
+    <text x="644" y="206" text-anchor="end" font-size="10.5" font-weight="600" fill="#9aa3b0">7-day window</text>
+
+    <!-- 8-day timeline axis under the accumulating passes -->
+    <g class="recTrack">
+      <line x1="40" y1="222" x2="510" y2="222" stroke="#d9dee6" stroke-width="2"/>
+      <!-- day ticks: day 1..8, evenly spaced (67.14px apart) -->
+      <line x1="40"  y1="218" x2="40"  y2="226" stroke="#c4cbd6" stroke-width="1.5"/>
+      <line x1="107" y1="218" x2="107" y2="226" stroke="#c4cbd6" stroke-width="1.5"/>
+      <line x1="174" y1="218" x2="174" y2="226" stroke="#c4cbd6" stroke-width="1.5"/>
+      <line x1="242" y1="218" x2="242" y2="226" stroke="#c4cbd6" stroke-width="1.5"/>
+      <line x1="309" y1="218" x2="309" y2="226" stroke="#c4cbd6" stroke-width="1.5"/>
+      <line x1="376" y1="218" x2="376" y2="226" stroke="#c4cbd6" stroke-width="1.5"/>
+      <line x1="443" y1="218" x2="443" y2="226" stroke="#c4cbd6" stroke-width="1.5"/>
+      <line x1="510" y1="218" x2="510" y2="226" stroke="#c4cbd6" stroke-width="1.5"/>
+      <text x="40"  y="237" text-anchor="middle" font-size="9" fill="#9aa3b0">day 1</text>
+      <text x="107" y="237" text-anchor="middle" font-size="9" fill="#9aa3b0">day 2</text>
+      <text x="174" y="237" text-anchor="middle" font-size="9" fill="#9aa3b0">day 3</text>
+      <text x="242" y="237" text-anchor="middle" font-size="9" fill="#9aa3b0">day 4</text>
+      <text x="309" y="237" text-anchor="middle" font-size="9" fill="#9aa3b0">day 5</text>
+      <text x="376" y="237" text-anchor="middle" font-size="9" fill="#9aa3b0">day 6</text>
+      <text x="443" y="237" text-anchor="middle" font-size="9" fill="#9aa3b0">day 7</text>
+      <text x="510" y="237" text-anchor="middle" font-size="9" fill="#9aa3b0">day 8</text>
+    </g>
+
+    <!-- day 1 axis marker: the fail-then-pass pair that triggered the flag -->
+    <g class="day1mark passMark">
+      <circle cx="36" cy="216" r="4.2" fill="#d64545" stroke="#fff" stroke-width="1.1"/>
+      <circle cx="44" cy="216" r="4.2" fill="#1d9b54" stroke="#fff" stroke-width="1.1"/>
+    </g>
+
+    <!-- green "pass" markers: one clean run per day, days 2..8, accumulating along the axis -->
+    <!-- day 2 pass -->
+    <g class="pass2 passMark">
+      <circle cx="107" cy="216" r="6.5" fill="#1d9b54" stroke="#fff" stroke-width="1.3"/>
+      <polyline points="104,216 106.2,218.2 110.2,213.6" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <!-- day 3 pass -->
+    <g class="pass3 passMark">
+      <circle cx="174" cy="216" r="6.5" fill="#1d9b54" stroke="#fff" stroke-width="1.3"/>
+      <polyline points="171,216 173.2,218.2 177.2,213.6" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <!-- day 4 pass -->
+    <g class="pass4 passMark">
+      <circle cx="242" cy="216" r="6.5" fill="#1d9b54" stroke="#fff" stroke-width="1.3"/>
+      <polyline points="239,216 241.2,218.2 245.2,213.6" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <!-- day 5 pass -->
+    <g class="pass5 passMark">
+      <circle cx="309" cy="216" r="6.5" fill="#1d9b54" stroke="#fff" stroke-width="1.3"/>
+      <polyline points="306,216 308.2,218.2 312.2,213.6" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <!-- day 6 pass -->
+    <g class="pass6 passMark">
+      <circle cx="376" cy="216" r="6.5" fill="#1d9b54" stroke="#fff" stroke-width="1.3"/>
+      <polyline points="373,216 375.2,218.2 379.2,213.6" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <!-- day 7 pass -->
+    <g class="pass7 passMark">
+      <circle cx="443" cy="216" r="6.5" fill="#1d9b54" stroke="#fff" stroke-width="1.3"/>
+      <polyline points="440,216 442.2,218.2 446.2,213.6" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <!-- day 8 pass -->
+    <g class="pass8 passMark">
+      <circle cx="510" cy="216" r="6.5" fill="#1d9b54" stroke="#fff" stroke-width="1.3"/>
+      <polyline points="507,216 509.2,218.2 513.2,213.6" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+
+    <!-- Healthy chip appears once the 7-day window (days 2..8) is clear -->
+    <g class="healthyChip">
+      <rect x="526" y="206" width="86" height="22" rx="11" fill="#e4f5ea" stroke="#1d9b54" stroke-width="1.3"/>
+      <circle cx="541" cy="217" r="6" fill="#1d9b54" stroke="#fff" stroke-width="1.2"/>
+      <polyline points="538,217 540,219.2 544,214.8" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="575" y="221" text-anchor="middle" font-size="11" font-weight="700" fill="#1d7a4d">Healthy</text>
+    </g>
+    <text class="healthyNote" x="644" y="246" text-anchor="end" font-size="11" fill="#1d7a4d">7 clean days since the flag (days 2 to 8), so the monitor resolves to Healthy</text>
+  </g>
+</svg>

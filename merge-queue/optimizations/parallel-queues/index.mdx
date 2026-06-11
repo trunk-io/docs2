@@ -21,8 +21,8 @@ For example, the following four pull requests:
 
 Without parallelization, the PRs **A**, **B**, **C**, and **D** would all be tested in a single predictive path **A** \<- **B** \<- **C** \<- **D**. Using the impacted target information we can instead build three dynamically provisioned queues and the predictive testing can yield higher throughput - which means your pull request spends less time in the queue stuck testing with unrelated code changes.
 
-<Frame caption="Three Dynamic Parallel Queues">
-<img src="/assets/merge-queue/optimizations/parallel-queues/file.excalidraw_(6).svg" alt="Three Dynamic Parallel Queues" class="gitbook-drawing"/>
+<Frame caption="Three dynamically provisioned queues split by impacted target: frontend runs A then C, backend runs B then C, and docs runs D. C tests predictively against both A and B.">
+<img src="/assets/merge-queue/optimizations/parallel-queues/dynamic-parallel-queues.svg" alt="Animated diagram of three dynamic parallel queues split by impacted target. The front PRs A, B and D test at the same time across the frontend, backend and docs lanes, each finishing with a green check, then PR C tests in both the frontend and backend lanes because it includes the changes from A and B." />
 </Frame>
 
 ## How does it work?

@@ -11,6 +11,10 @@ When a group's test run fails in the merge queue, it doesn't immediately get evi
 Throughout this page, "group" means either a batch of PRs (when [batching](./batching) is enabled) or an individual PR (when it's not).
 </Info>
 
+<Frame caption="A failed PR is held in the queue for successor evidence instead of being evicted; once a successor passes with it included, it is cleared and merges.">
+<img src="/assets/merge-queue/optimizations/pending-failure-depth.svg" alt="A predictive waterfall where PR b fails and is held, not evicted, while successors keep testing with b's changes included; when a successor passes, b is cleared and a, b, c, d merge." />
+</Frame>
+
 ### Waiting for Predecessors
 
 A group in Pending Failure always waits for predecessor groups (the PRs ahead of it in the queue) to finish testing. This is how the system determines root cause:

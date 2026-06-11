@@ -1,0 +1,228 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 332" width="660" height="332" role="img" aria-label="A waterfall of predictive test runs, one row per PR (a, b, c, d) top to bottom, every row right-aligned to a common right edge. Front PR a sits in the rightmost column. Each row tests that PR bundled with the PRs ahead of it: row a has one segment, row b two, row c three, row d four, with the row's own newest segment on the left and the PRs ahead increasing to the right ending in a at the far right. The runs happen in sequence. In each row the ahead segments to the right are already filled and only the row's own leftmost segment runs. Row a passes. Row b's own segment fails red, but pending failure depth holds b instead of evicting it. Rows c and d still run with b included and their own segments pass. When successor d passes with b in the bundle, it proves b's failure was transient, so b is cleared: every red b segment clears and a, b, c, d merge into main.">
+  <!--
+    Pending failure depth prototype animation (editable, no source video needed).
+    WATERFALL grammar (RIGHT-anchored cumulative rows), borrowing the cumulative
+    right-anchored bundle grammar from predictive-testing-prototype.svg but laid
+    out top-to-bottom by PR.
+
+    One row per PR. Each row is a horizontal strip of SEGMENT bars, one segment
+    per PR in that PR's predictive bundle (the PRs ahead of it, plus itself).
+    Front PR a sits in the RIGHTMOST column; within a row the OWN (newest)
+    segment is LEFTMOST and the PRs ahead increase to the right, ending with a:
+      row a:          [a]    row b:       [b][a]
+      row c:    [c][b][a]    row d:    [d][c][b][a]
+    Every row is RIGHT-ALIGNED to a common right edge (a's right edge x=636, the
+    right content edge), so the a column shares one x across all rows and the rows
+    step in a staircase on the left (row d longest, row a shortest). Columns share
+    x top-to-bottom so the b column is traceable across rows b, c, d.
+    Column x (box left): a=590, b=538, c=486, d=434 (46 wide, 6 gap, 52 pitch).
+    Per-row DETAIL / STATE text sits in the middle open space (x~70), to the LEFT
+    of the boxes, between the far-left row labels (x~16) and the right-flush boxes.
+
+    STYLING matches the shared merge-queue animation set (predictive-testing,
+    batching): per-PR tinted tiles (a blue, b purple, c teal, d slate) with
+    colored labels on a light fill, rounded rects 46x34 rx6 with 1.5 stroke
+    (the standard tile size). Testing amber, done green, fail red. White-ringed
+    green check badges, red X badge for the fail in the same style.
+
+    The rows run in SEQUENCE (a, then b, then c, then d). In each row the
+    segments for the PRs AHEAD (to the RIGHT of the own segment) are drawn
+    ALREADY at rest (each in its own PR tint) and do NOT animate; only the row's
+    OWN (LEFTMOST) segment animates an amber testing overlay filling over 0.5s,
+    then settling to its PR tint. A brief ~0.3s pause separates rows so each step
+    reads.
+
+    THE TWIST: row b's own segment FAILS (red). Pending failure depth HOLDS b
+    instead of evicting it, so rows c and d still run. In their rows the b column
+    (same x across rows b, c, d) is shown red/held while their own segments fill
+    and pass. When successor d
+    passes WITH b included, it proves b was transient, so b is CLEARED: every red
+    b segment clears back to the purple b tint and a, b, c, d merge.
+
+    7s loop. Own-segment fill (scaleX 0 -> 1) = 0.5s = 7.143%. Pre-filled ahead
+    segments are static from frame 0. Timeline:
+      row a fills        0%      -> 7.14%
+      (pause)            7.14%   -> 11.43%
+      row b fills + FAIL 11.43%  -> 18.57%   (own segment goes red)
+      (pause)            18.57%  -> 22.86%
+      row c fills (pass) 22.86%  -> 30%      (b column held red)
+      (pause)            30%     -> 34.29%
+      row d fills (pass) 34.29%  -> 41.43%   (b column held red, d is the proof)
+      b CLEARED          ~45%               (all red b segments clear)
+      merge glow         47%     -> 54%      (a, b, c, d merge into main)
+      HOLD               54%     -> 100%     (finished frame holds ~3.2s)
+    Reads correctly frozen: cumulative segment rows all at rest + cleared
+    indicator + merge tile carry the meaning; fills / red states only enhance.
+  -->
+  <style>
+    .bar { transform-box: fill-box; transform-origin: left center; }
+    /* own-segment amber testing overlay fills then fades to reveal the PR tint */
+    .fillA { animation: pfFillA 7s linear infinite; }
+    .fillB { animation: pfFillB 7s linear infinite; }
+    .fillC { animation: pfFillC 7s linear infinite; }
+    .fillD { animation: pfFillD 7s linear infinite; }
+    /* own-segment PR tint reveal (under the amber overlay), settles when fill done */
+    .restA { animation: pfRestA 7s linear infinite; }
+    .restC { animation: pfRestC 7s linear infinite; }
+    .restD { animation: pfRestD 7s linear infinite; }
+    /* row b own segment: stays red after fill until cleared, then reveals b tint */
+    .bRed { animation: pfBRed 7s linear infinite; }
+    /* the held b column in rows c and d: red while held, b tint once cleared */
+    .bHeld { animation: pfBHeld 7s linear infinite; }
+    .bFailX { animation: pfBFailX 7s linear infinite; }
+    /* row-state labels and indicators */
+    .lblBFail { animation: pfLblBFail 7s linear infinite; }
+    .lblBClear { animation: pfLblBClear 7s linear infinite; }
+    .depthPill { animation: pfDepthPill 7s linear infinite; }
+    .depthCleared { animation: pfDepthCleared 7s linear infinite; }
+    .mergeGlow { animation: pfMerge 7s linear infinite; }
+    /* row completion checks */
+    .chkA { animation: pfChkA 7s linear infinite; }
+    .chkC { animation: pfChkC 7s linear infinite; }
+    .chkD { animation: pfChkD 7s linear infinite; }
+    .chkB { animation: pfChkB 7s linear infinite; }
+
+    /* amber testing overlay: scales in, then fades out to reveal the tint beneath */
+    @keyframes pfFillA { 0% { transform: scaleX(0); opacity: 1; } 7.14% { transform: scaleX(1); opacity: 1; } 9.14%,100% { transform: scaleX(1); opacity: 0; } }
+    @keyframes pfFillB { 0%,11.43% { transform: scaleX(0); opacity: 1; } 18.57%,100% { transform: scaleX(1); opacity: 0; } }
+    @keyframes pfFillC { 0%,22.86% { transform: scaleX(0); opacity: 1; } 30% { transform: scaleX(1); opacity: 1; } 32%,100% { transform: scaleX(1); opacity: 0; } }
+    @keyframes pfFillD { 0%,34.29% { transform: scaleX(0); opacity: 1; } 41.43% { transform: scaleX(1); opacity: 1; } 43.43%,100% { transform: scaleX(1); opacity: 0; } }
+    /* own-segment PR tint: hidden until its row runs, then stays at rest */
+    @keyframes pfRestA { 0% { opacity: 0; } 7.14%,100% { opacity: 1; } }
+    @keyframes pfRestC { 0%,22.86% { opacity: 0; } 30%,100% { opacity: 1; } }
+    @keyframes pfRestD { 0%,34.29% { opacity: 0; } 41.43%,100% { opacity: 1; } }
+    /* b own segment: red the moment its amber fill lands, holds red, clears at ~47% */
+    @keyframes pfBRed { 0%,18.57% { opacity: 0; } 18.57%,45% { opacity: 1; } 47%,100% { opacity: 0; } }
+    /* held b column (rows c,d): red the moment b fails, through to clear */
+    @keyframes pfBHeld { 0%,18.57% { opacity: 0; } 18.57%,45% { opacity: 1; } 47%,100% { opacity: 0; } }
+    @keyframes pfBFailX { 0%,18.57% { opacity: 0; } 20.57%,45% { opacity: 1; } 47%,100% { opacity: 0; } }
+    @keyframes pfLblBFail { 0%,18.57% { opacity: 0; } 20.57%,45% { opacity: 1; } 47%,100% { opacity: 0; } }
+    @keyframes pfLblBClear { 0%,45% { opacity: 0; } 47%,100% { opacity: 1; } }
+    @keyframes pfDepthPill { 0%,18.57% { opacity: 0; } 20.57%,45% { opacity: 1; } 47%,100% { opacity: 0; } }
+    @keyframes pfDepthCleared { 0%,45% { opacity: 0; } 47%,100% { opacity: 1; } }
+    @keyframes pfMerge { 0%,47% { opacity: 0; } 54%,100% { opacity: 1; } }
+    @keyframes pfChkA { 0%,7.14% { opacity: 0; } 9.14%,100% { opacity: 1; } }
+    @keyframes pfChkC { 0%,30% { opacity: 0; } 32%,100% { opacity: 1; } }
+    @keyframes pfChkD { 0%,41.43% { opacity: 0; } 43.43%,100% { opacity: 1; } }
+    @keyframes pfChkB { 0%,45% { opacity: 0; } 47%,100% { opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) {
+      .fillA, .fillB, .fillC, .fillD, .restA, .restC, .restD, .bRed, .bHeld, .bFailX,
+      .lblBFail, .lblBClear, .depthPill, .depthCleared, .mergeGlow,
+      .chkA, .chkB, .chkC, .chkD { animation: none; }
+      .fillA, .fillB, .fillC, .fillD { opacity: 0; }
+      .restA, .restC, .restD { opacity: 1; }
+      .bRed, .bHeld, .bFailX, .lblBFail, .depthPill { opacity: 0; }
+      .lblBClear, .depthCleared, .mergeGlow,
+      .chkA, .chkB, .chkC, .chkD { opacity: 1; }
+    }
+  </style>
+
+  <rect x="0" y="0" width="660" height="332" rx="10" fill="#ffffff"/>
+  <text x="16" y="22" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12.5" font-weight="700" fill="#3a4350">Pending failure depth: hold a failed PR while later runs prove it transient</text>
+  <text x="644" y="22" text-anchor="end" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10.5" font-weight="600" fill="#9aa3b0">runs in sequence &#8595;</text>
+
+  <!-- Each row: PR label at left, detail/state text in the middle, then its
+       predictive bundle as cumulative segments flush to the RIGHT edge,
+       RIGHT-ANCHORED so a (front) is the rightmost column shared across rows.
+       Segment columns (box left x): a=590, b=538, c=486, d=434 (46 wide, 52 pitch).
+       Common right edge x=636 (a's right edge). Own segment is the LEFTMOST in each row.
+       Box size 46x34 rx6 stroke 1.5 (the standard shared tile size).
+       Per-PR tints (matching the shared set):
+         a blue   fill #e3edfc stroke #346DDB text #1f5fc0
+         b purple fill #eee7fb stroke #7c5cdb text #5a3fb0
+         c teal   fill #e2f4f1 stroke #18a394 text #0e7d70
+         d slate  fill #eef1f5 stroke #9aa3b0 text #5b6573
+       testing amber #e8932a, fail red #fde7e7/#d64545. -->
+
+  <!-- Row a: 1 segment [a] at the rightmost column. Own segment animates (amber overlay) and settles blue. box y=44, center 61. -->
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    <text x="16" y="65" font-size="11.5" font-weight="700" fill="#1f5fc0">PR a</text>
+    <text x="70" y="65" font-size="11.5" fill="#5b6573">front of queue, passes</text>
+    <rect x="590" y="44" width="46" height="34" rx="6" fill="#f7f9fc" stroke="#cdd4de" stroke-width="1.5"/>
+    <rect class="restA" x="590" y="44" width="46" height="34" rx="6" fill="#e3edfc" stroke="#346DDB" stroke-width="1.5"/>
+    <rect class="bar fillA" x="590" y="44" width="46" height="34" rx="6" fill="#e8932a"/>
+    <text x="613" y="65" text-anchor="middle" font-size="11" font-weight="700" fill="#1f5fc0">a</text>
+    <g class="chkA"><circle cx="634" cy="46" r="6.5" fill="#1d9b54" stroke="#fff" stroke-width="1.3"/><polyline points="631,46 633,48.4 637,43.6" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+  </g>
+
+  <!-- Row b: 2 segments [b][a], right-anchored. a ahead at rest blue (right); own segment b animates then FAILS (left). box y=96, center 113. -->
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    <text x="16" y="117" font-size="11.5" font-weight="700" fill="#5a3fb0">PR b</text>
+    <!-- row-state labels in the middle open area (x~70) -->
+    <g class="lblBFail"><text x="70" y="117" font-size="11.5" fill="#d64545" font-weight="600">b fails <tspan fill="#5b6573" font-weight="400">held, not evicted</tspan></text></g>
+    <g class="lblBClear"><text x="70" y="117" font-size="11.5" fill="#1d7a4d" font-weight="600">b cleared: failure was transient</text></g>
+    <!-- b own segment (leftmost): purple tint base, amber testing overlay, then red overlay holding until cleared -->
+    <rect x="538" y="96" width="46" height="34" rx="6" fill="#eee7fb" stroke="#7c5cdb" stroke-width="1.5"/>
+    <rect class="bar fillB" x="538" y="96" width="46" height="34" rx="6" fill="#e8932a"/>
+    <rect class="bRed" x="538" y="96" width="46" height="34" rx="6" fill="#fde7e7" stroke="#d64545" stroke-width="1.5"/>
+    <text x="561" y="117" text-anchor="middle" font-size="11" font-weight="700" fill="#5a3fb0">b</text>
+    <!-- a ahead (rightmost): at rest blue, static -->
+    <rect x="590" y="96" width="46" height="34" rx="6" fill="#e3edfc" stroke="#346DDB" stroke-width="1.5"/>
+    <text x="613" y="117" text-anchor="middle" font-size="11" font-weight="700" fill="#1f5fc0">a</text>
+    <!-- red X badge on b when it fails (own segment upper-right) -->
+    <g class="bFailX"><circle cx="582" cy="98" r="6.5" fill="#d64545" stroke="#fff" stroke-width="1.3"/><line x1="579.7" y1="95.7" x2="584.3" y2="100.3" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><line x1="584.3" y1="95.7" x2="579.7" y2="100.3" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></g>
+    <!-- b cleared check (appears at clear) -->
+    <g class="chkB"><circle cx="582" cy="98" r="6.5" fill="#1d9b54" stroke="#fff" stroke-width="1.3"/><polyline points="579,98 581,100.4 585,95.6" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+  </g>
+
+  <!-- Row c: 3 segments [c][b][a], right-anchored. a, b at rest (right); b shown red/held; own c animates, passes (left). box y=148, center 165. -->
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    <text x="16" y="169" font-size="11.5" font-weight="700" fill="#0e7d70">PR c</text>
+    <text x="70" y="169" font-size="11.5" fill="#5b6573">runs with <tspan font-weight="600" fill="#5a3fb0">b</tspan> included, passes</text>
+    <!-- c own segment (leftmost): teal tint, amber testing overlay -->
+    <rect x="486" y="148" width="46" height="34" rx="6" fill="#f7f9fc" stroke="#cdd4de" stroke-width="1.5"/>
+    <rect class="restC" x="486" y="148" width="46" height="34" rx="6" fill="#e2f4f1" stroke="#18a394" stroke-width="1.5"/>
+    <rect class="bar fillC" x="486" y="148" width="46" height="34" rx="6" fill="#e8932a"/>
+    <text x="509" y="169" text-anchor="middle" font-size="11" font-weight="700" fill="#0e7d70">c</text>
+    <!-- b column (same x as rows b,d): purple base, red held overlay until cleared -->
+    <rect x="538" y="148" width="46" height="34" rx="6" fill="#eee7fb" stroke="#7c5cdb" stroke-width="1.5"/>
+    <rect class="bHeld" x="538" y="148" width="46" height="34" rx="6" fill="#fde7e7" stroke="#d64545" stroke-width="1.5"/>
+    <text x="561" y="169" text-anchor="middle" font-size="11" font-weight="700" fill="#5a3fb0">b</text>
+    <!-- a ahead (rightmost): at rest blue, static -->
+    <rect x="590" y="148" width="46" height="34" rx="6" fill="#e3edfc" stroke="#346DDB" stroke-width="1.5"/>
+    <text x="613" y="169" text-anchor="middle" font-size="11" font-weight="700" fill="#1f5fc0">a</text>
+    <g class="chkC"><circle cx="530" cy="150" r="6.5" fill="#1d9b54" stroke="#fff" stroke-width="1.3"/><polyline points="527,150 529,152.4 533,147.6" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+  </g>
+
+  <!-- Row d: 4 segments [d][c][b][a], right-anchored. a, b, c at rest (right); b held red; own d animates, passes => proves b (left). box y=200, center 217. -->
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    <text x="16" y="221" font-size="11.5" font-weight="700" fill="#5b6573">PR d</text>
+    <text x="70" y="221" font-size="11.5" fill="#5b6573">passes with <tspan font-weight="600" fill="#5a3fb0">b</tspan>: this is the proof</text>
+    <!-- d own segment (leftmost): slate tint, amber testing overlay -->
+    <rect x="434" y="200" width="46" height="34" rx="6" fill="#f7f9fc" stroke="#cdd4de" stroke-width="1.5"/>
+    <rect class="restD" x="434" y="200" width="46" height="34" rx="6" fill="#eef1f5" stroke="#9aa3b0" stroke-width="1.5"/>
+    <rect class="bar fillD" x="434" y="200" width="46" height="34" rx="6" fill="#e8932a"/>
+    <text x="457" y="221" text-anchor="middle" font-size="11" font-weight="700" fill="#5b6573">d</text>
+    <!-- c ahead: teal at rest -->
+    <rect x="486" y="200" width="46" height="34" rx="6" fill="#e2f4f1" stroke="#18a394" stroke-width="1.5"/>
+    <text x="509" y="221" text-anchor="middle" font-size="11" font-weight="700" fill="#0e7d70">c</text>
+    <!-- b column (same x as rows b,c): purple base, red held overlay until cleared -->
+    <rect x="538" y="200" width="46" height="34" rx="6" fill="#eee7fb" stroke="#7c5cdb" stroke-width="1.5"/>
+    <rect class="bHeld" x="538" y="200" width="46" height="34" rx="6" fill="#fde7e7" stroke="#d64545" stroke-width="1.5"/>
+    <text x="561" y="221" text-anchor="middle" font-size="11" font-weight="700" fill="#5a3fb0">b</text>
+    <!-- a ahead (rightmost): at rest blue, static -->
+    <rect x="590" y="200" width="46" height="34" rx="6" fill="#e3edfc" stroke="#346DDB" stroke-width="1.5"/>
+    <text x="613" y="221" text-anchor="middle" font-size="11" font-weight="700" fill="#1f5fc0">a</text>
+    <g class="chkD"><circle cx="478" cy="202" r="6.5" fill="#1d9b54" stroke="#fff" stroke-width="1.3"/><polyline points="475,202 477,204.4 481,199.6" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+  </g>
+
+  <!-- Pending failure depth / successor-evidence indicator -->
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    <g class="depthPill">
+      <rect x="84" y="248" width="300" height="22" rx="11" fill="#fbf0e0" stroke="#e8932a" stroke-width="1.5"/>
+      <text x="234" y="262.5" text-anchor="middle" font-size="10.5" font-weight="700" fill="#9a6311">pending failure depth: waiting on successor evidence</text>
+    </g>
+    <g class="depthCleared">
+      <rect x="84" y="248" width="300" height="22" rx="11" fill="#e4f5ea" stroke="#1d9b54" stroke-width="1.5"/>
+      <text x="234" y="262.5" text-anchor="middle" font-size="10.5" font-weight="700" fill="#1d7a4d">successor passed with b: b cleared, not evicted</text>
+    </g>
+  </g>
+
+  <!-- Merge result -->
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    <text x="16" y="297" font-size="11.5" fill="#5b6573">depth holds a failed PR for later runs instead of evicting it</text>
+    <rect x="400" y="278" width="244" height="38" rx="8" fill="#eef1f5" stroke="#9aa3b0" stroke-width="1.5"/>
+    <rect class="mergeGlow" x="400" y="278" width="244" height="38" rx="8" fill="#e4f5ea" stroke="#1d9b54" stroke-width="1.8"/>
+    <text x="522" y="302" text-anchor="middle" font-size="12" font-weight="700" fill="#1d7a4d">a, b, c, d merge into main</text>
+  </g>
+</svg>

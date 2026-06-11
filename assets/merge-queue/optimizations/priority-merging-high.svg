@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 130" width="660" height="130" role="img" aria-label="The same merge queue, front on the right, concurrency two. PR A and PR B are still at the front, both testing with partly filled amber bars. A new HIGH priority PR D, badged HIGH in amber, has been placed pending ahead of the existing pending PR C, because D outranks C and C is not yet testing. Order right to left: A, B testing; then pending D with a HIGH badge; then pending C.">
+  <rect x="0" y="0" width="660" height="130" rx="10" fill="#ffffff"/>
+  <text x="16" y="24" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12.5" font-weight="700" fill="#3a4350">A HIGH PR jumps ahead of pending PRs, not testing ones</text>
+  <text x="644" y="24" text-anchor="end" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10.5" font-weight="600" fill="#9aa3b0">Front of queue &#8594;</text>
+
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    <!-- testing group bracket over the two front slots (x 480..638) -->
+    <path d="M 480 50 L 480 45 L 638 45 L 638 50" fill="none" stroke="#e8932a" stroke-width="1.3"/>
+    <text x="559" y="42" text-anchor="middle" font-size="9.5" font-weight="600" fill="#a85d00">testing (concurrency 2)</text>
+
+    <!-- C: pending, back / leftmost (slot x=424) -->
+    <g>
+      <rect x="424" y="56" width="46" height="34" rx="6" fill="#eef1f5" stroke="#9aa3b0" stroke-width="1.5"/>
+      <text x="447" y="78" text-anchor="middle" font-size="13" font-weight="700" fill="#0e7d70">C</text>
+      <text x="447" y="104" text-anchor="middle" font-size="9.5" font-weight="600" fill="#9aa3b0">pending</text>
+    </g>
+
+    <!-- D: HIGH priority, pending, inserted ahead of C (slot x=480) -->
+    <g>
+      <rect x="480" y="56" width="46" height="34" rx="6" fill="#fff3e0" stroke="#e8932a" stroke-width="1.8"/>
+      <text x="503" y="78" text-anchor="middle" font-size="13" font-weight="700" fill="#a85d00">D</text>
+      <text x="503" y="104" text-anchor="middle" font-size="9.5" font-weight="600" fill="#9aa3b0">pending</text>
+      <!-- HIGH badge -->
+      <rect x="484" y="44" width="38" height="15" rx="7.5" fill="#fff3e0" stroke="#e8932a" stroke-width="1.3"/>
+      <text x="503" y="55" text-anchor="middle" font-size="9" font-weight="700" fill="#a85d00">HIGH</text>
+    </g>
+
+    <!-- B: testing (slot x=536) -->
+    <g>
+      <rect x="536" y="56" width="46" height="34" rx="6" fill="#eee7fb" stroke="#7c5cdb" stroke-width="1.5"/>
+      <text x="559" y="78" text-anchor="middle" font-size="13" font-weight="700" fill="#5a3fb0">B</text>
+      <rect x="536" y="95" width="46" height="5" rx="2.5" fill="#d9dee6"/>
+      <rect x="536" y="95" width="27" height="5" rx="2.5" fill="#e8932a"/>
+      <text x="559" y="113" text-anchor="middle" font-size="9.5" font-weight="600" fill="#a85d00">testing</text>
+    </g>
+
+    <!-- A: testing, front / rightmost (slot x=592) -->
+    <g>
+      <rect x="592" y="56" width="46" height="34" rx="6" fill="#e3edfc" stroke="#346DDB" stroke-width="1.5"/>
+      <text x="615" y="78" text-anchor="middle" font-size="13" font-weight="700" fill="#1f5fc0">A</text>
+      <rect x="592" y="95" width="46" height="5" rx="2.5" fill="#d9dee6"/>
+      <rect x="592" y="95" width="32" height="5" rx="2.5" fill="#e8932a"/>
+      <text x="615" y="113" text-anchor="middle" font-size="9.5" font-weight="600" fill="#a85d00">testing</text>
+    </g>
+  </g>
+</svg>

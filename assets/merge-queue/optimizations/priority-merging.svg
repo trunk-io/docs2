@@ -1,0 +1,246 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 250" width="660" height="250" role="img" aria-label="A merge queue with the front on the right. PR A is at the front being tested; pending PRs B and C sit behind it to the left. A higher-priority PR D, badged HIGH in amber, slides in from the right and inserts behind A (which keeps testing) but ahead of the pending PRs B and C. Then an urgent PR E, badged URGENT in red, slides to the very front: A's test restarts and E takes the front test slot. The queue ends ordered left to right as C, B, D, A, E, with E at the front: URGENT E, then normal A, then HIGH D, then normal B and C.">
+  <!--
+    Priority merging prototype animation (editable, no source video needed).
+    Single queue, front on the RIGHT, PRs flow right to left (back in history).
+    The PR nearest the right edge is at the front and tests / merges first.
+
+    CONVENTION shared across all merge-queue animation prototypes:
+      - 8s loop. All action plays out in the first ~75% (about 6s), then the
+        finished queue HOLDS for ~2s before the loop resets.
+      - Nothing fades out before the reset, so the frozen / reduced-motion
+        end-state reads as the final order with badges visible.
+
+    Tiles are one row. Each tile lives in a <g> drawn at its FINAL slot x, then
+    offset RIGHT with translateX so the row starts PACKED against the front with
+    no held-open gaps. A new tile drops its offset at the exact instant the
+    inserting tile arrives, so the row opens the slot precisely on arrival,
+    never pre-reserved, never overlapped.
+
+    FINAL ORDER, left to right: C, B, D, A, E  (E at the front / right edge).
+    Final slot grid (x of each tile's left edge), front (right) to back (left):
+      E front  x=556   A  x=486   D  x=416   B  x=346   C  x=276
+    Tile width 60, gap 10 -> one slot = 70px.
+
+    Offsets over time (translateX from each tile's final slot), front=right:
+      phase 0  A testing at front; B,C packed behind it. Order C,B,A.
+               A=+70  B=+140  C=+140        (D,E off-canvas)
+               -> A@556 B@486 C@416
+      phase 1  HIGH D inserts ONE SLOT BEHIND A (between B and A); B,C drop one
+               slot AS D lands. A keeps testing at the front. Order C,B,D,A.
+               A=+70  D=+70  B=+70  C=+70
+               -> A@556 D@486 B@416 C@346
+      phase 2  URGENT E inserts at the very front; A,D,B,C all settle one slot
+               left AS E lands. Order C,B,D,A,E.
+               E=0  A=0  D=0  B=0  C=0
+               -> E@556 A@486 D@416 B@346 C@276   (final order C,B,D,A,E)
+
+    Timeline (% of 8s loop):
+      0-12.5%    A tests at the front (amber bar fills to green). B, C packed
+                 behind it.
+      12.5-17.5% HIGH PR D slides in from the right; AS it lands behind A, B and
+                 C slide one slot left to open D's slot. A keeps testing.
+      17.5-31.25% D settled one slot behind A, HIGH amber badge in place. A full
+                 ~1.1s PAUSE BEAT here so the viewer sees D settle before E.
+      31.25-36.25% URGENT PR E slides in to the very front; AS it lands, A, D, B,
+                 C all slide one slot left together. A's test RESTARTS (bar
+                 resets, restart ring blinks once) because E jumped ahead of it.
+      36.25-67.5% E tests at the front (red bar fills to green); A re-tests
+                 behind it and its RESTARTED bar FULLY FINISHES to 100% green
+                 before the hold. The finishing front test is the whole point.
+      67.5-100%  HOLD ~2.6s: ordered queue C, B, D, A, E, both bars green.
+    Test progress fill = 0.5s = 6.25% of the 8s loop. Slides ~0.4s (~5%).
+    To retime, edit the @keyframes percentages.
+  -->
+  <style>
+    .bar { transform-box: fill-box; transform-origin: left center; }
+    .tile { transform-box: view-box; }
+    .slideD { animation: slideD 8s linear infinite; }
+    .slideE { animation: slideE 8s linear infinite; }
+    .shiftA { animation: shiftA 8s linear infinite; }
+    .shiftB { animation: shiftB 8s linear infinite; }
+    .shiftC { animation: shiftC 8s linear infinite; }
+    .barA { animation: barA 8s linear infinite; }
+    .barE { animation: barE 8s linear infinite; }
+    .restart { animation: restartRing 8s linear infinite; }
+    .lblD { animation: fadeD 8s linear infinite; }
+    .lblE { animation: fadeE 8s linear infinite; }
+    /* completion check badges: pop in the instant each bar locks green, hold
+       through the end. A's badge waits for its RESTARTED bar to finish (67.5%);
+       E's badge pops when its bar finishes (45%). */
+    .bdgA { animation: bdgAk 8s linear infinite; }
+    .bdgE { animation: bdgEk 8s linear infinite; }
+    /* D enters from off-canvas right and lands ONE SLOT BEHIND A (offset +70,
+       i.e. abs x=486) AS B/C drop back to open the gap. Slide ~0.4s (5%):
+       12.5% -> 17.5%. D then SETTLES and HOLDS through a ~1.1s pause beat
+       (to 31.25%) before riding one more slot left (+70 -> 0) when E lands. */
+    @keyframes slideD {
+      0%,12.5%   { transform: translateX(220px); opacity: 0; }
+      14.5%      { opacity: 1; }
+      17.5%,31.25%{ transform: translateX(70px); opacity: 1; }
+      36.25%,100%{ transform: translateX(0); opacity: 1; }
+    }
+    /* E enters from off-canvas right and lands at the very front (final slot,
+       offset 0) AS A,D,B,C all slide one slot left. The ~1.1s gap between D
+       settling (17.5%) and E starting (31.25%) is the visible pause beat.
+       Slide 31.25% -> 36.25%. */
+    @keyframes slideE {
+      0%,31.25%  { transform: translateX(160px); opacity: 0; }
+      33.25%     { opacity: 1; }
+      36.25%,100%{ transform: translateX(0); opacity: 1; }
+    }
+    /* A holds at the front (+70) while D inserts behind it; slides one slot
+       left (+70 -> 0, its final slot) only when E takes the front. */
+    @keyframes shiftA {
+      0%,31.25%  { transform: translateX(70px); }
+      36.25%,100%{ transform: translateX(0); }
+    }
+    /* B,C start packed at the front (+140). They drop one slot (+140 -> +70) AS
+       D arrives, hold through the pause beat, then another (+70 -> 0) AS E
+       arrives. The shift is synchronized to each insertion so a gap never opens
+       before the new tile lands. */
+    @keyframes shiftB {
+      0%,12.5%    { transform: translateX(140px); }
+      17.5%,31.25%{ transform: translateX(70px); }
+      36.25%,100%{ transform: translateX(0); }
+    }
+    @keyframes shiftC {
+      0%,12.5%    { transform: translateX(140px); }
+      17.5%,31.25%{ transform: translateX(70px); }
+      36.25%,100%{ transform: translateX(0); }
+    }
+    /* A tests first (amber fill 0.5s = 6.25%), holds amber through the pause
+       beat, then RESTARTS when E jumps ahead (~36.25%): bar resets to 0, then
+       re-fills as A re-tests behind E. This restarted run MUST FINISH: it fills
+       ALL THE WAY to scaleX(1) and flips GREEN by 67.5%, then holds green
+       through the end-hold. The finishing front test is the whole point. */
+    @keyframes barA {
+      0%          { transform: scaleX(0);    fill: #e8932a; }
+      6.25%       { transform: scaleX(0.62); fill: #e8932a; }
+      35.25%      { transform: scaleX(0.62); fill: #e8932a; }
+      36.25%      { transform: scaleX(0);    fill: #e8932a; }
+      65%         { transform: scaleX(1);    fill: #e8932a; }
+      67.5%,100%  { transform: scaleX(1);    fill: #1f9d57; }
+    }
+    /* E tests at the front after it lands (fill 0.5s = 6.25%): 36.25% -> 42.5%,
+       fills ALL THE WAY to scaleX(1) and flips GREEN, holds green to the end. */
+    @keyframes barE {
+      0%,36.25%   { transform: scaleX(0);    fill: #d64545; }
+      42.5%       { transform: scaleX(1);    fill: #d64545; }
+      45%,100%    { transform: scaleX(1);    fill: #1f9d57; }
+    }
+    /* restart ring blinks once around A as its run resets */
+    @keyframes restartRing { 0%,35.25% { opacity: 0; } 37.5% { opacity: 1; } 44% { opacity: 0; } 100% { opacity: 0; } }
+    @keyframes fadeD { 0%,13.5% { opacity: 0; } 15.5%,100% { opacity: 1; } }
+    @keyframes fadeE { 0%,32.25% { opacity: 0; } 34.25%,100% { opacity: 1; } }
+    /* A's check stays hidden through its first partial run AND the restart, then
+       pops the instant the restarted bar green-locks (67.5%) and holds. */
+    @keyframes bdgAk { 0%,67.5% { opacity: 0; } 68% { opacity: 1; } 100% { opacity: 1; } }
+    /* E's check pops the instant E's bar green-locks (45%) and holds. */
+    @keyframes bdgEk { 0%,45% { opacity: 0; } 45.5% { opacity: 1; } 100% { opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) {
+      .slideD, .slideE, .shiftA, .shiftB, .shiftC, .barA, .barE, .restart, .lblD, .lblE, .bdgA, .bdgE { animation: none; }
+      .slideD, .slideE, .shiftA, .shiftB, .shiftC { transform: translateX(0); opacity: 1; }
+      .lblD, .lblE { opacity: 1; }
+      .bdgA, .bdgE { opacity: 1; }
+      .restart { opacity: 0; }
+      .barA { transform: scaleX(1); fill: #1f9d57; }
+      .barE { transform: scaleX(1); fill: #1f9d57; }
+    }
+  </style>
+
+  <rect x="0" y="0" width="660" height="250" rx="10" fill="#ffffff"/>
+  <text x="16" y="24" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12.5" font-weight="700" fill="#3a4350">Higher-priority PRs jump ahead in the queue</text>
+  <text x="644" y="24" text-anchor="end" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10.5" font-weight="600" fill="#9aa3b0">Front of queue &#8594;</text>
+
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    <text x="16" y="46" font-size="11.5" fill="#5b6573">Normal PRs queue in order. A HIGH PR jumps ahead of pending PRs; an URGENT PR goes to the very front.</text>
+
+    <!-- ===== queue row: tiles at y=70, height 40 ===== -->
+    <!-- C: back / leftmost normal PR (final slot x=276) -->
+    <g class="tile shiftC">
+      <rect x="276" y="70" width="60" height="40" rx="8" fill="#e2f4f1" stroke="#18a394" stroke-width="1.5"/>
+      <text x="306" y="95" text-anchor="middle" font-size="13" font-weight="700" fill="#0e7d70">C</text>
+    </g>
+
+    <!-- B: normal PR (final slot x=346) -->
+    <g class="tile shiftB">
+      <rect x="346" y="70" width="60" height="40" rx="8" fill="#e3edfc" stroke="#346DDB" stroke-width="1.5"/>
+      <text x="376" y="95" text-anchor="middle" font-size="13" font-weight="700" fill="#1f5fc0">B</text>
+    </g>
+
+    <!-- D: HIGH priority, slides in and inserts ONE SLOT BEHIND A, ahead of B/C
+         (final slot x=416). Rendered BEFORE A so A always draws on top during
+         D's slide-in (D never covers or hides A; it tucks in behind it). -->
+    <g class="tile slideD">
+      <rect x="416" y="70" width="60" height="40" rx="8" fill="#fff3e0" stroke="#e8932a" stroke-width="1.8"/>
+      <text x="446" y="95" text-anchor="middle" font-size="13" font-weight="700" fill="#a85d00">D</text>
+      <!-- HIGH badge -->
+      <g class="lblD">
+        <rect x="416" y="58" width="38" height="15" rx="7.5" fill="#fff3e0" stroke="#e8932a" stroke-width="1.3"/>
+        <text x="435" y="69" text-anchor="middle" font-size="9" font-weight="700" fill="#a85d00">HIGH</text>
+      </g>
+    </g>
+
+    <!-- A: starts at the front, testing; later shifts left behind E (final slot
+         x=486). Rendered AFTER D so it stays on top of D as D slides in behind
+         it. -->
+    <g class="tile shiftA">
+      <rect x="486" y="70" width="60" height="40" rx="8" fill="#e3edfc" stroke="#346DDB" stroke-width="1.5"/>
+      <text x="516" y="95" text-anchor="middle" font-size="13" font-weight="700" fill="#1f5fc0">A</text>
+      <!-- A's test bar -->
+      <rect x="486" y="115" width="60" height="5" rx="2.5" fill="#d9dee6"/>
+      <rect class="bar barA" x="486" y="115" width="60" height="5" rx="2.5" fill="#e8932a"/>
+      <!-- restart ring: blinks once when E jumps ahead and A re-tests -->
+      <g class="restart">
+        <rect x="482" y="66" width="68" height="48" rx="10" fill="none" stroke="#346DDB" stroke-width="2" stroke-dasharray="4 3"/>
+        <g transform="translate(516,58)">
+          <path d="M -5 0 A 5 5 0 1 1 -1 4" fill="none" stroke="#346DDB" stroke-width="1.6" stroke-linecap="round"/>
+          <polyline points="-1,1 -1,4 -4,4" fill="none" stroke="#346DDB" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+        <text x="516" y="135" text-anchor="middle" font-size="9.5" font-weight="600" fill="#1f5fc0">restarting</text>
+      </g>
+      <!-- completion check: pops when A's restarted bar finishes green -->
+      <g class="bdgA"><circle cx="539" cy="74" r="6.5" fill="#1d9b54" stroke="#fff" stroke-width="1.3"/><polyline points="536,74 538,76.2 542,71.8" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></g>
+    </g>
+
+    <!-- E: URGENT priority, slides to the very front (final slot x=556) -->
+    <g class="tile slideE">
+      <rect x="556" y="70" width="60" height="40" rx="8" fill="#fde7e7" stroke="#d64545" stroke-width="1.8"/>
+      <text x="586" y="95" text-anchor="middle" font-size="13" font-weight="700" fill="#b22222">E</text>
+      <!-- E's test bar -->
+      <rect x="556" y="115" width="60" height="5" rx="2.5" fill="#d9dee6"/>
+      <rect class="bar barE" x="556" y="115" width="60" height="5" rx="2.5" fill="#d64545"/>
+      <!-- URGENT badge -->
+      <g class="lblE">
+        <rect x="556" y="58" width="50" height="15" rx="7.5" fill="#fde7e7" stroke="#d64545" stroke-width="1.3"/>
+        <text x="581" y="69" text-anchor="middle" font-size="9" font-weight="700" fill="#b22222">URGENT</text>
+      </g>
+      <!-- completion check: pops when E's bar finishes green -->
+      <g class="bdgE"><circle cx="609" cy="74" r="6.5" fill="#1d9b54" stroke="#fff" stroke-width="1.3"/><polyline points="606,74 608,76.2 612,71.8" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></g>
+    </g>
+
+    <!-- legend / end-state caption -->
+    <text x="16" y="172" font-size="11" fill="#5b6573">Final order, front first:</text>
+    <g font-size="11" font-weight="700">
+      <!-- E: letter, then its own URGENT pill (sized to fit the word) -->
+      <text x="150" y="172" text-anchor="middle" fill="#b22222" font-size="11">E</text>
+      <rect x="160" y="160" width="58" height="16" rx="8" fill="#fde7e7" stroke="#d64545" stroke-width="1.2"/>
+      <text x="189" y="172" text-anchor="middle" fill="#b22222" font-size="9.5">URGENT</text>
+      <text x="224" y="172" fill="#9aa3b0" font-size="11">&#8594;</text>
+      <!-- A: normal -->
+      <text x="240" y="172" fill="#1f5fc0" font-size="11">A</text>
+      <text x="252" y="172" fill="#9aa3b0" font-size="11">&#8594;</text>
+      <!-- D: letter, then its own HIGH pill -->
+      <text x="268" y="172" text-anchor="middle" fill="#a85d00" font-size="11">D</text>
+      <rect x="278" y="160" width="42" height="16" rx="8" fill="#fff3e0" stroke="#e8932a" stroke-width="1.2"/>
+      <text x="299" y="172" text-anchor="middle" fill="#a85d00" font-size="9.5">HIGH</text>
+      <text x="326" y="172" fill="#9aa3b0" font-size="11">&#8594;</text>
+      <text x="340" y="172" fill="#1f5fc0" font-size="11">B</text>
+      <text x="352" y="172" fill="#9aa3b0" font-size="11">&#8594;</text>
+      <text x="366" y="172" fill="#0e7d70" font-size="11">C</text>
+    </g>
+
+    <text x="16" y="210" font-size="11" fill="#5b6573">Priority lets time-sensitive PRs cut ahead of the queue without losing test correctness.</text>
+    <text x="16" y="228" font-size="11" fill="#5b6573">URGENT PRs interrupt and restart in-progress runs; HIGH PRs wait behind whatever is already testing.</text>
+  </g>
+</svg>

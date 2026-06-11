@@ -13,6 +13,10 @@ The monitor continuously scans your test runs looking for commits where a test h
 
 Once active, the monitor stays active on the test until no pass-on-retry behavior has been observed for a configurable recovery period. This prevents tests from bouncing between flaky and healthy if they only fail intermittently.
 
+<Frame caption="A fail then pass on the same commit flags the test flaky; 7 clean days then resolve it to healthy.">
+<img src="/assets/flaky-tests/detection/pass-on-retry-monitor.svg" alt="A test fails on attempt 1 and passes on retry on the same commit, gets flagged flaky, then passes on each of the next 7 days and resolves to healthy." />
+</Frame>
+
 ### Example
 
 Your CI retries failed tests automatically. On commit `abc123`:

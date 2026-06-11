@@ -1,0 +1,239 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 306" width="660" height="306" role="img" aria-label="An animated row of eight lettered test-run tiles, A on the right through H on the left, that scan in sequence from right to left. As each run is tested, an amber scan bar beneath its tile fills, then a completion badge appears in the tile corner, a green check for a passing run or a red X for a failing run. Runs A and B pass, runs C, D and E fail, and runs F, G and H pass again. On the right is a vertical thermometer-style failure-rate meter that rises in amber as the running failure rate climbs past a dashed activation line at thirty percent, peaks, then falls back below a dashed resolution line at fifteen percent. A status chip flips from Watching rate to an amber Flaky state when the meter passes activation, then to a green Healthy state when the meter falls below resolution, and holds.">
+  <!--
+    Failure-rate scan prototype (editable, no source video, no JS, no SMIL).
+    Eight lettered TEST-RUN TILES scan IN SEQUENCE. Tiles are laid out RIGHT TO
+    LEFT (A rightmost, H leftmost) to match the other prototypes; the scan also
+    runs right to left, A first. Beneath each tile a SCAN BAR (amber over a gray
+    track) fills over ~0.5s when that run is tested. When a scan finishes, a
+    completion BADGE pops into the tile's upper-right corner: a green CHECK
+    (pass) or a red X (fail).
+
+    PASS / FAIL PATTERN (tuned so the running rate rises past 30% then falls
+    below 15%):
+        A pass  B pass  C fail  D fail  E fail  F pass  G pass  H pass
+    The three middle fails (C, D, E) drive a sliding-window failure rate up; the
+    trailing passes (F, G, H) let it decay back down and resolve.
+
+    THERMOMETER METER (right): an amber bar rises in step with the running
+    failure rate and falls as it resolves. scaleY is the rate as a fraction of
+    the 130px meter (1.0 = 100%). Step values follow each scan:
+        A 0%  B 0%  C 33%  D 45%  E 55% (peak)  F 40%  G 22%  H 12%
+    Two dashed threshold lines: ACTIVATION 30% (y=219), RESOLUTION 15% (y=238.5).
+    The status pill has its own clear band at the top right (y=58..82); the tile
+    row and meter sit well below it so nothing touches the pill. The nearest tile
+    badge tops are at y=95 (badge centers y=102, r=7), a 13px gap below the chip
+    bottom (y=82); the meter frame starts at y=128, a 46px gap. The viewBox grew
+    to 306 tall to keep this separation rather than cramming the rows together.
+
+    STATUS CHIP: Watching rate -> Flaky (amber, when the meter passes activation
+    as C lands) -> Healthy (green, when the meter falls below resolution as H
+    lands), then holds.
+
+    TIMING (calm 9.6s loop, linear). Each scan fill = 0.5s, ~0.38s gap (pitch
+    ~0.88s). Sequence starts ~0.35s, last badge ~7.14s, finished frame HOLDS
+    ~2.46s to the end. Frozen / reduced-motion end-state: every tile shows its
+    pass/fail badge, the meter sits at its resolved low, and the chip reads
+    Healthy. To retime, edit the 9.6s durations and the keyframe percentages.
+  -->
+  <style>
+    .bar { transform-box: fill-box; transform-origin: left center; }
+    .sA { animation: scA 9.6s linear infinite; }
+    .sB { animation: scB 9.6s linear infinite; }
+    .sC { animation: scC 9.6s linear infinite; }
+    .sD { animation: scD 9.6s linear infinite; }
+    .sE { animation: scE 9.6s linear infinite; }
+    .sF { animation: scF 9.6s linear infinite; }
+    .sG { animation: scG 9.6s linear infinite; }
+    .sH { animation: scH 9.6s linear infinite; }
+    /* scan bars fill left to right over ~0.5s, then hold full */
+    @keyframes scA { 0%,3.65%  { transform: scaleX(0); } 8.85%,100%  { transform: scaleX(1); } }
+    @keyframes scB { 0%,12.81% { transform: scaleX(0); } 18.02%,100% { transform: scaleX(1); } }
+    @keyframes scC { 0%,21.98% { transform: scaleX(0); } 27.19%,100% { transform: scaleX(1); } }
+    @keyframes scD { 0%,31.15% { transform: scaleX(0); } 36.35%,100% { transform: scaleX(1); } }
+    @keyframes scE { 0%,40.31% { transform: scaleX(0); } 45.52%,100% { transform: scaleX(1); } }
+    @keyframes scF { 0%,49.48% { transform: scaleX(0); } 54.69%,100% { transform: scaleX(1); } }
+    @keyframes scG { 0%,58.65% { transform: scaleX(0); } 63.85%,100% { transform: scaleX(1); } }
+    @keyframes scH { 0%,67.81% { transform: scaleX(0); } 73.02%,100% { transform: scaleX(1); } }
+
+    /* completion badges pop ~0.13s after each scan finishes, hold to 100% */
+    .bdgA { animation: bA 9.6s linear infinite; }
+    .bdgB { animation: bB 9.6s linear infinite; }
+    .bdgC { animation: bC 9.6s linear infinite; }
+    .bdgD { animation: bD 9.6s linear infinite; }
+    .bdgE { animation: bE 9.6s linear infinite; }
+    .bdgF { animation: bF 9.6s linear infinite; }
+    .bdgG { animation: bG 9.6s linear infinite; }
+    .bdgH { animation: bH 9.6s linear infinite; }
+    @keyframes bA { 0%,8.85%  { opacity: 0; } 10.21%,100% { opacity: 1; } }
+    @keyframes bB { 0%,18.02% { opacity: 0; } 19.38%,100% { opacity: 1; } }
+    @keyframes bC { 0%,27.19% { opacity: 0; } 28.54%,100% { opacity: 1; } }
+    @keyframes bD { 0%,36.35% { opacity: 0; } 37.71%,100% { opacity: 1; } }
+    @keyframes bE { 0%,45.52% { opacity: 0; } 46.88%,100% { opacity: 1; } }
+    @keyframes bF { 0%,54.69% { opacity: 0; } 56.04%,100% { opacity: 1; } }
+    @keyframes bG { 0%,63.85% { opacity: 0; } 65.21%,100% { opacity: 1; } }
+    @keyframes bH { 0%,73.02% { opacity: 0; } 74.38%,100% { opacity: 1; } }
+
+    /* thermometer: amber bar scales from the bottom. Step values are the running
+       failure rate after each scan finishes (fraction of the 130px meter). */
+    .meter { transform-box: fill-box; transform-origin: bottom center; transform: scaleY(0); }
+    .meterA { animation: meterRise 9.6s linear infinite; }
+    @keyframes meterRise {
+      0%,8.85%   { transform: scaleY(0.00); }  /* A pass: 0% */
+      18.02%     { transform: scaleY(0.00); }  /* B pass: 0% */
+      27.19%     { transform: scaleY(0.33); }  /* C fail: 33% past activation */
+      36.35%     { transform: scaleY(0.45); }  /* D fail: 45% */
+      45.52%     { transform: scaleY(0.55); }  /* E fail: 55% peak */
+      54.69%     { transform: scaleY(0.40); }  /* F pass: easing down */
+      63.85%     { transform: scaleY(0.22); }  /* G pass: 22% */
+      73.02%,100%{ transform: scaleY(0.12); }  /* H pass: 12% below resolution, hold */
+    }
+
+    /* status chip: Watching -> Flaky (meter passes activation as C lands) ->
+       Healthy (meter drops below resolution as H lands), then holds. */
+    .watching { animation: watchChip  9.6s linear infinite; }
+    .flaky    { animation: flakyChip  9.6s linear infinite; }
+    .healthy  { animation: healthyChip 9.6s linear infinite; }
+    @keyframes watchChip  { 0%,27.19% { opacity: 1; } 28.54%,100% { opacity: 0; } }
+    @keyframes flakyChip  { 0%,27.19% { opacity: 0; } 28.54%,73.02% { opacity: 1; } 74.38%,100% { opacity: 0; } }
+    @keyframes healthyChip { 0%,73.02% { opacity: 0; } 74.38%,100% { opacity: 1; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      .sA,.sB,.sC,.sD,.sE,.sF,.sG,.sH,
+      .bdgA,.bdgB,.bdgC,.bdgD,.bdgE,.bdgF,.bdgG,.bdgH,
+      .meterA,.watching,.flaky,.healthy { animation: none; }
+      .bar { transform: scaleX(1); }
+      .bdgA,.bdgB,.bdgC,.bdgD,.bdgE,.bdgF,.bdgG,.bdgH { opacity: 1; }
+      .meter { transform: scaleY(0.12); }
+      .watching { opacity: 0; }
+      .flaky    { opacity: 0; }
+      .healthy  { opacity: 1; }
+    }
+  </style>
+
+  <rect x="0" y="0" width="660" height="306" rx="10" fill="#ffffff"/>
+
+  <text x="16" y="24" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12.5" font-weight="700" fill="#3a4350">Failure rate over test runs: the meter rises past activation, then falls below resolution</text>
+  <text x="16" y="42" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11.5" fill="#5b6573">Each tile is one test run, scanned in sequence. A check passed, an X failed. The meter tracks the running rate.</text>
+
+  <!-- ===== Status chips (top right, above the meter) ===== -->
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    <!-- Watching (neutral, before activation) -->
+    <g class="watching">
+      <rect x="450" y="58" width="160" height="24" rx="12" fill="#eef1f5" stroke="#9aa3b0" stroke-width="1.3"/>
+      <circle cx="466" cy="70" r="4.5" fill="#9aa3b0"/>
+      <text x="478" y="74" font-size="11" font-weight="700" fill="#5b6573">Watching rate</text>
+    </g>
+    <!-- Flaky chip (amber, pops when meter passes activation) -->
+    <g class="flaky">
+      <rect x="450" y="58" width="160" height="24" rx="12" fill="#fff3e0" stroke="#e8932a" stroke-width="1.5"/>
+      <path d="M 466 64 l 4 6 l -4 6 l 8 -8 l -5 0 l 4 -4 z" fill="#e8932a" stroke="#a85d00" stroke-width="0.7" stroke-linejoin="round"/>
+      <text x="481" y="74" font-size="11" font-weight="700" fill="#a85d00">Flagged flaky</text>
+    </g>
+    <!-- Healthy chip (green, pops when meter drops below resolution, holds) -->
+    <g class="healthy">
+      <rect x="450" y="58" width="160" height="24" rx="12" fill="#e4f5ea" stroke="#1d9b54" stroke-width="1.5"/>
+      <circle cx="466" cy="70" r="6.5" fill="#1d9b54"/>
+      <polyline points="463,70 465.5,72.5 469.5,67" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="478" y="74" font-size="11" font-weight="700" fill="#1d7a4d">Resolved healthy</text>
+    </g>
+  </g>
+
+  <!-- ===== Tiles section label ===== -->
+  <text x="16" y="140" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" font-weight="700" fill="#3a4350">Per-run results</text>
+
+  <!-- ===== Eight test-run tiles (A rightmost .. H leftmost), scan right to left =====
+       Each tile: 46w x 34h, rx6, light fill + colored stroke, bold letter.
+       Beneath each tile a scan bar (amber over gray track) fills over ~0.5s, then
+       a pass (green check) or fail (red X) badge pops in the upper-right corner. -->
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+
+    <!-- H (leftmost, pass) -->
+    <rect x="132" y="98" width="46" height="34" rx="6" fill="#e2f4f1" stroke="#18a394" stroke-width="1.5"/>
+    <text x="155" y="120" text-anchor="middle" font-size="13" font-weight="700" fill="#0e7d70">H</text>
+    <rect x="132" y="138" width="46" height="5" rx="2.5" fill="#d9dee6"/>
+    <rect class="bar sH" x="132" y="138" width="46" height="5" rx="2.5" fill="#e8932a"/>
+    <g class="bdgH"><circle cx="174" cy="102" r="7" fill="#1d9b54" stroke="#fff" stroke-width="1.3"/><polyline points="170.5,102 173,104.5 177,99" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+
+    <!-- G (pass) -->
+    <rect x="186" y="98" width="46" height="34" rx="6" fill="#eee7fb" stroke="#7c5cdb" stroke-width="1.5"/>
+    <text x="209" y="120" text-anchor="middle" font-size="13" font-weight="700" fill="#5a3fb0">G</text>
+    <rect x="186" y="138" width="46" height="5" rx="2.5" fill="#d9dee6"/>
+    <rect class="bar sG" x="186" y="138" width="46" height="5" rx="2.5" fill="#e8932a"/>
+    <g class="bdgG"><circle cx="228" cy="102" r="7" fill="#1d9b54" stroke="#fff" stroke-width="1.3"/><polyline points="224.5,102 227,104.5 231,99" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+
+    <!-- F (pass) -->
+    <rect x="240" y="98" width="46" height="34" rx="6" fill="#e3edfc" stroke="#346DDB" stroke-width="1.5"/>
+    <text x="263" y="120" text-anchor="middle" font-size="13" font-weight="700" fill="#1f5fc0">F</text>
+    <rect x="240" y="138" width="46" height="5" rx="2.5" fill="#d9dee6"/>
+    <rect class="bar sF" x="240" y="138" width="46" height="5" rx="2.5" fill="#e8932a"/>
+    <g class="bdgF"><circle cx="282" cy="102" r="7" fill="#1d9b54" stroke="#fff" stroke-width="1.3"/><polyline points="278.5,102 281,104.5 285,99" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+
+    <!-- E (fail) -->
+    <rect x="294" y="98" width="46" height="34" rx="6" fill="#e2f4f1" stroke="#18a394" stroke-width="1.5"/>
+    <text x="317" y="120" text-anchor="middle" font-size="13" font-weight="700" fill="#0e7d70">E</text>
+    <rect x="294" y="138" width="46" height="5" rx="2.5" fill="#d9dee6"/>
+    <rect class="bar sE" x="294" y="138" width="46" height="5" rx="2.5" fill="#e8932a"/>
+    <g class="bdgE"><circle cx="336" cy="102" r="7" fill="#d64545" stroke="#fff" stroke-width="1.3"/><path d="M 333 99 l 6 6 M 339 99 l -6 6" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></g>
+
+    <!-- D (fail) -->
+    <rect x="348" y="98" width="46" height="34" rx="6" fill="#eee7fb" stroke="#7c5cdb" stroke-width="1.5"/>
+    <text x="371" y="120" text-anchor="middle" font-size="13" font-weight="700" fill="#5a3fb0">D</text>
+    <rect x="348" y="138" width="46" height="5" rx="2.5" fill="#d9dee6"/>
+    <rect class="bar sD" x="348" y="138" width="46" height="5" rx="2.5" fill="#e8932a"/>
+    <g class="bdgD"><circle cx="390" cy="102" r="7" fill="#d64545" stroke="#fff" stroke-width="1.3"/><path d="M 387 99 l 6 6 M 393 99 l -6 6" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></g>
+
+    <!-- C (fail) -->
+    <rect x="402" y="98" width="46" height="34" rx="6" fill="#e3edfc" stroke="#346DDB" stroke-width="1.5"/>
+    <text x="425" y="120" text-anchor="middle" font-size="13" font-weight="700" fill="#1f5fc0">C</text>
+    <rect x="402" y="138" width="46" height="5" rx="2.5" fill="#d9dee6"/>
+    <rect class="bar sC" x="402" y="138" width="46" height="5" rx="2.5" fill="#e8932a"/>
+    <g class="bdgC"><circle cx="444" cy="102" r="7" fill="#d64545" stroke="#fff" stroke-width="1.3"/><path d="M 441 99 l 6 6 M 447 99 l -6 6" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></g>
+
+    <!-- B (pass) -->
+    <rect x="456" y="98" width="46" height="34" rx="6" fill="#e2f4f1" stroke="#18a394" stroke-width="1.5"/>
+    <text x="479" y="120" text-anchor="middle" font-size="13" font-weight="700" fill="#0e7d70">B</text>
+    <rect x="456" y="138" width="46" height="5" rx="2.5" fill="#d9dee6"/>
+    <rect class="bar sB" x="456" y="138" width="46" height="5" rx="2.5" fill="#e8932a"/>
+    <g class="bdgB"><circle cx="498" cy="102" r="7" fill="#1d9b54" stroke="#fff" stroke-width="1.3"/><polyline points="494.5,102 497,104.5 501,99" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+
+    <!-- A (rightmost, pass) -->
+    <rect x="510" y="98" width="46" height="34" rx="6" fill="#eee7fb" stroke="#7c5cdb" stroke-width="1.5"/>
+    <text x="533" y="120" text-anchor="middle" font-size="13" font-weight="700" fill="#5a3fb0">A</text>
+    <rect x="510" y="138" width="46" height="5" rx="2.5" fill="#d9dee6"/>
+    <rect class="bar sA" x="510" y="138" width="46" height="5" rx="2.5" fill="#e8932a"/>
+    <g class="bdgA"><circle cx="552" cy="102" r="7" fill="#1d9b54" stroke="#fff" stroke-width="1.3"/><polyline points="548.5,102 551,104.5 555,99" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+  </g>
+
+  <!-- time axis under the tiles -->
+  <g font-family="ui-sans-serif, system-ui, sans-serif" fill="#9aa3b0" font-size="10.5">
+    <text x="132" y="160">older</text>
+    <text x="556" y="160" text-anchor="end">&#8592; newer</text>
+  </g>
+
+  <!-- ===== Vertical thermometer failure-rate meter (right) ===== -->
+  <text x="615" y="122" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10" font-weight="700" fill="#3a4350">Rate</text>
+
+  <!-- meter frame -->
+  <rect x="600" y="128" width="30" height="130" rx="5" fill="#fbfcfd" stroke="#d3d8e0" stroke-width="1.3"/>
+  <!-- amber fill, grows from the bottom -->
+  <rect class="meter meterA" x="602" y="130" width="26" height="126" rx="3" fill="#f0b24a"/>
+  <!-- base line so the bottom always reads as zero -->
+  <line x1="600" y1="258" x2="630" y2="258" stroke="#c9ced6" stroke-width="1"/>
+
+  <!-- threshold lines across the meter -->
+  <!-- activation 30% at y=219 -->
+  <line x1="596" y1="219" x2="634" y2="219" stroke="#b22222" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <!-- resolution 15% at y=238.5 -->
+  <line x1="596" y1="238.5" x2="634" y2="238.5" stroke="#1d7a4d" stroke-width="1.4" stroke-dasharray="4 3"/>
+
+  <!-- threshold labels (left of the meter) -->
+  <g font-family="ui-sans-serif, system-ui, sans-serif" text-anchor="end">
+    <text x="592" y="216" font-size="9.5" font-weight="700" fill="#b22222">30%</text>
+    <text x="592" y="226" font-size="9" fill="#9aa3b0">activate</text>
+    <text x="592" y="235.5" font-size="9.5" font-weight="700" fill="#1d7a4d">15%</text>
+    <text x="592" y="245.5" font-size="9" fill="#9aa3b0">resolve</text>
+  </g>
+
+  <!-- caption -->
+  <text x="16" y="278" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11" fill="#5b6573">Failures cluster in the middle, push the rate past activation, then taper off and resolve below the line.</text>
+</svg>

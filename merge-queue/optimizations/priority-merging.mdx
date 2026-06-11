@@ -72,22 +72,22 @@ Another exception: Admins can still merge PRs in absolutely necessary cases outs
 
 ### Example:
 
-Say you have a queue that is configured to test two PRs at once. The queue currently looks like this:
-
-<Frame>
-<img src="/assets/merge-queue/optimizations/file.excalidraw.svg" alt="Queue with two testing PRs and one pending" class="gitbook-drawing"/>
+<Frame caption="The full sequence: a HIGH PR slots in behind the PRs already testing, then an URGENT PR preempts the front and the displaced test restarts.">
+<img src="/assets/merge-queue/optimizations/priority-merging.svg" alt="A merge queue where a HIGH priority PR slides in ahead of pending PRs without interrupting the testing PR, then an URGENT PR takes the front and the front test restarts." />
 </Frame>
+
+Say you have a queue that is configured to test two PRs at once. **A** and **B** are currently testing, and **C** is pending behind them.
 
 If you submit a PR D with a `"high"` priority it will be put in front of C (since it is a higher priority than C and C is not testing). D will begin as soon as either A or B finishes, like this:
 
-<Frame>
-<img src="/assets/merge-queue/optimizations/file.excalidraw_(8).svg" alt="Queue with two testing PRs and a new higher priority pending PR" class="gitbook-drawing"/>
+<Frame caption="A HIGH priority D slots in ahead of pending C without interrupting the PRs already testing.">
+<img src="/assets/merge-queue/optimizations/priority-merging-high.svg" alt="Queue with A and B testing and a new higher priority PR D placed ahead of pending C." />
 </Frame>
 
 Instead, if you submit PR D with an `"urgent"` priority, then D would be tested immediately, A would be restarted, and B would be bumped back to pending, like this:
 
-<Frame>
-<img src="/assets/merge-queue/optimizations/file.excalidraw_(1).svg" alt="Queue with an urgent PR moved to the front and a normal PR restarting" class="gitbook-drawing"/>
+<Frame caption="An URGENT D preempts the front: D and A test, the displaced B drops back to pending behind C.">
+<img src="/assets/merge-queue/optimizations/priority-merging-urgent.svg" alt="Queue with an urgent PR D moved to the front and testing alongside a restarted A, while B is bumped back to pending." />
 </Frame>
 
 ## Visual indicators in the dashboard

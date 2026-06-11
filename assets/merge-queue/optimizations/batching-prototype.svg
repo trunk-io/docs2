@@ -1,0 +1,168 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 268" width="660" height="268" role="img" aria-label="A throughput comparison of testing pull requests A to F, where one single-PR test takes the same time as one whole-batch test. Without batching, each PR is tested one at a time in its own cycle, so all six PRs A through F take six test runs to finish. With batching, the same six PRs finish in two test runs: Batch 1 ABC then Batch 2 DEF. While the with-batching panel is already done after two cycles, the without-batching panel is still grinding through C, D, E, F. A green check badge appears as each test run completes. Front of queue is on the right.">
+  <!--
+    Batching throughput prototype animation (editable, no source video needed).
+    Front of queue is on the RIGHT; PRs flow right to left (back in history).
+
+    THROUGHPUT framing (equal cost per test): a single-PR test takes the SAME
+    0.5s as a whole-batch test. The point is the run COUNT:
+      WITHOUT batching: test PRs ONE AT A TIME, A..F, six sequential cycles.
+        Every PR animates (amber->green) in turn. The panel is still grinding
+        through C, D, E, F well after the with-batching panel is finished.
+      WITH batching: cycle 1 tests Batch 1 (ABC), cycle 2 tests Batch 2 (DEF).
+        All 6 PRs merge in just two test runs.
+    Same six PRs: batching finishes in 2 cycles, single-PR testing takes 6.
+
+    CONVENTION shared across all merge-queue animation prototypes:
+      - When a bar completes, a green check BADGE pops into the upper-right
+        corner and stays lit through the hold.
+      - Bars also carry state by COLOR (amber = testing, green = done), so the
+        frozen / reduced-motion end-state reads as done.
+
+    TIMING (7s loop):
+      - Each bar fill = 0.5s = 7.143% of the loop. ~0.07s (1%) gap between cycles.
+      - WITHOUT, six back-to-back cycles:
+          A   0%->7.143%   (green-lock 7.6%,  badge 9.6%)
+          B   8.143%->15.286% (green-lock 15.75%, badge 17.75%)
+          C   16.286%->23.429% (green-lock 23.9%,  badge 25.9%)
+          D   24.429%->31.572% (green-lock 32%,    badge 34%)
+          E   32.572%->39.715% (green-lock 40.2%,  badge 42.2%)
+          F   40.715%->47.858% (green-lock 48.3%,  badge 50.3%)
+      - WITH, two cycles in the same first ~1s:
+          ABC 0%->7.143%   (green-lock 7.6%,  badge 9.6%)
+          DEF 8.143%->15.286% (green-lock 15.75%, badge 17.75%)
+      - Finished frame HOLDS from ~50% to 100% (about 3.5s, well past the 2s min).
+    To retime, edit the @keyframes percentages.
+  -->
+  <style>
+    .bar { transform-box: fill-box; transform-origin: left center; }
+    .bA { animation: bgA 7s linear infinite; }
+    .bB { animation: bgB 7s linear infinite; }
+    .bC { animation: bgC 7s linear infinite; }
+    .bD { animation: bgD 7s linear infinite; }
+    .bE { animation: bgE 7s linear infinite; }
+    .bF { animation: bgF 7s linear infinite; }
+    .wABC { animation: bgABC 7s linear infinite; }
+    .wDEF { animation: bgDEF 7s linear infinite; }
+    .bdgA { animation: bdgAk 7s linear infinite; }
+    .bdgB { animation: bdgBk 7s linear infinite; }
+    .bdgC { animation: bdgCk 7s linear infinite; }
+    .bdgD { animation: bdgDk 7s linear infinite; }
+    .bdgE { animation: bdgEk 7s linear infinite; }
+    .bdgF { animation: bdgFk 7s linear infinite; }
+    .bdgABC { animation: bdgABCk 7s linear infinite; }
+    .bdgDEF { animation: bdgDEFk 7s linear infinite; }
+    /* WITHOUT batching: six PRs tested one at a time, A..F, 0.5s each, 1% gaps */
+    @keyframes bgA { 0% { transform: scaleX(0); fill: #e8932a; } 7.143% { transform: scaleX(1); fill: #e8932a; } 7.6%,100% { transform: scaleX(1); fill: #1d9b54; } }
+    @keyframes bgB { 0%,8.143% { transform: scaleX(0); fill: #e8932a; } 15.286% { transform: scaleX(1); fill: #e8932a; } 15.75%,100% { transform: scaleX(1); fill: #1d9b54; } }
+    @keyframes bgC { 0%,16.286% { transform: scaleX(0); fill: #e8932a; } 23.429% { transform: scaleX(1); fill: #e8932a; } 23.9%,100% { transform: scaleX(1); fill: #1d9b54; } }
+    @keyframes bgD { 0%,24.429% { transform: scaleX(0); fill: #e8932a; } 31.572% { transform: scaleX(1); fill: #e8932a; } 32%,100% { transform: scaleX(1); fill: #1d9b54; } }
+    @keyframes bgE { 0%,32.572% { transform: scaleX(0); fill: #e8932a; } 39.715% { transform: scaleX(1); fill: #e8932a; } 40.2%,100% { transform: scaleX(1); fill: #1d9b54; } }
+    @keyframes bgF { 0%,40.715% { transform: scaleX(0); fill: #e8932a; } 47.858% { transform: scaleX(1); fill: #e8932a; } 48.3%,100% { transform: scaleX(1); fill: #1d9b54; } }
+    /* WITH batching: cycle 1 = Batch 1 (ABC), cycle 2 = Batch 2 (DEF), done at 2 cycles */
+    @keyframes bgABC { 0% { transform: scaleX(0); fill: #e8932a; } 7.143% { transform: scaleX(1); fill: #e8932a; } 7.6%,100% { transform: scaleX(1); fill: #1d9b54; } }
+    @keyframes bgDEF { 0%,8.143% { transform: scaleX(0); fill: #e8932a; } 15.286% { transform: scaleX(1); fill: #e8932a; } 15.75%,100% { transform: scaleX(1); fill: #1d9b54; } }
+    /* completion badges: pop in ~0.15s after each bar finishes, hold to 100% */
+    @keyframes bdgAk { 0%,7.6% { opacity: 0; } 9.6%,100% { opacity: 1; } }
+    @keyframes bdgBk { 0%,15.75% { opacity: 0; } 17.75%,100% { opacity: 1; } }
+    @keyframes bdgCk { 0%,23.9% { opacity: 0; } 25.9%,100% { opacity: 1; } }
+    @keyframes bdgDk { 0%,32% { opacity: 0; } 34%,100% { opacity: 1; } }
+    @keyframes bdgEk { 0%,40.2% { opacity: 0; } 42.2%,100% { opacity: 1; } }
+    @keyframes bdgFk { 0%,48.3% { opacity: 0; } 50.3%,100% { opacity: 1; } }
+    @keyframes bdgABCk { 0%,7.6% { opacity: 0; } 9.6%,100% { opacity: 1; } }
+    @keyframes bdgDEFk { 0%,15.75% { opacity: 0; } 17.75%,100% { opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) {
+      .bA, .bB, .bC, .bD, .bE, .bF, .wABC, .wDEF,
+      .bdgA, .bdgB, .bdgC, .bdgD, .bdgE, .bdgF, .bdgABC, .bdgDEF { animation: none; }
+      .bar { transform: scaleX(1); fill: #1d9b54; }
+      .bdgA, .bdgB, .bdgC, .bdgD, .bdgE, .bdgF, .bdgABC, .bdgDEF { opacity: 1; }
+    }
+  </style>
+
+  <rect x="0" y="0" width="660" height="268" rx="10" fill="#ffffff"/>
+  <text x="16" y="22" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12.5" font-weight="700" fill="#3a4350">Same 6 PRs: batching finishes in 2 test runs, single-PR testing takes 6</text>
+  <text x="644" y="22" text-anchor="end" font-family="ui-sans-serif, system-ui, sans-serif" font-size="10.5" font-weight="600" fill="#9aa3b0">Front of queue &#8594;</text>
+
+  <!-- ===== Panel 1: WITHOUT batching (one PR per cycle, A..F) ===== -->
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    <text x="16" y="46" font-size="12" font-weight="700" fill="#3a4350">Without batching</text>
+    <text x="16" y="62" font-size="11" fill="#5b6573">6 test runs, one per PR</text>
+
+    <!-- PRs, A nearest front of queue (right). Tiles w40 gap7 -->
+    <rect x="325" y="72" width="40" height="30" rx="6" fill="#e2f4f1" stroke="#18a394" stroke-width="1.5"/>
+    <text x="345" y="92" text-anchor="middle" font-size="12" font-weight="700" fill="#0e7d70">F</text>
+    <rect x="372" y="72" width="40" height="30" rx="6" fill="#eee7fb" stroke="#7c5cdb" stroke-width="1.5"/>
+    <text x="392" y="92" text-anchor="middle" font-size="12" font-weight="700" fill="#5a3fb0">E</text>
+    <rect x="419" y="72" width="40" height="30" rx="6" fill="#e3edfc" stroke="#346DDB" stroke-width="1.5"/>
+    <text x="439" y="92" text-anchor="middle" font-size="12" font-weight="700" fill="#1f5fc0">D</text>
+    <rect x="466" y="72" width="40" height="30" rx="6" fill="#e2f4f1" stroke="#18a394" stroke-width="1.5"/>
+    <text x="486" y="92" text-anchor="middle" font-size="12" font-weight="700" fill="#0e7d70">C</text>
+    <rect x="513" y="72" width="40" height="30" rx="6" fill="#eee7fb" stroke="#7c5cdb" stroke-width="1.5"/>
+    <text x="533" y="92" text-anchor="middle" font-size="12" font-weight="700" fill="#5a3fb0">B</text>
+    <rect x="560" y="72" width="40" height="30" rx="6" fill="#e3edfc" stroke="#346DDB" stroke-width="1.5"/>
+    <text x="580" y="92" text-anchor="middle" font-size="12" font-weight="700" fill="#1f5fc0">A</text>
+
+    <!-- every PR gets its own test run, A..F in sequence -->
+    <rect x="560" y="107" width="40" height="4" rx="2" fill="#d9dee6"/>
+    <rect class="bar bA" x="560" y="107" width="40" height="4" rx="2" fill="#e8932a"/>
+    <rect x="513" y="107" width="40" height="4" rx="2" fill="#d9dee6"/>
+    <rect class="bar bB" x="513" y="107" width="40" height="4" rx="2" fill="#e8932a"/>
+    <rect x="466" y="107" width="40" height="4" rx="2" fill="#d9dee6"/>
+    <rect class="bar bC" x="466" y="107" width="40" height="4" rx="2" fill="#e8932a"/>
+    <rect x="419" y="107" width="40" height="4" rx="2" fill="#d9dee6"/>
+    <rect class="bar bD" x="419" y="107" width="40" height="4" rx="2" fill="#e8932a"/>
+    <rect x="372" y="107" width="40" height="4" rx="2" fill="#d9dee6"/>
+    <rect class="bar bE" x="372" y="107" width="40" height="4" rx="2" fill="#e8932a"/>
+    <rect x="325" y="107" width="40" height="4" rx="2" fill="#d9dee6"/>
+    <rect class="bar bF" x="325" y="107" width="40" height="4" rx="2" fill="#e8932a"/>
+
+    <!-- completion badges, upper-right corner of each tile -->
+    <g class="bdgA"><circle cx="597" cy="74" r="6" fill="#1d9b54" stroke="#fff" stroke-width="1.3"/><polyline points="594,74 596,76.2 600,72" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></g>
+    <g class="bdgB"><circle cx="550" cy="74" r="6" fill="#1d9b54" stroke="#fff" stroke-width="1.3"/><polyline points="547,74 549,76.2 553,72" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></g>
+    <g class="bdgC"><circle cx="503" cy="74" r="6" fill="#1d9b54" stroke="#fff" stroke-width="1.3"/><polyline points="500,74 502,76.2 506,72" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></g>
+    <g class="bdgD"><circle cx="456" cy="74" r="6" fill="#1d9b54" stroke="#fff" stroke-width="1.3"/><polyline points="453,74 455,76.2 459,72" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></g>
+    <g class="bdgE"><circle cx="409" cy="74" r="6" fill="#1d9b54" stroke="#fff" stroke-width="1.3"/><polyline points="406,74 408,76.2 412,72" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></g>
+    <g class="bdgF"><circle cx="362" cy="74" r="6" fill="#1d9b54" stroke="#fff" stroke-width="1.3"/><polyline points="359,74 361,76.2 365,72" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></g>
+  </g>
+
+  <line x1="16" y1="128" x2="644" y2="128" stroke="#ececec" stroke-width="1"/>
+
+  <!-- ===== Panel 2: WITH batching (one batch per cycle) ===== -->
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    <text x="16" y="150" font-size="12" font-weight="700" fill="#3a4350">With batching</text>
+    <text x="16" y="166" font-size="11" fill="#5b6573">2 test runs, all 6 merged sooner</text>
+
+    <!-- batch run labels -->
+    <text x="360" y="186" text-anchor="middle" font-size="10" font-weight="600" fill="#5b6573">Batch 2</text>
+    <text x="533" y="186" text-anchor="middle" font-size="10" font-weight="600" fill="#5b6573">Batch 1</text>
+
+    <!-- Batch 2 = DEF (back, left) -->
+    <rect x="293" y="192" width="134" height="40" rx="8" fill="#f7f9fc" stroke="#9aa3b0" stroke-width="1.5"/>
+    <rect x="301" y="197" width="36" height="30" rx="6" fill="#e2f4f1" stroke="#18a394" stroke-width="1.5"/>
+    <text x="319" y="217" text-anchor="middle" font-size="12" font-weight="700" fill="#0e7d70">F</text>
+    <rect x="342" y="197" width="36" height="30" rx="6" fill="#eee7fb" stroke="#7c5cdb" stroke-width="1.5"/>
+    <text x="360" y="217" text-anchor="middle" font-size="12" font-weight="700" fill="#5a3fb0">E</text>
+    <rect x="383" y="197" width="36" height="30" rx="6" fill="#e3edfc" stroke="#346DDB" stroke-width="1.5"/>
+    <text x="401" y="217" text-anchor="middle" font-size="12" font-weight="700" fill="#1f5fc0">D</text>
+
+    <!-- Batch 1 = ABC (front, right) -->
+    <rect x="466" y="192" width="134" height="40" rx="8" fill="#f7f9fc" stroke="#9aa3b0" stroke-width="1.5"/>
+    <rect x="474" y="197" width="36" height="30" rx="6" fill="#e2f4f1" stroke="#18a394" stroke-width="1.5"/>
+    <text x="492" y="217" text-anchor="middle" font-size="12" font-weight="700" fill="#0e7d70">C</text>
+    <rect x="515" y="197" width="36" height="30" rx="6" fill="#eee7fb" stroke="#7c5cdb" stroke-width="1.5"/>
+    <text x="533" y="217" text-anchor="middle" font-size="12" font-weight="700" fill="#5a3fb0">B</text>
+    <rect x="556" y="197" width="36" height="30" rx="6" fill="#e3edfc" stroke="#346DDB" stroke-width="1.5"/>
+    <text x="574" y="217" text-anchor="middle" font-size="12" font-weight="700" fill="#1f5fc0">A</text>
+
+    <!-- one test run per batch, sequential: Batch 1 (ABC) then Batch 2 (DEF) -->
+    <rect x="466" y="237" width="134" height="5" rx="2.5" fill="#d9dee6"/>
+    <rect class="bar wABC" x="466" y="237" width="134" height="5" rx="2.5" fill="#e8932a"/>
+    <rect x="293" y="237" width="134" height="5" rx="2.5" fill="#d9dee6"/>
+    <rect class="bar wDEF" x="293" y="237" width="134" height="5" rx="2.5" fill="#e8932a"/>
+
+    <!-- completion badges on the BATCH BOX (its top-right corner), not on a tile -->
+    <g class="bdgABC"><circle cx="596" cy="190" r="7.5" fill="#1d9b54" stroke="#fff" stroke-width="1.4"/><polyline points="592,190 595,193 600,186" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></g>
+    <g class="bdgDEF"><circle cx="423" cy="190" r="7.5" fill="#1d9b54" stroke="#fff" stroke-width="1.4"/><polyline points="419,190 422,193 427,186" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></g>
+
+    <text x="16" y="258" font-size="11" fill="#5b6573">Same 6 PRs merged in 2 runs while single-PR testing is still on C, D, E, F</text>
+  </g>
+</svg>

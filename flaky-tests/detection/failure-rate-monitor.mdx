@@ -11,6 +11,10 @@ You can create multiple failure rate monitors with different configurations. Thi
 
 The monitor periodically calculates the failure rate for each test within a time window you define. If the rate meets or exceeds your activation threshold and the test has enough runs to be statistically meaningful, the monitor activates on the test and runs its configured [action](#action) — by default, flagging the test as flaky or broken.
 
+<Frame caption="As failing runs accumulate, the failure rate crosses the activation threshold (flagged flaky); as it falls, it drops below the resolution threshold (back to healthy).">
+<img src="/assets/flaky-tests/detection/failure-rate-monitor.svg" alt="Test runs resolve pass or fail while a failure-rate meter rises past the 30% activation line and is flagged flaky, then falls below the 15% resolution line and resolves to healthy." />
+</Frame>
+
 ### Example
 
 You configure a failure rate monitor with:
