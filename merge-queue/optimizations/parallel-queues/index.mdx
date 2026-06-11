@@ -8,6 +8,10 @@ Normally, a merge queue behaves by enqueueing all submitted pull requests into a
 
 A regular merge queue operates like a grocery store with only a single checkout lane. When a lot of folks are trying to checkout at the same time - the line will grow (sometimes intolerably). With a dynamic parallel queue, trunk merge creates additional checkout lanes in real-time while still guaranteeing that the protected branch doesn't break.​
 
+<Frame caption="track impacted code of each pull request to create dynamic queues">
+<iframe allow="autoplay; fullscreen; picture-in-picture; display-capture; clipboard-write" allowfullscreen="" allowtransparency="true" referrerpolicy="no-referrer-when-downgrade" class="vidyard-iframe-XeTFxCCLuDUU3kip2RnykW" frameborder="0" height="100%" width="100%" scrolling="no" src="https://play.vidyard.com/XeTFxCCLuDUU3kip2RnykW?disable_popouts=1&amp;disable_analytics=0&amp;preload=auto&amp;disable_larger_player=false&amp;theater_button=0&amp;pip_button=0&amp;controller=hubs&amp;action=show&amp;type=inline&amp;v=4.3.20" title="trunk.io merge queue // parallel queues" spellcheck="false"></iframe>
+</Frame>
+
 For example, the following four pull requests:
 
 * PR A with impacted target list `[ frontend ]`
