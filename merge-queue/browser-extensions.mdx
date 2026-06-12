@@ -1,6 +1,6 @@
 ---
 title: "Browser Extensions"
-description: "Submit, cancel, and track Trunk Merge Queue pull requests directly from GitHub with the Trunk browser extension for Chrome and Firefox."
+description: "Submit, cancel, and track Trunk Merge Queue pull requests directly from GitHub with the Trunk browser extension for Chrome and Firefox. Optionally shows Flaky Tests results inline on the PR page."
 og:title: "The Trunk Merge Queue browser extension"
 ---
 
@@ -91,6 +91,25 @@ On pull requests managed by Trunk, the extension can hide parts of GitHub's nati
 | **Trunk (bot) GitHub Comments** | Trunk bot comments that prompt you to submit a PR to the merge queue (for example, "To merge this pull request, check the box" or a comment containing a `/merge-queue/` link) | On |
 
 Only Trunk's own merge-queue prompt comments (from the `trunk-io` bot account) are hidden. Comments from other bots and Trunk's non-merge-queue comments are left untouched. All submit, cancel, and status actions remain available through the extension panel regardless of these settings. Hiding is applied only on PR pages where the Trunk overlay is active.
+
+## Test details panel
+
+When enabled for your organization, the extension shows a **Test Details** panel on GitHub pull request pages for repositories that have [Flaky Tests uploads](../flaky-tests/overview) configured. The panel surfaces test run results without leaving the PR page.
+
+<Info>
+The Test Details panel is available to organizations with Trunk Flaky Tests. Contact [Trunk support](mailto:help@trunk.io) to enable it for your account.
+</Info>
+
+The panel shows:
+
+- **Overall result** — passed, failed, running, or in-progress counts for the PR head commit.
+- **Per-status counts** — passed, failed, quarantined, and flaky totals.
+- **Commit history** — a dropdown listing recent commits with their test run status, so you can compare a new failure against the previous commit's baseline.
+- **Deep links** — counts link directly into the Trunk Flaky Tests dashboard for detailed investigation.
+
+The panel only appears on PR pages where the repository has test uploads in Trunk. Repositories without uploads do not show the panel.
+
+The extension popup also gains a **Tests** tab (alongside **Merge Queues**) when the feature is active. The tab lists repositories that have test uploads and provides a direct link to the Flaky Tests app for each.
 
 ## Rolling the extension out to an entire org
 

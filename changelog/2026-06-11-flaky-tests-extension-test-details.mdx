@@ -1,0 +1,23 @@
+---
+title: "Flaky Tests: Test Details Panel in the Browser Extension"
+description: "The Trunk browser extension can now show per-commit test run results inline on GitHub pull request pages for repositories with Flaky Tests uploads."
+date: 2026-06-11
+category: Flaky Tests
+type: new
+---
+
+**The Trunk browser extension now shows a Test Details panel on GitHub pull request pages.**
+
+When enabled, the extension adds a panel to the GitHub PR sidebar showing test run results for the PR's head commit, sourced from your [Flaky Tests](https://docs.trunk.io/flaky-tests/overview) uploads:
+
+- **Pass/fail/quarantined/flaky counts** for the head commit, with links into the Trunk Flaky Tests dashboard.
+- **Commit history dropdown** so you can compare the current run against recent commits at a glance.
+- **Live status** — the panel reflects the current CI check state, updating as checks complete.
+
+The extension popup also gains a **Tests** tab listing repositories that have uploads in Trunk, with direct links to the Flaky Tests app.
+
+The panel only appears on PR pages for repositories with Flaky Tests uploads. Repositories without uploads are unaffected.
+
+Contact [Trunk support](https://slack.trunk.io) to enable the Test Details panel for your organization.
+
+[Read the docs](https://docs.trunk.io/merge-queue/browser-extensions#test-details-panel) to learn more.
