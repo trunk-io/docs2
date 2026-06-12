@@ -5,7 +5,7 @@ og:title: "Alerting on flaky test escalation with Trunk webhooks"
 ---
 A single "this test is now flaky" alert tells you a test crossed a threshold once. It doesn't tell you when that same test keeps getting worse — failing on more branches, tripping additional monitors, or degrading from flaky to a consistently broken regression. For tests that matter, you want to hear about the escalation, not just the first detection.
 
-This page shows how to wire that up with Trunk webhooks and a Slack transformation. It builds on the [Slack integration guide](./slack-integration) — set that connection up first, then come back here to filter it down to escalations.
+This page shows how to wire that up with Trunk webhooks and a Slack transformation. It builds on the [Slack integration guide](../webhooks/slack-integration) — set that connection up first, then come back here to filter it down to escalations.
 
 ## Pick the right event
 
@@ -13,8 +13,8 @@ The key decision is which event you subscribe to, because two different events f
 
 | Event | Fires when | Use it to |
 |---|---|---|
-| [`v2.test_case.status_changed`](./index) | The test's **overall health status** transitions between `HEALTHY`, `FLAKY`, and `BROKEN` | Alert on health escalations like `FLAKY` → `BROKEN` |
-| [`test_case.monitor_status_changed`](./index) | **Any individual monitor** activates or resolves for the test | Alert every time a monitor flags the test, even if its overall status doesn't move |
+| [`v2.test_case.status_changed`](../webhooks/index) | The test's **overall health status** transitions between `HEALTHY`, `FLAKY`, and `BROKEN` | Alert on health escalations like `FLAKY` → `BROKEN` |
+| [`test_case.monitor_status_changed`](../webhooks/index) | **Any individual monitor** activates or resolves for the test | Alert every time a monitor flags the test, even if its overall status doesn't move |
 
 The distinction matters. `v2.test_case.status_changed` only fires when the test's combined status changes. If a test is already `FLAKY` and a second monitor starts flagging it, the overall status stays `FLAKY`, so no `v2.test_case.status_changed` event is sent. To catch a test getting flagged by more monitors over time — the "more than just the first detection" case — subscribe to `test_case.monitor_status_changed` instead.
 
@@ -61,7 +61,7 @@ function handler(webhook) {
 }
 ```
 
-Reuse the `summarizeTestCase` helper from the [Slack integration guide](./slack-integration#id-2.-customize-your-transformation) to format the message body. The `previous_status → new_status` line in that template makes the escalation obvious in the channel.
+Reuse the `summarizeTestCase` helper from the [Slack integration guide](../webhooks/slack-integration#id-2.-customize-your-transformation) to format the message body. The `previous_status → new_status` line in that template makes the escalation obvious in the channel.
 
 ## Alert every time a monitor flags a test
 
@@ -111,7 +111,7 @@ Prefer labels over a separate broken classification when you want to triage a pa
 
 ## Related
 
-- [Integration for Slack](./slack-integration) — set up the Slack connection these transformations build on
-- [Webhooks](./index) — the full event catalog and field reference
+- [Integration for Slack](../webhooks/slack-integration) — set up the Slack connection these transformations build on
+- [Webhooks](../webhooks/index) — the full event catalog and field reference
 - [Flake Detection](../detection/) — how monitors classify tests as flaky or broken
 - [Test Labels](../management/test-labels) — apply and route labels with monitors

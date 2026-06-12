@@ -295,12 +295,17 @@
                 "group": "Webhooks",
                 "root": "flaky-tests/webhooks/index",
                 "pages": [
-                  "flaky-tests/webhooks/alert-on-test-escalation",
                   "flaky-tests/webhooks/slack-integration",
                   "flaky-tests/webhooks/microsoft-teams-integration",
                   "flaky-tests/webhooks/github-issues-integration",
                   "flaky-tests/webhooks/linear-integration",
                   "flaky-tests/webhooks/jira-integration"
+                ]
+              },
+              {
+                "group": "Recipes",
+                "pages": [
+                  "flaky-tests/recipes/alert-on-test-escalation"
                 ]
               },
               {
