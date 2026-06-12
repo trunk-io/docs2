@@ -1,0 +1,117 @@
+---
+title: "Alert When a Test Escalates"
+description: "Send Slack alerts when a test gets worse, not just the first time it's flagged"
+og:title: "Alerting on flaky test escalation with Trunk webhooks"
+---
+A single "this test is now flaky" alert tells you a test crossed a threshold once. It doesn't tell you when that same test keeps getting worse — failing on more branches, tripping additional monitors, or degrading from flaky to a consistently broken regression. For tests that matter, you want to hear about the escalation, not just the first detection.
+
+This page shows how to wire that up with Trunk webhooks and a Slack transformation. It builds on the [Slack integration guide](./slack-integration) — set that connection up first, then come back here to filter it down to escalations.
+
+## Pick the right event
+
+The key decision is which event you subscribe to, because two different events fire at two different granularities.
+
+| Event | Fires when | Use it to |
+|---|---|---|
+| [`v2.test_case.status_changed`](./index) | The test's **overall health status** transitions between `HEALTHY`, `FLAKY`, and `BROKEN` | Alert on health escalations like `FLAKY` → `BROKEN` |
+| [`test_case.monitor_status_changed`](./index) | **Any individual monitor** activates or resolves for the test | Alert every time a monitor flags the test, even if its overall status doesn't move |
+
+The distinction matters. `v2.test_case.status_changed` only fires when the test's combined status changes. If a test is already `FLAKY` and a second monitor starts flagging it, the overall status stays `FLAKY`, so no `v2.test_case.status_changed` event is sent. To catch a test getting flagged by more monitors over time — the "more than just the first detection" case — subscribe to `test_case.monitor_status_changed` instead.
+
+<Note>
+Test status priority is **Broken > Flaky > Healthy**. A test flagged by both a broken-type and a flaky-type monitor shows as `BROKEN` until the broken monitor resolves. See [Flake Detection](../detection/) for how the combined status is calculated.
+</Note>
+
+## Alert when a test becomes broken
+
+Use this when you want a louder, separate signal for tests that have degraded into consistent failures, distinct from routine flakiness.
+
+**1. Configure a broken-type monitor.** A test only reaches `BROKEN` status when a [failure rate](../detection/failure-rate-monitor) or [failure count](../detection/failure-count-monitor) monitor with its **Detection type** set to **Broken** is active for it. Set one up if you haven't already. A common pattern is to pair a broken-type monitor (catching consistently failing tests) with a flaky-type monitor (catching intermittent ones).
+
+**2. Filter the transformation to escalations.** In your Slack endpoint's transformation, cancel the webhook unless the status got worse. This example ranks the three statuses and only sends a message when `new_status` is more severe than `previous_status`, so recoveries and resolutions stay quiet:
+
+```javascript
+const SEVERITY = { HEALTHY: 0, FLAKY: 1, BROKEN: 2 };
+
+function handler(webhook) {
+  const { previous_status = "HEALTHY", new_status = "HEALTHY" } = webhook.payload;
+
+  // Only alert when the test got worse, not when it recovered.
+  if (SEVERITY[new_status] <= SEVERITY[previous_status]) {
+    webhook.cancel = true;
+    return webhook;
+  }
+
+  webhook.payload = summarizeTestCase(webhook.payload);
+  return webhook;
+}
+```
+
+To alert *only* when a test reaches the broken state — and stay silent on first-time flaky detections — gate on the new status directly instead:
+
+```javascript
+function handler(webhook) {
+  if (webhook.payload.new_status !== "BROKEN") {
+    webhook.cancel = true;
+    return webhook;
+  }
+
+  webhook.payload = summarizeTestCase(webhook.payload);
+  return webhook;
+}
+```
+
+Reuse the `summarizeTestCase` helper from the [Slack integration guide](./slack-integration#id-2.-customize-your-transformation) to format the message body. The `previous_status → new_status` line in that template makes the escalation obvious in the channel.
+
+## Alert every time a monitor flags a test
+
+Use this when you want to know about every detection event on a test, including the ones that don't change its overall status — a second monitor piling on, or a labeling monitor surfacing a new pattern.
+
+**1. Subscribe to `test_case.monitor_status_changed`.** On your Slack endpoint, enable this event in addition to (or instead of) `v2.test_case.status_changed`.
+
+**2. Filter to monitor activations.** The event fires on both activation and resolution, so cancel the webhook unless a monitor is becoming active:
+
+```javascript
+function handler(webhook) {
+  const { monitor } = webhook.payload;
+
+  // Only alert when a monitor starts flagging the test.
+  if (!monitor || monitor.status !== "active") {
+    webhook.cancel = true;
+    return webhook;
+  }
+
+  webhook.payload = {
+    blocks: [
+      {
+        type: "header",
+        text: { type: "plain_text", text: `Monitor active: ${webhook.payload.test_case.name}` },
+      },
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: [
+            `Monitor type: \`${monitor.type}\``,
+            `Test Details: ${webhook.payload.test_case.html_url}`,
+          ].join("\n"),
+        },
+      },
+    ],
+  };
+  return webhook;
+}
+```
+
+Because `test_case.monitor_status_changed` fires for every monitor independently, this catches a test that keeps tripping new monitors over time, even while its headline status stays `FLAKY`. The `monitor.type` field tells you which monitor fired, so you can branch on it — for example, route [labeling monitors](../management/test-labels#automatic-labeling-from-monitors) to a triage channel and health classification monitors to your on-call channel.
+
+<Tip>
+Prefer labels over a separate broken classification when you want to triage a pattern without changing a test's health status. Configure a monitor's action as **Apply labels**, then filter `test_case.monitor_status_changed` on `monitor.type` to route those activations wherever they belong. See [Test Labels](../management/test-labels) for the full setup.
+</Tip>
+
+## Related
+
+- [Integration for Slack](./slack-integration) — set up the Slack connection these transformations build on
+- [Webhooks](./index) — the full event catalog and field reference
+- [Flake Detection](../detection/) — how monitors classify tests as flaky or broken
+- [Test Labels](../management/test-labels) — apply and route labels with monitors

@@ -295,6 +295,7 @@
                 "group": "Webhooks",
                 "root": "flaky-tests/webhooks/index",
                 "pages": [
+                  "flaky-tests/webhooks/alert-on-test-escalation",
                   "flaky-tests/webhooks/slack-integration",
                   "flaky-tests/webhooks/microsoft-teams-integration",
                   "flaky-tests/webhooks/github-issues-integration",

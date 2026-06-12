@@ -147,6 +147,14 @@ You can see a list of past delivery attempts in the **Message Attempts** modal. 
 ![](/assets/flaky-tests/webhooks/example-webhook-logs.png)
 </Frame>
 
+## Alert only when a test gets worse
+
+By default this connection alerts on every status change. If you'd rather hear about a test only when it **escalates** — degrading to broken, or tripping more monitors over time — filter the transformation on the status transition instead of sending every event.
+
+<Card title="Alert When a Test Escalates" href="./alert-on-test-escalation" horizontal>
+  Send Slack alerts when a test gets worse, not just the first time it's flagged.
+</Card>
+
 ## Congratulations!
 
 You should now receive notifications in your Slack workspace when a test's status changes. You can further modify your transformation script to customize your messages.
