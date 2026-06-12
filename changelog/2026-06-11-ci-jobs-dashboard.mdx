@@ -1,0 +1,19 @@
+---
+title: "CI Autopilot: CI Jobs Dashboard (Early Access)"
+description: "A new CI jobs monitoring page surfaces pipeline and job performance metrics across your repositories."
+date: 2026-06-11
+category: CI Autopilot
+type: new
+---
+
+**A new CI jobs monitoring tab is now available in early access.**
+
+The **CI** tab in the Trunk app (`/[orgSlug]/ci`) provides a view of CI job performance across your repositories, powered by the CI span ingestion pipeline. The page surfaces aggregated metrics for every job Trunk has observed:
+
+- **Job list** — one row per CI job, showing provider, job name, and workflow.
+- **Run metrics** — run count, p50 and p95 duration, and pass rate (success / (success + failure + timed out); cancelled and skipped runs are excluded).
+- **Sparkline history** — an inline bar chart of the last 24 runs for each job, color-coded by result.
+- **Filters** — cascade filters by repository, workflow, and provider, plus free-text search over job or workflow name.
+- **Date range** — presets from 24 hours to 90 days (default 7 days), plus a custom day-range calendar. All filter and sort state lives in the URL, so views are shareable via deep link.
+
+The tab is currently available to organizations in the CI early access program. Contact [Trunk support](https://slack.trunk.io) to join.
