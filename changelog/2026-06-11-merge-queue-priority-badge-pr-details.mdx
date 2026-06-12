@@ -1,0 +1,14 @@
+---
+title: "Merge Queue: Priority Badge and Impacted Targets Tooltip on PR Details Page"
+description: "The PR details page in the Merge Queue dashboard now shows the priority badge and a tooltip when no impacted targets have been uploaded."
+date: 2026-06-11
+category: Merge Queue
+type: update
+---
+
+**The Merge Queue PR details page now shows priority and impacted target status at a glance.**
+
+Two improvements shipped to the PR details view:
+
+- **Priority badge.** When a PR has been assigned a [priority level](https://docs.trunk.io/merge-queue/optimizations/priority-merging) (High or Urgent), a badge now appears on the PR details page alongside the other PR metadata. Previously the badge was only visible on the merge graph view.
+- **No impacted targets tooltip.** When a parallel queue requires impacted targets but none have been uploaded for the PR yet, the PR details page now shows an inline tooltip explaining the missing data. This makes it easier to diagnose why a PR may be waiting before testing begins.
