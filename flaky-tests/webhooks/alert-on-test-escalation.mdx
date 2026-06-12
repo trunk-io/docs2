@@ -18,9 +18,9 @@ The key decision is which event you subscribe to, because two different events f
 
 The distinction matters. `v2.test_case.status_changed` only fires when the test's combined status changes. If a test is already `FLAKY` and a second monitor starts flagging it, the overall status stays `FLAKY`, so no `v2.test_case.status_changed` event is sent. To catch a test getting flagged by more monitors over time — the "more than just the first detection" case — subscribe to `test_case.monitor_status_changed` instead.
 
-<Note>
+<Info>
 Test status priority is **Broken > Flaky > Healthy**. A test flagged by both a broken-type and a flaky-type monitor shows as `BROKEN` until the broken monitor resolves. See [Flake Detection](../detection/) for how the combined status is calculated.
-</Note>
+</Info>
 
 ## Alert when a test becomes broken
 
