@@ -25,6 +25,10 @@ This is intended for public repositories that accept external contributions. For
 
 **Enable fork PR uploads.** In the Trunk web app, navigate to **Settings** → **Repositories** → **[your repo]** → **Flaky Tests** and toggle on **Fork PR Uploads**. Copy the **Public Repo Identifier** that appears below the toggle — an 8-character alphanumeric code scoped to that one repository.
 
+<Frame>
+  ![The Fork PR Uploads setting in a repository's Flaky Tests settings, showing the enabled toggle and the public repo identifier](/assets/flaky-tests/get-started/fork-pr-uploads-setting.png)
+</Frame>
+
 The identifier persists across toggles. Disabling stops accepting fork PR uploads, but re-enabling reuses the same identifier rather than generating a new one.
 
 **Use the identifier in your fork workflow.** Pass it in place of the org API token. With the Trunk uploader action, set the `public-repo-id` input:
@@ -56,7 +60,7 @@ The public repo identifier is not a secret. It is safe to commit directly in you
 **How authorization works.** The identifier is a routing and rate-limiting key, not a credential. Trunk accepts a fork PR upload only when two independent checks both pass:
 
 1. The repository has **Fork PR Uploads** enabled in settings.
-2. GitHub confirms the workflow run belongs to a pull request against the original repository.
+2. The upload targets the repository the identifier belongs to. An identifier only authorizes uploads to its own repository; an upload aimed at any other repository is rejected.
 
 The identifier alone does not grant upload access. To stop accepting fork PR uploads, disable **Fork PR Uploads** in settings.
 
