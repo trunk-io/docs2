@@ -1,0 +1,19 @@
+---
+title: "CI Autopilot: Fixed CI Job Status Accuracy for Out-of-Order Webhooks"
+description: "A data pipeline fix prevents stale webhook events from permanently overwriting a completed CI job's status, eliminating spurious 'skipped' results and 0% pass rates on re-runs that actually passed."
+date: 2026-06-12
+category: CI Autopilot
+type: fix
+---
+
+**CI job statuses now correctly reflect completed runs when webhooks arrive out of order.**
+
+GitHub `workflow_job` and `workflow_run` webhooks are delivered through an unordered queue. In cases where the `completed` event was processed before the `in_progress` event, the stale `in_progress` row could win the deduplication merge and leave the job displaying a placeholder `skipped` conclusion with no end time. Affected jobs showed as "1 run (failure), 1 skipped" at 0% pass rate even for re-runs that actually passed.
+
+The fix changes how the CI data pipeline determines which row wins when two events describe the same job span:
+
+- **Completed states always outrank running states.** The version column is now derived from event timestamps rather than ingestion wall-clock time, so a late-arriving `in_progress` event can never overwrite a `completed` event that was already processed.
+- **Existing corrupted spans are healed.** A schema migration retroactively recalculates versions for all stored spans, resolving previously stuck-running jobs.
+- **Zero-duration and clock-skewed events are handled.** The version formula uses the greater of `end_time` and `start_time` and adds a completed-state tiebreaker, covering edge cases where job timestamps have second-level granularity or minor clock skew.
+
+No action is required. The fix is applied automatically as part of the v203 deploy.

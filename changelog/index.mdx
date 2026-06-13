@@ -8,6 +8,18 @@ rss: true
 
 ### June 2026
 
+<Update label="June 12, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: Extension Submits Priority by Name](/changelog/2026-06-12-merge-queue-extension-priority-names)**
+
+  The Trunk browser extension now sends priority by name (urgent, high, low, medium) instead of numeric codes, so GitHub notifications display human-readable priority labels.
+</Update>
+
+<Update label="June 12, 2026" tags={["CI Autopilot"]}>
+  **[CI Autopilot: Fixed CI Job Status Accuracy for Out-of-Order Webhooks](/changelog/2026-06-12-ci-autopilot-ci-span-accuracy)**
+
+  A data pipeline fix prevents stale webhook events from permanently overwriting a completed CI job's status, eliminating spurious "skipped" results and 0% pass rates on re-runs that actually passed.
+</Update>
+
 <Update label="June 8, 2026" tags={["Merge Queue"]}>
   **[Merge Queue: Browser Extension Now Supports Firefox](/changelog/2026-06-08-merge-queue-firefox-extension)**
 

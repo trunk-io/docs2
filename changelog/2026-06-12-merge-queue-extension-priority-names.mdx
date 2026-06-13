@@ -1,0 +1,19 @@
+---
+title: "Merge Queue: Extension Submits Priority by Name"
+description: "The Trunk browser extension now sends priority by name (urgent, high, low, medium) instead of numeric codes, so GitHub notifications display human-readable priority labels."
+date: 2026-06-12
+category: Merge Queue
+type: update
+---
+
+**Priority labels in Merge Queue notifications are now human-readable.**
+
+When you submit a pull request with a priority from the Trunk browser extension, the request is now sent to the API using the priority name (`urgent`, `high`, `low`, or `medium`) rather than an internal numeric code. Previously, GitHub check notifications could surface the raw integer value instead of the label.
+
+What this means for you:
+
+- **Notification text shows the name.** Notifications triggered by a prioritized submission now display `urgent`, `high`, `low`, or `medium` rather than a number.
+- **"Normal" maps to "medium".** Submissions without an explicit priority (the default) are now consistently identified as `medium` in API payloads and any downstream notification text.
+- **No change to the extension UI.** The priority picker and submission flow in the browser extension are unchanged.
+
+[Read the docs](https://docs.trunk.io/merge-queue/browser-extensions) to learn more about priority merging from the extension.
