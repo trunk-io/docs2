@@ -64,6 +64,12 @@ In repositories with multiple teams or distinct components (like a TypeScript/Py
 * Nx
 * Custom build systems
 
+## Export metrics as CSV
+
+Each chart on the Health dashboard has a download icon in its top-right corner. Clicking it exports the chart's current data as a CSV file, using the same filters and time range shown on screen.
+
+Exported filenames follow the pattern `<chart>-<branch>-<start>_<end>.csv`. Timestamps match the chart's UTC setting: when **Time in UTC** is on, timestamps are in UTC; otherwise they use your local timezone. The download button is greyed out when the current filters return no data.
+
 ## Time buckets
 
 The date ranges selector at the top left of the dashboard allows you to filter the data displayed by date and time. You can display time buckets by the day or hour in the day/hour dropdown.
