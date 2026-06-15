@@ -70,11 +70,11 @@ function handler(webhook) {
 
 Both snippets replace the `handler` function from the [Slack integration guide](../webhooks/slack-integration#id-2.-customize-your-transformation); keep that guide's `summarizeTestCase` helper in the same transformation so the message body still renders. Its `previous_status → new_status` line makes the escalation obvious in the channel.
 
-<Warning>
-Classifying a test as **broken** changes its health status, and that can change quarantine behavior. Auto-quarantine applies only to tests with a **Flaky** status. So when a broken-type monitor flags a test that was auto-quarantined as flaky, the test becomes `BROKEN`, drops out of the auto-quarantine set, and its failures start blocking CI again. That is by design (a broken test is a real regression, not a flake to skip), but it means a broken classification is not a side-effect-free way to get an escalation alert.
+## The quarantine trade-off
 
-If you want the escalation signal *without* touching quarantine, use a **labeling** monitor instead (see [Alert every time a monitor flags a test](#alert-every-time-a-monitor-flags-a-test) below). Labels don't change health status, so an auto-quarantined test stays quarantined. Manually quarantined tests are unaffected either way. See [Quarantining](../quarantining/) and [Flake Detection](../detection/) for the full composite-status behavior.
-</Warning>
+Before you reach for a broken-type monitor, know what it does to quarantine. Classifying a test as broken changes its health status, and auto-quarantine applies only to tests with a **Flaky** status. So when a broken-type monitor flags a test that was auto-quarantined as flaky, the test becomes `BROKEN`, drops out of the auto-quarantine set, and its failures start blocking CI again. That is by design, since a broken test is a real regression, not a flake to skip. It also means a broken classification is not a side-effect-free way to get an escalation alert.
+
+Labels avoid this. A labeling monitor doesn't change health status, so an auto-quarantined test stays quarantined while you still get the activation signal (see [Alert every time a monitor flags a test](#alert-every-time-a-monitor-flags-a-test) below). Manually quarantined tests are unaffected either way. See [Quarantining](../quarantining/) and [Flake Detection](../detection/) for the full composite-status behavior.
 
 <Frame>
   <img src="/assets/flaky-tests/recipes/broken-classification-quarantine.svg" alt="A flaky, auto-quarantined test with CI passing. A broken-type monitor fires and reclassifies it as BROKEN. Because broken tests are not quarantine candidates, it drops out of auto-quarantine and its failures block CI again." />
@@ -123,7 +123,7 @@ function handler(webhook) {
 Because `test_case.monitor_status_changed` fires for every monitor independently, this catches a test that keeps tripping new monitors over time, even while its headline status stays `FLAKY`. The `monitor.type` field tells you which monitor fired, so you can branch on it: route [labeling monitors](../management/test-labels#automatic-labeling-from-monitors) to a triage channel and health classification monitors to your on-call channel.
 
 <Tip>
-Prefer labels over a broken classification when you want to triage a pattern without changing a test's health status (and, as noted above, without disturbing auto-quarantine). Configure a monitor's action as **Apply labels**, then filter `test_case.monitor_status_changed` on `monitor.type` to route those activations wherever they belong. See [Test Labels](../management/test-labels) for the full setup.
+To route by pattern without changing a test's health status, set a monitor's action to **Apply labels**, then branch on `monitor.type` in your transform to send those activations wherever they belong. See [Test Labels](../management/test-labels) for the full setup.
 </Tip>
 
 ## Related
