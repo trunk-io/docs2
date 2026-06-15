@@ -61,7 +61,13 @@ function handler(webhook) {
 }
 ```
 
-Reuse the `summarizeTestCase` helper from the [Slack integration guide](../webhooks/slack-integration#id-2.-customize-your-transformation) to format the message body. The `previous_status → new_status` line in that template makes the escalation obvious in the channel.
+Both snippets replace the `handler` function from the [Slack integration guide](../webhooks/slack-integration#id-2.-customize-your-transformation); keep that guide's `summarizeTestCase` helper in the same transformation so the message body still renders. Its `previous_status → new_status` line makes the escalation obvious in the channel.
+
+<Warning>
+Classifying a test as **broken** changes its health status, and that can change quarantine behavior. Auto-quarantine applies only to tests with a **Flaky** status, so when a broken-type monitor flags a test that was auto-quarantined as flaky, the test becomes `BROKEN`, drops out of the auto-quarantine set, and its failures start blocking CI again. This is by design — a broken test is a real regression, not a flake to skip — but it means a broken classification is not a side-effect-free way to get an escalation alert.
+
+If you want the escalation signal *without* touching quarantine, use a **labeling** monitor instead (see [Alert every time a monitor flags a test](#alert-every-time-a-monitor-flags-a-test) below). Labels don't change health status, so an auto-quarantined test stays quarantined. Manually quarantined tests are unaffected either way. See [Quarantining](../quarantining/) and [Flake Detection](../detection/) for the full composite-status behavior.
+</Warning>
 
 ## Alert every time a monitor flags a test
 
@@ -106,7 +112,7 @@ function handler(webhook) {
 Because `test_case.monitor_status_changed` fires for every monitor independently, this catches a test that keeps tripping new monitors over time, even while its headline status stays `FLAKY`. The `monitor.type` field tells you which monitor fired, so you can branch on it — for example, route [labeling monitors](../management/test-labels#automatic-labeling-from-monitors) to a triage channel and health classification monitors to your on-call channel.
 
 <Tip>
-Prefer labels over a separate broken classification when you want to triage a pattern without changing a test's health status. Configure a monitor's action as **Apply labels**, then filter `test_case.monitor_status_changed` on `monitor.type` to route those activations wherever they belong. See [Test Labels](../management/test-labels) for the full setup.
+Prefer labels over a broken classification when you want to triage a pattern without changing a test's health status — and, as noted above, without disturbing auto-quarantine. Configure a monitor's action as **Apply labels**, then filter `test_case.monitor_status_changed` on `monitor.type` to route those activations wherever they belong. See [Test Labels](../management/test-labels) for the full setup.
 </Tip>
 
 ## Related
