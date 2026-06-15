@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 228" width="660" height="228" role="img" aria-label="A flaky test that is auto-quarantined, with CI passing because its failure is ignored. A broken-type monitor fires and reclassifies the test as BROKEN. Because broken tests are not quarantine candidates, the test drops out of auto-quarantine and its failures block CI again. The animation runs the broken-type monitor, then highlights the after state on the right.">
+  <!--
+    Concept: classifying a test as broken can un-quarantine it (the quarantine side effect).
+    Before (left): FLAKY, auto-quarantined, CI passes. A broken-type monitor fires (middle scan
+    bar). After (right): BROKEN, not a quarantine candidate, CI blocked.
+
+    TIMING (6.5s loop, one scan = 0.5s = 7.7%):
+      monitor scan   10% to 17.7%   then "fired" (red)
+      after-state glow pulse on the right box at completion
+      finished frame HOLDS 18% to 100% (about 5.3s linger)
+    (Note: write "to", not a double hyphen, illegal inside an XML comment.)
+  -->
+  <style>
+    .bar { transform-box: fill-box; transform-origin: left center; }
+    .bar2 { animation: brkBar 6.5s linear infinite; }
+    .glow2 { animation: brkGlow 6.5s linear infinite; }
+    .flow { animation: brkFlow 6.5s linear infinite; }
+    @keyframes brkBar { 0%,10% { transform: scaleX(0); fill: #e8932a; } 17.7% { transform: scaleX(1); fill: #e8932a; } 18.7%,100% { transform: scaleX(1); fill: #d64545; } }
+    @keyframes brkGlow { 0%,17% { opacity: 0; } 19.5% { opacity: 0.42; } 30%,100% { opacity: 0; } }
+    @keyframes brkFlow { 0% { stroke-dashoffset: 16; } 18%,100% { stroke-dashoffset: 0; } }
+    @media (prefers-reduced-motion: reduce) {
+      .bar2, .glow2, .flow { animation: none; }
+      .bar { transform: scaleX(1); fill: #d64545; }
+      .glow2 { opacity: 0; }
+      .flow { stroke-dashoffset: 0; }
+    }
+  </style>
+
+  <rect x="0" y="0" width="660" height="228" rx="10" fill="#ffffff"/>
+  <text x="16" y="26" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12.5" font-weight="700" fill="#3a4350">Classifying a test as broken can un-quarantine it</text>
+
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    <!-- after-state glow (transient highlight) -->
+    <rect class="glow2" x="436" y="54" width="204" height="122" rx="10" fill="#d64545" opacity="0"/>
+
+    <!-- BEFORE box -->
+    <text x="24" y="50" font-size="11" font-weight="700" fill="#5b6573">Flaky + auto-quarantined</text>
+    <rect x="24" y="58" width="196" height="118" rx="8" fill="#f7f9fc" stroke="#9aa3b0" stroke-width="1"/>
+    <rect x="40" y="72" width="164" height="28" rx="6" fill="#e3edfc" stroke="#346DDB" stroke-width="1.5"/>
+    <text x="122" y="90" text-anchor="middle" font-size="11.5" font-weight="700" fill="#1f5fc0">Status: FLAKY</text>
+    <rect x="40" y="106" width="164" height="28" rx="6" fill="#eee7fb" stroke="#7c5cdb" stroke-width="1.5"/>
+    <text x="122" y="124" text-anchor="middle" font-size="11.5" fill="#5a3fb0">Auto-quarantined</text>
+    <rect x="40" y="140" width="164" height="28" rx="6" fill="#e4f5ea" stroke="#1d9b54" stroke-width="1.5"/>
+    <text x="122" y="158" text-anchor="middle" font-size="10.5" fill="#1d7a4d">CI passes (failure ignored)</text>
+
+    <!-- MIDDLE trigger -->
+    <text x="330" y="92" text-anchor="middle" font-size="11" fill="#5b6573">broken-type monitor fires</text>
+    <line class="flow" x1="248" y1="117" x2="424" y2="117" stroke="#9aa3b0" stroke-width="2" stroke-dasharray="8 4"/>
+    <polygon points="424,112 434,117 424,122" fill="#9aa3b0"/>
+    <rect x="252" y="128" width="160" height="6" rx="3" fill="#d9dee6"/>
+    <rect class="bar bar2" x="252" y="128" width="160" height="6" rx="3" fill="#e8932a"/>
+
+    <!-- AFTER box -->
+    <text x="440" y="50" font-size="11" font-weight="700" fill="#5b6573">Reclassified as broken</text>
+    <rect x="440" y="58" width="196" height="118" rx="8" fill="#f7f9fc" stroke="#9aa3b0" stroke-width="1"/>
+    <rect x="456" y="72" width="164" height="28" rx="6" fill="#fde7e7" stroke="#d64545" stroke-width="1.5"/>
+    <text x="538" y="90" text-anchor="middle" font-size="11.5" font-weight="700" fill="#b22222">Status: BROKEN</text>
+    <rect x="456" y="106" width="164" height="28" rx="6" fill="#eef1f5" stroke="#9aa3b0" stroke-width="1.5"/>
+    <text x="538" y="124" text-anchor="middle" font-size="10" fill="#5b6573">Not a quarantine candidate</text>
+    <rect x="456" y="140" width="164" height="28" rx="6" fill="#fde7e7" stroke="#d64545" stroke-width="1.5"/>
+    <text x="538" y="158" text-anchor="middle" font-size="10.5" fill="#b22222">CI blocked (failure counts)</text>
+
+    <!-- caption -->
+    <text x="16" y="198" font-size="11.5" fill="#5b6573">Broken tests are not quarantine candidates, so the test drops out of auto-quarantine</text>
+    <text x="16" y="214" font-size="11.5" fill="#5b6573">and its failures block CI again. Manually quarantined tests are unaffected.</text>
+  </g>
+</svg>
