@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 250" width="660" height="250" role="img" aria-label="A test starts HEALTHY. Monitor A fires and the test goes HEALTHY to FLAKY, so v2.test_case.status_changed sends an event and test_case.monitor_status_changed sends one too. Then Monitor B fires while the test is already FLAKY, so the overall status stays FLAKY: v2.test_case.status_changed sends nothing, but test_case.monitor_status_changed still sends an event. The animation steps through Monitor A then Monitor B, highlighting that status_changed misses the second escalation while monitor_status_changed catches it.">
+  <!--
+    Concept: the two events fire at different granularities (event-granularity gap).
+    Three time columns: Healthy (baseline), Monitor A fires (HEALTHY to FLAKY),
+    Monitor B fires (already FLAKY). Three lanes: overall Test status,
+    v2.test_case.status_changed, test_case.monitor_status_changed.
+    Teaching: status_changed is silent on the second escalation; monitor_status_changed is not.
+
+    TIMING (7s loop, one scan = 0.5s = 7.14%):
+      column 1 (Healthy) static baseline, present from the start
+      Monitor A scan   0% to 7.14%   then "fired" (blue), glow pulse on column 2
+      pause
+      Monitor B scan  14% to 21.14%  then "fired" (blue), glow pulse on column 3
+      finished frame HOLDS 21% to 100% (about 5.5s linger)
+    (Note: write "to", not a double hyphen, illegal inside an XML comment.)
+  -->
+  <style>
+    .bar { transform-box: fill-box; transform-origin: left center; }
+    .bar2 { animation: gapBar2 7s linear infinite; }
+    .bar3 { animation: gapBar3 7s linear infinite; }
+    .glow2 { animation: gapGlow2 7s linear infinite; }
+    .glow3 { animation: gapGlow3 7s linear infinite; }
+    @keyframes gapBar2 { 0% { transform: scaleX(0); fill: #e8932a; } 7.14% { transform: scaleX(1); fill: #e8932a; } 8.14%,100% { transform: scaleX(1); fill: #346DDB; } }
+    @keyframes gapBar3 { 0%,14% { transform: scaleX(0); fill: #e8932a; } 21.14% { transform: scaleX(1); fill: #e8932a; } 22.14%,100% { transform: scaleX(1); fill: #346DDB; } }
+    @keyframes gapGlow2 { 0%,6% { opacity: 0; } 8.5% { opacity: 0.4; } 15%,100% { opacity: 0; } }
+    @keyframes gapGlow3 { 0%,20% { opacity: 0; } 22.5% { opacity: 0.4; } 30%,100% { opacity: 0; } }
+    @media (prefers-reduced-motion: reduce) {
+      .bar2, .bar3, .glow2, .glow3 { animation: none; }
+      .bar { transform: scaleX(1); fill: #346DDB; }
+      .glow2, .glow3 { opacity: 0; }
+    }
+  </style>
+
+  <rect x="0" y="0" width="660" height="250" rx="10" fill="#ffffff"/>
+  <text x="16" y="26" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12.5" font-weight="700" fill="#3a4350">Two events, two granularities</text>
+
+  <g font-family="ui-sans-serif, system-ui, sans-serif">
+    <!-- column glows (transient highlight when each monitor fires) -->
+    <rect class="glow2" x="337" y="82" width="136" height="114" rx="9" fill="#e8932a" opacity="0"/>
+    <rect class="glow3" x="497" y="82" width="136" height="114" rx="9" fill="#e8932a" opacity="0"/>
+
+    <!-- column headers -->
+    <text x="245" y="48" text-anchor="middle" font-size="11.5" font-weight="700" fill="#3a4350">Healthy</text>
+    <text x="245" y="62" text-anchor="middle" font-size="10.5" fill="#5b6573">starting state</text>
+
+    <text x="405" y="48" text-anchor="middle" font-size="11.5" font-weight="700" fill="#3a4350">Monitor A fires</text>
+    <text x="405" y="62" text-anchor="middle" font-size="10.5" fill="#1f5fc0">HEALTHY &#8594; FLAKY</text>
+    <rect x="345" y="72" width="120" height="5" rx="2.5" fill="#d9dee6"/>
+    <rect class="bar bar2" x="345" y="72" width="120" height="5" rx="2.5" fill="#e8932a"/>
+
+    <text x="565" y="48" text-anchor="middle" font-size="11.5" font-weight="700" fill="#3a4350">Monitor B fires</text>
+    <text x="565" y="62" text-anchor="middle" font-size="10.5" fill="#5b6573">already FLAKY</text>
+    <rect x="505" y="72" width="120" height="5" rx="2.5" fill="#d9dee6"/>
+    <rect class="bar bar3" x="505" y="72" width="120" height="5" rx="2.5" fill="#e8932a"/>
+
+    <!-- lane labels -->
+    <text x="16" y="104" font-size="11" fill="#5b6573">Test status</text>
+    <text x="16" y="136" font-size="10" fill="#5b6573">v2.test_case.</text>
+    <text x="16" y="148" font-size="10" fill="#5b6573">status_changed</text>
+    <text x="16" y="176" font-size="10" fill="#5b6573">test_case.</text>
+    <text x="16" y="188" font-size="10" fill="#5b6573">monitor_status_changed</text>
+
+    <!-- Row 1: Test status (HEALTHY then FLAKY then FLAKY) -->
+    <rect x="185" y="88" width="120" height="26" rx="6" fill="#e4f5ea" stroke="#1d9b54" stroke-width="1.5"/>
+    <text x="245" y="105" text-anchor="middle" font-size="12" font-weight="700" fill="#1d7a4d">HEALTHY</text>
+    <text x="325" y="106" text-anchor="middle" font-size="13" fill="#9aa3b0">&#8594;</text>
+    <rect x="345" y="88" width="120" height="26" rx="6" fill="#e3edfc" stroke="#346DDB" stroke-width="1.5"/>
+    <text x="405" y="105" text-anchor="middle" font-size="12" font-weight="700" fill="#1f5fc0">FLAKY</text>
+    <text x="485" y="106" text-anchor="middle" font-size="13" fill="#9aa3b0">&#8594;</text>
+    <rect x="505" y="88" width="120" height="26" rx="6" fill="#e3edfc" stroke="#346DDB" stroke-width="1.5"/>
+    <text x="565" y="105" text-anchor="middle" font-size="12" font-weight="700" fill="#1f5fc0">FLAKY</text>
+
+    <!-- Row 2: v2.test_case.status_changed (none, sent, NO event) -->
+    <text x="245" y="145" text-anchor="middle" font-size="11" fill="#c2c8d0">&#183;</text>
+    <rect x="345" y="128" width="120" height="26" rx="6" fill="#e3edfc" stroke="#346DDB" stroke-width="1.5"/>
+    <text x="405" y="145" text-anchor="middle" font-size="11" fill="#1f5fc0">event sent</text>
+    <rect x="505" y="128" width="120" height="26" rx="6" fill="#eef1f5" stroke="#9aa3b0" stroke-width="1.5" stroke-dasharray="4 3"/>
+    <text x="565" y="145" text-anchor="middle" font-size="11" fill="#5b6573">no event</text>
+
+    <!-- Row 3: test_case.monitor_status_changed (none, sent, sent) -->
+    <text x="245" y="185" text-anchor="middle" font-size="11" fill="#c2c8d0">&#183;</text>
+    <rect x="345" y="168" width="120" height="26" rx="6" fill="#e2f4f1" stroke="#18a394" stroke-width="1.5"/>
+    <text x="405" y="185" text-anchor="middle" font-size="11" fill="#0e7d70">event sent</text>
+    <rect x="505" y="168" width="120" height="26" rx="6" fill="#e2f4f1" stroke="#18a394" stroke-width="1.5"/>
+    <text x="565" y="185" text-anchor="middle" font-size="11" fill="#0e7d70">event sent</text>
+
+    <!-- caption -->
+    <text x="16" y="218" font-size="11.5" fill="#5b6573">status_changed fires only when the overall status changes, so Monitor B sends nothing.</text>
+    <text x="16" y="234" font-size="11.5" fill="#5b6573">monitor_status_changed fires on every activation, so it catches both escalations.</text>
+  </g>
+</svg>

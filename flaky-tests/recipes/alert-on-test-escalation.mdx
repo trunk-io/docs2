@@ -3,20 +3,24 @@ title: "Alert When a Test Escalates"
 description: "Send Slack alerts when a test gets worse, not just the first time it's flagged"
 og:title: "Alerting on flaky test escalation with Trunk webhooks"
 ---
-A single "this test is now flaky" alert tells you a test crossed a threshold once. It doesn't tell you when that same test keeps getting worse — failing on more branches, tripping additional monitors, or degrading from flaky to a consistently broken regression. For tests that matter, you want to hear about the escalation, not just the first detection.
+A single "this test is now flaky" alert tells you a test crossed a threshold once. It says nothing about what happens next: the same test failing on more branches, tripping more monitors, or sliding from flaky into a consistently broken regression. For the tests that matter, you want to hear about the escalation, not just the first detection.
 
-This page shows how to wire that up with Trunk webhooks and a Slack transformation. It builds on the [Slack integration guide](../webhooks/slack-integration) — set that connection up first, then come back here to filter it down to escalations.
+This page wires that up with Trunk webhooks and a Slack transformation. It builds on the [Slack integration guide](../webhooks/slack-integration), so set that connection up first, then come back here to filter it down to escalations.
 
 ## Pick the right event
 
-The key decision is which event you subscribe to, because two different events fire at two different granularities.
+The one decision that matters is which event you subscribe to. Two events fire here, at two different granularities.
 
 | Event | Fires when | Use it to |
 |---|---|---|
 | [`v2.test_case.status_changed`](../webhooks/index) | The test's **overall health status** transitions between `HEALTHY`, `FLAKY`, and `BROKEN` | Alert on health escalations like `FLAKY` → `BROKEN` |
 | [`test_case.monitor_status_changed`](../webhooks/index) | **Any individual monitor** activates or resolves for the test | Alert every time a monitor flags the test, even if its overall status doesn't move |
 
-The distinction matters. `v2.test_case.status_changed` only fires when the test's combined status changes. If a test is already `FLAKY` and a second monitor starts flagging it, the overall status stays `FLAKY`, so no `v2.test_case.status_changed` event is sent. To catch a test getting flagged by more monitors over time — the "more than just the first detection" case — subscribe to `test_case.monitor_status_changed` instead.
+That distinction matters. `v2.test_case.status_changed` only fires when the test's combined status changes. If a test is already `FLAKY` and a second monitor starts flagging it, the overall status stays `FLAKY`, so nothing is sent. To catch a test that keeps getting flagged by more monitors over time (the "more than just the first detection" case), subscribe to `test_case.monitor_status_changed` instead.
+
+<Frame>
+  <img src="/assets/flaky-tests/recipes/event-granularity-gap.svg" alt="A test goes HEALTHY to FLAKY when Monitor A fires, so both events send. When Monitor B fires while the test is already FLAKY, v2.test_case.status_changed sends nothing while test_case.monitor_status_changed still fires." />
+</Frame>
 
 <Info>
 Test status priority is **Broken > Flaky > Healthy**. A test flagged by both a broken-type and a flaky-type monitor shows as `BROKEN` until the broken monitor resolves. See [Flake Detection](../detection/) for how the combined status is calculated.
@@ -24,7 +28,7 @@ Test status priority is **Broken > Flaky > Healthy**. A test flagged by both a b
 
 ## Alert when a test becomes broken
 
-Use this when you want a louder, separate signal for tests that have degraded into consistent failures, distinct from routine flakiness.
+Use this when consistently failing tests deserve a louder, separate signal than routine flakiness.
 
 **1. Configure a broken-type monitor.** A test only reaches `BROKEN` status when a [failure rate](../detection/failure-rate-monitor) or [failure count](../detection/failure-count-monitor) monitor with its **Detection type** set to **Broken** is active for it. Set one up if you haven't already. A common pattern is to pair a broken-type monitor (catching consistently failing tests) with a flaky-type monitor (catching intermittent ones).
 
@@ -49,7 +53,7 @@ function handler(webhook) {
 }
 ```
 
-To alert *only* when a test reaches the broken state — and stay silent on first-time flaky detections — gate on the new status directly instead:
+To alert *only* when a test reaches the broken state, and stay quiet on first-time flaky detections, gate on the new status directly instead:
 
 ```javascript
 function handler(webhook) {
@@ -67,14 +71,18 @@ function handler(webhook) {
 Both snippets replace the `handler` function from the [Slack integration guide](../webhooks/slack-integration#id-2.-customize-your-transformation); keep that guide's `summarizeTestCase` helper in the same transformation so the message body still renders. Its `previous_status → new_status` line makes the escalation obvious in the channel.
 
 <Warning>
-Classifying a test as **broken** changes its health status, and that can change quarantine behavior. Auto-quarantine applies only to tests with a **Flaky** status, so when a broken-type monitor flags a test that was auto-quarantined as flaky, the test becomes `BROKEN`, drops out of the auto-quarantine set, and its failures start blocking CI again. This is by design — a broken test is a real regression, not a flake to skip — but it means a broken classification is not a side-effect-free way to get an escalation alert.
+Classifying a test as **broken** changes its health status, and that can change quarantine behavior. Auto-quarantine applies only to tests with a **Flaky** status. So when a broken-type monitor flags a test that was auto-quarantined as flaky, the test becomes `BROKEN`, drops out of the auto-quarantine set, and its failures start blocking CI again. That is by design (a broken test is a real regression, not a flake to skip), but it means a broken classification is not a side-effect-free way to get an escalation alert.
 
 If you want the escalation signal *without* touching quarantine, use a **labeling** monitor instead (see [Alert every time a monitor flags a test](#alert-every-time-a-monitor-flags-a-test) below). Labels don't change health status, so an auto-quarantined test stays quarantined. Manually quarantined tests are unaffected either way. See [Quarantining](../quarantining/) and [Flake Detection](../detection/) for the full composite-status behavior.
 </Warning>
 
+<Frame>
+  <img src="/assets/flaky-tests/recipes/broken-classification-quarantine.svg" alt="A flaky, auto-quarantined test with CI passing. A broken-type monitor fires and reclassifies it as BROKEN. Because broken tests are not quarantine candidates, it drops out of auto-quarantine and its failures block CI again." />
+</Frame>
+
 ## Alert every time a monitor flags a test
 
-Use this when you want to know about every detection event on a test, including the ones that don't change its overall status — a second monitor piling on, or a labeling monitor surfacing a new pattern.
+Use this when you want to know about every detection event on a test, including the ones that don't change its overall status (a second monitor piling on, or a labeling monitor surfacing a new pattern).
 
 **1. Subscribe to `test_case.monitor_status_changed`.** On your Slack endpoint, enable this event in addition to (or instead of) `v2.test_case.status_changed`.
 
@@ -112,15 +120,15 @@ function handler(webhook) {
 }
 ```
 
-Because `test_case.monitor_status_changed` fires for every monitor independently, this catches a test that keeps tripping new monitors over time, even while its headline status stays `FLAKY`. The `monitor.type` field tells you which monitor fired, so you can branch on it — for example, route [labeling monitors](../management/test-labels#automatic-labeling-from-monitors) to a triage channel and health classification monitors to your on-call channel.
+Because `test_case.monitor_status_changed` fires for every monitor independently, this catches a test that keeps tripping new monitors over time, even while its headline status stays `FLAKY`. The `monitor.type` field tells you which monitor fired, so you can branch on it: route [labeling monitors](../management/test-labels#automatic-labeling-from-monitors) to a triage channel and health classification monitors to your on-call channel.
 
 <Tip>
-Prefer labels over a broken classification when you want to triage a pattern without changing a test's health status — and, as noted above, without disturbing auto-quarantine. Configure a monitor's action as **Apply labels**, then filter `test_case.monitor_status_changed` on `monitor.type` to route those activations wherever they belong. See [Test Labels](../management/test-labels) for the full setup.
+Prefer labels over a broken classification when you want to triage a pattern without changing a test's health status (and, as noted above, without disturbing auto-quarantine). Configure a monitor's action as **Apply labels**, then filter `test_case.monitor_status_changed` on `monitor.type` to route those activations wherever they belong. See [Test Labels](../management/test-labels) for the full setup.
 </Tip>
 
 ## Related
 
-- [Integration for Slack](../webhooks/slack-integration) — set up the Slack connection these transformations build on
-- [Webhooks](../webhooks/index) — the full event catalog and field reference
-- [Flake Detection](../detection/) — how monitors classify tests as flaky or broken
-- [Test Labels](../management/test-labels) — apply and route labels with monitors
+- [Integration for Slack](../webhooks/slack-integration). The Slack connection these transformations build on.
+- [Webhooks](../webhooks/index). The full event catalog and field reference.
+- [Flake Detection](../detection/). How monitors classify tests as flaky or broken.
+- [Test Labels](../management/test-labels). Apply and route labels with monitors.
