@@ -31,6 +31,7 @@ Use this when you want a louder, separate signal for tests that have degraded in
 **2. Filter the transformation to escalations.** In your Slack endpoint's transformation, cancel the webhook unless the status got worse. This example ranks the three statuses and only sends a message when `new_status` is more severe than `previous_status`, so recoveries and resolutions stay quiet:
 
 ```javascript
+// Status values are uppercase (HEALTHY, FLAKY, BROKEN), matching the payload.
 const SEVERITY = { HEALTHY: 0, FLAKY: 1, BROKEN: 2 };
 
 function handler(webhook) {
@@ -42,6 +43,7 @@ function handler(webhook) {
     return webhook;
   }
 
+  // summarizeTestCase() is defined in the Slack integration guide.
   webhook.payload = summarizeTestCase(webhook.payload);
   return webhook;
 }
@@ -56,6 +58,7 @@ function handler(webhook) {
     return webhook;
   }
 
+  // summarizeTestCase() is defined in the Slack integration guide.
   webhook.payload = summarizeTestCase(webhook.payload);
   return webhook;
 }
