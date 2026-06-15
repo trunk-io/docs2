@@ -32,12 +32,12 @@ bazel test <TARGETS> \
 Trunk can parse the `build_events.json` file to locate your test reports. You will still need to **configure your test runners to output compatible reports**, and you can refer to the guides for [individual test frameworks](./).
 
 <Info>
-  Trunk accepts BEP files in both JSON and binary formats:
+  Trunk accepts BEP files in both JSON and binary formats. Each output format has its own path-conversion flag, so pick the pair that matches the file you generate:
 
-  - `--build_event_json_file` for JSON
-  - `--build_event_binary_file` for the binary protobuf encoding
+  - JSON: `--build_event_json_file` with `--nobuild_event_json_file_path_conversion`
+  - Binary protobuf: `--build_event_binary_file` with `--nobuild_event_binary_file_path_conversion`
 
-  Pass either file to the analytics CLI's `--bazel-bep-path`. The CLI detects the format automatically, so you don't need to tell it which one you used.
+  Pass whichever file you generated to the analytics CLI's `--bazel-bep-path`. The CLI detects the format automatically, so you don't need to tell it which one you used.
 </Info>
 
 ## Bazel flags
