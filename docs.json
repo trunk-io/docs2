@@ -624,6 +624,7 @@
               {
                 "group": "June",
                 "pages": [
+                  "changelog/2026-06-15-merge-queue-config-checker-improvements",
                   "changelog/2026-06-08-merge-queue-firefox-extension",
                   "changelog/2026-06-04-merge-queue-chrome-extension-0-8-0"
                 ]

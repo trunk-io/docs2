@@ -1,0 +1,20 @@
+---
+title: "Merge Queue: Configuration Issues Panel Improvements"
+description: "The Configuration Issues tab now has a Recheck button, shows rule-level hints, auto-expands failing checks, and orders details to show the fix first."
+date: 2026-06-15
+category: Merge Queue
+type: update
+---
+
+**The Configuration Issues panel in Merge Queue administration is easier to act on: a Recheck button lets you re-run the validator on demand, and each issue now puts the fix first.**
+
+Four changes shipped in this release:
+
+- **Recheck on demand.** A **Recheck** button on the Configuration Issues tab re-runs the ruleset validator immediately. Previously, the panel only refreshed when the backend rescanned on its own schedule. Use it after making a configuration change to confirm the issue is resolved without waiting.
+- **Rule-level hints.** Individual config issues can now include hints, a list of supplementary guidance specific to that rule. Hints appear below the Solution step and above the Sources list, and are omitted when the backend does not return any for a given rule. For example, a branch-targeting rule may surface a near-miss pattern to help you identify a typo in a branch name.
+- **Auto-expanded failing checks.** Rows that are failing or warning now open by default when you land on the Issues tab. Previously all rows were collapsed. This saves a click when the reason you navigated to the tab is to read an error.
+- **Fix-first detail order.** The issue detail cards now show Solution before Cause, so the actionable step appears before the explanation. The full order is: Solution, Cause, Hints, Sources.
+
+Source: [trunk-io/trunk2#4170](https://github.com/trunk-io/trunk2/pull/4170)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
