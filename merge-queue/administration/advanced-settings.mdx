@@ -316,6 +316,47 @@ Whether or not GitHub slash commands like `/trunk merge` are enabled for this me
 
 ***
 
+## Label Commands
+
+> Toggle this feature **Enabled** or **Disabled**. Default is **Enabled**.
+
+Use GitHub PR labels to enqueue and dequeue pull requests, as an alternative to [GitHub commands](./advanced-settings#github-commands) or the merge checkbox. Adding the configured label to a PR submits it to the queue; removing the label cancels it.
+
+### Enqueueing label
+
+When Label Commands is enabled, set the label that submits a PR to the queue. The default is `trunk-merge-queue-submit`. Choose any label name that fits your team's conventions.
+
+**When to use:**
+
+* **Automation** - Tools and workflows that already manage PR labels can enqueue PRs by applying the label, without calling the API or posting a comment.
+* **GitHub-native workflow** - Developers who prefer managing PRs through labels can submit and cancel without learning slash commands.
+
+***
+
+## State Labels
+
+> Toggle this feature **Enabled** or **Disabled**. Default is **Enabled**.
+
+When enabled, Trunk applies a label to each PR reflecting its current state in the merge queue (for example, queued, testing, or failed) and updates it as the PR moves through the queue. This surfaces queue status directly in GitHub's PR list and label filters.
+
+<Info>
+**Note:** Once a PR has been given a state label, Trunk continues to manage that PR's labels even if this setting is later disabled. Disabling State Labels stops new PRs from being labeled, but PRs already labeled keep having their labels updated.
+</Info>
+
+***
+
+## Browser Extension
+
+> Toggle this feature **Enabled** or **Disabled**. Default is **Enabled**.
+
+Controls whether the [Trunk browser extension](../browser-extensions) is active for this branch's merge queue. When enabled, the extension (if installed) shows merge queue information on GitHub PR pages for this branch. When disabled, the extension behaves as though no merge queue is configured for the branch, hiding all merge queue UI on those pages.
+
+**When to disable:**
+
+* **Quiet rollout** - You're evaluating the merge queue on a new repository and want to add it without surfacing merge queue UI to other developers. Disable the extension for the branch while you test, then re-enable it when you're ready to roll out to your team.
+
+***
+
 ## Connect with Slack
 
 [Connect Trunk Merge Queue to Slack](../integration-for-slack) to receive real-time notifications about queue activity. After [installing the Trunk Slack app](../integration-for-slack#installing-the-trunk-slack-app) for your organization, you can route notifications to **multiple Slack channels** per repository, each with its own set of enabled topics. Individual users can also receive **personal DMs** about their PRs.
