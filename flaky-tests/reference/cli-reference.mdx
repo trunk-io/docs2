@@ -254,6 +254,7 @@ The `upload` and `test` commands accept the following options:
 | `--repo-head-branch <REPO_HEAD_BRANCH>` | Value to override branch of repository head. **Optional**. |
 | `--repo-head-commit-epoch <REPO_HEAD_COMMIT_EPOCH>` | Value to override commit epoch of repository head. **Optional**. |
 | `--codeowners-path <CODEOWNERS_PATH>` | Value to override CODEOWNERS file or directory path. **Optional**. |
+| `--use-bazel-target-for-codeowners` | When uploading a Bazel BEP file, use the Bazel target as a fallback path to associate test cases to codeowners. **Optional**. |
 | `--allow-empty-test-results` | Don't fail commands if test results are empty or missing. Use it when you sometimes skip all tests for certain CI jobs. Defaults to `true`. |
 | `--variant <VARIANT_NAME>` | Upload tests to a specific variant group. **Optional**. |
 | `--test-process-exit-code` `<EXIT_CODE>` | Specify the exit code of the test previously run. This is used by the upload command to identify errors that happen outside of the context of the test execution (such as build errors). |

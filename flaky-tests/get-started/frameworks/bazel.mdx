@@ -108,6 +108,19 @@ You make an upload to Trunk using the following command:
     --token <TRUNK_ORG_TOKEN>
 ```
 
+### Codeowners and Bazel Targets
+
+If your test cases don't have file paths that can be matched against your CODEOWNERS file, you can pass `--use-bazel-target-for-codeowners` to fall back to the Bazel target name (e.g. `//path/to:target`) when associating test cases to owners:
+
+```sh
+./trunk-analytics-cli upload --bazel-bep-path=build_events.json \
+    --org-url-slug <TRUNK_ORG_URL_SLUG> \
+    --token <TRUNK_ORG_TOKEN> \
+    --use-bazel-target-for-codeowners
+```
+
+When using the [Analytics Uploader GitHub Action](https://github.com/trunk-io/analytics-uploader), set the `use-bazel-target-for-codeowners: true` input alongside `bazel-bep-path`.
+
 ## Next Steps
 
 Configure your CI to upload test runs to Trunk. Find the guides for your CI framework below:
