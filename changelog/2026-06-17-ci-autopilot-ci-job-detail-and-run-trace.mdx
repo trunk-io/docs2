@@ -1,0 +1,32 @@
+---
+title: "CI Autopilot: Job Detail Page and Run Trace View"
+description: "Drill into individual CI jobs and explore workflow runs as a full waterfall trace."
+date: 2026-06-17
+category: CI Autopilot
+type: update
+---
+
+**CI Autopilot now has a full three-level jobs hierarchy: the jobs index, a per-job detail page, and a per-run trace view.**
+
+Two new pages complete the drill-down started by the CI jobs index (available in early access behind the `showCiDashboard` feature flag):
+
+**Job detail page** (`/ci/jobs/[taskId]`)
+
+Click any row on the CI jobs index to open the detail page for that job. It shows:
+
+- **Stats strip** (skip-aware over the selected time range): pass rate with a color indicator, median duration with p50 and p95, and retry count.
+- **Daily pass/fail chart**: stacked bars per day over the selected window (24H / 7D / 30D / 90D / custom). Click or drag a bar to filter the run history table to that day or range. Past 60 days switches to weekly buckets.
+- **Filters**: result (All / Pass / Fail), source (All / Merge queue / PRs), SHA, and branch glob.
+- **Run history table**: timestamp, duration, PR, branch (with a merge-queue pill), test count, and commit with a retry indicator. Click any row to open the run trace.
+
+**Run trace view** (`/ci/jobs/[taskId]/runs/[spanId]`)
+
+Click any row in the run history table to open a CI-specific waterfall of the whole workflow run that job belongs to:
+
+- **Lanes are jobs** (grouped by stable job identity), with steps nested beneath each lane and expanded by default.
+- **Queued time shows inline** as a leading segment on each job row, so you can see how long a job waited before execution started.
+- **Re-runs share one lane.** When GitHub reruns a workflow, all attempts appear on the same row as compact columns with a compressed-timeline break and an elapsed-gap label between them, so each attempt uses its own time axis and prior attempts never overlap a rerun's spans.
+- **Zoom and search.** Hold Cmd/Ctrl and scroll to zoom the time axis (cursor-anchored); the label column stays frozen. Press Cmd/Ctrl+F to search spans by name; Enter and Shift+Enter step through matches.
+- **Span detail panel.** Click any span to open a resizable right panel with an Overview tab (start time, duration, queued time, run link, attributes) and a Logs tab (placeholder; CI logs ingestion is in progress).
+
+The URL carries the selected span (`?span=...`) for sharing and deep-linking, and defaults to the span that anchored navigation from the run history table.
