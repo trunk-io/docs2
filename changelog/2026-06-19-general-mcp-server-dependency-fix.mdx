@@ -1,0 +1,15 @@
+---
+title: "General: Trunk MCP Server Restored"
+description: "The Trunk MCP server is fully operational again after a dependency migration from the deprecated @vercel/mcp-adapter package to mcp-handler."
+date: 2026-06-19
+category: General
+type: update
+---
+
+**The Trunk MCP server is fully operational again.**
+
+The underlying adapter package (`@vercel/mcp-adapter`) was deprecated by Vercel. This update migrates to its replacement (`mcp-handler`), restoring MCP connectivity for all clients.
+
+No configuration changes are required. If you were seeing errors when connecting an MCP client to Trunk, reconnecting should now work.
+
+[Read the docs](https://docs.trunk.io/flaky-tests/mcp-tools) to learn more.

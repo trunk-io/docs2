@@ -1,0 +1,15 @@
+---
+title: "Flaky Tests: Last Run Sort Restored"
+description: "The Last Run sort column on the tests list is working again after a query fix in the underlying data service."
+date: 2026-06-19
+category: Flaky Tests
+type: update
+---
+
+**Sorting the tests list by Last Run now works correctly again.**
+
+A recent schema change introduced an ambiguous column reference (`last_seen`) in the query that powers the tests list, which caused sorting by Last Run to fail entirely. The query now reads `last_seen` directly from the test case table, resolving the ambiguity and using a faster materialized-view-backed path.
+
+No action is required. The tests list will sort by Last Run as expected.
+
+[Read the docs](/flaky-tests/dashboard) to learn more.
