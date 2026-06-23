@@ -1,0 +1,22 @@
+---
+title: "Merge Queue: Browser Extension Reliability Fix for Expired Sessions"
+description: "The Trunk browser extension no longer floods network requests when your session cookie has expired or become invalid."
+date: 2026-06-22
+category: Merge Queue
+type: update
+---
+
+**The Trunk browser extension handles expired sessions more reliably and no longer generates a network storm when your session cookie becomes invalid.**
+
+Previously, if your browser session with Trunk expired or was revoked, the extension could enter a feedback loop where each auth failure triggered a new fetch attempt, which failed again, resulting in dozens of GraphQL requests per second until the tab was reloaded.
+
+This release fixes the root cause:
+
+- **Expired sessions mark the extension as signed out.** A failed `GetCurrentUser` call now writes `signedIn: false` and records the cookie state. Subsequent refetches are skipped for 60 seconds.
+- **Auth failures no longer cause a feedback loop.** The extension now only reacts to sign-in and sign-out transitions, so a sustained failure no longer triggers continuous retries.
+- **A client-side rate limiter caps requests at 30 per second.** This prevents a burst of queued requests from overwhelming the GraphQL endpoint even in edge cases.
+- **401 and 403 responses arm the throttle immediately.** Unauthorized responses now trigger the same 60-second pause as a failed auth check.
+
+If you encounter a signed-out state, signing in at [app.trunk.io](https://app.trunk.io/) and reloading the GitHub page restores the extension panel.
+
+[Read the docs](https://docs.trunk.io/merge-queue/browser-extensions) for install instructions and more information.
