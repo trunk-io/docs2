@@ -1,0 +1,23 @@
+---
+title: "Flaky Tests: Detect and Resolve API Endpoints for Test Collection Monitors"
+description: "New REST endpoints let you trigger detection and resolution on test collections for failure-count, skipped-test, and slow-test monitors."
+date: 2026-06-24
+category: Flaky Tests
+type: new-feature
+---
+
+**New REST API endpoints let you programmatically trigger detection and resolution on test collections for three monitor types.**
+
+The Flaky Tests API now includes `/detect` and `/resolve` endpoints for the [Failure Count](/flaky-tests/detection/failure-count-monitor), [Skipped Test](/flaky-tests/detection/skipped-test-monitor), and [Slow Test](/flaky-tests/detection/slow-test-monitor) monitors:
+
+| Monitor | Detect endpoint | Resolve endpoint |
+|---|---|---|
+| Failure Count | `POST /test-collections/failure-count/detect` | `POST /test-collections/failure-count/resolve` |
+| Skipped Test | `POST /test-collections/skipped-test/detect` | `POST /test-collections/skipped-test/resolve` |
+| Slow Test | `POST /test-collections/slow-test/detect` | `POST /test-collections/slow-test/resolve` |
+
+These endpoints follow the same pattern as the existing Pass-on-Retry collection endpoints: send a test collection with your results, and the monitor evaluates whether each test in the collection should be flagged or cleared. Authenticate all requests with the `x-api-token` header.
+
+[Read the Flaky Tests API docs](/flaky-tests/reference/api-reference) for authentication details and full endpoint specifications.
+
+Co-Authored-By: Claude <noreply@anthropic.com>
