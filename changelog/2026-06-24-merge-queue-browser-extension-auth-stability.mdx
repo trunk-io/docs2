@@ -1,0 +1,20 @@
+---
+title: "Merge Queue: Browser Extension Auth Stability Improvements"
+description: "The extension no longer enters a request loop on stale or expired sessions, and now enforces a client-side GraphQL rate limit."
+date: 2026-06-24
+category: Merge Queue
+type: fix
+---
+
+**The Trunk browser extension now handles stale auth sessions without flooding requests.**
+
+Two reliability improvements ship in this update:
+
+- **Expired sessions are treated as signed out.** When a `GetCurrentUser` query fails due to an expired or invalid session cookie, the extension now records `signedIn: false`, stores a fingerprint of the failed cookie, and skips re-fetches for 60 seconds. Previously, the failed state could trigger a continuous refetch loop that sent hundreds of GraphQL requests before the browser tab was closed or the session was refreshed.
+- **Client-side GraphQL rate limiter added.** Outgoing extension requests are now capped at 30 requests per second, preventing edge cases from creating visible API load even when upstream deduplication is bypassed.
+
+The auth feedback loop (where a storage update triggered a sync, which triggered a refetch, which triggered another storage update) is also resolved: the extension now reacts only to actual login and logout transitions, deduplicates auth-failure writes, and gates background and panel GraphQL calls on stored auth state.
+
+[Read the browser extension docs](https://docs.trunk.io/merge-queue/browser-extensions) for setup and usage information.
+
+Co-Authored-By: Claude <noreply@anthropic.com>
