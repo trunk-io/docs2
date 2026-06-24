@@ -1,0 +1,18 @@
+---
+title: "CI Autopilot: CI Monitors Tab"
+description: "A new read-only CI Monitors tab shows your pass-on-retry monitors and their detection history in one place."
+date: 2026-06-23
+category: CI Autopilot
+type: update
+---
+
+**The CI Autopilot dashboard now has a Monitors tab.**
+
+Navigate to `/<your-org>/ci/monitors` to see all pass-on-retry monitors configured for your organization in a single table. The new page is read-only (create, edit, and delete actions are coming in a follow-up).
+
+What you can do today:
+
+- **Browse monitors.** Enabled monitors appear in the main table. Disabled monitors are listed in a collapsible section below.
+- **See detection counts.** The Events (30d) column shows how many detections each monitor has fired over the past 30 days.
+- **Drill into events.** Click the event count for any monitor to open a resizable side panel with a selectable 30-day bar chart and a paginated list of detection and recovery cards.
+- **Jump to a CI job.** Each detection card links the job name directly to the CI job page for that run.
