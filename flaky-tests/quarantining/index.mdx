@@ -74,12 +74,16 @@ The same two toggles are available at the collection level:
 
 | Setting | Description |
 |---|---|
-| Enable Test Quarantining | Activates quarantining for this collection. When enabled, this setting overrides the repository-level quarantining setting for uploads that belong to this collection. |
+| Enable Test Quarantining | Activates quarantining for this collection. When enabled, this setting overrides the repository-level quarantining setting for uploads that belong to this collection. New test collections have this enabled by default. |
 | Auto-Quarantine Flaky Tests | Automatically quarantines any test in this collection that Trunk has identified as flaky. This option is only available when quarantining is enabled for the collection. |
 
 <Info>
 Only organization admins can change collection quarantining settings. Members can view the settings page but cannot toggle the controls.
 </Info>
+
+<Note>
+**New test collections have quarantining enabled by default.** You can disable it from the collection's Settings page at any time. Auto-Quarantine remains off by default and must be turned on separately.
+</Note>
 
 When you disable collection quarantining, auto-quarantine is also disabled automatically. Re-enabling quarantining for the collection does not restore auto-quarantine — you must turn it back on separately.
 
