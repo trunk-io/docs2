@@ -15,7 +15,7 @@ Before you start on these steps, see the [Test Frameworks](../frameworks/) docs 
 
 ## Setup steps
 
-Work through the steps below in order. Once you've finished the last one, you're set up — head to [app.trunk.io](https://app.trunk.io) to see your results.
+Work through the steps below in order. Once you've finished the last one, you're set up — navigate to [app.trunk.io](https://app.trunk.io) to see your results.
 
 <Steps>
   <Step title={<a href="#trunk-organization-slug-and-token">Get your Trunk organization slug and token</a>} />
@@ -42,7 +42,7 @@ You can find your token under **Settings** → **Organization** → **General**,
 
 Store your Trunk API token in [GCP Secret Manager](https://console.cloud.google.com/security/secret-manager) so Cloud Build can securely access it during builds.
 
-1. Open **GCP Console > Secret Manager**.
+1. Open **GCP Console** → **Secret Manager**.
 2. Click **Create Secret**.
 3. Name the secret (for example, `trunk-api-token`) and paste your Trunk organization API token as the value.
 4. Click **Create**.
@@ -53,14 +53,14 @@ You'll reference this secret in your `cloudbuild.yaml` using the `availableSecre
 
 Ensure your GitHub repositories are connected to Cloud Build through the [Cloud Build GitHub App](https://cloud.google.com/build/docs/automating-builds/github/connect-repo-github).
 
-1. Open **GCP Console > Cloud Build > Repositories**.
+1. Open **GCP Console** → **Cloud Build** → **Repositories**.
 2. Connect your GitHub repository using the Cloud Build GitHub App.
 
 ## Create Cloud Build Triggers
 
 Create two Cloud Build triggers for each repository you want to upload test results from:
 
-1. Open **GCP Console > Cloud Build > Triggers**.
+1. Open **GCP Console** → **Cloud Build** → **Triggers**.
 2. Create a trigger for **pull request events** — this uploads test results from PR branches.
 3. Create a trigger for **push events** to your stable branch (for example, `main`) — this uploads test results from your stable branch.
 
@@ -206,7 +206,7 @@ Ensure you report every test run in CI and **clean up stale files** produced by 
 
 ## Validate Your Uploads
 
-Once your pipeline has run on a stable branch, head to [app.trunk.io](https://app.trunk.io) and confirm Trunk received your results.
+Once your pipeline has run on a stable branch, navigate to [app.trunk.io](https://app.trunk.io) and confirm Trunk received your results.
 
 - The **Uploads** tab lists every report Trunk has ingested, with status and any warnings (missing file paths, malformed XML, and so on).
 - The **Tests** tab shows individual test cases once an upload has been processed.
