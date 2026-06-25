@@ -9,34 +9,18 @@ A merge queue sits between your developers and your protected branch. Instead of
 Trunk Merge Queue runs on four mechanics. Predictive testing is the correctness baseline; the other three are how Trunk makes it fast and resilient.
 
 <Columns cols={2}>
-  <Tile
-    href="./optimizations/predictive-testing"
-    title="Predictive testing"
-    description="Test against everything ahead."
-  >
-    <Icon icon="crystal-ball" size={48} />
-  </Tile>
-  <Tile
-    href="./optimizations/parallel-queues/"
-    title="Parallel queues"
-    description="Lanes for unrelated PRs."
-  >
-    <Icon icon="columns-3" size={48} />
-  </Tile>
-  <Tile
-    href="./optimizations/anti-flake-protection"
-    title="Anti-flake protection"
-    description="CI gets a second chance."
-  >
-    <Icon icon="shield-check" size={48} />
-  </Tile>
-  <Tile
-    href="./optimizations/batching"
-    title="Batching"
-    description="Test many PRs in one CI run."
-  >
-    <Icon icon="boxes-stacked" size={48} />
-  </Tile>
+  <Card title="Predictive testing" icon="crystal-ball" href="./optimizations/predictive-testing">
+    Test against everything ahead.
+  </Card>
+  <Card title="Parallel queues" icon="columns-3" href="./optimizations/parallel-queues/">
+    Lanes for unrelated PRs.
+  </Card>
+  <Card title="Anti-flake protection" icon="shield-check" href="./optimizations/anti-flake-protection">
+    CI gets a second chance.
+  </Card>
+  <Card title="Batching" icon="boxes-stacked" href="./optimizations/batching">
+    Test many PRs in one CI run.
+  </Card>
 </Columns>
 
 
