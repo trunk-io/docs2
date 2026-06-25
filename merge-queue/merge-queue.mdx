@@ -1,74 +1,51 @@
 ---
 title: "Overview"
-description: "Merge queue that guarantees branch stability and accelerates development at enterprise scale"
+description: "Trunk Merge Queue runs unrelated PRs in independent test lanes instead of one serial line, keeps merging when a flaky test would stall the queue, and batches changes to cut CI runs."
 og:title: "Trunk Merge Queue overview"
 ---
-If you've hit the limits of GitHub's serial merge queue - main turning red, CI costs spiraling, chaos at scale - Trunk Merge Queue is the enterprise upgrade built for reliability at any scale. Handle your noisiest pipelines, cut CI costs up to 90%, and fire and forget.
 
-***
+A merge queue sits between your developers and your protected branch. Instead of letting PRs merge as soon as their own CI passes, the queue tests each PR against the head of `main` plus every PR ahead of it — so what merges is what was actually tested, even when ten PRs land in the same hour. That predictive testing model is shared across most modern merge queues.
 
-## Benefits of using Trunk Merge Queue
+Trunk Merge Queue runs on four mechanics. Predictive testing is the correctness baseline; the other three are how Trunk makes it fast and resilient.
 
-Trunk Merge Queue solves three critical problems that break traditional workflows at scale.
+<Columns cols={2}>
+  <Card title="Predictive testing" icon="crystal-ball" href="./optimizations/predictive-testing">
+    Test against everything ahead.
+  </Card>
+  <Card title="Parallel queues" icon="columns-3" href="./optimizations/parallel-queues/">
+    Lanes for unrelated PRs.
+  </Card>
+  <Card title="Anti-flake protection" icon="shield-check" href="./optimizations/anti-flake-protection">
+    CI gets a second chance.
+  </Card>
+  <Card title="Batching" icon="boxes-stacked" href="./optimizations/batching">
+    Test many PRs in one CI run.
+  </Card>
+</Columns>
 
-### #1: Stop main from turning red
 
-**The problem:** Flaky tests fail unpredictably. Your team mutes tests, locks branches, and gets paged to investigate.
+## When does this make sense?
 
-**How Trunk fixes it:** Failed PRs stay in queue while downstream PRs continue testing. If a later PR that includes the failed code passes, Trunk knows the failure was transient, both PRs merge together.
+- Monorepo with lanes of work that don't overlap → parallel queues
+- Flaky tests blocking real merges → anti-flake protection
+- 50+ PRs/day, CI bill climbing → batching
+- Single-track GitHub Merge Queue choking → all three
 
-**Key capabilities:**
+## More to dial in
 
-* Anti-flake protection with optimistic merging
-* Pending failure depth holds failed PRs while successors test, enabling automatic flake recovery
-* Automatic quarantine of flaky tests
+Other optimizations worth knowing about:
 
-→ Learn about [anti-flake protection](./optimizations/anti-flake-protection)
+- [**Priority merging**](./optimizations/priority-merging) — fast-track urgent PRs (hotfixes, incident response) to the front of the queue without bypassing it
+- [**Predictive testing internals**](./optimizations/predictive-testing) — how the foundational mechanic actually works
+- [**Testing concurrency**](./administration/advanced-settings#testing-concurrency) — how many PRs the queue tests at once
+- [**Direct merge to main**](./optimizations/direct-merge-to-main) — skip retesting when a PR is already up to date with `main` and the queue is empty
 
-***
+→ Full list in [Optimizations](./optimizations/).
 
-### #2: Stop CI costs from spiraling
+## Set it up
 
-**The problem:** GitHub runs full CI for every PR. 50 PRs/day = 50 full runs. With growing teams, CI costs become seven figures.
-
-**How Trunk fixes it:** Intelligent batching tests up to 100 PRs in a single CI run. When a batch fails, automatic bisection isolates the culprit without ejecting the entire batch or requiring manual debugging.
-
-**Key capabilities:**
-
-* Intelligent Batching
-* Batch up to 100 PRs
-* Auto-Bisection
-* Configurable batch size & wait time
-
-→ See how [batching](./optimizations/batching) works
-
-***
-
-### #3: Stop waiting in a serial queue
-
-**The problem:** Single-track queue means your 2-line fix waits 45 minutes behind a slow feature PR testing an unrelated part of the codebase.
-
-**How Trunk fixes it:** Parallel queues create independent test lanes for non-overlapping changes. Frontend merges in Lane A while backend runs in Lane B. Native Bazel/Nx integration analyzes impacted targets automatically.
-
-**Key capabilities:**
-
-* Parallel Queues
-* Bazel/Nx integration
-* Impacted targets analysis
-* Priority merging
-
-→ Explore [parallel queues](./optimizations/parallel-queues/)
-
-***
-
-## Try Trunk Merge Queue
-
-**Start with free trial:**
-
-1. Install Trunk GitHub App (5 minutes)
+1. Install the Trunk GitHub App (5 minutes)
 2. Create your first queue (2 minutes)
 3. Submit a test PR
 
-**Total setup time: < 10 minutes**
-
-→ [Get started](./getting-started/)
+→ [Get started](./getting-started/).
