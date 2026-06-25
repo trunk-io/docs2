@@ -226,7 +226,7 @@ Read the value at the start of the test job and append it to a test property, lo
 When the `trunk-analytics-cli` uploads a bundle, it prints a Bundle Upload ID to the job log. This ID does not currently map to a URL in the web app — there's no search field for it in the dashboard. If you need to trace a specific upload back to its run data, contact support with the Bundle Upload ID.
 
 <Info>
-Uploads can take up to 10 minutes to populate run data in the dashboard. If a run you just uploaded isn't visible yet, wait and refresh before assuming the upload failed.
+Uploads are processed periodically, not in real time, so a run you just uploaded may not appear immediately. If it isn't visible yet, wait and refresh before assuming the upload failed.
 </Info>
 
 #### CI artifact retention
