@@ -1,0 +1,21 @@
+---
+title: "Merge Queue: Settings Page Now Has Organized Sections"
+description: "Merge Queue settings are reorganized into a sidebar with named sections, each with its own URL for direct linking."
+date: 2026-06-12
+category: Merge Queue
+type: update
+---
+
+**The Merge Queue settings page now has a sidebar with organized sections instead of a single scrollable list.**
+
+Settings are split into five sections:
+
+- **General** — Queue state, mode, merge method, testing concurrency and timeout, optimistic merge, direct merge, pending failure depth, draft PR creation, delete merge.
+- **GitHub** — GitHub comments, PR comment backfill, GitHub commands, label commands, state labels, GitHub statuses, and required statuses.
+- **Slack** — Slack notification settings.
+- **Batching** — All batching configuration.
+- **Sudo** — Trunk Sudo setup (shown when enabled for your organization).
+
+Each section has its own URL (for example, `.../settings/general` or `.../settings/github`), so you can link teammates directly to the settings they need. Navigating to `.../settings` redirects to General automatically.
+
+[Read the docs](https://docs.trunk.io/merge-queue/administration/advanced-settings) to learn more.
