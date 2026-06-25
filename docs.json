@@ -2316,6 +2316,22 @@
     {
       "source": "/references/cli/getting-started/actions/git-hooks",
       "destination": "/code-quality/overview/cli/getting-started/actions/git-hooks"
+    },
+    {
+      "source": "/code-quality/debugging",
+      "destination": "/code-quality/overview/debugging"
+    },
+    {
+      "source": "/code-quality/linters/run-linters",
+      "destination": "/code-quality/overview/linters/run-linters"
+    },
+    {
+      "source": "/flaky-tests/ci-providers",
+      "destination": "/flaky-tests/get-started/ci-providers"
+    },
+    {
+      "source": "/flaky-tests/use-mcp-server/mcp-tool-reference/fix-flaky-test",
+      "destination": "/flaky-tests/reference/mcp-reference/fix-flaky-test"
     }
   ]
 }
