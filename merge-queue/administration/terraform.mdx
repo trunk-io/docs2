@@ -124,7 +124,7 @@ These attributes are computed by the API if not specified. You only need to set 
 | `status_check_enabled` | Boolean | Whether Trunk posts a status check on PRs. |
 | `direct_merge_mode` | string | `"OFF"` or `"ALWAYS"`. See [Direct merge to main](../optimizations/direct-merge-to-main). |
 | `optimization_mode` | string | `"OFF"` or `"BISECTION_SKIP_REDUNDANT_TESTS"`. |
-| `bisection_concurrency` | integer | Concurrency for bisection testing during batch failure isolation. See [Bisection Testing Concurrency](./advanced-settings#bisection-testing-concurrency). |
+| `bisection_concurrency` | integer | Concurrency for bisection testing during batch failure isolation. See [Bisection Concurrency](./advanced-settings#bisection-concurrency). |
 | `required_statuses` | list(string) | CI status checks that must pass. Set to `null` to use branch protection defaults. Set to `[]` to explicitly require no statuses. See [Required Status Checks](./advanced-settings#required-status-checks). |
 
 ***

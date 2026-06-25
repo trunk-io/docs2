@@ -379,7 +379,7 @@ Controls whether the [Trunk browser extension](../browser-extensions) is active 
 
 [**Batching**](../optimizations/batching) tests multiple pull requests as a single unit instead of individually, dramatically reducing CI costs.
 
-### Bisection Testing Concurrency
+### Bisection Concurrency
 
 Configure how many PRs can be tested simultaneously during batch failure isolation (bisection). This setting is independent from the main Testing Concurrency and only applies when batches fail and need to be split to identify the failing PR.
 
@@ -391,10 +391,10 @@ Configure how many PRs can be tested simultaneously during batch failure isolati
 
 1. Navigate to the **Merge Queue** tab, select your queue, click **Settings**, then scroll to **Batching**
 2. Make sure **Batching** is enabled
-3. Set **Bisection Testing Concurrency** to your desired value
+3. Set **Bisection Concurrency** to your desired value
 4. Monitor CI resource usage and adjust as needed
 
-For detailed guidance on using this setting effectively, see [Bisection Testing Concurrency in the Batching](../optimizations/batching#bisection-testing-concurrency) documentation.
+For detailed guidance on using this setting effectively, see [Bisection Concurrency in the Batching](../optimizations/batching#bisection-concurrency) documentation.
 
 ***
 
