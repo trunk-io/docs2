@@ -1,0 +1,22 @@
+---
+title: "Flaky Tests: Monitor History Swimlane"
+description: "The Monitors tab on the test detail page now shows a swimlane visualization of each monitor's classification history over time."
+date: 2026-06-08
+category: Flaky Tests
+type: update
+---
+
+**The [Monitors tab](/flaky-tests/dashboard#test-case-details) on the test detail page now includes a swimlane timeline showing each monitor's classification history.**
+
+Each monitor gets its own row. The row renders a sequence of interval bars — colored by classification status (Flaky, Broken, Pass on Retry, or the monitor's label color for label monitors) — covering the past 30 days. Click any bar to highlight it and see its exact date range and classification in a tooltip.
+
+Additional controls make it easier to focus on what matters:
+
+- **Hide inactive monitors.** A toggle in the swimlane header hides rows with no events in the last 30 days and rows for disabled monitors. Toggle it back on to see the full history.
+- **Label monitor colors.** Monitors configured to apply labels now render bars in the label's color, so you can distinguish label-applying monitors from status-changing ones at a glance.
+
+The swimlane sits above the monitors table on the Monitors tab, giving you a timeline-first view before drilling into per-monitor event counts.
+
+[Open any test case](https://app.trunk.io) and go to the **Monitors** tab to see the swimlane.
+
+*This feature is rolling out — contact [support@trunk.io](mailto:support@trunk.io) if you don't see it yet.*
