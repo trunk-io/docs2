@@ -1,0 +1,16 @@
+---
+title: "Merge Queue: Queue and Graph Tabs Now Refresh on Return"
+description: "Switching back to the Queue or Graph tab now shows up-to-date data immediately instead of waiting for the next poll interval."
+date: 2026-06-18
+category: Merge Queue
+type: fix
+---
+
+**The Queue and Graph tabs now reload data when you return to them.**
+
+Previously, switching from the Queue tab to the Graph tab and then back caused the Queue tab to show stale data until the next background poll fired. The same applied in reverse. The fix makes both tabs fetch fresh data on mount, so you always see current queue state when you switch back.
+
+- **Queue tab:** switching away and returning now immediately revalidates queue data from the server, rather than waiting up to the full poll interval.
+- **Graph tab:** returning to the graph similarly triggers a fresh load, so dependency edges and node states reflect the latest queue activity.
+
+This change is invisible under normal use. You will only notice it was missing if you had been waiting for the queue list or graph to catch up after switching tabs.
