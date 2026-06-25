@@ -1,0 +1,18 @@
+---
+title: "Flaky Tests: Pass-on-Retry Monitor Is Now Org-Scoped"
+description: "Pass-on-retry monitors now belong to your organization and can optionally target specific repositories, simplifying detection management across multi-repo orgs."
+date: 2026-06-11
+category: Flaky Tests
+type: update
+---
+
+**Pass-on-retry monitors are now organization-scoped and can optionally target specific repositories.**
+
+Previously each pass-on-retry monitor was tied to a single repository. Monitors now belong to your organization and apply broadly by default, with an opt-in list for narrowing coverage.
+
+- **Org-wide detection by default.** A monitor with no repository filter applies to all repositories in your organization, so a single configuration covers your entire CI surface.
+- **Opt-in repository targeting.** Specify a list of repositories to restrict the monitor to just those repos. Useful when specific repositories require different sensitivity settings or their CI topology differs from the rest of your org.
+
+This pairs with [multiple pass-on-retry monitors per repository](/flaky-tests/detection/pass-on-retry-monitor) to give full flexibility: org-wide monitors for broad coverage alongside per-repo monitors for fine-grained tuning.
+
+[Read the docs](/flaky-tests/detection/pass-on-retry-monitor) to learn more.
