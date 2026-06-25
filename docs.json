@@ -631,6 +631,7 @@
                   "changelog/2026-06-12-merge-queue-health-metrics-csv-export",
                   "changelog/2026-06-12-merge-queue-settings-section-hierarchy",
                   "changelog/2026-06-11-flaky-tests-extension-test-details",
+                  "changelog/2026-06-11-flaky-tests-pass-on-retry-org-scoped",
                   "changelog/2026-06-11-merge-queue-priority-badge-pr-details",
                   "changelog/2026-06-09-flaky-tests-multiple-por-monitors",
                   "changelog/2026-06-08-flaky-tests-collection-quarantine-default",
