@@ -1,0 +1,17 @@
+---
+title: "CI Autopilot: Create, Edit, and Delete CI Pass-on-Retry Monitors"
+description: "You can now create, edit, and delete CI Pass-on-Retry monitors directly from the Monitors tab."
+date: 2026-06-24
+category: CI Autopilot
+type: update
+---
+
+**The CI Monitors tab now supports full create, edit, and delete operations for Pass-on-Retry monitors.**
+
+Previously, the Monitors tab showed your existing monitors in a read-only table. You can now manage monitors without leaving the CI Autopilot dashboard.
+
+- **Create monitors.** Click **New monitor** to open a two-panel dialog. The left panel lets you set a name, job name patterns, branch patterns, recovery days, and repository selection. The right panel shows a live preview of matching jobs from the last 30 days, updating as you type (with an 800ms debounce to avoid excess requests).
+- **Edit monitors.** Open the action menu (the three-dot icon on any monitor row) and choose **Edit**. The dialog pre-fills with the current monitor's values.
+- **Delete monitors.** Choose **Delete** from the same action menu. A confirmation dialog shows the monitor name before removing it.
+- **Pattern validation.** Job name patterns and branch patterns each show per-pattern match counts after you click **Check patterns**, so you can confirm a pattern works before saving.
+
