@@ -1,0 +1,22 @@
+---
+title: "Merge Queue: Redesigned PR Detail Page with Attempt Timeline"
+description: "The Merge Queue PR detail page now groups queue history by attempt, adds a filterable checks panel, and introduces an attempt picker for PRs that have been retried."
+date: 2026-06-18
+category: Merge Queue
+type: update
+---
+
+**The Merge Queue PR detail page has been redesigned around queue attempts.**
+
+Each trip through the queue now gets its own timeline entry instead of a flat chronological list. The new layout makes it easier to understand what happened during each attempt and what must pass before a PR can merge.
+
+**What changed:**
+
+- **Attempt-grouped timeline.** Each queue attempt has its own record with an outcome label (Merged, Failed, Cancelled, or In Progress), its test runs, and any restart events. Attempts are ordered newest-first so the current state is always visible without scrolling.
+- **Attempt picker.** When a PR has been retried more than once, a picker at the top of the timeline lets you switch between attempts. This replaces scrolling through a long flat list to find earlier runs.
+- **Checks panel.** Required checks are now shown in a dedicated panel with status pills. The panel is filterable, making it faster to find a specific failing check on PRs with many required checks.
+- **Refreshed header.** The PR header now shows the author avatar alongside the title and branch labels. Actions (legacy view toggle, copy timeline data) have moved to a hamburger menu in the header.
+- **Legacy view.** The previous flat-timeline layout remains available from the hamburger menu if you prefer it.
+- **Shared status glyphs.** The icons on this page now come from the same source as the browser extension, so status colors and shapes are consistent across both surfaces.
+
+[Monitor queue status](/merge-queue/using-the-queue/monitor-queue-status) for more on reading the PR detail page.
