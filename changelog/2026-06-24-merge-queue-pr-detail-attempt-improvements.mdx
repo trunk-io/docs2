@@ -1,0 +1,19 @@
+---
+title: "Merge Queue: Shareable Attempt Links and Richer Bisection Timeline"
+description: "The merge queue PR detail page now deep-links to specific test attempts, splits attempts at bisection boundaries, and shows richer batch and bisection timeline copy."
+date: 2026-06-24
+category: Merge Queue
+type: update
+---
+
+**The PR detail page in the merge queue now supports shareable attempt links, bisection-aware attempt splitting, and richer timeline entries for batch and bisection runs.**
+
+- **Shareable attempt links.** Add `?attempt=N` to any PR detail URL to link directly to a specific test attempt. The picker reads the URL on load, rejects invalid values gracefully, and defaults to the latest attempt. Useful for sharing a bisection attempt in a Slack thread or issue comment.
+- **Bisection-aware attempt splitting.** Attempts now split at bisection re-admission boundaries, so each bisection test is its own entry in the attempt picker. An attempt that includes bisection isolation testing shows a **Bisected** label in the picker.
+- **Richer timeline entries.**
+  - Batch test titles link to batchmates and speculative batch or branch URLs.
+  - Solo speculative runs link the anchor PR instead of using the generic "batch" label.
+  - Bisection runs show isolation-specific copy in their event entries.
+  - Batch restarts that removed a single PR link that PR; restarts that removed multiple PRs use plain text.
+- **Queue time for superseded attempts.** Superseded attempts (those no longer the latest) now stop their queue-time clock at the point they left the queue, rather than continuing to count elapsed time.
+
