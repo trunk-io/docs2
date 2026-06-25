@@ -624,6 +624,9 @@
               {
                 "group": "June",
                 "pages": [
+                  "changelog/2026-06-12-merge-queue-settings-section-hierarchy",
+                  "changelog/2026-06-11-flaky-tests-extension-test-details",
+                  "changelog/2026-06-11-merge-queue-priority-badge-pr-details",
                   "changelog/2026-06-08-merge-queue-firefox-extension",
                   "changelog/2026-06-05-flaky-tests-jira-assignee-improvements",
                   "changelog/2026-06-04-merge-queue-chrome-extension-0-8-0",
