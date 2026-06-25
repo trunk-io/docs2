@@ -1,0 +1,19 @@
+---
+title: "CI Autopilot: Event Cards in CI Monitors Link to SHA-Filtered Job Detail"
+description: "Event cards in the CI Monitors Events Panel now link directly to the CI job detail page pre-filtered by commit SHA and branch."
+date: 2026-06-24
+category: CI Autopilot
+type: update
+---
+
+**Event cards in the CI Monitors Events Panel now link directly to the CI job detail page, pre-filtered by the commit SHA and branch from that detection event.**
+
+When a Pass-on-Retry monitor detects a job that passed on retry, the event card in the side panel now has two clickable elements that navigate to the filtered job detail page:
+
+- **Job name link** in the card body.
+- **Short SHA chip** in the card footer.
+
+Both links land on `/{orgSlug}/ci/jobs/{taskId}?sha={sha}&branch={branch}`, which pre-populates the runs table to show only runs from that specific commit. This makes it easy to see the failing attempt and the successful retry that triggered detection without searching manually.
+
+The chart section also gains a **Clear range** button that appears when a date range is selected, letting you reset the filter in one click.
+
