@@ -17,12 +17,7 @@ Work through the steps below in order. Once you've finished the last one, you'll
 
 ## Generating Reports
 
-Trunk can parse JSON serialized [Build Event Protocol (BEP) ](https://bazel.build/remote/bep)files to detect flaky tests. You can run tests with Bazel in CI with the `nobuild_event_json_file_path_conversion` option to produce a serialized BEP file:
-
-```sh
-bazel test <TARGETS> \
-    --nobuild_event_json_file_path_conversion
-```
+Trunk can parse JSON serialized [Build Event Protocol (BEP) ](https://bazel.build/remote/bep)files to detect flaky tests. You can run tests with Bazel in CI with the `--nobuild_event_json_file_path_conversion` option to produce a serialized BEP file.
 
 ### Report File Path
 
@@ -30,20 +25,24 @@ You can specify the path of the generated report through the `build_event_json_f
 
 ```sh
 bazel test <TARGETS> \
-    --nobuild_event_json_file_path_conversion
+    --nobuild_event_json_file_path_conversion \
     --build_event_json_file=build_events.json
 ```
 
 Trunk can parse the `build_events.json` file to locate your test reports. You will still need to **configure your test runners to output compatible reports**, and you can refer to the guides for [individual test frameworks](./).
 
 <Info>
-  Trunk accepts BEP files in both JSON and binary formats:
+  Trunk accepts BEP files in both JSON and binary formats. Each output format has its own path-conversion flag, so pick the pair that matches the file you generate:
 
-  - `--build_event_json_file` for JSON
-  - `--build_event_binary_file` for the binary protobuf encoding
+  - JSON: `--build_event_json_file` with `--nobuild_event_json_file_path_conversion`
+  - Binary protobuf: `--build_event_binary_file` with `--nobuild_event_binary_file_path_conversion`
 
-  Pass either file to the analytics CLI's `--bazel-bep-path`. The CLI detects the format automatically, so you don't need to tell it which one you used.
+  Pass whichever file you generated to the analytics CLI's `--bazel-bep-path`. The CLI detects the format automatically, so you don't need to tell it which one you used.
 </Info>
+
+## Bazel flags
+
+These Bazel flags affect whether Trunk receives complete test reports. Review them before configuring uploads.
 
 ### Build Without the Bytes
 
@@ -52,6 +51,12 @@ If your CI environment is set up to [build without the bytes](https://blog.bazel
 ```sh
 --remote_download_regex='.*/test.xml'
 ```
+
+### Keep Going After Test Failures
+
+Avoid setting `--test_keep_going=false` (or `--notest_keep_going`) if you intend to quarantine tests. Leave it at its default (`true`).
+
+When `--test_keep_going` is `false`, Bazel stops at the first failing test, so later tests never run and never reach the BEP report. If that first failure is a quarantined test, Trunk sees only an already-quarantined failure and marks the run as passing. The tests that never ran might have failed, and the PR merges anyway.
 
 ## Try It Locally
 
