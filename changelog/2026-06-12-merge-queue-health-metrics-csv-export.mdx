@@ -1,0 +1,19 @@
+---
+title: "Merge Queue: Export Health Metrics as CSV"
+description: "Download any health chart's data as a CSV file directly from the Merge Queue Health dashboard."
+date: 2026-06-12
+category: Merge Queue
+type: update
+---
+
+**Each chart on the Merge Queue Health dashboard now has a download button that exports the visible data as a CSV file.**
+
+A small download icon appears in the top-right corner of the Conclusion Count, Time in Queue, and Testing Duration charts. Clicking it builds a CSV file matching the chart's current filters and time range, then triggers a browser download.
+
+- **Filename format.** Files are named `<chart>-<branch>-<start>_<end>.csv` so you can tell at a glance which queue and window the file covers.
+- **UTC-aware timestamps.** When the **Time in UTC** toggle is on, the exported timestamps use UTC. When it is off, timestamps use your local timezone, matching what the chart axis shows.
+- **Disabled when empty.** The button is greyed out if the current filters return no data.
+
+The exported values use the same formatting as the chart's y-axis, so durations show in human-readable units (`2m 34s`) and counts are plain numbers.
+
+[Read the docs](/merge-queue/administration/metrics) to learn more about the Health dashboard.
