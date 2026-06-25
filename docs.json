@@ -625,6 +625,7 @@
                 "group": "June",
                 "pages": [
                   "changelog/2026-06-17-flaky-tests-browser-extension-failure-details",
+                  "changelog/2026-06-17-merge-queue-metrics-and-extension-updates",
                   "changelog/2026-06-15-merge-queue-browser-extension-admin-control",
                   "changelog/2026-06-12-merge-queue-health-metrics-csv-export",
                   "changelog/2026-06-12-merge-queue-settings-section-hierarchy",
