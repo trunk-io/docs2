@@ -1,0 +1,19 @@
+---
+title: "Flaky Tests: Jira Ticket Creation Improvements"
+description: "The Jira ticket creation flow now loads all assignable users, lists them alphabetically, and correctly populates the Components field."
+date: 2026-06-05
+category: Flaky Tests
+type: update
+---
+
+**Three fixes ship to the Jira ticket creation flow in Trunk Flaky Tests.**
+
+When you create a Jira ticket from the test detail page or the tests list, the assignee picker, custom fields, and Components dropdown now behave more reliably:
+
+- **All assignable users appear in the dropdown.** The previous implementation fetched only the first page of results from the Jira API. Jira projects with many users would silently truncate the list. The fetch is now paginated, so everyone with assignable access to your project appears.
+- **Assignees are listed alphabetically.** Results are sorted by display name, making it easier to find the right person in large teams.
+- **Components field now populates.** The Components dropdown, a built-in Jira field, previously failed to populate in some configurations. It now loads correctly.
+
+These changes require no configuration updates. Existing Jira integrations pick up the fixes automatically.
+
+[Read the docs](https://docs.trunk.io/flaky-tests/management/ticketing/jira-integration) to learn more about the Jira integration.
