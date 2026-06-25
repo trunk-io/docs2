@@ -1,0 +1,20 @@
+---
+title: "Flaky Tests: Failure Details and Copy Prompt in the Browser Extension"
+description: "The browser extension now shows test failure details inline on PR pages, with a one-click button to copy an investigation prompt for your AI assistant."
+date: 2026-06-17
+category: Flaky Tests
+type: update
+---
+
+**The Trunk browser extension now surfaces per-test failure details and an AI investigation prompt directly on your GitHub pull request page.**
+
+When Trunk detects test failures on a commit, the extension's test-results panel gains a new **Failure details** section below the summary counts. Expand it to see:
+
+- **Test name and file**: exactly which test failed and where it lives in the repository.
+- **Error snippet**: the first lines of the failure output, enough to see the assertion or exception at a glance.
+- **Prev / Next navigation**: step through all failures for the commit without leaving the PR page.
+- **Copy Prompt**: copies an LLM-friendly investigation prompt to your clipboard. Paste it into any AI assistant (Cursor, Claude, etc.) to start a structured root-cause investigation with the failure context already pre-filled.
+
+The failure details pull from the same `test_run_v2` data that powers the Trunk Flaky Tests dashboard, so quarantined runs are excluded automatically. The extension shows a "still processing" state when test ingestion is in flight and results are not yet final.
+
+This pairs with the [Test details panel](https://docs.trunk.io/merge-queue/browser-extensions#test-details-panel), which shows aggregate pass/fail/quarantined/flaky counts per commit. Failure details drill one level further, down to individual failing tests.
