@@ -201,3 +201,55 @@ Click any row in the runs table to open a detail panel on the right side of the 
 * **Run header**: Timestamp, a result badge (Pass, Fail, Error, or Quarantined), and run duration.
 * **Source control**: A CI job link (with the provider's icon, the job name, and the CI duration), the linked pull request, branch, and commit. Merge queue runs also include a **View in Merge Queue** link.
 * **Error details**: For failed, errored, or quarantined runs, an optional AI summary of the failure followed by the raw error text or stack trace.
+
+### Debugging a flaky test from the UI
+
+The Summary tab, failure details, and Test History tab give you most of what you need to investigate a flaky test. A few gaps come up often enough to call out, along with the workarounds that exist today.
+
+#### Drilling into the right parallel worker
+
+The CI job link in the run detail panel points to the parent build, not the specific worker that produced the failure. If your CI runs a single job, this is fine. If you fan out across many parallel workers (some customers run 40+), you'll have to click through workers in the CI provider to find the one whose log contains the failure.
+
+To shortcut this, capture the per-worker URL at test run time and include it in your JUnit output so it surfaces in the failure detail. Most CI providers expose an environment variable for the running job's URL:
+
+| CI provider | Environment variable |
+|---|---|
+| CircleCI | `CIRCLE_BUILD_URL` |
+| GitHub Actions | `${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}` |
+| Buildkite | `BUILDKITE_BUILD_URL` |
+| GitLab CI | `CI_JOB_URL` |
+
+Read the value at the start of the test job and append it to a test property, log line, or system-out block in your JUnit XML. The link then appears alongside the failure in Trunk instead of routing to the parent build.
+
+#### Bundle Upload ID lookups
+
+When the `trunk-analytics-cli` uploads a bundle, it prints a Bundle Upload ID to the job log. This ID does not currently map to a URL in the web app — there's no search field for it in the dashboard. If you need to trace a specific upload back to its run data, contact support with the Bundle Upload ID.
+
+<Info>
+Uploads can take up to 10 minutes to populate run data in the dashboard. If a run you just uploaded isn't visible yet, wait and refresh before assuming the upload failed.
+</Info>
+
+#### CI artifact retention
+
+CI providers typically retain build artifacts (screenshots, videos, traces) for one to two days. Flaky test tickets often take longer than that to investigate and resolve, which means the artifacts that would have helped explain the failure may already be gone by the time you open the ticket.
+
+If artifacts matter for your debugging flow, store them outside the CI provider's retention window:
+
+* Upload screenshots, videos, and traces to S3 (or another long-lived store) as a CI step, and include the object URL in the JUnit output alongside the per-worker URL described above.
+* For especially noisy tests, attach the artifact URL to the Jira/Linear ticket Trunk opens via the [ticketing integration](./management/ticketing/jira-integration).
+
+#### Known limitations
+
+A few framework-specific quirks are worth knowing about up front.
+
+<Info>
+**RSpec `MultipleExceptionError`**
+
+When an example raises multiple exceptions (for example, an error in the test body plus a separate error in an `after` hook), RSpec wraps them in `RSpec::Core::MultipleExceptionError`. The `rspec_trunk_flaky_tests` gem already uploads the full set of captured exceptions; the failure detail view currently renders only one of them. To see all of them, check the CI job logs for the full exception list when you encounter this error type.
+</Info>
+
+<Info>
+**Go subtests with 0ms duration**
+
+`go test` reports the top-level test duration but does not always emit per-subtest durations. When the duration arrives as 0ms, the AI failure analysis can mistake a slow subtest for an instantaneous one and miss timing-related context. Post-process your JUnit XML to reflect real subtest durations before uploading, or rely on the raw stack trace rather than the AI summary for these cases.
+</Info>
