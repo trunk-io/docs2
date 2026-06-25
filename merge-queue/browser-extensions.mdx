@@ -111,6 +111,14 @@ The panel only appears on PR pages where the repository has test uploads in Trun
 
 The extension popup also gains a **Tests** tab (alongside **Merge Queues**) when the feature is active. The tab lists repositories that have test uploads and provides a direct link to the Flaky Tests app for each.
 
+## Disabling the extension for a queue
+
+Organization admins can disable the browser extension for a specific merge queue branch from the queue's **Settings** page. Navigate to **Merge Queue**, select the queue, click **Settings**, then find the **Browser Extension** toggle under the **GitHub** section.
+
+When the toggle is off, the extension behaves as though no merge queue is configured for that branch. GitHub's native merge controls reappear in the merge box, and the Trunk overlay does not render. The setting affects only the selected queue; other queues in the same repository are not affected.
+
+Only organization admins can change this setting. Non-admins see the toggle in a disabled state with a tooltip explaining the restriction. The toggle is on by default for all queues.
+
 ## Rolling the extension out to an entire org
 
 Chrome admins can install the Trunk extension for everyone in a Google Workspace organization using the [Chrome Web Store ID](https://chromewebstore.google.com/detail/liggeliamkammmieidmmfmmdnjilabgn) `liggeliamkammmieidmmfmmdnjilabgn`. See Google's [Automatically install apps and extensions](https://support.google.com/chrome/a/answer/6306504?hl=en) guide for the admin console steps.

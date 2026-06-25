@@ -1,0 +1,21 @@
+---
+title: "Merge Queue: Per-Queue Browser Extension Admin Control"
+description: "Org admins can now enable or disable the Trunk browser extension for each merge queue branch directly from the queue's settings page."
+date: 2026-06-15
+category: Merge Queue
+type: update
+---
+
+**Admins can now disable the Trunk browser extension for a specific merge queue branch from the queue's Settings page.**
+
+The Merge Queue settings page (select a queue, then click **Settings**) now includes a **Browser Extension** toggle under the **GitHub** section:
+
+- **Toggle per queue.** Each branch-level merge queue has its own independent toggle. Disabling on one branch does not affect other queues in the same repository.
+- **When disabled, the extension steps back.** The browser extension behaves as though no merge queue is configured for that branch. GitHub's native PR controls reappear in the merge box.
+- **Admin-only control.** Only organization admins can change this setting. Non-admins see the toggle in a disabled state with a tooltip explaining the restriction.
+
+The toggle is on by default for all existing and new queues, so there is no change in behavior unless an admin explicitly disables it.
+
+**Also in this release: improved compatibility with GitHub's stacked-PR merge panel.** When GitHub displays its own stack-merge controls because a PR stack is already mergeable, the extension now hides its merge row to avoid overlapping with the GitHub UI. The extension continues to function normally on PRs outside a mergeable stack.
+
+[Read the docs](https://docs.trunk.io/merge-queue/browser-extensions) for more on the browser extension and its settings.
