@@ -1,0 +1,17 @@
+---
+title: "Merge Queue: Inline Queue Metrics Drilldown and Browser Extension Updates"
+description: "Queue Metrics now drills down inline like Testing Metrics, and the browser extension hides the GitHub 'unable to merge as stack' row."
+date: 2026-06-17
+category: Merge Queue
+type: update
+---
+
+**Two small improvements to Merge Queue observability and the browser extension.**
+
+**Queue Metrics drilldown is now inline**
+
+The Queue Metrics health chart now shows its PR drilldown inline, the same way Testing Metrics does. Previously, clicking a data point on the Queue Metrics chart opened a separate dedicated page. Now the drilldown list appears directly under the chart, so you can scan the underlying PRs without navigating away from the health dashboard.
+
+**Browser extension hides the GitHub "Unable to merge as stack" row**
+
+The Trunk browser extension's row-hiding behavior now covers GitHub's **Unable to merge as stack** section in the PR merge box, alongside the existing **Merging is blocked** and **Branch out of date** rows it already hides. The setting defaults to on and can be toggled in the extension's **Settings** panel under **Hide rows**. GitHub's native stack UI is still preserved below the hidden section.
