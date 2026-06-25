@@ -9,10 +9,16 @@ og:title: "Trunk Flaky Tests changelog"
 
 ### June 2026
 
+<Update label="June 5, 2026" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Jira Ticket Creation Improvements](/changelog/2026-06-05-flaky-tests-jira-assignee-improvements)**
+
+  The Jira ticket creation flow now loads all assignable users, lists them alphabetically, and correctly populates the Components field.
+</Update>
+
 <Update label="June 2, 2026" tags={["Flaky Tests"]}>
   **[Flaky Tests: Configurable Minimum POR Count for the Pass-on-Retry Monitor](/changelog/2026-06-02-flaky-tests-por-count-monitor)**
 
-  Set a minimum number of commits that must show pass-on-retry behavior before a test is flagged as flaky, reducing noise from occasional retries in high-retry CI environments.
+  Require multiple pass-on-retry commits before flagging a test as flaky, reducing noise in high-retry CI environments.
 </Update>
 
 ### May 2026

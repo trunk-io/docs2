@@ -1,0 +1,13 @@
+---
+title: "Flaky Tests: Configurable Minimum POR Count for the Pass-on-Retry Monitor"
+description: "Require multiple pass-on-retry commits before flagging a test as flaky, reducing noise in high-retry CI environments."
+date: 2026-06-02
+category: Flaky Tests
+type: update
+---
+
+**The pass-on-retry monitor now takes a configurable minimum POR count, so a single one-off retry no longer flags a test as flaky.**
+
+By default the monitor still activates as soon as one commit shows the pass-on-retry pattern. Raise the **Minimum POR count** to require the same test to exhibit pass-on-retry behavior on multiple distinct commits within the detection window before it is flagged. This cuts noise in CI environments that retry most failures automatically, where a single retry event isn't a reliable flakiness signal.
+
+[Read the docs](/flaky-tests/detection/pass-on-retry-monitor#minimum-por-count) to learn more.

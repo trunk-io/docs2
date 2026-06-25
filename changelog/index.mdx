@@ -14,10 +14,22 @@ rss: true
   The Trunk browser extension is now on Firefox Add-ons, with full feature parity with the Chrome build.
 </Update>
 
+<Update label="June 5, 2026" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Jira Ticket Creation Improvements](/changelog/2026-06-05-flaky-tests-jira-assignee-improvements)**
+
+  The Jira ticket creation flow now loads all assignable users, lists them alphabetically, and correctly populates the Components field.
+</Update>
+
 <Update label="June 4, 2026" tags={["Merge Queue"]}>
   **[Merge Queue: Resubmit From the Chrome Extension and Hide Noisy GitHub Rows](/changelog/2026-06-04-merge-queue-chrome-extension-0-8-0)**
 
   The Trunk for GitHub Chrome Extension now shows why a PR left the queue with one-click resubmit, and lets you hide the GitHub merge-box rows it replaces.
+</Update>
+
+<Update label="June 2, 2026" tags={["Flaky Tests"]}>
+  **[Flaky Tests: Configurable Minimum POR Count for the Pass-on-Retry Monitor](/changelog/2026-06-02-flaky-tests-por-count-monitor)**
+
+  Require multiple pass-on-retry commits before flagging a test as flaky, reducing noise in high-retry CI environments.
 </Update>
 
 ### May 2026
