@@ -87,6 +87,8 @@ Emitted when an AI-powered flaky test analysis finishes for a test case.
 
 Citations in `markdown_summary` and `facts[].content` are delivered as fully rendered links to the supporting evidence, so you can consume these fields directly without resolving placeholder tags.
 
+**Delivery reliability.** If the webhook delivery provider rate-limits a request, Trunk automatically retries with exponential backoff, so a transient spike rarely drops an event. This applies to every Flaky Tests webhook event and needs no configuration on your side.
+
 You can also find guides for specific examples here:
 
 <Columns cols={2}>
