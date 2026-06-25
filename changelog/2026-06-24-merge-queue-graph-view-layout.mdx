@@ -1,0 +1,15 @@
+---
+title: "Merge Queue: Improved Graph View Layout and Node Visuals"
+description: "The merge queue graph view now uses column-based placement to prevent lane overlaps, and node cards match updated design tokens."
+date: 2026-06-24
+category: Merge Queue
+type: update
+---
+
+**The [merge queue graph view](https://docs.trunk.io/merge-queue/using-the-queue/monitor-queue-status#graph-view) has an updated layout algorithm and refreshed node card visuals.**
+
+- **Column-based node placement.** Nodes are placed on a column grid. Children align under their leftmost parent column, and column collisions shift right to prevent horizontal overlap. Row widths only grow (never shrink) as more nodes arrive, so the grid stays stable while the queue is active.
+- **Consistent row heights.** All nodes in the same logical row share the maximum height of that row, keeping horizontal alignment clean.
+- **Refreshed node cards.** Cards now use 4px radius, 1px border, a subtle drop shadow, and a 3px status rail that widens to 6px on hover. Bisecting and testing state shares a split icon and orange footer. Color tokens are applied consistently throughout.
+- **Flat header bar.** The main/bisecting header is now a flat, integrated bar with accent underlines that run edge-to-edge. The active tab sits on the left; the inactive tab occupies a fixed 12rem slot on the right so the layout does not shift when switching tabs.
+
