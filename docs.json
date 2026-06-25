@@ -624,6 +624,7 @@
               {
                 "group": "June",
                 "pages": [
+                  "changelog/2026-06-15-merge-queue-browser-extension-admin-control",
                   "changelog/2026-06-12-merge-queue-health-metrics-csv-export",
                   "changelog/2026-06-12-merge-queue-settings-section-hierarchy",
                   "changelog/2026-06-11-flaky-tests-extension-test-details",
