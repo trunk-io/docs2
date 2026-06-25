@@ -288,37 +288,6 @@ When enabled, Trunk posts comments on pull requests with merge queue status upda
 
 ***
 
-## State Labels
-
-> Toggle this feature **Enabled** or **Disabled**. Default is **Disabled**.
-
-When enabled, Trunk applies GitHub labels to pull requests to reflect their current position in the merge queue. Labels update automatically as a PR moves through states, making queue activity visible directly in GitHub's pull request list without opening the Trunk dashboard.
-
-**Labels applied:**
-
-| Queue state | Label |
-|---|---|
-| Queued | `trunk:queued` |
-| Testing | `trunk:testing` |
-| Tests Passed | `trunk:tests-passed` |
-| Pending Failure | `trunk:pending-failure` |
-| Failed | `trunk:failed` |
-| Merged | `trunk:merged` |
-| Cancelled | `trunk:cancelled` |
-
-Trunk adds the label when a PR enters a state and removes it when the state changes. Only one state label is on a PR at a time.
-
-**When to enable:**
-
-* **GitHub-first workflows** - Your team tracks PR status directly in GitHub rather than the Trunk dashboard.
-* **Automations based on merge state** - Other tools or GitHub Actions can trigger on label changes to react to queue events.
-
-<Info>
-Only organization admins can change this setting.
-</Info>
-
-***
-
 ## GitHub Statuses
 
 > Toggle this feature **Enabled** or **Disabled**. Default is **Enabled**.
