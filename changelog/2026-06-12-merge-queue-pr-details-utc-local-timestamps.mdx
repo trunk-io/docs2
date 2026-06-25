@@ -1,0 +1,13 @@
+---
+title: "Merge Queue: PR Details Page Shows UTC and Local Time Together"
+description: "Timestamps on the PR details page now display both UTC and your local timezone side by side."
+date: 2026-06-12
+category: Merge Queue
+type: update
+---
+
+**The PR details page in the Merge Queue dashboard now shows timestamps in both UTC and your local timezone at the same time.**
+
+When investigating a PR, times such as when it entered the queue, when testing started, and when it exited now appear in both formats on the same row. This makes it easier to correlate what you see in Trunk with timestamps in CI logs, GitHub, and other tools that use UTC, without switching between views or doing mental timezone math.
+
+This change applies to the detailed PR view, where you go to investigate a specific PR's history in the queue.
