@@ -627,6 +627,7 @@
                   "changelog/2026-06-12-merge-queue-settings-section-hierarchy",
                   "changelog/2026-06-11-flaky-tests-extension-test-details",
                   "changelog/2026-06-11-merge-queue-priority-badge-pr-details",
+                  "changelog/2026-06-09-flaky-tests-multiple-por-monitors",
                   "changelog/2026-06-08-flaky-tests-collection-quarantine-default",
                   "changelog/2026-06-08-merge-queue-firefox-extension",
                   "changelog/2026-06-05-flaky-tests-jira-assignee-improvements",
