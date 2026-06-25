@@ -67,7 +67,7 @@ Once a PR is in the queue, the extension panel updates in real time as it moves 
 - **Testing** - actively running required status checks against a merge candidate
 - **Tests Passed** - waiting for upstream PRs before merging
 - **Merged** - the PR merged successfully; the panel shows a success state and stops polling
-- **Failed** - one or more required checks did not pass; the panel lists the failed checks by name with links to their run logs
+- **Failed** - one or more required checks did not pass; the panel lists the checks that genuinely failed by name with links to their run logs. GitHub Actions cancels other required jobs the moment any single job fails, so the panel shows only the jobs that actually failed. Cancelled jobs appear only when no genuine failure is present (for example, when an entire run was cancelled)
 - **Cancelled** - the PR was removed from the queue; the panel shows who cancelled it (for example, "Cancelled by alice") when that information is available
 
 ## Resubmit after failure or cancellation
