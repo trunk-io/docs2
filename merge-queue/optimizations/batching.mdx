@@ -91,7 +91,7 @@ When a PR is submitted with no-batch:
 Excluding a PR from batching only affects that specific PR. Your queue's batching settings and other PRs remain unaffected.
 </Info>
 
-## Bisection Testing Concurrency
+## Bisection Concurrency
 
 When a batch fails, Trunk automatically splits it apart (bisects) to identify which PR caused the failure. You can configure a separate, higher concurrency limit specifically for these bisection tests to isolate failures faster without impacting your main queue.
 
@@ -134,7 +134,7 @@ The bisection process can spin up 15 test runners to quickly isolate which PR fa
 Navigate to **Merge Queue** → **[your repository]** → **Settings** → **Batching**:
 
 1. Enable **Batching** (if not already enabled)
-2. Find the **Bisection Testing Concurrency** setting
+2. Find the **Bisection Concurrency** setting
 3. Set a value higher than your main **Testing Concurrency** for faster failure isolation
 4. Monitor your CI resource usage and adjust as needed
 
@@ -270,7 +270,7 @@ The exact savings depend on your batch size, bisection pattern, and which combin
 
 Test caching complements other batching optimizations:
 
-* **Bisection Testing Concurrency** - Run bisection tests faster AND skip redundant ones
+* **Bisection Concurrency** - Run bisection tests faster AND skip redundant ones
 * **Pending Failure Depth** - Keep more PRs in queue during failure recovery
 * **Optimistic Merging** - Merge successful batches while bisection runs in background
 
@@ -326,6 +326,91 @@ Batching works exceptionally well with these optimizations:
 **Pending failure depth** - When a batch fails, [pending failure depth](./pending-failure-depth) controls how many successor test runs the system waits on before transitioning the failed batch. Combined with optimistic merging, this can prevent premature bisection of a batch that only failed due to a transient issue.
 
 **Anti-flake protection** - Essential companion to batching. Reduces false batch failures caused by flaky tests, making batching more reliable and efficient.
+
+## How batching interacts with parallel queues and PFD
+
+Batching, [parallel queues](./parallel-queues), [pending failure depth](./pending-failure-depth), and [optimistic merging](./optimistic-merging) each shape the queue independently — but they also interact in ways that are easy to miss when reading each page in isolation. This section covers the cross-feature behaviors customers most often ask about.
+
+### Batching is another form of lane
+
+It's tempting to think of batching as something that happens *within* a parallel-queue lane. It's clearer to think of a batch as **itself another form of lane**: a temporary testing-lane shape that groups PRs together for a single test run.
+
+Parallel queues split the queue into lanes based on impacted targets. Batching groups PRs into a single test unit. Both produce a "thing the queue tests as one." The two are orthogonal — you can run batching inside a parallel-queue setup, and the graph view shows the resulting lane shapes.
+
+<Info>
+Use the merge queue graph view to see how batches and parallel-queue lanes overlap for your queue's current state.
+</Info>
+
+### PR batch eligibility
+
+Trunk groups PRs into a batch based on:
+
+* **FIFO order** — PRs are considered for batching in the order they were submitted to the queue.
+* **Target overlap** — In parallel mode, PRs only batch together if they share enough impacted-target overlap to belong to the same lane. PRs with disjoint target sets stay in separate lanes and don't batch with each other.
+* **Maximum wait time and target batch size** — A batch forms when either the target batch size fills, or the maximum wait time elapses with at least one PR present.
+* **`--no-batch` flag** — PRs submitted with `--no-batch` (or `noBatch: true` via API) test in isolation, regardless of the batching configuration.
+
+If a PR ahead in the queue declares it impacts ALL targets, every PR queued behind it is serialized behind it — see the next section.
+
+### An ALL-impacting PR serializes every downstream PR
+
+A PR that impacts ALL targets becomes a prerequisite of *every* PR queued behind it. Even a downstream PR that shares no targets with it is serialized behind it and cannot test in parallel until the ALL-impacting PR resolves. Declaring ALL impact means the PR could affect anything, so Trunk cannot safely test anything queued after it in parallel.
+
+Concretely: if PR-A impacts ALL targets and PR-B impacts only `docs`, PR-B cannot test in parallel behind PR-A. PR-B waits until PR-A finishes. No parallel optimization is possible past an ALL-impacting PR.
+
+<Info>
+ALL impact is a serialization point: every PR behind it depends on it regardless of target overlap, so parallel queues collapse to a single lane until the ALL-impacting PR clears.
+</Info>
+
+### Transitive dependents are usually captured by impacted targets
+
+A common worry: "PR-1 changes target X, PR-2 introduces a feature that depends on X's old behavior. Will they merge in parallel and break main?"
+
+If the two PRs share zero impacted targets, the queue treats them as parallel-safe. In practice this is rare: most impact-detection tools (Bazel, Nx, and similar) include transitive dependents when computing impacted targets. PR-2 would typically list target X as well, putting them in the same lane.
+
+If your impact-detection setup misses transitive dependents, you'll see false-parallel merges. That's a signal to widen your impact graph, not to disable parallel mode.
+
+### Bisection splits in half, not one-by-one
+
+When a batch fails and the queue needs to find the culprit, it **splits the batch in half** rather than peeling off individual PRs.
+
+A batch of 5 doesn't bisect into 5 isolated tests. It bisects into 2 sub-batches, retests, and recurses on whichever sub-batch failed. Your **Bisection Concurrency** is the concurrency limit for those sub-batch test runs — not the number of individual PRs being retested at once.
+
+This matters when you size bisection concurrency: setting it equal to your batch size is more than you need. The bisection process is logarithmic in batch size.
+
+### PFD's downstream-PR delay
+
+Pending failure depth waits for **predecessor** groups to finish (always) and **successor** groups to finish (up to the configured depth). One consequence customers hit:
+
+> **Example.** PFD is set to 1. PR-A fails. PR-B is testing behind it. A new PR-C arrives that shares impacted targets with PR-A. The queue will wait for PR-C to finish testing before it transitions PR-A out of Pending Failure — even though PR-C wasn't in the queue when PR-A failed.
+
+This is by design. PFD's correctness signal depends on observing how successor PRs that include the failed group's changes behave. A newly-arrived overlapping PR is a valid successor test — its result is informative about whether PR-A's failure was a flake or a real failure. Waiting for it produces a stronger signal.
+
+The trade-off: high PFD values combined with frequent new submissions can extend the time before a known-failed PR is kicked from the queue.
+
+<Info>
+If you need an upper bound on how many successor *conclusions* (not just queue positions) PFD waits on, that's an active area of design — share your use case with support.
+</Info>
+
+### Disabling optimistic merge causes batch-removal restarts
+
+[Optimistic merging](./optimistic-merging) lets downstream batches keep testing against a projected future state of main while an upstream batch is still being resolved. If you disable optimistic merging, the queue can no longer reuse those downstream test results when the upstream batch changes shape.
+
+So if a batch ahead of yours is removed (for example, because it failed bisection and one PR was kicked), your batch may need to **re-test from scratch** — even if it had already passed. Customers who disabled optimistic merging have reported PRs going from "ready to merge" back to "testing" specifically because of this restart behavior.
+
+<Info>
+If you're seeing unexplained re-tests of already-passing batches, check whether optimistic merging is disabled.
+</Info>
+
+### MQ-only failures aren't yet flakiness signals
+
+A test that fails in the merge queue but passes on main isn't currently fed into [Trunk Flaky Tests](../../flaky-tests/overview) as a flakiness signal. Similarly, bisection test runs aren't surfaced as flakiness data today.
+
+In practice, the queue's anti-flake protection (optimistic merging + PFD) catches a lot of these transient failures without needing a separate flakiness signal. But if you're trying to understand why an MQ-only flake doesn't show up in your flaky-test dashboard, that's why.
+
+### Event-side view
+
+For the webhook lifecycle of these batch events — including the `pending_failure` event that fires when a batch enters the hold state — see the [webhooks reference](../webhooks).
 
 ## Batching + Optimistic Merging and Pending Failure Depth
 
