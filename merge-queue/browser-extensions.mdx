@@ -45,7 +45,7 @@ On any pull request in a queue-enabled repository, the extension adds a **Merge 
 
 1. Open the pull request on GitHub.
 2. In the Trunk panel, click **Add to Merge Queue**.
-3. Optionally choose a [priority](./optimizations/priority-merging) before submitting.
+3. Optionally choose a [priority](./optimizations/priority-merging) before submitting. The dropdown includes **Normal** (default), **Low**, **High**, and **Urgent**. Urgent forces the PR to the front of the queue and restarts any in-progress testing; use it only for production incidents.
 4. If batching is enabled for the repository, you can toggle **Skip batching** to enqueue this PR without grouping it into a batch — useful for hotfixes or PRs that need to merge without waiting for a batch window.
 
 Submission goes through the same backend as the `/trunk merge` comment and the Trunk web app, so behavior is identical. See [Submit and cancel pull requests](./using-the-queue/reference) for the full lifecycle.
