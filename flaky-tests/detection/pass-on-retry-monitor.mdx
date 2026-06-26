@@ -49,7 +49,7 @@ You can create more than one pass-on-retry monitor for the same repository. Each
 
 A common pattern is to run one monitor scoped to stable branches (like `main`) with a shorter recovery period for fast feedback, and a second monitor scoped to `release/*` branches with a longer recovery period for builds where intermittent failures are more expensive to re-investigate.
 
-To add a monitor, go to **Settings** in the Trunk web app, open the repository, navigate to the **Monitors** tab, and click **Add monitor**. Each monitor you create appears as a separate row in the monitors table and can be individually enabled, disabled, or deleted.
+To add a monitor, navigate to **Settings** in the Trunk web app, open the repository, open the **Monitors** tab, and click **Add monitor**. Each monitor you create appears as a separate row in the monitors table and can be individually enabled, disabled, or deleted.
 
 <Frame caption="The Monitors tab lists each monitor as its own row, grouped into Health classification and Lifecycle & performance. Add Monitor creates an additional monitor in the same repository.">
 <img className="block dark:hidden" src="/assets/flaky-tests/detection/repo-monitors-tab-light.png" alt="The repository Monitors tab showing a pass-on-retry monitor, two failure-rate monitors, and lifecycle monitors, each as a separate row with an Add Monitor control." />
