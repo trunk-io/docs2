@@ -90,6 +90,13 @@ You can _click_ on any of the test cases listed on the Flaky Tests dashboard to 
 
 In addition to the tabbed content, the test details page shows the test’s current status (Healthy, Flaky, or Broken), ticket status, and codeowner information.
 
+The **Monitors** tab opens on a monitor history swimlane: one row per monitor, each showing a 30-day timeline of the classifications it produced. Bars are colored by status (or by the label's color for label monitors), and the **Show inactive and disabled monitors** toggle filters the view down to monitors with recent activity.
+
+<Frame caption="The monitor history swimlane on the Monitors tab: each monitor's classifications over the past 30 days, one row per monitor.">
+<img className="block dark:hidden" src="/assets/flaky-tests/monitor-history-swimlane-light.png" alt="A swimlane timeline on the Monitors tab with rows for Test Status, a failure-rate monitor, a pass-on-retry monitor, and a second failure-rate monitor, spanning May 27 to June 26." />
+<img className="hidden dark:block" src="/assets/flaky-tests/monitor-history-swimlane-dark.png" alt="A swimlane timeline on the Monitors tab with rows for Test Status, a failure-rate monitor, a pass-on-retry monitor, and a second failure-rate monitor, spanning May 27 to June 26." />
+</Frame>
+
 ## Code owners
 
 If you have a codeowners file configured in your repos, you will see who owns each flaky test in the test details view. We support code owners for [GitHub](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners) and [GitLab](https://docs.gitlab.com/ee/user/project/codeowners/) repos.
@@ -142,6 +149,11 @@ You can flip through the stack traces of similar failures across different test 
 ## Test History tab
 
 The Test History tab gives you full visibility into every individual run of a test. Use it to investigate patterns across branches, find specific failing runs, and drill into error details.
+
+<Frame>
+<img className="block dark:hidden" src="/assets/flaky-tests/test-history-tab-light.png" alt="The Test History tab with a result and quarantine filter bar, a daily runs chart, and a paginated table of individual test runs." />
+<img className="hidden dark:block" src="/assets/flaky-tests/test-history-tab-dark.png" alt="The Test History tab with a result and quarantine filter bar, a daily runs chart, and a paginated table of individual test runs." />
+</Frame>
 
 ### Daily runs chart
 
