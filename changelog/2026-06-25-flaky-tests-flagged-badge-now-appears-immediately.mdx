@@ -1,0 +1,17 @@
+---
+title: "Flaky Tests: Flagged Badge Now Appears Immediately After Manual Flag"
+description: "The 'Flagged flaky' badge now shows up right away when you manually flag a test, without needing a page refresh."
+date: 2026-06-25
+category: Flaky Tests
+type: fix
+---
+
+**The "Flagged flaky" badge now appears immediately after you flag a test manually.**
+
+Previously, clicking **Flag as Flaky** would update the test's status in the backend, but the amber "Flagged flaky" badge on the test detail page could fail to render until you refreshed the page. This happened because the mutation only updated one Apollo cache entry, leaving the badge and metadata card reading stale data. A post-mutation refetch could also overwrite the optimistic update if it resolved before ClickHouse had caught up.
+
+The fix updates every relevant query cache (button state, badge, and metadata card) atomically on mutation success, and removes the post-mutation refetch that could race against the optimistic update.
+
+If you were working around this bug by refreshing after flagging, you no longer need to. The badge appears as soon as the flag mutation completes.
+
+Co-Authored-By: Claude <noreply@anthropic.com>
