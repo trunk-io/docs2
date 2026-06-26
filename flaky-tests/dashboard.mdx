@@ -251,5 +251,5 @@ When an example raises multiple exceptions (for example, an error in the test bo
 <Info>
 **Go subtests with 0ms duration**
 
-`go test` reports the top-level test duration but does not always emit per-subtest durations. When the duration arrives as 0ms, the AI failure analysis can mistake a slow subtest for an instantaneous one and miss timing-related context. Post-process your JUnit XML to reflect real subtest durations before uploading, or rely on the raw stack trace rather than the AI summary for these cases.
+`go test` reports the top-level test duration but does not always emit per-subtest durations. When a subtest's duration is reported as 0ms, timing-based signals — including the AI failure analysis — have less to work with for that case. If timing context matters for your investigation, post-process your JUnit XML to reflect real subtest durations before uploading, or rely on the raw stack trace rather than the AI summary.
 </Info>

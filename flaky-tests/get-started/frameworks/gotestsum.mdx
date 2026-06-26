@@ -56,7 +56,7 @@ gotestsum [path-to-tests-to-run] --junitfile ./junit.xml
 The tools will write a JUnit test report to the file specified (e.g., `junit.xml` or `junit_report.xml`). You'll need this path when configuring uploads to Trunk.
 
 <Info>
-If a subtest's top-level duration is reported as 0ms, the AI failure analysis in the dashboard can lose timing context. See [Known limitations](../../dashboard#known-limitations) for the recommended workaround.
+If a subtest's top-level duration is reported as 0ms, timing-based analysis in the dashboard has less to work with for that case. See [Known limitations](../../dashboard#known-limitations) for the recommended workaround.
 </Info>
 
 #### Disable Retries
