@@ -1,0 +1,15 @@
+---
+title: "Flaky Tests: Bazel Label Now Included in Webhook Payloads"
+description: "Webhook events for test case status changes now include an optional bazel_label field on the test_case object."
+date: 2026-06-25
+category: Flaky Tests
+type: update
+---
+
+**Flaky Tests webhook events now carry the Bazel label for tests that have one.**
+
+The `test_case` object in `test_case.monitor_status_changed` and `v2.test_case.status_changed` webhook payloads now includes an optional `bazel_label` field. When a test case is associated with a Bazel target, this field contains the fully qualified label (for example, `//mypackage:my_test`). The field is absent when no Bazel label is recorded for the test.
+
+This makes it easier to route, deduplicate, or link webhook-driven tickets and alerts back to a specific Bazel target in your build graph. It is particularly useful for repositories that use multiple test targets with similar names across packages.
+
+See the [Webhooks reference](/flaky-tests/webhooks) for the full field tables.
