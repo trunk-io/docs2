@@ -37,7 +37,11 @@ Once it's added:
 
 **Signed-out indicator**
 
-When you are not signed in to Trunk, the extension toolbar icon shows a lock badge. On any pull request page in a queue-enabled repository, a **Sign in to Trunk** row appears in place of the normal merge queue panel, reminding you to sign in before queue controls become available.
+When you are not signed in to Trunk, the extension toolbar icon shows an amber **!** badge on any GitHub tab. The extension does not modify GitHub's UI while signed out, so no merge queue panel or sign-in prompt appears on pull request pages. Click the Trunk toolbar icon and sign in to activate the extension.
+
+**Disabled-repository behavior**
+
+If the extension is [disabled for a repository's queue](/merge-queue/administration/advanced-settings#browser-extension), the extension leaves GitHub's UI untouched for that repository's pull requests, the same as when signed out.
 
 ## Submit a pull request to the queue
 
