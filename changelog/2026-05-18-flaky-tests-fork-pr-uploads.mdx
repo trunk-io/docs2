@@ -8,7 +8,7 @@ type: new-feature
 
 **You can now accept test result uploads from fork pull requests without exposing your organization API token to fork workflows.**
 
-Fork PRs are a long-standing gap for open-source repos: GitHub doesn't pass repository secrets to workflows triggered by `pull_request` from a fork, so the analytics CLI has no org token to authenticate with, and those contributors lose flake detection. The new **Fork PR Uploads** toggle at **Settings > Repositories > [repo] > Flaky Tests** closes that gap. Enabling it mints a non-secret, 8-character public repo identifier that fork workflows send on the `X-Trunk-Public-Repo-Id` header instead of a token.
+Fork PRs are a long-standing gap for open-source repos: GitHub doesn't pass repository secrets to workflows triggered by `pull_request` from a fork, so the analytics CLI has no org token to authenticate with, and those contributors lose flake detection. The new **Fork PR Uploads** toggle at **Settings** → **Repositories** → **[repo]** → **Flaky Tests** closes that gap. Enabling it mints a non-secret, 8-character public repo identifier that fork workflows send on the `X-Trunk-Public-Repo-Id` header instead of a token.
 
 The identifier is a routing key, not a credential: it tells Trunk which repository an upload belongs to and only authorizes uploads to that repository. Fork PR uploads are opt-in per repository, and toggling the setting is admin-only.
 
