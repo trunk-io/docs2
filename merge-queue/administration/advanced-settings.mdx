@@ -7,6 +7,11 @@ All of the following settings are specific to individual Merge Queues and can be
 
 Settings are organized into sections accessible from the sidebar: **General** (state, mode, merge method, timeouts, concurrency), **GitHub** (required statuses, comments, labels), **Slack** (notifications), and **Batching**. Each section has its own URL, so you can link teammates directly to a specific group of settings.
 
+<Frame caption="Merge Queue settings are split into sidebar sections: General, GitHub, Slack, and Batching, plus Sudo when enabled for your org. Each section has its own URL.">
+<img className="block dark:hidden" src="/assets/merge-queue/administration/settings-sidebar-sections-light.png" alt="The Merge Queue settings page with a sidebar listing General, GitHub, Slack, Batching, and Sudo, showing the General section's controls." />
+<img className="hidden dark:block" src="/assets/merge-queue/administration/settings-sidebar-sections-dark.png" alt="The Merge Queue settings page with a sidebar listing General, GitHub, Slack, Batching, and Sudo, showing the General section's controls." />
+</Frame>
+
 <Info>
 Organization admin access is required to change any of these settings. Non-admins see all controls in a disabled state. Hovering over a disabled button shows a tooltip explaining the restriction.
 </Info>
@@ -211,6 +216,11 @@ All three work regardless of which testing mode you chose (Draft PR or Push-Trig
 2. Find the **Required Status Checks** section
 3. Use the CI job selector to choose which status checks must pass. The selector shows GitHub status check and check run names observed on recent pull requests in your repository. If a check name does not appear in the list (for example, a new workflow not yet seen on a recent PR), type it in directly and press Enter to add it.
 4. Selected statuses override the GitHub branch protection defaults for the merge queue
+
+<Frame caption="The GitHub section of Merge Queue settings. Click Configure under Required Statuses to pick the CI checks the queue waits on.">
+<img className="block dark:hidden" src="/assets/merge-queue/administration/github-settings-section-light.png" alt="The GitHub section of Merge Queue settings showing GitHub Comments, Commands, Label Commands, State Labels, GitHub Statuses, Browser Extension, and Required Statuses with a Configure control." />
+<img className="hidden dark:block" src="/assets/merge-queue/administration/github-settings-section-dark.png" alt="The GitHub section of Merge Queue settings showing GitHub Comments, Commands, Label Commands, State Labels, GitHub Statuses, Browser Extension, and Required Statuses with a Configure control." />
+</Frame>
 
 <Info>
 When required statuses are configured in Trunk, only those statuses are required for the merge queue. When not configured, Trunk falls back to your GitHub branch protection required checks.
