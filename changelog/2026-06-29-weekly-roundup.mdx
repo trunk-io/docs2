@@ -1,0 +1,28 @@
+---
+title: "This week at Trunk: Browser extension 0.13.0"
+description: "A faster, more reliable Trunk browser extension on GitHub pull request pages."
+date: 2026-06-29
+category: Browser Extension
+type: update
+---
+
+**Here's what shipped this week.**
+
+## Updates
+
+### Browser extension 0.13.0
+
+Version 0.13.0 of the Trunk browser extension is now available, with performance improvements and reliability work for GitHub pull request pages.
+
+- **Faster panel rendering.** Lower overhead when injecting Trunk panels into PR pages means quicker initial render and reduced memory use on long-running tabs.
+- **More reliable on busy PRs.** Smoother behavior when GitHub re-renders the merge box and PR header during navigation.
+
+See [Merge Queue browser extensions](/merge-queue/browser-extensions) for setup and settings, or check your installed version from the extension popup under **Settings**. The extension auto-updates through the Chrome Web Store and Firefox Add-ons.
+
+## Bug fixes
+
+A handful of issues reported against 0.12.x are resolved in 0.13.0, including:
+
+- Stale data lingering in the test-results panel after switching PRs.
+- Panel layout glitches on smaller viewports.
+- Intermittent failures fetching test results on slow networks.

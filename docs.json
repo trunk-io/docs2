@@ -624,7 +624,7 @@
               {
                 "group": "June",
                 "pages": [
-                  "changelog/2026-06-29-browser-extension-0-13-0.mdx",
+                  "changelog/2026-06-29-weekly-roundup.mdx",
                   "changelog/2026-06-18-merge-queue-stale-tab-refresh-fix",
                   "changelog/2026-06-17-flaky-tests-browser-extension-failure-details",
                   "changelog/2026-06-17-merge-queue-metrics-and-extension-updates",
