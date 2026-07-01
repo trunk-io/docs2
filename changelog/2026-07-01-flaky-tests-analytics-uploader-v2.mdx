@@ -1,0 +1,26 @@
+---
+title: "Flaky Tests: Analytics Uploader GitHub Action v2"
+description: "The recommended version of the Trunk Analytics Uploader GitHub Action is now v2. Update your workflows to pin uses: trunk-io/analytics-uploader@v2."
+date: 2026-07-01
+category: Flaky Tests
+type: update
+---
+
+**Pin the Trunk Analytics Uploader GitHub Action to `@v2` to get the latest uploader.**
+
+If you upload test results to Trunk from GitHub Actions, update your workflow steps to reference the `v2` major tag:
+
+```yaml
+- name: Upload Test Results to Trunk.io
+  if: ${{ !cancelled() }}
+  continue-on-error: true
+  uses: trunk-io/analytics-uploader@v2
+  with:
+    junit-paths: **/junit.xml
+    org-slug: <TRUNK_ORG_URL_SLUG>
+    token: ${{ secrets.TRUNK_API_TOKEN }}
+```
+
+The `v2` tag is the recommended pin going forward and is what the setup docs reference across [GitHub Actions](/flaky-tests/get-started/ci-providers/github-actions), [multiple repositories](/flaky-tests/get-started/multiple-repositories), and [quarantining](/flaky-tests/quarantining) setup flows.
+
+No other changes are required — the action's inputs (`junit-paths`, `xcresult-path`, `bazel-bep-path`, `org-slug`, `token`, `run`) are unchanged.
