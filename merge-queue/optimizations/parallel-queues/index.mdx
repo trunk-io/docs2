@@ -69,6 +69,20 @@ Switching modes can be done from the `Merge Queue Mode` section of your queue's 
 <img className="hidden dark:block" src="/assets/merge-queue/optimizations/parallel-queues/enable-parallel-mode-dark.png" alt="Enabling parallel mode in the Merge Queue Mode settings" />
 </Frame>
 
+## Cutting over from single to parallel mode
+
+In single mode, a pull request only needs to pass branch protection to be tested. In parallel mode it needs one more thing: impacted targets uploaded for the head SHA. A PR stays in the `Queued` state until **both** conditions are met, so the cutover is mostly about making sure every PR that could enter the queue has targets posted for it.
+
+**Land the impacted-targets job before you switch.** You don't have to flip to parallel mode and add the CI job at the same time. While the queue is still in single mode, uploads to [`/setImpactedTargets`](./api#uploading-impacted-targets) are stored but not used for scheduling, so shipping the job early is safe and won't change queue behavior. When you switch to parallel mode, every PR the job has already run for will have its targets ready.
+
+**Backfill open PRs so they don't hang.** A PR that was opened before the job existed — or one that passed CI long ago and never re-ran it — has no impacted targets. After cutover it will sit in `Queued` indefinitely, because there is no timeout that applies a fallback (and applying `ALL` automatically would collapse every lane onto that PR, defeating parallelization). Post targets for these PRs before or right after the switch. Sending `ALL` for each open PR targeting the merge branch is a reasonable one-time backfill; the next time the job runs on a new commit, it overrides the `ALL` with the real list ([last upload wins](./api#last-upload-wins-per-head-sha)).
+
+**Require a recent merge base for new PRs.** Backfilling handles today's open PRs, but a stale branch that passed CI before the job existed can still be enqueued later as long as its status checks stay green. Raising your minimum merge-base / staleness requirement forces those branches to rebase, which re-runs the impacted-targets job and guarantees every newly enqueued PR has targets.
+
+<Warning>
+A PR with no uploaded impacted targets stays in `Queued` forever in parallel mode — there is no timeout that falls back to `ALL`. If engineers report PRs that never start testing after the cutover, missing impacted targets is the most likely cause. See [the troubleshooting guide](/merge-queue/reference/troubleshooting).
+</Warning>
+
 ## Monitoring Parallel Queue Performance
 
 Once you've enabled parallel mode and configured impacted targets, you can analyze how well the parallel workflow performs for different parts of your codebase.

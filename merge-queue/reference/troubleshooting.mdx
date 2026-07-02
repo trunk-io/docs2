@@ -13,7 +13,7 @@ Visit [Trunk Support](../../setup-and-administration/support) for additional ass
 Start here if a PR you submitted isn't merging:
 
 * **Check the status comments for the PR in** the [Trunk Dashboard](https://app.trunk.io/) to see what it's waiting for
-* **Stuck in "Queued"**: Usually means branch protection rules haven't passed (missing required status checks or code review) or there are merge conflicts. If the status looks correct but the PR still won't enter the queue, try [removing](/merge-queue/using-the-queue/handle-failed-pull-requests#manually-restarting-failed-pull-requests) and re-adding by commenting `/trunk merge` again on the PR.
+* **Stuck in "Queued"**: Usually means branch protection rules haven't passed (missing required status checks or code review) or there are merge conflicts. In [parallel mode](/merge-queue/optimizations/parallel-queues), it can also mean no [impacted targets](/merge-queue/optimizations/parallel-queues#what-are-impacted-targets) were uploaded for the PR's head SHA — the PR waits in `Queued` until they arrive. If the status looks correct but the PR still won't enter the queue, try [removing](/merge-queue/using-the-queue/handle-failed-pull-requests#manually-restarting-failed-pull-requests) and re-adding by commenting `/trunk merge` again on the PR.
 * **Fails when attempting to merge**: Check that squash merges are enabled for your repository in GitHub settings (`Settings > General > Allow squash merging`). Trunk Merge Queue requires squash merges to be enabled.
 * **"Permission denied" errors**: Review the [Branch Protection](/merge-queue/getting-started/configure-branch-protection#configure-branch-protection-rules) guide to make sure `trunk-temp/*` and `trunk-merge/*` branches aren't protected by wildcard rules like `*/*`.
 * **Status checks not running**: Verify your CI is configured to run on draft PRs (or `trunk-merge/**` branches if using push-triggered mode). See the [Branch Protection](/merge-queue/getting-started/configure-branch-protection#configure-branch-protection-rules) guide for details.
@@ -28,13 +28,21 @@ Start here if a PR you submitted isn't merging:
 </Accordion>
 
 <Accordion title='Pull request stuck as "Queued" in the queue'>
-**Cause:** Required status checks are not completing or not configured correctly.
+A PR stays in `Queued` until it's eligible to be tested. In parallel mode that means two conditions, either of which can block it.
 
-**Solution:**
+**Cause 1: Required status checks are not completing or not configured correctly.**
 
 * Click on the pull request in the Trunk Dashboard to see which checks it's waiting for
 * Verify those checks are running in your CI provider
 * If using Push-triggered mode, make sure the check names in `trunk.yaml` exactly match your CI job names
+
+**Cause 2 (parallel mode): No impacted targets were uploaded for the PR's head SHA.**
+
+In [parallel mode](/merge-queue/optimizations/parallel-queues), a PR isn't scheduled until [impacted targets](/merge-queue/optimizations/parallel-queues#what-are-impacted-targets) have been posted for its current head SHA. There is no timeout — a PR whose impacted-targets job never ran (for example, a stale branch opened before you added the job) waits in `Queued` indefinitely. The PR detail page in the Trunk Dashboard shows whether targets are the blocker.
+
+* Re-run the CI job that posts impacted targets, or push a commit so it runs against the new head SHA
+* As a one-off, post targets directly with [`/setImpactedTargets`](/merge-queue/optimizations/parallel-queues/api#uploading-impacted-targets) — sending `ALL` unblocks the PR immediately, though it serializes that PR against the rest of the queue
+* If this happens to many PRs right after switching to parallel mode, see [Cutting over from single to parallel mode](/merge-queue/optimizations/parallel-queues#cutting-over-from-single-to-parallel-mode)
 </Accordion>
 
 <Accordion title="Required status checks not running">
