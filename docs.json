@@ -259,6 +259,7 @@
                       "flaky-tests/detection/new-test-monitor",
                       "flaky-tests/detection/skipped-test-monitor",
                       "flaky-tests/detection/slow-test-monitor",
+                      "flaky-tests/detection/timeout-inflation-monitor",
                       "flaky-tests/detection/timeout-inflation-monitor"
                     ]
                   },
