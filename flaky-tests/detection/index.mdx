@@ -12,11 +12,11 @@ Each monitor independently observes your test runs and tracks two states per tes
 
 For monitors whose action is **Classify test status** (referred to below as _health classification monitors_), the test's overall status is determined by combining all such monitors, with the most severe status winning:
 
-| Priority | Status      | Condition                                                                                |
-| -------- | ----------- | ---------------------------------------------------------------------------------------- |
-| Highest  | **Broken**  | Any enabled broken-type monitor (failure rate or failure count) is active for this test  |
-| Middle   | **Flaky**   | Any enabled flaky-type monitor (failure rate, failure count, or pass-on-retry) is active |
-| Lowest   | **Healthy** | No active health classification monitor                                                  |
+| Priority | Status | Condition |
+| --- | --- | --- |
+| Highest | **Broken** | Any enabled broken-type monitor (failure rate or failure count) is active for this test |
+| Middle | **Flaky** | Any enabled flaky-type monitor (failure rate, failure count, or pass-on-retry) is active |
+| Lowest | **Healthy** | No active health classification monitor |
 
 If a test triggers both a broken monitor and a flaky monitor simultaneously, it shows as **Broken**. When the broken monitor resolves (e.g., you fix the regression and the failure rate drops), the test transitions to **Flaky** if a flaky monitor is still active, or to **Healthy** if no health classification monitors remain active.
 
@@ -41,21 +41,22 @@ Trunk groups monitors into two categories based on what they do when they activa
 
 ### Health Classification Monitors
 
-| Monitor                                      | What it detects                                                        | Available actions                                                                                        | Default state |
-| -------------------------------------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ------------- |
-| [**Pass-on-Retry**](./pass-on-retry-monitor) | A test fails then passes on the same commit (retry after failure)      | Classify (flaky) or [apply labels](../management/test-labels#automatic-labeling-from-monitors)           | Enabled       |
-| [**Failure Rate**](./failure-rate-monitor)   | Failure rate exceeds a configured percentage over a time window        | Classify (flaky or broken) or [apply labels](../management/test-labels#automatic-labeling-from-monitors) | Disabled      |
-| [**Failure Count**](./failure-count-monitor) | A test accumulates a configured number of failures in a rolling window | Classify (flaky or broken) or [apply labels](../management/test-labels#automatic-labeling-from-monitors) | Disabled      |
+| Monitor | What it detects | Available actions | Default state |
+| --- | --- | --- | --- |
+| [**Pass-on-Retry**](./pass-on-retry-monitor) | A test fails then passes on the same commit (retry after failure) | Classify (flaky) or [apply labels](../management/test-labels#automatic-labeling-from-monitors) | Enabled |
+| [**Failure Rate**](./failure-rate-monitor) | Failure rate exceeds a configured percentage over a time window | Classify (flaky or broken) or [apply labels](../management/test-labels#automatic-labeling-from-monitors) | Disabled |
+| [**Failure Count**](./failure-count-monitor) | A test accumulates a configured number of failures in a rolling window | Classify (flaky or broken) or [apply labels](../management/test-labels#automatic-labeling-from-monitors) | Disabled |
 
 ### Lifecycle and Performance Monitors
 
 These monitors apply labels based on lifecycle events or performance characteristics. They do not classify tests as flaky or broken, and they do not contribute to the test's overall health status.
 
-| Monitor                                    | What it detects                                                              | Available actions                                                          | Default state |
-| ------------------------------------------ | ---------------------------------------------------------------------------- | -------------------------------------------------------------------------- | ------------- |
-| [**New Test**](./new-test-monitor)         | A test case seen for the first time, tracked for a configurable grace period | [Apply labels](../management/test-labels#automatic-labeling-from-monitors) | Disabled      |
-| [**Skipped Test**](./skipped-test-monitor) | A test is consistently skipped across runs within a time window              | [Apply labels](../management/test-labels#automatic-labeling-from-monitors) | Disabled      |
-| [**Slow Test**](./slow-test-monitor)       | A test's average duration exceeds a configured threshold                     | [Apply labels](../management/test-labels#automatic-labeling-from-monitors) | Disabled      |
+| Monitor | What it detects | Available actions | Default state |
+| --- | --- | --- | --- |
+| [**New Test**](./new-test-monitor) | A test case seen for the first time, tracked for a configurable grace period | [Apply labels](../management/test-labels#automatic-labeling-from-monitors) | Disabled |
+| [**Skipped Test**](./skipped-test-monitor) | A test is consistently skipped across runs within a time window | [Apply labels](../management/test-labels#automatic-labeling-from-monitors) | Disabled |
+| [**Slow Test**](./slow-test-monitor) | A test's average duration exceeds a configured threshold | [Apply labels](../management/test-labels#automatic-labeling-from-monitors) | Disabled |
+| [**Timeout Inflation**](./timeout-inflation-monitor) | A test's typical failure duration is much larger than its passing duration, exposing an inflated timeout | [Apply labels](../management/test-labels#automatic-labeling-from-monitors) | Disabled |
 
 You can run multiple monitors simultaneously. For example, you might use pass-on-retry to catch classic retry-based flakiness while also running failure rate monitors scoped to different branches. A common pattern is to pair a broken-type failure rate monitor (catching consistently failing tests) with a flaky-type failure rate monitor (catching intermittently failing tests). See [Failure Rate Monitor: Recommended Configurations](./failure-rate-monitor#recommended-configurations) for details.
 
@@ -95,35 +96,33 @@ This is useful when you know a test is flaky but want to suppress the signal tem
 You can mute a monitor from the test case view in the Trunk app. When muting, you choose a duration:
 
 | Duration |
-| -------- |
-| 1 hour   |
-| 4 hours  |
+| --- |
+| 1 hour |
+| 4 hours |
 | 24 hours |
-| 7 days   |
-| 30 days  |
+| 7 days |
+| 30 days |
 
 While muted, the monitor is excluded from the test's status calculation. If the muted monitor was the only active health classification monitor, the test transitions from flaky to healthy for the duration of the mute. When the mute expires, the monitor is automatically included in the next status evaluation. If it's still active, the test will be flagged again.
 
 You can also unmute a monitor early from the test case view.
 
 {/* SCREENSHOT: Mute button and duration picker on the test case monitor list.
-Show the test case detail page with a monitor's mute button visible,
-and ideally the duration picker dropdown open. */}
+  Show the test case detail page with a monitor's mute button visible,
+  and ideally the duration picker dropdown open. */}
 
 <Info>
-  You can only mute a monitor that has already detected flaky behavior for a
-  test. If a monitor has never been active for a test, the mute option is
-  disabled.
+  You can only mute a monitor that has already detected flaky behavior for a test. If a monitor has never been active for a test, the mute option is disabled.
 </Info>
 
 ### When to Mute vs. Other Options
 
-| Situation                                                     | Recommended action                                               |
-| ------------------------------------------------------------- | ---------------------------------------------------------------- |
-| Fix is in progress and you want to suppress noise temporarily | **Mute** the monitor for a few days                              |
-| Test is flaky but no automated monitor has caught it          | Use [**Flag as Flaky**](./flag-as-flaky) to mark it as flaky     |
-| You want to stop a monitor from evaluating a test permanently | Adjust the monitor's branch scope or thresholds instead          |
-| You want to suppress all flaky signals for a test             | Mute each active monitor individually, or address the root cause |
+| Situation | Recommended action |
+| --- | --- |
+| Fix is in progress and you want to suppress noise temporarily | **Mute** the monitor for a few days |
+| Test is flaky but no automated monitor has caught it | Use [**Flag as Flaky**](./flag-as-flaky) to mark it as flaky |
+| You want to stop a monitor from evaluating a test permanently | Adjust the monitor's branch scope or thresholds instead |
+| You want to suppress all flaky signals for a test | Mute each active monitor individually, or address the root cause |
 
 ## Variants
 

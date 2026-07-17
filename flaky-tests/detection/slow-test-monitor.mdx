@@ -23,7 +23,7 @@ Once the monitor activates, detection evidence (the specific runs that triggered
 ## Configuration
 
 | Setting | Description | Default |
-|---|---|---|
+| --- | --- | --- |
 | Duration threshold | Duration (milliseconds) at the configured percentile that triggers detection | Required |
 | Percentile | Which duration percentile to evaluate, as a value between 0 and 1 (for example, 0.5 for p50) | Required |
 | Window | Time window (minutes) over which duration is measured | Required |
@@ -60,8 +60,9 @@ Scope the monitor to branches where test duration matters most, such as `main` o
 ## Choosing Between Monitors
 
 | Goal | Recommended monitor |
-|---|---|
+| --- | --- |
 | Flag tests that are taking too long | Slow test monitor |
+| Flag tests whose timeouts are far larger than they need to be | [Timeout inflation monitor](./timeout-inflation-monitor) |
 | Track recently added tests | New test monitor |
 | Detect tests consistently being skipped | Skipped test monitor |
 | Detect tests that fail then pass on retry | Pass-on-retry monitor |
