@@ -62,6 +62,7 @@ Most endpoints accept a JSON request body with these common fields:
 | `repo.name` | string | Yes | Repository name |
 | `targetBranch` | string | Yes | The branch the merge queue targets |
 | `pr.number` | integer | Varies | The pull request number (required for PR endpoints) |
+| `pr.branch` | string | Varies | The pull request's head branch. Accepted by [`/getSubmittedPullRequest`](/merge-queue/reference/merge/get-a-submitted-pull-request-from-a-merge-queue) as an alternative to `pr.number` |
 
 ## Examples
 
@@ -104,6 +105,31 @@ curl -X POST https://api.trunk.io/v1/getSubmittedPullRequest \
 ```
 
 The response includes the PR state (`NOT_READY`, `PENDING`, `TESTING`, `TESTS_PASSED`, `MERGED`, `FAILED`, `CANCELLED`, or `PENDING_FAILURE`), priority information, and whether the PR is currently submitted to the queue.
+
+Instead of `pr.number`, you can identify the PR by its head branch with `pr.branch`:
+
+```bash
+curl -X POST https://api.trunk.io/v1/getSubmittedPullRequest \
+  -H "Content-Type: application/json" \
+  -H "x-api-token: $TRUNK_API_TOKEN" \
+  -d '{
+    "repo": {
+      "host": "github.com",
+      "owner": "my-org",
+      "name": "my-repo"
+    },
+    "targetBranch": "main",
+    "pr": {
+      "branch": "feature-branch"
+    }
+  }'
+```
+
+Provide either `pr.number` or `pr.branch`, but not both. Because a branch name can be reused by many pull requests over time (for example, bots that repeatedly open and merge PRs from the same branch), querying by branch can match more than one PR. The endpoint only considers PRs that have been submitted to the merge queue, and resolves the branch to a single PR as follows:
+
+1. If an open PR for this branch was submitted to the merge queue, its info is returned.
+2. Otherwise, the most recently closed PR submitted from this branch is returned.
+3. Otherwise, the endpoint responds with `404`.
 
 ### Get queue state
 
