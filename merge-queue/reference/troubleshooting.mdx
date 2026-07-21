@@ -7,43 +7,47 @@ og:title: "Troubleshooting Trunk Merge Queue"
 ## If your test PR doesn't merge automatically
 
 <Info>
-Visit [Trunk Support](../../setup-and-administration/support) for additional assistance or to contact the support team.
+  Visit [Trunk Support](../../setup-and-administration/support) for additional
+  assistance or to contact the support team.
 </Info>
 
 Start here if a PR you submitted isn't merging:
 
-* **Check the status comments for the PR in** the [Trunk Dashboard](https://app.trunk.io/) to see what it's waiting for
-* **Stuck in "Queued"**: Usually means branch protection rules haven't passed (missing required status checks or code review) or there are merge conflicts. If the status looks correct but the PR still won't enter the queue, try [removing](/merge-queue/using-the-queue/handle-failed-pull-requests#manually-restarting-failed-pull-requests) and re-adding by commenting `/trunk merge` again on the PR.
-* **Fails when attempting to merge**: Check that squash merges are enabled for your repository in GitHub settings (`Settings > General > Allow squash merging`). Trunk Merge Queue requires squash merges to be enabled.
-* **"Permission denied" errors**: Review the [Branch Protection](/merge-queue/getting-started/configure-branch-protection#configure-branch-protection-rules) guide to make sure `trunk-temp/*` and `trunk-merge/*` branches aren't protected by wildcard rules like `*/*`.
-* **Status checks not running**: Verify your CI is configured to run on draft PRs (or `trunk-merge/**` branches if using push-triggered mode). See the [Branch Protection](/merge-queue/getting-started/configure-branch-protection#configure-branch-protection-rules) guide for details.
+- **Check the status comments for the PR in** the [Trunk Dashboard](https://app.trunk.io/) to see what it's waiting for
+- **Stuck in "Queued"**: Usually means branch protection rules haven't passed (missing required status checks or code review) or there are merge conflicts. If the status looks correct but the PR still won't enter the queue, try [removing](/merge-queue/using-the-queue/handle-failed-pull-requests#manually-restarting-failed-pull-requests) and re-adding by commenting `/trunk merge` again on the PR.
+- **Fails when attempting to merge**: Check that the [merge method](/merge-queue/administration/advanced-settings#merge-method) your queue is configured to use (squash by default) is enabled for your repository in GitHub settings (`Settings > General`).
+- **"Permission denied" errors**: Review the [Branch Protection](/merge-queue/getting-started/configure-branch-protection#configure-branch-protection-rules) guide to make sure `trunk-temp/*` and `trunk-merge/*` branches aren't protected by wildcard rules like `*/*`.
+- **Status checks not running**: Verify your CI is configured to run on draft PRs (or `trunk-merge/**` branches if using push-triggered mode). See the [Branch Protection](/merge-queue/getting-started/configure-branch-protection#configure-branch-protection-rules) guide for details.
 
 ## Common errors and stuck states
 
 <AccordionGroup>
-<Accordion title='"Permission denied on trunk-merge/* branch"'>
-**Cause:** Branch protection rules are applying to Trunk's temporary branches.
+  <Accordion title='"Permission denied on trunk-merge/* branch"'>
+    **Cause:** Branch protection rules are applying to Trunk's temporary branches.
 
-**Solution:** Follow the "Exclude Trunk's Temporary Branches" section above to make sure `trunk-temp/*` and `trunk-merge/*` are not protected.
-</Accordion>
+    **Solution:** Follow the "Exclude Trunk's Temporary Branches" section above to make sure `trunk-temp/*` and `trunk-merge/*` are not protected.
 
-<Accordion title='Pull request stuck as "Queued" in the queue'>
-**Cause:** Required status checks are not completing or not configured correctly.
+  </Accordion>
 
-**Solution:**
+  <Accordion title='Pull request stuck as "Queued" in the queue'>
+    **Cause:** Required status checks are not completing or not configured correctly.
 
-* Click on the pull request in the Trunk Dashboard to see which checks it's waiting for
-* Verify those checks are running in your CI provider
-* If using Push-triggered mode, make sure the check names in `trunk.yaml` exactly match your CI job names
-</Accordion>
+    **Solution:**
 
-<Accordion title="Required status checks not running">
-**If using Draft PR mode:** Verify your CI workflows are triggered by pull requests (including draft pull requests).
+    - Click on the pull request in the Trunk Dashboard to see which checks it's waiting for
+    - Verify those checks are running in your CI provider
+    - If using Push-triggered mode, make sure the check names in `trunk.yaml` exactly match your CI job names
 
-**If using Push-triggered mode:**
+  </Accordion>
 
-* Verify your CI workflows trigger on pushes to `trunk-merge/**` branches
-* Check that the workflows actually ran in your CI provider's interface
-* Make sure the `trunk-io` bot has permission to push to create these branches
-</Accordion>
+  <Accordion title="Required status checks not running">
+    **If using Draft PR mode:** Verify your CI workflows are triggered by pull requests (including draft pull requests).
+
+    **If using Push-triggered mode:**
+
+    - Verify your CI workflows trigger on pushes to `trunk-merge/**` branches
+    - Check that the workflows actually ran in your CI provider's interface
+    - Make sure the `trunk-io` bot has permission to push to create these branches
+
+  </Accordion>
 </AccordionGroup>

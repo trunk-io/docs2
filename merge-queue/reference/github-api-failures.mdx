@@ -25,13 +25,13 @@ Trunk already retried the merge automatically — 10 attempts over roughly 60 se
 
 1. Re-submit the PR. This was most likely a brief blip on GitHub's side, and re-submitting usually succeeds.
 2. If it fails again, check [githubstatus.com](https://www.githubstatus.com) for an active incident affecting Pull Requests or the API. If there's an incident, wait for it to resolve before re-submitting.
-3. If GitHub's status is green and the failure keeps happening, contact [support@trunk.io](mailto:support@trunk.io) with a link to the affected PR.
+3. If GitHub's status is green and the failure keeps happening, contact [help@trunk.io](mailto:help@trunk.io) with a link to the affected PR.
 
 ## Merge already in progress
 
 > GitHub repeatedly reported that a merge was already in progress.
 
-GitHub returned HTTP 405 with the message "Merge already in progress." GitHub was still settling a prior merge into the same base branch and refused to start another one until it finished. Trunk retried automatically — 10 attempts over roughly 60 seconds — before declaring the failure.
+GitHub returned HTTP 405 with the message "Merge already in progress" — meaning GitHub considers a merge of _this PR_ to already be underway. This typically starts with GitHub returning a server error (such as a 503) on the first merge attempt; on every retry after that, GitHub reports that the first attempt is still in progress on its side. Trunk retried automatically — 10 attempts over roughly 60 seconds — before declaring the failure.
 
 <Warning>
   Even though GitHub reported the merge as failed, **it may have actually merged
@@ -48,7 +48,7 @@ This failure can leave your PR in one of three states. To figure out which one y
 
 **3. The PR shows as closed or merged (possibly only for some viewers).** The merge went through and GitHub's UI is catching up — different people may briefly see different states for the same PR. No action needed; the PR's state will converge on its own.
 
-**If this keeps happening:** contact [support@trunk.io](mailto:support@trunk.io) with a link to the affected PR. This error comes from GitHub's side, and we can raise repeated occurrences with GitHub.
+**If this keeps happening:** contact [help@trunk.io](mailto:help@trunk.io) with a link to the affected PR. This error comes from GitHub's side, and we can raise repeated occurrences with GitHub.
 
 ## GitHub error starting tests
 
@@ -60,7 +60,7 @@ This failure happens while Trunk is _starting tests_ for your PR, not while merg
 
 1. Wait a few minutes for the rate-limit window to reset, then re-submit the PR. This resolves most cases.
 2. Check [githubstatus.com](https://www.githubstatus.com) to rule out a GitHub incident.
-3. If the failure persists, contact [support@trunk.io](mailto:support@trunk.io) with a link to the affected PR. Rate limits apply org-wide and you can't easily see what's consuming them — we can help figure out whether the queue's own activity, other automation, or something on GitHub's side is responsible.
+3. If the failure persists, contact [help@trunk.io](mailto:help@trunk.io) with a link to the affected PR. Rate limits apply org-wide and you can't easily see what's consuming them — we can help figure out whether the queue's own activity, other automation, or something on GitHub's side is responsible.
 
 ## GitHub rejected merge
 
@@ -87,4 +87,4 @@ Common GitHub error messages and their fixes:
 
 Some of these fixes require repository admin access (merge settings, branch protection rules) — if you don't have it, share this page and the error with a repo admin.
 
-If the error you received isn't listed here and the cause isn't clear, contact [support@trunk.io](mailto:support@trunk.io) with the full failure message.
+If the error you received isn't listed here and the cause isn't clear, contact [help@trunk.io](mailto:help@trunk.io) with the full failure message.
