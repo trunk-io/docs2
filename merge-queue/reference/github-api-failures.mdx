@@ -4,9 +4,9 @@ description: "What to do when a PR fails to merge because of GitHub server error
 og:title: "GitHub API failures in Trunk Merge Queue"
 ---
 
-Sometimes a pull request passes all of its tests but still fails to merge because of a problem on GitHub's side. When that happens, Trunk Merge Queue removes the PR from the queue and posts a failure message that links to one of the sections below. Each section explains what the message means, what Trunk already tried, and how to get your PR merged.
+Sometimes a pull request fails in the queue not because of its code or tests, but because of a problem on GitHub's side. When that happens, Trunk Merge Queue removes the PR from the queue and posts a failure message that links to one of the sections below. Each section explains what the message means, what Trunk already tried, and how to get your PR merged.
 
-In most cases the fix is the same: confirm GitHub is healthy at [githubstatus.com](https://www.githubstatus.com), then re-submit the PR by commenting `/trunk merge` on it or retrying it from the [Trunk Dashboard](https://app.trunk.io/). See [Handle failed pull requests](/merge-queue/using-the-queue/handle-failed-pull-requests) for all the ways to re-queue a PR.
+In most cases the fix is the same: confirm GitHub is healthy at [githubstatus.com](https://www.githubstatus.com), then re-submit the PR the same way you normally enqueue it. See [Handle failed pull requests](/merge-queue/using-the-queue/handle-failed-pull-requests) for all the ways to re-queue a PR.
 
 <Info>
   Visit [Trunk Support](/setup-and-administration/support) for additional
@@ -23,9 +23,9 @@ Trunk already retried the merge automatically — 10 attempts over roughly 60 se
 
 **To resolve:**
 
-1. Check [githubstatus.com](https://www.githubstatus.com) for an active incident affecting Pull Requests or the API.
-2. If there's an incident, wait for it to resolve, then re-submit the PR.
-3. If GitHub's status is green, it was most likely a brief blip — re-submitting the PR usually succeeds.
+1. Re-submit the PR. This was most likely a brief blip on GitHub's side, and re-submitting usually succeeds.
+2. If it fails again, check [githubstatus.com](https://www.githubstatus.com) for an active incident affecting Pull Requests or the API. If there's an incident, wait for it to resolve before re-submitting.
+3. If GitHub's status is green and the failure keeps happening, contact [support@trunk.io](mailto:support@trunk.io) with a link to the affected PR.
 
 ## Merge already in progress
 
@@ -40,15 +40,15 @@ GitHub returned HTTP 405 with the message "Merge already in progress." GitHub wa
   branch's commit history for your PR's commit.
 </Warning>
 
-This failure can leave your PR in one of three states. Check the base branch's commit history first to figure out which one you're in:
+This failure can leave your PR in one of three states. To figure out which one you're in, open the base branch's commit history in GitHub (**Code → Commits** on the base branch) and look for a commit referencing your PR number:
 
 **1. The PR is open and your commit is _not_ on the base branch.** The merge genuinely didn't happen. Wait a moment for GitHub to settle, then re-submit the PR. If the queue is empty and you're in a hurry, you can also merge the PR directly in GitHub.
 
-**2. The PR is open but your commit _is_ on the base branch.** GitHub pushed the merge commit even though it reported the merge as failed, and hasn't yet marked the PR as merged. **Do not re-submit** — the change is already in. Either wait for GitHub to catch up and mark the PR merged, or manually close the PR.
+**2. The PR is open but your commit _is_ on the base branch.** GitHub pushed the merge commit even though it reported the merge as failed, and hasn't yet marked the PR as merged. **Do not re-submit** — the change is already in. Either wait for GitHub to catch up and mark the PR merged, or manually close the PR. (A manually closed PR shows as "Closed" rather than "Merged" in GitHub — that's cosmetic; your commit is on the base branch either way.)
 
 **3. The PR shows as closed or merged (possibly only for some viewers).** The merge went through and GitHub's UI is catching up — different people may briefly see different states for the same PR. No action needed; the PR's state will converge on its own.
 
-**If this keeps happening:** look for other automation (bots, scheduled jobs, other tools) or people merging directly into the same base branch at the same time as the queue. Stagger those merges, or route them through the queue so they don't collide.
+**If this keeps happening:** contact [support@trunk.io](mailto:support@trunk.io) with a link to the affected PR. This error comes from GitHub's side, and we can raise repeated occurrences with GitHub.
 
 ## GitHub error starting tests
 
@@ -58,10 +58,9 @@ This failure happens while Trunk is _starting tests_ for your PR, not while merg
 
 **To resolve:**
 
-1. Most often this is rate limiting. Check whether your organization is near GitHub's API limits — heavy bot or automation traffic and many active queues running at once are the usual culprits.
-2. Wait a few minutes for the rate-limit window to reset, then re-submit the PR.
-3. Check [githubstatus.com](https://www.githubstatus.com) to rule out a GitHub incident.
-4. If the failure persists, reduce concurrent GitHub API usage from other automation in your org, or contact [support@trunk.io](mailto:support@trunk.io).
+1. Wait a few minutes for the rate-limit window to reset, then re-submit the PR. This resolves most cases.
+2. Check [githubstatus.com](https://www.githubstatus.com) to rule out a GitHub incident.
+3. If the failure persists, contact [support@trunk.io](mailto:support@trunk.io) with a link to the affected PR. Rate limits apply org-wide and you can't easily see what's consuming them — we can help figure out whether the queue's own activity, other automation, or something on GitHub's side is responsible.
 
 ## GitHub rejected merge
 
@@ -85,5 +84,7 @@ Common GitHub error messages and their fixes:
 | `Pull Request is not mergeable`                                                                    | The PR has merge conflicts, or GitHub hasn't finished computing mergeability.                                                                                                    | Resolve any conflicts with the base branch, then re-submit.                                                                                                                                                    |
 | `Squash merges are not allowed on this repository.` (or the equivalent for merge commits / rebase) | The merge method your queue is configured to use is disabled in the repository's GitHub settings.                                                                                | Enable that merge method under **Settings → General** in GitHub, or change the queue's [merge method](/merge-queue/administration/advanced-settings#merge-method).                                             |
 | `Resource not accessible by integration`                                                           | A branch protection rule or ruleset is blocking the Trunk GitHub app — often a wildcard rule like `*/*` that covers `trunk-merge/*` branches, or a restriction on who can merge. | Exclude `trunk-temp/*` and `trunk-merge/*` from protection rules and make sure the Trunk app is allowed to merge. See [Configure branch protection](/merge-queue/getting-started/configure-branch-protection). |
+
+Some of these fixes require repository admin access (merge settings, branch protection rules) — if you don't have it, share this page and the error with a repo admin.
 
 If the error you received isn't listed here and the cause isn't clear, contact [support@trunk.io](mailto:support@trunk.io) with the full failure message.
