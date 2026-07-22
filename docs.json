@@ -44,9 +44,7 @@
     "tabs": [
       {
         "tab": "Overview",
-        "pages": [
-          "index"
-        ]
+        "pages": ["index"]
       },
       {
         "tab": "Merge Queue",
@@ -124,9 +122,7 @@
                   },
                   {
                     "group": "Metrics Endpoints",
-                    "pages": [
-                      "GET /getMergeQueueMetrics"
-                    ]
+                    "pages": ["GET /getMergeQueueMetrics"]
                   },
                   {
                     "group": "Queue Endpoints",
@@ -153,7 +149,8 @@
                 "root": "merge-queue/reference/index",
                 "pages": [
                   "merge-queue/reference/common-problems",
-                  "merge-queue/reference/troubleshooting"
+                  "merge-queue/reference/troubleshooting",
+                  "merge-queue/reference/github-api-failures"
                 ]
               },
               "merge-queue/changelog"
@@ -170,9 +167,7 @@
               {
                 "group": "Overview",
                 "root": "flaky-tests/overview",
-                "pages": [
-                  "flaky-tests/dashboard"
-                ]
+                "pages": ["flaky-tests/dashboard"]
               },
               {
                 "group": "Getting Started",
@@ -304,9 +299,7 @@
               },
               {
                 "group": "Recipes",
-                "pages": [
-                  "flaky-tests/recipes/alert-on-test-escalation"
-                ]
+                "pages": ["flaky-tests/recipes/alert-on-test-escalation"]
               },
               {
                 "group": "Agents",
@@ -726,9 +719,7 @@
               },
               {
                 "group": "October",
-                "pages": [
-                  "changelog/2025-10-09-plugins-1-7-3"
-                ]
+                "pages": ["changelog/2025-10-09-plugins-1-7-3"]
               },
               {
                 "group": "September",
@@ -1016,12 +1007,7 @@
     }
   },
   "contextual": {
-    "options": [
-      "copy",
-      "view",
-      "chatgpt",
-      "claude"
-    ]
+    "options": ["copy", "view", "chatgpt", "claude"]
   },
   "footer": {
     "socials": {

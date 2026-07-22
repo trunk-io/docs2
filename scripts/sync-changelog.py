@@ -53,8 +53,18 @@ PRODUCT_PAGES = {
 }
 
 MONTHS = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December",
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
 ]
 
 
@@ -98,14 +108,16 @@ def load_entries() -> list[dict]:
             dt = date.fromisoformat(fm["date"])
         except ValueError:
             raise SystemExit(f"FATAL: {mdx} has unparseable date: {fm['date']!r}")
-        entries.append({
-            "slug": mdx.stem,
-            "title": fm["title"],
-            "description": fm["description"],
-            "date": dt,
-            "category": fm["category"],
-            "path": f"changelog/{mdx.stem}",
-        })
+        entries.append(
+            {
+                "slug": mdx.stem,
+                "title": fm["title"],
+                "description": fm["description"],
+                "date": dt,
+                "category": fm["category"],
+                "path": f"changelog/{mdx.stem}",
+            }
+        )
     # Newest first. Stable order within a day: filename (slug) alphabetical.
     entries.sort(key=lambda e: (-e["date"].toordinal(), e["slug"]))
     return entries
@@ -185,7 +197,9 @@ def render_docs_json(entries: list[dict]) -> str:
     Round-trips through json with indent=2 and a trailing newline."""
     doc = json.loads(DOCS_JSON.read_text(encoding="utf-8"))
     tabs = doc.get("navigation", {}).get("tabs", [])
-    changelog_tab = next((t for t in tabs if isinstance(t, dict) and t.get("tab") == "Changelog"), None)
+    changelog_tab = next(
+        (t for t in tabs if isinstance(t, dict) and t.get("tab") == "Changelog"), None
+    )
     if changelog_tab is None:
         raise SystemExit("FATAL: docs.json has no Changelog tab")
 
@@ -202,24 +216,40 @@ def render_docs_json(entries: list[dict]) -> str:
     for year in sorted(by_year.keys(), reverse=True):
         month_groups: list = []
         for month in sorted(by_year[year].keys(), reverse=True):
-            month_groups.append({
-                "group": MONTHS[month - 1],
-                "pages": [e["path"] for e in by_year[year][month]],
-            })
-        new_pages.append({
-            "group": str(year),
-            "pages": month_groups,
-        })
+            month_groups.append(
+                {
+                    "group": MONTHS[month - 1],
+                    "pages": [e["path"] for e in by_year[year][month]],
+                }
+            )
+        new_pages.append(
+            {
+                "group": str(year),
+                "pages": month_groups,
+            }
+        )
     changelog_tab["pages"] = new_pages
 
     return json.dumps(doc, indent=2, ensure_ascii=False) + "\n"
 
 
-def maybe_write(path: Path, new_text: str, check_only: bool) -> bool:
-    """Compare desired content against current. Return True if a change is/would-be made."""
+def maybe_write(
+    path: Path, new_text: str, check_only: bool, *, semantic_json: bool = False
+) -> bool:
+    """Compare desired content against current. Return True if a change is/would-be made.
+
+    With semantic_json=True, compare parsed JSON instead of raw text: prettier owns
+    docs.json's formatting (e.g. it collapses short arrays onto one line), so a
+    byte-for-byte comparison against json.dumps output would report perpetual drift."""
     current = path.read_text(encoding="utf-8") if path.exists() else ""
     if current == new_text:
         return False
+    if semantic_json and current:
+        try:
+            if json.loads(current) == json.loads(new_text):
+                return False
+        except json.JSONDecodeError:
+            pass
     if check_only:
         print(f"DRIFT: {path.relative_to(REPO_ROOT)}")
         return True
@@ -236,7 +266,9 @@ def main() -> int:
     drift = False
 
     # 1. docs.json
-    drift |= maybe_write(DOCS_JSON, render_docs_json(entries), check_only)
+    drift |= maybe_write(
+        DOCS_JSON, render_docs_json(entries), check_only, semantic_json=True
+    )
 
     # 2. changelog/index.mdx (all entries)
     fm = extract_existing_frontmatter(MASTER_INDEX)
@@ -258,7 +290,9 @@ def main() -> int:
         print(f"  {cat}: {counts[cat]}{in_product}")
 
     if check_only and drift:
-        print("\nERROR: changelog nav is out of sync. Run `python3 scripts/sync-changelog.py`.")
+        print(
+            "\nERROR: changelog nav is out of sync. Run `python3 scripts/sync-changelog.py`."
+        )
         return 1
     return 0
 
