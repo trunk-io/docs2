@@ -136,7 +136,7 @@ og:title: "Trunk Merge Queue FAQ"
   </Accordion>
 
   <Accordion title="Why do Dependabot and Renovate pull requests keep getting kicked from the queue?">
-    By default, both [dependabot](https://docs.github.com/en/code-security/dependabot/working-with-dependabot/managing-pull-requests-for-dependency-updates#changing-the-rebase-strategy-for-dependabot-pull-requests) and [renovate](https://docs.renovatebot.com/updating-rebasing/#updating-and-rebasing-branches) both will rebase their PRs whenever other PRs merge into their base branch. If that rebase happens when those PRs are in the queue, they will get kicked since they were updated. There are two ways to mitigate this:
+    By default, both [dependabot](https://docs.github.com/en/code-security/dependabot/working-with-dependabot/managing-pull-requests-for-dependency-updates#changing-the-rebase-strategy-for-dependabot-pull-requests) and [renovate](https://docs.renovatebot.com/updating-rebasing/#updating-and-rebasing-branches) will rebase their PRs whenever other PRs merge into their base branch. If that rebase happens when those PRs are in the queue, they will get kicked since they were updated. There are two ways to mitigate this:
 
     1. Both dependabot and renovate can be configured to not automatically rebase, while renovate can specifically be configured to only rebase if there's a merge conflict ([dependabot](https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file#rebase-strategy), [renovate](https://docs.renovatebot.com/configuration-options/#rebasewhen))
     2. Their PRs can be manually merged, and anything currently in the merge queue will restart with those merged changes
