@@ -83,7 +83,7 @@ Muting suppresses the monitor's contribution to the test's status. If the muted 
 
 ### Step 5: Flag flaky tests
 
-If automated detection hasn't caught a test you know is flaky, you can manually [flag it as flaky](../detection/flag-as-flaky) from the test detail page. Flagged tests are treated as flaky regardless of automated detection state, and the flag can be removed at any time.
+If automated detection hasn't caught a test you know is flaky, you can manually [flag it as flaky](../detection/flag-as-flaky) from the test detail page. Flagged tests are treated as flaky even when no monitor detects them, and the flag can be removed at any time. The one exception is a **Broken** status: broken takes precedence over flaky, so a flag can't override an active broken monitor. If you believe a broken classification is incorrect, mute that monitor or update its configuration instead.
 
 ### Step 6: Quarantine flaky tests
 
