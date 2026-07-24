@@ -3,7 +3,7 @@ title: "Flag as Flaky"
 description: "Manually mark a test as flaky from the test detail page"
 og:title: "Flagging tests as flaky in Trunk"
 ---
-Manually mark a test as flaky when you know it's unreliable but automated monitors haven't detected it yet — or when you want to override the system's assessment.
+Manually mark a test as flaky when you know it's unreliable but automated monitors haven't detected it yet — or when you want to keep a test classified as flaky while monitors consider it healthy.
 
 ## When to Use It
 
@@ -22,9 +22,13 @@ Manually mark a test as flaky when you know it's unreliable but automated monito
 
 Once flagged:
 
-- The test is immediately marked as **flaky**, regardless of what automated monitors report.
+- The test is immediately marked as **flaky**, even if no automated monitor has detected it.
 - An amber banner appears below the header showing who flagged it, when, and the reason (if provided).
 - The flag is additive — if automated monitors later detect the test as flaky too, both signals coexist.
+
+<Info>
+A manual flag does not override a **broken** status. Broken always takes precedence over flaky, so if an active monitor classifies the test as broken, the test shows as broken until that monitor resolves or is [muted](./index#muting-monitors). While a test is broken, the **Flag as Flaky** button is disabled — if you believe the broken classification is incorrect, [mute the monitor](./index#muting-monitors) or update its configuration instead. You can still remove an existing flag while the test is broken.
+</Info>
 
 ### Removing the Flag
 
@@ -39,16 +43,18 @@ After removing:
 
 ## Relationship to Monitors
 
-The "Flag as Flaky" action is independent of automated monitors (threshold-based, pass-on-retry). It does not appear in the Monitors tab.
+The "Flag as Flaky" action is separate from automated monitors (threshold-based, pass-on-retry) and does not appear in the Monitors tab, but it participates in the same [status resolution](./index#how-monitors-work) as health classification monitors: the most severe status wins, and broken outranks flaky. If a test's status looks wrong — for example, it shows as broken when you believe it's merely flaky — [mute](./index#muting-monitors) or reconfigure the monitor responsible rather than reaching for the flag.
 
-| Scenario                            | Test status              |
-| ----------------------------------- | ------------------------ |
-| No monitors active, no flag         | Healthy                  |
-| Monitors active, no flag            | Flaky (detected)         |
-| No monitors active, flag set        | Flaky (manually flagged) |
-| Monitors active, flag set           | Flaky (both)             |
-| Flag removed, monitors still active | Flaky (detected)         |
-| Flag removed, monitors inactive     | Healthy                  |
+| Scenario                                      | Test status                      |
+| --------------------------------------------- | -------------------------------- |
+| No monitors active, no flag                   | Healthy                          |
+| Flaky monitors active, no flag                | Flaky (detected)                 |
+| No monitors active, flag set                  | Flaky (manually flagged)         |
+| Flaky monitors active, flag set               | Flaky (both)                     |
+| Broken monitor active, flag set               | Broken (broken takes precedence) |
+| Broken monitor resolves or is muted, flag set | Flaky (manually flagged)         |
+| Flag removed, flaky monitors still active     | Flaky (detected)                 |
+| Flag removed, monitors inactive               | Healthy                          |
 
 ## Flag History
 

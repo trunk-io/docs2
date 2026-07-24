@@ -121,6 +121,7 @@ You can also unmute a monitor early from the test case view.
 | --- | --- |
 | Fix is in progress and you want to suppress noise temporarily | **Mute** the monitor for a few days |
 | Test is flaky but no automated monitor has caught it | Use [**Flag as Flaky**](./flag-as-flaky) to mark it as flaky |
+| A test shows as **Broken** (or Flaky) and you believe the classification is wrong | **Mute** the monitor that's driving the status, or update its configuration (thresholds, branch scope) so it stops misfiring — a [Flag as Flaky](./flag-as-flaky) can't override a broken status |
 | You want to stop a monitor from evaluating a test permanently | Adjust the monitor's branch scope or thresholds instead |
 | You want to suppress all flaky signals for a test | Mute each active monitor individually, or address the root cause |
 
