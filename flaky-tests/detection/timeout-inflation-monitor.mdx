@@ -1,0 +1,71 @@
+---
+title: "Timeout Inflation Monitor"
+description: "Flag tests whose failure times sit far above their passing times, exposing timeouts that have ratcheted up beyond what the test actually needs."
+og:title: "The Timeout Inflation Monitor in Trunk Flaky Tests"
+---
+
+The timeout inflation monitor detects tests whose failure durations are much larger than their passing durations. When a test consistently passes in a few seconds at p95 but takes ten times longer to fail, its failures aren't slow runs of a working test - they're a broken test sitting on an inflated timeout. The monitor surfaces these tests so you can bring the timeout down to something anchored in reality and get fast failure signal back.
+
+## When to Use This Monitor
+
+- **Tighten inflated timeouts:** Find tests where the configured timeout is far larger than the test ever needs when healthy, so you can ratchet the timeout back down.
+- **Speed up broken-build feedback:** Cut the wall-clock cost of a broken test that fails, retries, and hangs against its timeout on every attempt.
+- **Audit Playwright and other UI automation suites:** These suites tend to accumulate the largest timeouts and benefit the most from surfacing inflation.
+
+## How It Works
+
+For each test case, the monitor looks at recent runs within a configurable window and computes two durations:
+
+- The **passing duration** at a configured percentile (default p95) — a conservative upper bound on how long a healthy run takes.
+- The **failing duration** at a configured percentile (default p50) — the typical case when the test goes red.
+
+If the failing duration is at least X times larger than the passing duration, and the absolute gap between the two exceeds the minimum absolute gap, the monitor activates and applies the configured labels. Stacking the slowest reasonable success against the typical failure means a single slow outlier can't fool the detector - the failures have to consistently land above the passes.
+
+## Configuration
+
+| Setting | Description | Default |
+| --- | --- | --- |
+| Pass percentile | Percentile of passing-run durations used as the healthy upper bound, as a value between 0 and 1 | 0.95 |
+| Fail percentile | Percentile of failing-run durations compared against the passing baseline | 0.5 |
+| Activation ratio | How many times larger the failing percentile must be than the passing percentile to activate | 2 |
+| Min absolute gap | Minimum absolute gap (milliseconds) between the failing and passing percentiles before the monitor can activate | 3000 |
+| Min pass samples | Minimum number of passing runs required inside the window before the monitor can activate | 5 |
+| Min fail samples | Minimum number of failing runs required inside the window before the monitor can activate | 3 |
+| Window | Time window (hours) over which passing and failing durations are collected | 168 |
+| Resolution ratio | Ratio at or below which an active test automatically resolves | 1.5 |
+| Branch scope | Branch names or glob patterns to monitor | All branches |
+| Action | Apply labels (the only available action — this monitor does not classify) | Apply labels |
+
+### Pass and Fail Percentiles
+
+The pass percentile controls what counts as a realistic upper bound on a healthy run. p95 means 95% of a test's passing runs finish at or below the measured duration, so it captures the slowest reasonable success without being thrown off by a single outlier.
+
+The fail percentile controls what counts as a typical failure. p50 means half of a test's failing runs finish at or below the measured duration, so a small number of unusually fast failures can't hide a broken test that usually hangs on its timeout.
+
+Using p95 for passes and p50 for failures is deliberately conservative: it compares the slowest reasonable success against the typical failure and requires a clean gap between the two.
+
+### Activation Ratio and Minimum Absolute Gap
+
+The activation ratio is how much larger the fail percentile has to be than the pass percentile before the monitor flags the test. The default of 2 means failures have to typically take at least twice as long as the slowest reasonable pass. Raise it to only surface the worst offenders; lower it to catch milder inflation earlier.
+
+The minimum absolute gap is a floor in milliseconds so tiny durations don't trip the monitor. A test that passes in 10ms and fails in 30ms is technically a 3x ratio but not worth flagging. The default of 3000ms keeps sub-second tests quiet while still catching the multi-second inflation that dominates real CI cost.
+
+### Sample Sizes and Window
+
+The window is how far back the monitor looks for passing and failing runs. The default of 168 hours (one week) keeps the signal tied to recent behavior rather than ancient history.
+
+The minimum pass and fail sample sizes prevent the monitor from acting on thin data. Defaults are 5 passes and 3 failures inside the window, so a test needs enough of both outcomes for the percentile comparison to be meaningful.
+
+### Resolution Ratio
+
+Once a test is active, the monitor watches the fail/pass ratio on subsequent runs. When the ratio drops to or below this ratio, the monitor resolves the test and removes the labels it applied. The default of 1.5 means the test has to come back well under the activation threshold - not just barely - before it clears, which prevents flapping around the activation line.
+
+### Branch Scope
+
+Scope the monitor to branches where timeout inflation matters most, such as `main` or merge queue branches. Feature branches often have intentionally partial test runs or unusual infrastructure and are less useful for measuring inflation.
+
+## What to Do About an Inflated Timeout
+
+When the monitor flags a test, the fix is usually to bring the timeout down to something anchored in the test's real behavior. If the test passes in 2 seconds at p95, it does not need a 60 second timeout — a 3 second timeout gives it 50% more time than it ever uses when healthy, and future breakages will fail fast instead of hanging against the old ceiling.
+
+Bringing the timeout down turns a three-minute retry-and-hang cycle into a few seconds of actual signal, which is the point of the test suite in the first place.
