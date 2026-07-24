@@ -1,0 +1,17 @@
+---
+title: "Flaky Tests: Flag as Flaky respects broken status"
+description: "The Flag as Flaky action is now disabled when a test is classified as broken, and the popover explains why."
+date: 2026-07-24
+category: Flaky Tests
+type: update
+---
+
+**Flag as Flaky now reflects that broken status takes precedence over a manual flag.**
+
+Trunk resolves a test's status by picking the most severe active classification — **Broken > Flaky > Healthy** — so an active broken monitor keeps a test broken even if it has been manually flagged. The Flag as Flaky UI now matches that behavior:
+
+- **Button disabled while broken**: On a test that is currently classified as broken, the **Flag as Flaky** button is disabled. The popover explains that broken outranks flaky and points you at [muting or reconfiguring the responsible monitor](/flaky-tests/detection#muting-monitors) if you believe the broken classification is wrong.
+- **Flag removal still available**: If a test was flagged before it went broken, you can still remove the flag from the same banner — only new flags are blocked while broken.
+- **Clearer popover wording**: The confirmation popover no longer suggests that flagging a test overrides automated monitors.
+
+See [Flag as Flaky](/flaky-tests/detection/flag-as-flaky) for the full status-resolution table.
