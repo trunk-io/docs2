@@ -397,11 +397,25 @@
                       "number": {
                         "type": "integer",
                         "minimum": 0,
-                        "maximum": 4294967295
+                        "maximum": 4294967295,
+                        "description": "The pull request number. Provide either `number` or `branch` (but not both)."
+                      },
+                      "branch": {
+                        "type": "string",
+                        "description": "The head branch of the pull request. Provide either `number` or `branch` (but not both). Because a branch name can be reused by many pull requests over time (for example, bots that repeatedly open and merge PRs from the same branch), the endpoint resolves the branch to a single submitted PR using the following logic: (1) if an open PR that was submitted to the merge queue exists for this branch, its info is returned; (2) otherwise, the most recently closed PR that was submitted from this branch is returned; (3) otherwise, the endpoint responds with 404. Only PRs that have been submitted to the merge queue are considered."
                       }
                     },
-                    "required": [
-                      "number"
+                    "oneOf": [
+                      {
+                        "required": [
+                          "number"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "branch"
+                        ]
+                      }
                     ]
                   },
                   "targetBranch": {
