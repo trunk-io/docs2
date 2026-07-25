@@ -392,26 +392,32 @@
                     ]
                   },
                   "pr": {
-                    "type": "object",
-                    "properties": {
-                      "number": {
-                        "type": "integer",
-                        "minimum": 0,
-                        "maximum": 4294967295,
-                        "description": "The pull request number. Provide either `number` or `branch` (but not both)."
-                      },
-                      "branch": {
-                        "type": "string",
-                        "description": "The head branch of the pull request. Provide either `number` or `branch` (but not both). Because a branch name can be reused by many pull requests over time (for example, bots that repeatedly open and merge PRs from the same branch), the endpoint resolves the branch to a single submitted PR using the following logic: (1) if an open PR that was submitted to the merge queue exists for this branch, its info is returned; (2) otherwise, the most recently closed PR that was submitted from this branch is returned; (3) otherwise, the endpoint responds with 404. Only PRs that have been submitted to the merge queue are considered."
-                      }
-                    },
+                    "description": "The pull request to look up. Identify it by number or by head branch, but not both.",
                     "oneOf": [
                       {
+                        "title": "By pull request number",
+                        "type": "object",
+                        "properties": {
+                          "number": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 4294967295,
+                            "description": "The pull request number."
+                          }
+                        },
                         "required": [
                           "number"
                         ]
                       },
                       {
+                        "title": "By head branch",
+                        "type": "object",
+                        "properties": {
+                          "branch": {
+                            "type": "string",
+                            "description": "The head branch of the pull request. Because a branch name can be reused by many pull requests over time (for example, bots that repeatedly open and merge pull requests from the same branch), the branch is resolved to a single pull request: the open pull request submitted to the merge queue from this branch if one exists, otherwise the most recently closed pull request submitted from this branch, otherwise `404`. Only pull requests that have been submitted to the merge queue are considered."
+                          }
+                        },
                         "required": [
                           "branch"
                         ]
