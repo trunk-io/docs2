@@ -1,51 +1,36 @@
 ---
 title: "Stacked pull requests"
+sidebarTitle: "Stacked pull requests"
 description: "Merge a chain of dependent pull requests through Trunk Merge Queue by enqueueing each PR with /trunk merge."
 ---
-Trunk Merge Queue supports merging **stacked pull requests**: a chain of PRs where each one builds on the previous, with the bottom PR targeting your merge queue branch. Enqueue each PR with `/trunk merge` and Trunk processes them sequentially, testing and merging each one against the actual state of your merge queue branch.
 
-## What is a stack
+Trunk Merge Queue supports GitHub's native stacked pull requests. You can submit any part of a stack the same way you submit a regular PR (API, browser extension, PR comment, or checkbox), and Merge Queue handles moving each segment through the queue and merging it.
 
-A stack is a chain of pull requests connected through their base branches. Each PR targets the branch of the PR below it, and the bottom PR targets your merge queue branch:
+<Frame>
+  ![Image](/images/image-1.png "Image")
+</Frame>
 
-```
-merge queue branch <-- PR #1 (base: merge queue branch)
-                          <-- PR #2 (base: PR #1's branch)
-                                <-- PR #3 (base: PR #2's branch)
-```
+## How it works
 
-Trunk discovers the stack automatically by walking base branches. No separate configuration is required to mark PRs as stacked.
+Given a stack like:
 
-## Step 1: Enqueue every PR in the stack
+<Frame>
+  ![Image](/images/image-3.png "Image")
+</Frame>
 
-Each PR in the stack must be enqueued separately. Use any of the standard submission methods on every PR:
+You can submit from any point in the stack. So it is acceptable to enqueue from mid-stack - for example PR2 or from the top of the stack PR4. You don't have to wait for one part of a stack to merge before enqueuing another part. It is perfectly ok to enqueue from PR2 and from PR4 at the same time. We will sort it out and make sure all the code is tested correctly.
 
-* Comment `/trunk merge` on each PR.
-* Check the box in the Trunk comment on each PR.
-* Use the CLI: `trunk merge <pr-number>` for each PR.
+## Tracking a Stack in the Queue
 
-Enqueuing each PR separately gives you control over which PRs in your stack should be merged versus which might need more work.
+When you submit a stack the entry in the Merge Queue UI will reflect all the pull requests that are being tested collectively as seen below
 
-## Step 2: Automatic sequential processing
+<Frame>
+  ![Image](/images/image-2.png "Image")
+</Frame>
 
-Once enqueued, Trunk handles the rest:
+## Performance
 
-1. The **bottom PR** in the stack (base branch = your merge queue branch) enters the queue, runs tests, and merges.
-2. When it merges, **GitHub automatically updates** the next PR's base branch from the previous feature branch to your merge queue branch.
-3. The **next PR** now targets the merge queue branch, so it proceeds through the queue.
-4. This continues until every PR in the stack is merged.
+Because the Trunk Merge Queue is stack aware you will achieve CI performance savings and throughput wins when submitting stacks as we will test the stack of PRs as a single block instead of testing each PR in the stack individually. <br /><br />**Things to know**
 
-For example, a stack of 5 PRs with merge queue branch `main`:
-
-* PR #1 (base: `main`) → tests → merges
-* PR #2's base automatically changes to `main` → tests → merges
-* PR #3's base automatically changes to `main` → tests → merges
-* …and so on.
-
-## Considerations
-
-**Sequential testing.** PRs in the stack are tested and merged one at a time in order. The second PR won't begin testing until the first PR has fully merged. This ensures each PR is tested against the actual state of your merge queue branch and results are deterministic, at the cost of speed. A stack of 5 PRs takes substantially longer than 5 independent PRs, since they can't be tested in parallel.
-
-**Enqueued PRs with non-merge-branch bases.** If you enqueue a PR whose base branch is not your merge queue branch and that base never updates, the PR stays in the queue without processing. This typically means the parent PR in the stack was never enqueued or merged. The PR will begin processing as soon as its base branch updates to the merge queue branch.
-
-**No special configuration.** Individual enqueuing requires no additional setup beyond a functioning merge queue. Trunk detects the stack relationship automatically from each PR's base branch.
+- **GitHub may not always rebase after a mid-stack merge.** There are some existing issues from GitHub surrounding stacks when performing a mid-stack merge. While GitHub is intending to always rebase stacks correctly - you may still need to manually rebase the existing pieces of your remaining stack after Merge Queue merges the pieces underneath it. GitHub is working on improving this behavior.
+- **GitHub's stack merge API can take 90\+ seconds to complete.** Stacks may stay in the "merging" state longer than a regular PR while GitHub finishes the merge.
