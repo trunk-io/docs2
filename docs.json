@@ -93,6 +93,7 @@
                 "root": "merge-queue/using-the-queue/index",
                 "pages": [
                   "merge-queue/using-the-queue/reference",
+                  "merge-queue/using-the-queue/stacked-pull-requests",
                   "merge-queue/using-the-queue/monitor-queue-status",
                   "merge-queue/using-the-queue/handle-failed-pull-requests",
                   "merge-queue/using-the-queue/emergency-pull-requests",

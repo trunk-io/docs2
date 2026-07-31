@@ -11,7 +11,7 @@ og:title: "Submit and cancel PRs in Trunk Merge Queue"
     Install the [Trunk for GitHub Chrome Extension](https://chromewebstore.google.com/detail/trunk-for-github/liggeliamkammmieidmmfmmdnjilabgn) to submit and cancel PRs directly from GitHub without leaving your pull request page.
 
     <Frame>
-      ![Image](/images/image.png)
+      ![Image](/images/image.png "Image")
     </Frame>
 
     | State | Description |
@@ -36,14 +36,14 @@ You can configure a GitHub label that, when applied to a pull request, automatic
 
 ### Configure the enqueue label
 
-1. Navigate to **Merge Queue** → **[your repository]** → **Settings**.
+1. Navigate to **Merge Queue** → **\[your repository\]** → **Settings**.
 2. Under **Enqueue by label**, enter the name of the GitHub label you want to use (for example, `merge-queue` or `ready-to-merge`).
 3. Save the setting.
 
 Once configured, applying that label to any open pull request in the repository will enqueue it automatically. Trunk removes the label from the PR once the queue picks it up.
 
 <Info>
-The enqueue label only triggers enqueueing when applied to an open PR that is eligible for the queue. PRs that are draft, failing required checks, or otherwise ineligible will not be enqueued.
+  The enqueue label only triggers enqueueing when applied to an open PR that is eligible for the queue. PRs that are draft, failing required checks, or otherwise ineligible will not be enqueued.
 </Info>
 
 ### Removing from the queue
