@@ -58,7 +58,7 @@ The reopen window is measured from the ticket's close date in your ticketing sys
 For Jira, the configured close/reopen target status must be reachable in a single workflow transition from the ticket's current status. If your Jira workflow requires intermediate steps, the automation records the issue in the test's event history and skips the transition rather than guessing.
 </Warning>
 
-## Automatic ticketing vs. webhooks
+## Legacy webhook-based ticket autocreation
 
 Before automatic ticketing, the recommended way to auto-create tickets was a [webhook integration](/flaky-tests/webhooks). Webhooks remain fully supported and are still the right tool for custom workflows and unsupported platforms, but the built-in automation is the better default for Linear and Jira:
 
