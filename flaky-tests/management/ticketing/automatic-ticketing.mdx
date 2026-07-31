@@ -41,7 +41,7 @@ When a test becomes flaky or broken again after its linked ticket was closed, th
 | Option | Behavior |
 |---|---|
 | **Reopen recent tickets** (default) | If the ticket was closed within the reopen window (default 30 days, configurable 1–99), reopen it with a comment noting the re-detection. If it was closed longer ago, unlink it and create a fresh ticket. |
-| **Always create a new ticket** | The closed ticket stays closed; a new ticket is created and linked each time. |
+| **Always create a new ticket** | The closed ticket stays closed; a new ticket is created and linked each time. _Only one ticket can be linked to a Trunk test at a time._ |
 | **Do nothing** | The closed ticket stays closed and no new ticket is created. |
 
 The reopen window is measured from the ticket's close date in your ticketing system, so it behaves correctly whether Trunk or a person closed the ticket.
