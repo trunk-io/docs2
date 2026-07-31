@@ -26,6 +26,10 @@ The three toggles are independent — you can enable any combination:
 
 All settings default to off.
 
+<Warning>
+Automatic creation fills tickets from your configured [field defaults](./jira-integration#custom-fields) with nobody in the loop. Every field your project requires must have a default set — fields marked **Require user to fill at creation** are prompted for in the manual create-ticket modal, which automatic creation can't do.
+</Warning>
+
 <Info>
 Auto-close applies to whatever ticket is linked to the test — including tickets you created manually or linked yourself — not just tickets the automation created.
 </Info>
