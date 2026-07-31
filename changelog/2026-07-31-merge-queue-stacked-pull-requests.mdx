@@ -1,0 +1,18 @@
+---
+title: "Merge Queue: Stacked pull request support"
+description: "Trunk Merge Queue now natively supports GitHub stacked pull requests — enqueue any PR in a stack and Trunk tests and merges the whole stack together."
+slug: merge-queue-stacked-pull-requests
+date: 2026-07-31
+category: Merge Queue
+type: new-feature
+---
+
+**Trunk Merge Queue is now stack-aware for GitHub's native stacked pull requests.**
+
+Submit any PR in a stack — top, bottom, or middle — using the API, browser extension, `/trunk merge` comment, or the merge checkbox, and Merge Queue takes care of testing and merging each segment. You can even enqueue multiple PRs from the same stack at once; Trunk sorts out the dependencies.
+
+- **Test the whole stack as one block.** Trunk runs CI against the stack collectively instead of PR-by-PR, so you get real throughput and CI-cost wins on stacked work.
+- **Track stacks in the queue UI.** A stack submission shows all included PRs together in the Merge Queue view.
+- **Submit from anywhere in the stack.** No need to wait for lower PRs to merge before enqueueing higher ones.
+
+See [Stacked pull requests](/merge-queue/using-the-queue/stacked-pull-requests) for details on submission, tracking, and known GitHub-side rebase behavior.
