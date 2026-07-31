@@ -1,0 +1,75 @@
+---
+title: "Automatic ticketing"
+description: "Automatically create, reopen, and close tickets as your tests change status — no webhooks or custom automation required"
+og:title: "Automatic ticket creation for flaky tests in Trunk"
+---
+
+Trunk can manage the full lifecycle of a test's ticket for you. When a test's status changes, Trunk automatically:
+
+* **Creates a ticket** when a test becomes flaky or broken
+* **Reopens the existing ticket** (or creates a fresh one) when a fixed test regresses
+* **Closes the ticket** when the test returns to healthy
+
+Automatic ticketing works with the built-in [Linear](./linear-integration) and [Jira](./jira-integration) integrations and produces the same rich tickets as manual creation — full [ticket content](./index#ticket-content) (failure history, impact, common failure reasons, code owners), your configured [field defaults](./jira-integration#custom-fields), and complete dashboard support: linked tickets appear on the test case details page, and every automated action is recorded in the test's [Events tab](/flaky-tests/dashboard#test-case-details).
+
+## Enabling ticket automation
+
+Navigate to **Settings** → **Repositories** → **[your repository]** → **Ticketing**. Once your Linear or Jira integration is fully configured, the **Ticket automation** section becomes available.
+
+The three toggles are independent — you can enable any combination:
+
+| Setting | Behavior |
+|---|---|
+| **Auto-create tickets for flaky tests** | When a test's status changes to flaky, automatically create a ticket and link it to the test. |
+| **Auto-create tickets for broken tests** | When a test's status changes to broken, automatically create a ticket and link it to the test. |
+| **Auto-close tickets for healthy tests** | When a test returns to healthy, automatically close its linked ticket. The link is kept so the same ticket can be reopened if the test regresses. |
+
+All settings default to off.
+
+<Warning>
+Automatic creation fills tickets from your configured [field defaults](./jira-integration#custom-fields) with nobody in the loop. Every field your project requires must have a default set — fields marked **Require user to fill at creation** are prompted for in the manual create-ticket modal, which automatic creation can't do.
+</Warning>
+
+<Info>
+Auto-close applies to whatever ticket is linked to the test — including tickets you created manually or linked yourself — not just tickets the automation created.
+</Info>
+
+### Close and reopen target statuses
+
+When auto-close is enabled, you can pick which status closed tickets move to (for example `Done` vs. `Won't Fix` in Jira, or a specific workflow state in Linear). Similarly, reopened tickets can target a specific status. If you don't pick one, Trunk uses a sensible provider default: the first "done"-category status for closing, and a "to do"-style status for reopening.
+
+## Reopen behavior
+
+When a test becomes flaky or broken again after its linked ticket was closed, the **Reopen behavior** setting decides what happens:
+
+| Option | Behavior |
+|---|---|
+| **Reopen recent tickets** (default) | If the ticket was closed within the reopen window (default 30 days, configurable 1–99), reopen it with a comment noting the re-detection. If it was closed longer ago, unlink it and create a fresh ticket. |
+| **Always create a new ticket** | The closed ticket stays closed; a new ticket is created and linked each time. _Only one ticket can be linked to a Trunk test at a time._ |
+| **Do nothing** | The closed ticket stays closed and no new ticket is created. |
+
+The reopen window is measured from the ticket's close date in your ticketing system, so it behaves correctly whether Trunk or a person closed the ticket.
+
+## How the automation behaves
+
+* **One ticket per test.** Each test case has at most one linked ticket at a time. Previous tickets remain visible in the test's [event history](./index#ticket-event-history).
+* **Ticket content stays fresh.** Auto-created tickets have their description refreshed as the test's status evolves — for example when a flaky test escalates to broken — so the ticket always reflects current data. Title edits made by your team are preserved, and tickets you created or linked manually are never edited by Trunk (only closed or reopened per your settings).
+* **Quiet updates.** Status escalations update the ticket description in place rather than posting comments, so flip-flopping tests don't generate notification noise. Comments are only posted on reopen and close, where the context matters.
+* **Clearly attributed.** Auto-created tickets are badged in the dashboard, and every automated action appears in the test's Events tab attributed to Trunk automation — so it's always clear whether Trunk or a teammate acted on a ticket.
+* **Resilient to spikes.** A mass status change (for example, a bad merge flipping many tests at once) is absorbed and drained at a pace that respects your ticketing provider's rate limits.
+
+<Warning>
+For Jira, the configured close/reopen target status must be reachable in a single workflow transition from the ticket's current status. If your Jira workflow requires intermediate steps, the automation records the issue in the test's event history and skips the transition rather than guessing.
+</Warning>
+
+## Legacy webhook-based ticket autocreation
+
+Before automatic ticketing, the recommended way to auto-create tickets was a [webhook integration](/flaky-tests/webhooks). Webhooks remain fully supported and are still the right tool for custom workflows and unsupported platforms, but the built-in automation is the better default for Linear and Jira:
+
+| | Automatic ticketing | Webhooks |
+|---|---|---|
+| Setup | Toggles on the Ticketing settings page | Svix endpoint + provider API transformation |
+| Ticket body | Full Trunk ticket content: failure history, impact, common failure reasons, code owners | Whatever your transformation builds from the event payload |
+| Lifecycle | Create, reopen, and close managed end to end | Create only, unless you build the rest |
+| Dashboard | Tickets linked to test cases, events recorded, auto-created badge | Tickets are not linked back to Trunk |
+| Custom platforms | Linear and Jira | Anything with an API |

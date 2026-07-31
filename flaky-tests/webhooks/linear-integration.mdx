@@ -7,7 +7,9 @@ Trunk allows you to automate Linear Issue creation through webhooks. This will a
 
 This guide will walk you through integrating Trunk Flaky Tests with Linear Issues through webhooks. You will be able to automatically generate Linear issues for **new flaky tests** found in your repo. This guide should take 15 minutes to complete.
 
-Trunk also has a [built-in Linear integration](/flaky-tests/management/ticketing/linear-integration) for ticket creation. You only need to use webhooks if you want to automate ticket creation or need additional customization.
+<Info>
+**Prefer the built-in integration for Linear.** Trunk's [Linear integration](/flaky-tests/management/ticketing/linear-integration) now supports [automatic ticketing](/flaky-tests/management/ticketing/automatic-ticketing) natively — richer ticket bodies (failure history, impact, common failure reasons, code owners), automatic reopen and close as test status changes, and full dashboard support with tickets linked back to their test cases. Use webhooks when you need custom payloads or workflows beyond what the built-in automation covers.
+</Info>
 
 ## 1. Create a Linear Personal Access Token
 

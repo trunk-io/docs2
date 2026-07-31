@@ -6,6 +6,10 @@ og:title: "Flaky test webhooks in Trunk"
 Trunk provides webhooks for you to build custom integrations to automate workflows, like notifying your team when a test becomes flaky or automatically creating tickets to investigate flaky tests. Trunk provides built-in connectors for [Linear](./linear-integration) and [Jira](./jira-integration) to automate ticket creation, and webhooks let you build custom integrations for use cases that are not supported out of the box.
 
 <Info>
+**Creating tickets in Linear or Jira?** Trunk's built-in [automatic ticketing](/flaky-tests/management/ticketing/automatic-ticketing) is the recommended approach — it produces richer ticket bodies (failure history, impact, common failure reasons, code owners), manages the full ticket lifecycle (create, reopen, close), and has full dashboard support with tickets linked back to their test cases. Use webhooks for custom workflows or platforms without a built-in integration.
+</Info>
+
+<Info>
 For Merge Queue webhook events (`pull_request.*` and `pull_request_batch.*`), see the [Merge Queue webhooks reference](/merge-queue/webhooks).
 </Info>
 
