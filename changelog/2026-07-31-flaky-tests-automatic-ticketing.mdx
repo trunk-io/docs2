@@ -1,0 +1,28 @@
+---
+title: "Flaky Tests: Automatic ticketing for Linear and Jira"
+description: "Trunk can now create, reopen, and close Linear and Jira tickets automatically as your tests change status — no webhooks required."
+slug: flaky-tests-automatic-ticketing
+date: 2026-07-31
+category: Flaky Tests
+type: feature
+---
+
+**Trunk now manages the full lifecycle of a test's ticket for you.**
+
+Turn on **Ticket automation** for a repository and Trunk will:
+
+- **Create a ticket** when a test becomes flaky or broken
+- **Reopen the existing ticket** (or create a fresh one) when a fixed test regresses
+- **Close the ticket** when the test returns to healthy
+
+Each toggle is independent, so you can start with just auto-close and add creation later. Auto-created tickets use the full Trunk ticket body — failure history, impact, common failure reasons, code owners — and your configured [field defaults](/flaky-tests/management/ticketing/jira-integration#custom-fields), so they arrive ready to triage.
+
+Additional controls:
+
+- **Reopen behavior** — reopen recent tickets (with a configurable 1–99 day window anchored on the provider close date), always create a new ticket, or do nothing.
+- **Close and reopen target statuses** — pick which workflow state closed and reopened tickets move to, with sensible provider defaults.
+- **Dashboard attribution** — auto-created tickets are badged, and every automated action is recorded on the test's Events tab.
+
+Automatic ticketing is the new recommended path for Linear and Jira. [Webhook-based ticket creation](/flaky-tests/webhooks) remains fully supported for custom workflows and other platforms.
+
+Head to **Settings → Repositories → [your repository] → Ticketing** to turn it on, or [read the docs](/flaky-tests/management/ticketing/automatic-ticketing) for the full behavior reference.
