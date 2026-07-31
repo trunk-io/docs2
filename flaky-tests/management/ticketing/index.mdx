@@ -5,6 +5,10 @@ og:title: "Ticketing for flaky tests in Trunk"
 ---
 You can integrate directly with your ticketing systems to automatically create tickets when Trunk [detects a flaky test](/flaky-tests/detection).
 
+## Automatic ticketing
+
+With a connected Linear or Jira integration, Trunk can manage ticket lifecycle automatically: create a ticket when a test becomes flaky or broken, reopen it if a fixed test regresses, and close it when the test returns to healthy. See [Automatic ticketing](./automatic-ticketing) for setup and behavior.
+
 ## Ticket content
 
 Flaky Tests automatically generates tickets complete with a title and description. If you’re connected to Linear or Jira, you can also assign default issue types, teams, or assignees.
