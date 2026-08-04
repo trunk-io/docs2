@@ -628,7 +628,8 @@
               {
                 "group": "July",
                 "pages": [
-                  "changelog/2026-07-31-flaky-tests-automatic-ticketing"
+                  "changelog/2026-07-31-flaky-tests-automatic-ticketing",
+                  "changelog/2026-07-31-merge-queue-stacked-pull-requests"
                 ]
               },
               {
