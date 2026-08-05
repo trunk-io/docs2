@@ -97,7 +97,7 @@
                   "merge-queue/using-the-queue/monitor-queue-status",
                   "merge-queue/using-the-queue/handle-failed-pull-requests",
                   "merge-queue/using-the-queue/emergency-pull-requests",
-                  "merge-queue/using-the-queue/force-merge"
+                  "merge-queue/using-the-queue/direct-to-queue"
                 ]
               },
               "merge-queue/integration-for-slack",
@@ -1065,6 +1065,10 @@
     }
   },
   "redirects": [
+    {
+      "source": "/merge-queue/using-the-queue/force-merge",
+      "destination": "/merge-queue/using-the-queue/direct-to-queue"
+    },
     {
       "source": "/merge-queue/chrome-extension",
       "destination": "/merge-queue/browser-extensions"

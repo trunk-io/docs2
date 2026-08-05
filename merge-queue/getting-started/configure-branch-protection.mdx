@@ -122,7 +122,7 @@ Splitting them keeps Trunk's bypass scope minimal: GitHub bypass permissions app
 2. Target the same protected branch (e.g., `main`) with the same single-include targeting.
 3. Under **Rules** → **Branch rules**, add the rules that gate mergeability — typically **Require a pull request before merging** and **Require status checks to pass**. Add others (signed commits, linear history, etc.) as your team requires.
 4. **Do not** add the Trunk GitHub App (`trunk-io`) to the bypass list. The queue relies on GitHub reporting the PR as not-yet-ready until these rules pass.
-5. Optionally, add **Trunk Sudo** to the bypass list as **Exempt** if you use [Force merge](../using-the-queue/force-merge). See the [Trunk Sudo page](../../setup-and-administration/trunk-sudo-app) for the full guidance.
+5. Optionally, add **Trunk Sudo** to the bypass list as **Exempt** if you use [Direct to queue](../using-the-queue/direct-to-queue). See the [Trunk Sudo page](../../setup-and-administration/trunk-sudo-app) for the full guidance.
 6. Save.
 
 <Frame caption="Ruleset #2: Trunk is not on the bypass list, so the queue respects these requirements when admitting PRs.">
@@ -186,7 +186,7 @@ For each Branch ruleset whose **Branch targeting criteria** could match `trunk-t
 - Ruleset #2 targets only your protected branch and does **not** bypass Trunk.
 - Every other Branch ruleset visible at the organization level and on this repository either does not match `trunk-temp/**/*`/`trunk-merge/**/*`, or explicitly excludes both patterns.
 - (If using [Trunk Sudo](../../setup-and-administration/trunk-sudo-app)) Trunk Sudo is on Ruleset #1's bypass list as **Exempt**.
-- (If using [Trunk Sudo](../../setup-and-administration/trunk-sudo-app) **and** Force merge) Trunk Sudo is also on Ruleset #2's bypass list as **Exempt**.
+- (If using [Trunk Sudo](../../setup-and-administration/trunk-sudo-app) **and** Direct to queue) Trunk Sudo is also on Ruleset #2's bypass list as **Exempt**.
 
 ### Migrating from Classic rules to Rulesets <a href="#migrating-from-classic-rules-to-rulesets" id="migrating-from-classic-rules-to-rulesets"></a>
 
@@ -199,7 +199,7 @@ If you already use Classic branch protection, GitHub provides an **Import a rule
 
 ### Option B — Classic branch protection <a href="#option-b-classic-branch-protection" id="option-b-classic-branch-protection"></a>
 
-Classic branch protection still works with Trunk Merge Queue, but is no longer the recommended path. Some Classic rules (required status checks and "Require branches to be up to date") cannot be bypassed by any GitHub App, which limits features like [Force merge](../using-the-queue/force-merge). Use Rulesets when you can.
+Classic branch protection still works with Trunk Merge Queue, but is no longer the recommended path. Some Classic rules (required status checks and "Require branches to be up to date") cannot be bypassed by any GitHub App, which limits features like [Direct to queue](../using-the-queue/direct-to-queue). Use Rulesets when you can.
 
 **Configure push restrictions (required)**
 
@@ -262,8 +262,8 @@ To verify and fix:
 </Note>
 
 <Info>
-  **Using Force merge or other bypass-dependent features?** Features like [Force
-  merge](../using-the-queue/force-merge) require the separate [Trunk Sudo GitHub
+  **Using Direct to queue or other bypass-dependent features?** Features like [Force
+  merge](../using-the-queue/direct-to-queue) require the separate [Trunk Sudo GitHub
   App](../../setup-and-administration/trunk-sudo-app), plus additional branch
   protection configuration to list Trunk Sudo as a bypass actor. That's
   documented on the Trunk Sudo page.
