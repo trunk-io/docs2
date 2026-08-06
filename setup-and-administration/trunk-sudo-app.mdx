@@ -5,7 +5,7 @@ og:title: "The Trunk Sudo GitHub App"
 ---
 Trunk Sudo is a second Trunk GitHub App, separate from the [main Trunk GitHub App](./github-app-permissions). Its only purpose is to programmatically merge pull requests while bypassing GitHub branch protections, on behalf of Trunk features that need that capability.
 
-Trunk Sudo is a prerequisite for bypass-dependent features. Today the only such feature is [Force merge](../merge-queue/using-the-queue/force-merge).
+Trunk Sudo is a prerequisite for bypass-dependent features. Today the only such feature is [Direct to queue](../merge-queue/using-the-queue/direct-to-queue).
 
 <Info>
 **Trunk Sudo is optional.** You only need to install it if you plan to use a feature that requires it. If you don't use any bypass-dependent features, you can skip this setup.
@@ -118,6 +118,6 @@ Required so Trunk Sudo can merge PRs that modify files under `.github/`. GitHub 
 
 ## Next steps
 
-→ [**Force merge**](../merge-queue/using-the-queue/force-merge) — use the Trunk Sudo app to merge PRs through the queue that don't satisfy branch protection.
+→ [**Direct to queue**](../merge-queue/using-the-queue/direct-to-queue) — use the Trunk Sudo app to merge PRs through the queue that don't satisfy branch protection.
 
 → For the main Trunk GitHub App and its permissions, see [Trunk GitHub App](./github-app-permissions).
