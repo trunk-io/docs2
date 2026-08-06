@@ -626,6 +626,12 @@
             "group": "2026",
             "pages": [
               {
+                "group": "August",
+                "pages": [
+                  "changelog/2026-08-06-merge-queue-direct-to-queue-rename"
+                ]
+              },
+              {
                 "group": "July",
                 "pages": [
                   "changelog/2026-07-31-flaky-tests-automatic-ticketing",

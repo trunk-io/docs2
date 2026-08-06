@@ -1,0 +1,18 @@
+---
+title: "Merge Queue: Force merge is now Direct to queue"
+description: "The admin bypass feature has been renamed to Direct to queue, and `/trunk merge --force` is now `/trunk merge --direct`. The old flag keeps working."
+slug: merge-queue-direct-to-queue-rename
+date: 2026-08-06
+category: Merge Queue
+type: update
+---
+
+**Force merge is now called Direct to queue.**
+
+The behavior is unchanged: a GitHub repository admin can still send a pull request into Merge Queue when branch protection isn't satisfied, and the PR is still tested by the queue before Trunk Sudo merges it. Only the name and flag have changed.
+
+- **New command:** `/trunk merge --direct`
+- **Old command still works:** `/trunk merge --force` is accepted as an alias, so existing automation keeps working unchanged.
+- **Docs:** the reference page moved to [Direct to queue](/merge-queue/using-the-queue/direct-to-queue). The old URL redirects.
+
+The new name better describes what the feature actually does: it puts the PR directly into the queue, rather than force-merging it to `main`.
