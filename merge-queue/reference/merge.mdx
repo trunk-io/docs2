@@ -151,7 +151,7 @@ curl -X POST https://api.trunk.io/v1/listPullRequests \
   }'
 ```
 
-`since` and `until` are both optional and bound the window in which a PR concluded (merged, failed, or cancelled). Send either one on its own to leave the other end of the range open, or send both to bound the window on both sides. Omit both to list PRs regardless of when they concluded.
+`since` and `until` are both optional and bound the window in which a PR concluded (merged, failed, or cancelled). Send either one on its own and the other end of the range fills in a default — `since` defaults to the beginning of time, `until` defaults to now. Omit both and results are not filtered by conclusion time at all.
 
 Results are paginated. When the response includes a `nextCursor`, pass it back as `cursor` on the next request to fetch the following page.
 

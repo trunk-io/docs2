@@ -662,7 +662,7 @@
                   "since": {
                     "type": "string",
                     "format": "date-time",
-                    "description": "Optional ISO 8601 timestamp. When provided, returns pull requests that concluded (merged, failed, or cancelled) since this time. Combine with `until` to bound both ends of the range.",
+                    "description": "Optional ISO 8601 timestamp. When provided, returns pull requests that concluded (merged, failed, or cancelled) since this time. Defaults to the beginning of time when only `until` is provided.",
                     "examples": [
                       "2024-01-01T00:00:00Z"
                     ]
@@ -670,7 +670,7 @@
                   "until": {
                     "type": "string",
                     "format": "date-time",
-                    "description": "Optional ISO 8601 timestamp. When provided, returns pull requests that concluded (merged, failed, or cancelled) up until this time. Combine with `since` to bound both ends of the range.",
+                    "description": "Optional ISO 8601 timestamp bounding the upper end of the concluded time range. When either `since` or `until` is provided, only pull requests that concluded (merged, failed, or cancelled) within the range are returned. Defaults to now.",
                     "examples": [
                       "2024-02-01T00:00:00Z"
                     ]
