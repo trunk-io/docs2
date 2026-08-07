@@ -17,6 +17,7 @@ All requests must be [authenticated](../../setup-and-administration/apis/#authen
 | [`/cancelPullRequest`](/merge-queue/reference/merge/cancel-a-pull-request-in-a-merge-queue) | POST | Remove a PR from the merge queue |
 | [`/restartTestsOnPullRequest`](/merge-queue/reference/merge/restart-tests-on-a-pull-request-in-a-merge-queue) | POST | Re-run tests on a PR currently in the queue |
 | [`/getSubmittedPullRequest`](/merge-queue/reference/merge/get-a-submitted-pull-request-from-a-merge-queue) | POST | Check the status of a submitted PR |
+| [`/listPullRequests`](/merge-queue/reference/merge/list-pull-requests-in-a-merge-queue) | POST | List PRs in the queue, optionally filtered by state and time range |
 | [`/setImpactedTargets`](/merge-queue/reference/merge/set-impacted-targets-for-a-pull-request) | POST | Set impacted targets for a PR (used with [parallel queues](../optimizations/parallel-queues/)) |
 | [`/getMergeQueueTestingDetails`](/merge-queue/reference/merge/get-details-about-testing-that-merge-queue-is-performing) | POST | Get details about in-progress merge queue testing |
 | [`/createQueue`](/merge-queue/reference/merge/create-a-new-merge-queue) | POST | Create a new merge queue for a branch |
@@ -131,6 +132,29 @@ Provide either `pr.number` or `pr.branch`, but not both. Because a branch name c
 2. Otherwise, the most recently closed PR submitted from this branch is returned.
 3. Otherwise, the endpoint responds with `404`.
 
+### List PRs that concluded in a time range
+
+```bash
+curl -X POST https://api.trunk.io/v1/listPullRequests \
+  -H "Content-Type: application/json" \
+  -H "x-api-token: $TRUNK_API_TOKEN" \
+  -d '{
+    "repo": {
+      "host": "github.com",
+      "owner": "my-org",
+      "name": "my-repo"
+    },
+    "targetBranch": "main",
+    "since": "2024-01-01T00:00:00Z",
+    "until": "2024-02-01T00:00:00Z",
+    "take": 50
+  }'
+```
+
+`since` and `until` are both optional and bound the window in which a PR concluded (merged, failed, or cancelled). Send either one on its own to leave the other end of the range open, or send both to bound the window on both sides. Omit both to list PRs regardless of when they concluded.
+
+Results are paginated. When the response includes a `nextCursor`, pass it back as `cursor` on the next request to fetch the following page.
+
 ### Get queue state
 
 ```bash
@@ -156,6 +180,7 @@ The response includes the queue state (`RUNNING`, `PAUSED`, `DRAINING`, or `SWIT
 <CardGroup cols={2}>
   <Card title="Cancel a pull request in a merge queue" href="/merge-queue/reference/merge/cancel-a-pull-request-in-a-merge-queue"/>
   <Card title="Get a submitted pull request from a merge queue" href="/merge-queue/reference/merge/get-a-submitted-pull-request-from-a-merge-queue"/>
+  <Card title="List pull requests in a merge queue" href="/merge-queue/reference/merge/list-pull-requests-in-a-merge-queue"/>
   <Card title="Restart tests on a pull request in a merge queue" href="/merge-queue/reference/merge/restart-tests-on-a-pull-request-in-a-merge-queue"/>
   <Card title="Set impacted targets for a pull request" href="/merge-queue/reference/merge/set-impacted-targets-for-a-pull-request"/>
   <Card title="Submit a pull request to a merge queue" href="/merge-queue/reference/merge/submit-a-pull-request-to-a-merge-queue"/>
