@@ -28,7 +28,7 @@ Trunk lets you create custom workflows with **event-triggered webhooks**. Flaky 
   www.svix.com
 </Card>
 
-Trunk publishes three Flaky Tests event types to Svix. Each event includes a full JSON schema with field descriptions visible in the Svix app portal.
+Trunk publishes the following Flaky Tests event types to Svix. Each event includes a full JSON schema with field descriptions visible in the Svix app portal.
 
 ### `test_case.monitor_status_changed`
 
@@ -69,6 +69,16 @@ Emitted when a test case changes status (e.g., becomes flaky or is resolved), as
 | `repository` | object | See `repository` fields above |
 | `test_case` | object | See `test_case` fields above |
 
+<Note>
+The original `test_case.status_changed` event is being phased out in favor of `v2.test_case.status_changed`. v2 intentionally omits aggregate metrics like `failure_rate_last_7d`. To enrich a status-change webhook with current metrics, call [`flaky-tests/get-test-details`](https://api.trunk.io/docs#tag/flaky-tests) from your webhook handler using the `test_case.id` from the payload.
+</Note>
+
+### `test_case.quarantining_setting_changed`
+
+Emitted only when a quarantining setting is manually overridden to `ALWAYS_QUARANTINE` or `NEVER_QUARANTINE`. It does **not** fire when Trunk auto-quarantines a test based on flakiness — to react to auto-quarantine, listen to `v2.test_case.status_changed` and check `new_status == "FLAKY"`.
+
+The full payload schema is available in the Svix event catalog linked above.
+
 ### `test_case.investigation_completed`
 
 Emitted when an AI-powered flaky test analysis finishes for a test case.
@@ -90,6 +100,8 @@ Emitted when an AI-powered flaky test analysis finishes for a test case.
 | `test_case` | object | See `test_case` fields above |
 
 Citations in `markdown_summary` and `facts[].content` are delivered as fully rendered links to the supporting evidence, so you can consume these fields directly without resolving placeholder tags.
+
+`test_case.investigation_completed` fires only when an AI investigation finishes — it is not a general status-change signal. For "this test just became flaky" reactions (Linear ticket creation, Slack alerts, and so on), subscribe to `v2.test_case.status_changed` instead.
 
 **Delivery reliability.** If the webhook delivery provider rate-limits a request, Trunk automatically retries with exponential backoff, so a transient spike rarely drops an event. This applies to every Flaky Tests webhook event and needs no configuration on your side.
 

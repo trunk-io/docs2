@@ -60,29 +60,9 @@ All webhook payloads include an ISO 8601 `timestamp` field marking when the stat
 
 ***
 
-### `test_case.status_changed` v1 vs v2
+### Flaky Tests webhook events
 
-The original `test_case.status_changed` event is being phased out in favor of `v2.test_case.status_changed`. The v2 event intentionally **omits aggregate metrics** like `failure_rate_last_7d` — those fields will be `0` or missing on the v1 event today and are not present in v2 at all.
-
-To enrich a status-change webhook with current metrics, call the [`flaky-tests/get-test-details`](https://api.trunk.io/docs#tag/flaky-tests) API from your webhook handler using the `test_case.id` from the payload.
-
-See the [Flaky Tests webhooks reference](/flaky-tests/webhooks) for the full `v2.test_case.status_changed` payload schema and other flaky-tests event types.
-
-***
-
-### Quarantining events
-
-`test_case.quarantining_setting_changed` fires only when a quarantining setting is manually overridden to `ALWAYS_QUARANTINE` or `NEVER_QUARANTINE`. It does **not** fire when Trunk auto-quarantines a test based on flakiness.
-
-To react to auto-quarantine, listen to `v2.test_case.status_changed` and check `new_status == "FLAKY"` in the payload.
-
-***
-
-### AI investigation events
-
-`test_case.investigation_completed` fires only when an AI/autofix flaky test analysis finishes — this is a beta feature scoped to AI investigations, not general status changes.
-
-For "this test just became flaky" reactions (Linear ticket creation, Slack alerts, and so on), subscribe to `v2.test_case.status_changed` instead.
+`test_case.*` events — status changes (`v2.test_case.status_changed`), quarantining setting overrides, and AI investigation results — are part of Flaky Tests, not Merge Queue. See the [Flaky Tests webhooks reference](/flaky-tests/webhooks) for their payload schemas and usage.
 
 ***
 
