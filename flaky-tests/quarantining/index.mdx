@@ -240,6 +240,8 @@ Keep in mind:
 * Because nothing is uploaded, the run won't appear in your dashboard or contribute to [flaky test detection](../detection/). Quarantining decisions are based on results from your other, uploading CI jobs.
 * The local bundle written to `./bundle_upload` can also be useful for inspecting exactly what the CLI would have uploaded.
 
+## Overriding individual tests
+
 If you have tests that should never be quarantined or should always be quarantined regardless of their current health status, you can do this by overriding individual tests.
 
 <Frame caption="The Choose quarantine status control on a test's details page, set to Always.">
