@@ -187,6 +187,20 @@ For example, assuming a timeout of 4 hours:
 
 ***
 
+## Stale PR Timeout
+
+> Set the timeout in days and hours, or keep at **0 (Off)** to disable. Default is **Off**.
+
+Configure how long a PR can wait to enter the queue after being submitted before it is automatically cancelled. When a submitted PR is not ready (waiting for required checks or branch protection rules to pass before the queue will admit it) and remains in that state past the configured duration, Trunk cancels it and notifies the author via Slack DM if they have [personal notifications](/merge-queue/integration-for-slack#personal-slack-notifications) configured.
+
+Setting the timeout to 0 disables it entirely; PRs in a not-ready state will wait indefinitely until manually cancelled or until they become ready.
+
+<Info>
+Organization admin access is required to change this setting.
+</Info>
+
+***
+
 ## Required Status Checks
 
 > Configure which CI status checks must pass before a PR can merge through the queue.

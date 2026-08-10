@@ -1,0 +1,15 @@
+---
+title: "Merge Queue: Stale PR Timeout"
+description: "Set a configurable timeout to automatically cancel not-ready PRs that have been waiting to enter the queue."
+date: 2026-06-25
+category: Merge Queue
+type: feature
+---
+
+**PRs that stay in a not-ready state too long can now be cancelled automatically.**
+
+A new **Stale PR Timeout** setting in Merge Queue Settings lets you configure how long a PR can wait to enter the queue after being submitted before it is automatically cancelled. The timeout is configured in days and hours. Setting it to 0 disables the timeout entirely.
+
+A PR is in a not-ready state when it has been submitted to the queue but is waiting to meet required checks or branch protection rules before the queue will begin testing it. If the PR remains in this state past the configured timeout, Trunk cancels it. Authors who have set up [personal Slack DMs](/merge-queue/integration-for-slack#personal-slack-notifications) receive a direct notification when this happens.
+
+This setting is admin-only, like all other Merge Queue settings. See [Settings and configurations](/merge-queue/administration/advanced-settings#stale-pr-timeout) for configuration details.
