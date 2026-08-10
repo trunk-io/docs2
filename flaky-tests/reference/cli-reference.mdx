@@ -258,6 +258,7 @@ The `upload` and `test` commands accept the following options:
 | `--allow-empty-test-results` | Don't fail commands if test results are empty or missing. Use it when you sometimes skip all tests for certain CI jobs. Defaults to `true`. |
 | `--variant <VARIANT_NAME>` | Upload tests to a specific variant group. **Optional**. |
 | `--test-process-exit-code` `<EXIT_CODE>` | Specify the exit code of the test previously run. This is used by the upload command to identify errors that happen outside of the context of the test execution (such as build errors). |
+| `--dry-run` | Write the test results bundle to a local `./bundle_upload` directory instead of uploading it to Trunk. [Quarantining](../quarantining/#quarantining-without-uploading) still runs and still determines the exit code. Can also be set with the `TRUNK_DRY_RUN=true` environment variable. **Optional**. |
 
 <Info>
 **Memory Overhead**
