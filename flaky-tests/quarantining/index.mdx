@@ -220,7 +220,25 @@ You can also wrap the test command with the Trunk Analytics CLI. When wrapping t
 </Tab>
 </Tabs>
 
-## Overriding individual tests
+## Quarantining without uploading
+
+If you want quarantining to gate your CI job but don't want that run's test results uploaded to Trunk, pass the `--dry-run` flag (or set the `TRUNK_DRY_RUN=true` environment variable) to the `upload` or `test` command:
+
+```bash
+./trunk-analytics-cli upload \
+    --org-url-slug $TRUNK_ORG_URL_SLUG \
+    --token $TRUNK_API_TOKEN \
+    --junit-paths $JUNIT_PATH \
+    --dry-run
+```
+
+With `--dry-run`, the CLI still checks your failed tests against Trunk's quarantine service and overrides the exit code — returning `0` when all failures are quarantined — but writes the test results bundle to a local `./bundle_upload` directory instead of uploading it to Trunk.
+
+Keep in mind:
+
+* An organization token and network access are still required; the quarantine check queries Trunk's backend to determine which tests are quarantined.
+* Because nothing is uploaded, the run won't appear in your dashboard or contribute to [flaky test detection](../detection/). Quarantining decisions are based on results from your other, uploading CI jobs.
+* The local bundle written to `./bundle_upload` can also be useful for inspecting exactly what the CLI would have uploaded.
 
 If you have tests that should never be quarantined or should always be quarantined regardless of their current health status, you can do this by overriding individual tests.
 
