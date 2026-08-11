@@ -1,0 +1,25 @@
+---
+title: "Flaky Tests: Asana ticketing integration"
+description: "Trunk Flaky Tests now integrates with Asana — create, link, and automate tasks for flaky and broken tests alongside the existing Linear and Jira integrations."
+slug: flaky-tests-asana-ticketing
+date: 2026-08-11
+category: Flaky Tests
+type: new-feature
+---
+
+**Asana joins Linear and Jira as a first-class ticketing provider for Trunk Flaky Tests.**
+
+Connect an Asana workspace and project to any repository and Trunk will file, link, and manage Asana tasks for your flaky and broken tests.
+
+- **Create tasks from the dashboard.** File an Asana task for any test from the repo overview or test case details page, with a preview of the title and description before it goes out.
+- **Link existing tasks.** Point Trunk at an existing Asana task by its task ID and it takes over status and assignee display on the test case.
+- **Field defaults and required fields.** Pre-populate single-select, multi-select, text, number, and people custom fields per repository, or mark a field as required at ticket creation.
+- **Automatic ticketing works with Asana.** Turn on [automatic ticketing](/flaky-tests/management/ticketing/automatic-ticketing) to open, reopen, and close Asana tasks as tests change state.
+
+A few things to know about Asana specifically:
+
+- **Statuses are project sections.** Asana has no workflow states, so Trunk uses your board columns. You pick which section means "close" and which means "reopen" during setup.
+- **Closed means completed and in the close section.** Trunk only treats a task as closed when its **Completed** checkbox is checked and it sits in the configured close section.
+- **Tokens act as their creator.** Asana personal access tokens have no scopes, so every automated task and comment is authored by the token owner. Use a service account if you want the activity attributed that way.
+
+Head to **Settings → Repositories → [your repository] → Ticketing** to connect Asana, or see the [Asana integration docs](/flaky-tests/management/ticketing/asana-integration) for the full setup and behavior reference.
