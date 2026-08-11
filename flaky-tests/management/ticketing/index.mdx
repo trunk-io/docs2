@@ -7,11 +7,11 @@ You can integrate directly with your ticketing systems to automatically create t
 
 ## Automatic ticketing
 
-With a connected Linear or Jira integration, Trunk can manage ticket lifecycle automatically: create a ticket when a test becomes flaky or broken, reopen it if a fixed test regresses, and close it when the test returns to healthy. See [Automatic ticketing](./automatic-ticketing) for setup and behavior.
+With a connected Linear, Jira, or Asana integration, Trunk can manage ticket lifecycle automatically: create a ticket when a test becomes flaky or broken, reopen it if a fixed test regresses, and close it when the test returns to healthy. See [Automatic ticketing](./automatic-ticketing) for setup and behavior.
 
 ## Ticket content
 
-Flaky Tests automatically generates tickets complete with a title and description. If you’re connected to Linear or Jira, you can also assign default issue types, teams, or assignees.
+Flaky Tests automatically generates tickets complete with a title and description. If you’re connected to Linear, Jira, or Asana, you can also assign default issue types, teams, projects, or assignees.
 
 The ticket description contains the following information:
 
@@ -30,7 +30,7 @@ When you unlink a ticket and re-link a test case to a different ticket, all even
 
 ## Integration setup
 
-Currently, Ticket Creation supports integrations with Linear and Jira. However, the automatically generated ticket content is formatted in Markdown and can be copied to other platforms like Asana or GitHub issues.
+Ticket Creation supports integrations with Linear, Jira, and Asana. For any other platform, the generated ticket content is formatted in Markdown and can be copied across — see [Other ticketing platforms](./other-ticketing-platforms).
 
 <Columns cols={2}>
   <Card
@@ -42,5 +42,10 @@ Currently, Ticket Creation supports integrations with Linear and Jira. However, 
     title="Jira"
     img="/assets/flaky-tests/management/ticketing/jira.png"
     href="./jira-integration"
+  />
+  <Card
+    title="Asana"
+    img="/assets/flaky-tests/management/ticketing/asana.png"
+    href="./asana-integration"
   />
 </Columns>
