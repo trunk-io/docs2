@@ -10,11 +10,11 @@ Trunk can manage the full lifecycle of a test's ticket for you. When a test's st
 * **Reopens the existing ticket** (or creates a fresh one) when a fixed test regresses
 * **Closes the ticket** when the test returns to healthy
 
-Automatic ticketing works with the built-in [Linear](./linear-integration) and [Jira](./jira-integration) integrations and produces the same rich tickets as manual creation — full [ticket content](./index#ticket-content) (failure history, impact, common failure reasons, code owners), your configured [field defaults](./jira-integration#custom-fields), and complete dashboard support: linked tickets appear on the test case details page, and every automated action is recorded in the test's [Events tab](/flaky-tests/dashboard#test-case-details).
+Automatic ticketing works with the built-in [Linear](./linear-integration), [Jira](./jira-integration), and [Asana](./asana-integration) integrations and produces the same rich tickets as manual creation — full [ticket content](./index#ticket-content) (failure history, impact, common failure reasons, code owners), your configured [field defaults](./jira-integration#custom-fields), and complete dashboard support: linked tickets appear on the test case details page, and every automated action is recorded in the test's [Events tab](/flaky-tests/dashboard#test-case-details).
 
 ## Enabling ticket automation
 
-Navigate to **Settings** → **Repositories** → **[your repository]** → **Ticketing**. Once your Linear or Jira integration is fully configured, the **Ticket automation** section becomes available.
+Navigate to **Settings** → **Repositories** → **[your repository]** → **Ticketing**. Once your Linear, Jira, or Asana integration is fully configured, the **Ticket automation** section becomes available.
 
 The three toggles are independent — you can enable any combination:
 
@@ -36,7 +36,7 @@ Auto-close applies to whatever ticket is linked to the test — including ticket
 
 ### Close and reopen target statuses
 
-When auto-close is enabled, you can pick which status closed tickets move to (for example `Done` vs. `Won't Fix` in Jira, or a specific workflow state in Linear). Similarly, reopened tickets can target a specific status. If you don't pick one, Trunk uses a sensible provider default: the first "done"-category status for closing, and a "to do"-style status for reopening.
+When auto-close is enabled, you can pick which status closed tickets move to (for example `Done` vs. `Won't Fix` in Jira, a specific workflow state in Linear, or a project section in Asana). Similarly, reopened tickets can target a specific status. If you don't pick one, Trunk uses a sensible provider default: the first "done"-category status for closing, and a "to do"-style status for reopening.
 
 ## Reopen behavior
 
@@ -64,7 +64,7 @@ For Jira, the configured close/reopen target status must be reachable in a singl
 
 ## Legacy webhook-based ticket autocreation
 
-Before automatic ticketing, the recommended way to auto-create tickets was a [webhook integration](/flaky-tests/webhooks). Webhooks remain fully supported and are still the right tool for custom workflows and unsupported platforms, but the built-in automation is the better default for Linear and Jira:
+Before automatic ticketing, the recommended way to auto-create tickets was a [webhook integration](/flaky-tests/webhooks). Webhooks remain fully supported and are still the right tool for custom workflows and unsupported platforms, but the built-in automation is the better default for Linear, Jira, and Asana:
 
 | | Automatic ticketing | Webhooks |
 |---|---|---|
@@ -72,4 +72,4 @@ Before automatic ticketing, the recommended way to auto-create tickets was a [we
 | Ticket body | Full Trunk ticket content: failure history, impact, common failure reasons, code owners | Whatever your transformation builds from the event payload |
 | Lifecycle | Create, reopen, and close managed end to end | Create only, unless you build the rest |
 | Dashboard | Tickets linked to test cases, events recorded, auto-created badge | Tickets are not linked back to Trunk |
-| Custom platforms | Linear and Jira | Anything with an API |
+| Custom platforms | Linear, Jira, and Asana | Anything with an API |

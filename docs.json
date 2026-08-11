@@ -281,6 +281,7 @@
                     "root": "flaky-tests/management/ticketing/index",
                     "pages": [
                       "flaky-tests/management/ticketing/automatic-ticketing",
+                      "flaky-tests/management/ticketing/asana-integration",
                       "flaky-tests/management/ticketing/jira-integration",
                       "flaky-tests/management/ticketing/linear-integration",
                       "flaky-tests/management/ticketing/other-ticketing-platforms"
