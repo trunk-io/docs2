@@ -1,0 +1,21 @@
+---
+title: "Merge Queue: New testing capacity metrics"
+description: "The Merge Queue Prometheus endpoint now exposes separate gauges for active CI testing slots and PRs currently in the testing phase, making batching-aware capacity tracking straightforward."
+slug: merge-queue-testing-slot-metrics
+date: 2026-08-19
+category: Merge Queue
+type: update
+---
+
+**Two new gauges on the Merge Queue Prometheus endpoint make it easy to track CI capacity separately from the number of PRs under test.**
+
+Previously, testing activity was reported as a single number, which conflated CI slot usage with the number of PRs in flight when batching was on. The endpoint now exposes:
+
+- **`mq_testing_slots_active`** — number of active CI slots currently in use. A batch counts as one slot, so this maps directly to CI concurrency.
+- **`mq_prs_testing`** — number of PRs currently in the `TESTING` state. With batching enabled, this can exceed `mq_testing_slots_active` because several PRs share a slot.
+
+Use `mq_testing_slots_active` for CI utilization alerts against your configured concurrency, and `mq_prs_testing` when you want to see how many PRs are being validated at once.
+
+Both metrics carry the standard `repo`, `branch`, and `queue_type` labels and are available at `GET /v1/getMergeQueueMetrics` alongside the existing point-in-time gauges and 1-hour window metrics.
+
+See [Merge Queue metrics](/merge-queue/administration/metrics) for the full metric reference and example PromQL queries.

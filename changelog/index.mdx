@@ -8,6 +8,12 @@ rss: true
 
 ### August 2026
 
+<Update label="August 19, 2026" tags={["Merge Queue"]}>
+  **[Merge Queue: New testing capacity metrics](/changelog/2026-08-19-merge-queue-testing-slot-metrics)**
+
+  The Prometheus metrics endpoint now exposes `mq_testing_slots_active` and `mq_prs_testing` as separate gauges, so batching-aware CI capacity tracking is straightforward.
+</Update>
+
 <Update label="August 11, 2026" tags={["Flaky Tests"]}>
   **[Flaky Tests: Asana ticketing integration](/changelog/2026-08-11-flaky-tests-asana-ticketing)**
 
