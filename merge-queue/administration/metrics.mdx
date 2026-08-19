@@ -217,7 +217,8 @@ All metrics include these labels:
 | --- | --- | --- |
 | `mq_depth_current` | Gauge | Number of PRs currently in the queue (excludes PRs that are waiting to be mergeable before being admitted to the queue) |
 | `mq_awaiting_mergeability` | Gauge | Number of PRs waiting for prerequisites like required reviews or status checks |
-| `mq_testing_slots_active` | Gauge | Number of PRs currently in TESTING state (active CI slots in use) |
+| `mq_testing_slots_active` | Gauge | Number of test PRs currently active (active CI slots in use - a batch counts as 1 slot) |
+| `mq_prs_testing` | Gauge | Number of PRs currently in TESTING state (can be more than `mq_testing_slots_active` if batching is enabled) |
 
 **Rolling 1-hour window metrics** summarize activity over a sliding 1-hour window. They update continuously as the window advances.
 
