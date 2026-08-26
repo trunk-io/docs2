@@ -1,10 +1,11 @@
 ---
 title: "Browser Extension 1.0: Out of beta"
 description: "The Trunk browser extension graduates from beta with more reliable queue controls, clearer failure details, and groundwork for expanding Merge Queue beyond GitHub."
-slug: browser-extension-1-0
-date: 2026-08-26
-category: Merge Queue
-type: update
+slug: "browser-extension-1-0"
+date:
+
+category: "Merge Queue"
+type: "update"
 ---
 
 The Trunk browser extension is graduating from beta with version 1.0.0.
@@ -13,16 +14,17 @@ This release readies the Trunk Merge Queue experience to expand beyond GitHub. C
 
 We've rebuilt the queue submission experience with clearer priority controls, regular and Direct to Queue submission, safer handling for draft PRs, and more accurate resubmission behavior.
 
-<Frame>
-  <img src="/assets/changelog/browser-extension-1-0-submit-menu.png" alt="The Trunk browser extension's Add to merge queue menu, with Regular priority and Direct to Queue options" />
-</Frame>
+<img
+  src="/assets/changelog/browser-extension-1-0-submit-menu.png"
+  alt="The Trunk browser extension's Add to merge queue menu, with Regular priority and Direct to Queue options"
+/>
 
 Queue operations are more reliable, too. Adding or removing a PR from the queue now continues even if you switch tabs while the action is in progress.
 
 When a PR fails, the extension shows the checks that Merge Queue actually used to make its decision, including more precise links and support for multiple failing checks.
 
-<Warning>
+<Note>
   **Action required for existing Chrome users:** Version 1.0.0 requests access to additional forge domains as we prepare to bring Trunk Merge Queue beyond GitHub. Chrome may disable the extension after updating and ask you to approve the new permissions. Accept the prompt to re-enable the extension.
-</Warning>
+</Note>
 
 Version 1.0.0 also includes improvements to our Chrome and Firefox release infrastructure as the extension leaves beta.
