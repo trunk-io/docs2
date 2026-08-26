@@ -89,7 +89,7 @@ Your organization slug is the tail of your dashboard URL (`app.trunk.io/<org-slu
 ## Uploading Test Results
 
 <Info>
-The uploaded tests are processed by Trunk periodically, not in real-time. Wait for at least an hour after the initial upload before they’re displayed in the [Uploads tab](/flaky-tests/get-started/#id-4.-confirm-your-configuration-analyze-your-dashboard). Multiple uploads are required before a test can be accurately detected as flaky.
+The uploaded tests are processed by Trunk periodically, not in real-time. Wait for at least an hour after the initial upload before they’re displayed in the [Uploads tab](/flaky-tests/get-started#step-3-verify-integration). Multiple uploads are required before a test can be accurately detected as flaky.
 </Info>
 
 Trunk accepts uploads in three main report formats, [XML](https://github.com/testmoapp/junitxml), [Bazel Event Protocol JSONs](https://bazel.build/remote/bep#consuming-bep-text-json), and XCode XCResult paths. You can upload each of these test report formats using the `./trunk-analytics-cli upload` command like this:
@@ -236,7 +236,7 @@ The `trunk` command-line tool can upload and analyze test results. The `trunk-an
 | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `trunk-analytics-cli upload`         | Upload data to Trunk Flaky Tests.                                                                                                                                                                   |
 | `trunk-analytics-cli validate`       | Validates if the provided JUnit XML files and prints any errors.                                                                                                                                    |
-| `trunk-analytics-cli test <COMMAND>` | Runs tests using the provided command, uploads results, checks whether the failures are [quarantined](../quarantining/#using-the-trunk-cli-directly) tests, and correct the exit code based on that. |
+| `trunk-analytics-cli test <COMMAND>` | Runs tests using the provided command, uploads results, checks whether the failures are [quarantined](../quarantining/#updates-in-ci) tests, and correct the exit code based on that. |
 
 The `upload` and `test` commands accept the following options:
 

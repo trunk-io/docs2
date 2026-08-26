@@ -23,7 +23,7 @@ Similar to [calculating user counts](./billing#calculating-user-counts), our fre
 | Feature | Metric | Free Tier Limit |
 |---|---|---|
 | All | Users | Up to 5 private repo committers; unlimited on public repos |
-| Flaky Tests | Number of [test spans](#user-content-fn-1) | 5 committers and 5M test spans per month |
+| Flaky Tests | Number of test spans (test case results uploaded) | 5 committers and 5M test spans per month |
 | Merge Queue | PRs merged per month | Unlimited usage; pricing begins if >5 private repo committers |
 | Code Quality | Quality & security metrics | Unlimited usage |
 
@@ -35,7 +35,7 @@ Trunk Team Plans offers a monthly subscription plan using a per-seat model. At t
 |---|---|---|
 | Code Quality | Quality & security metrics | Unlimited |
 | Merge Queue | PRs merged per month | Unlimited |
-| Flaky Tests | Number of [test spans](#user-content-fn-1) | 1 million test spans per seat per month. $3 for each additional 1 million test spans. |
+| Flaky Tests | Number of test spans (test case results uploaded) | 1 million test spans per seat per month. $3 for each additional 1 million test spans. |
 
 ### **Enterprise plan**
 
@@ -67,7 +67,7 @@ On Day 31, the user count would be **two**. We consider days 2 through 31 (inclu
 
 ### Calculating an invoice
 
-At the end of every billing cycle, Trunk calculates what the next invoice should be. Trunk determines feature usage and the number of seats used over the [free tier usage limits](./billing#free-plans-and-trials) . See our section on [calculating user counts](./billing#calculating-user-counts) to determine how much we charge per feature usage.
+At the end of every billing cycle, Trunk calculates what the next invoice should be. Trunk determines feature usage and the number of seats used over the [free tier usage limits](./billing#free-plan) . See our section on [calculating user counts](./billing#calculating-user-counts) to determine how much we charge per feature usage.
 
 ### Editing payment details
 
@@ -79,7 +79,7 @@ You can edit your payment details by navigating to **Settings** → **Billing** 
 
 ### Cancelling a plan
 
-You can cancel an active Trunk subscription by navigating to **Settings** → **Billing** and clicking the **Cancel Subscription** button. Your plan will transition back into the [free tier](./billing#free-plans-and-trials); if you want to re-enable this plan, please contact us at [sales@trunk.io](mailto:sales@trunk.io).
+You can cancel an active Trunk subscription by navigating to **Settings** → **Billing** and clicking the **Cancel Subscription** button. Your plan will transition back into the [free tier](./billing#free-plan); if you want to re-enable this plan, please contact us at [sales@trunk.io](mailto:sales@trunk.io).
 
 <Warning>
 Cancelling a Trunk Plan and then re-enabling it will degrade the product experience and may lose data. Please contact us at [sales@trunk.io](mailto:sales@trunk.io) to re-enable any canceled plan.
@@ -89,4 +89,3 @@ Cancelling a Trunk Plan and then re-enabling it will degrade the product experie
 
 Your security is important to us. We do not store your credit card information anywhere in our systems. Online payments are processed using Stripe, which is PCI-compliant in accordance with industry standards.
 
-[^1]: The number of test case results uploaded.

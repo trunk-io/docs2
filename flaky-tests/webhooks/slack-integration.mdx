@@ -29,7 +29,7 @@ You can add the new Slack Webhook URL to Svix by following these steps:
     <Frame>
     ![](/assets/flaky-tests/webhooks/example-webhook-connector-slack_(1).png)
     </Frame>
-5. Review the transformation code automatically generated for Slack messages. You can customize this transformation at any time. Learn more about [customizing transformations](./slack-integration#id-2.-customize-your-transformation).
+5. Review the transformation code automatically generated for Slack messages. You can customize this transformation at any time. Learn more about [customizing transformations](./slack-integration#2-customize-your-transformation).
 6. By default, this connection will send messages about Trunk Merge and Flaky Tests events. If you only want Flaky Tests events, unselect all events other than `v2.test_case.status_changed`.
 7. Create the new endpoint. You will be redirected to the endpoint configuration view.
 
@@ -41,7 +41,7 @@ Transformations are custom code snippets you can write to customize the Slack me
 
 1. In the endpoint configuration view, navigate to the **Advanced** tab. Under **Transformation**, toggle the **Enabled** switch.
 2. Click **Edit transformation** to update your transformation code, and click **Save** to update the transformation.
-3. You can test the transformation by selecting the `v2.test_case.status_changed` payload and clicking **Run Test**. This will test the transformation but not send a message. You will learn to send a test message in [step 3](./slack-integration#id-3.-test-your-webhook).
+3. You can test the transformation by selecting the `v2.test_case.status_changed` payload and clicking **Run Test**. This will test the transformation but not send a message. You will learn to send a test message in [step 3](./slack-integration#3-test-your-webhook).
 
 An example transformation script is provided below and you can customize your Slack integration by following the [Slack](https://api.slack.com/messaging/webhooks) and [Svix transformations](https://docs.svix.com/transformations#using-transformations) documentation.
 
