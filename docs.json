@@ -629,6 +629,7 @@
               {
                 "group": "August",
                 "pages": [
+                  "changelog/2026-08-26-browser-extension-1-0",
                   "changelog/2026-08-11-flaky-tests-asana-ticketing"
                 ]
               },
