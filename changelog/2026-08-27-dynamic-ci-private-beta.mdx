@@ -1,0 +1,20 @@
+---
+title: "Dynamic CI: Private beta"
+description: "Dynamic CI is now in private beta — skip the CI jobs your diff doesn't need, using your own repository's history instead of hand-written path globs."
+slug: dynamic-ci-private-beta
+date: 2026-08-27
+category: Dynamic CI
+type: new-feature
+---
+
+**Dynamic CI is now in private beta.**
+
+Most CI runs are wasted: a docs-only change doesn't need the integration suite. Path filters help, but hand-written globs are coarse and go stale. Dynamic CI decides which jobs to run from evidence instead, using your repository's own history of which file changes have broken which jobs.
+
+- **Near drop-in for path filters.** The [`trunk-io/dynamic-ci-filter`](https://github.com/trunk-io/dynamic-ci-filter) GitHub Action emits a per-job verdict you gate on, much like `dorny/paths-filter`.
+- **Auditable verdicts.** Every signal behind a skip-or-run decision is printed in the job logs and job summary.
+- **Fails open.** If the service is unreachable or a job has no verdict, the job runs. A degraded response never silently skips your tests.
+- **Merge queue safe.** Jobs on Trunk Merge Queue branches are never skipped, so the queue always validates the exact commit about to land.
+- **Your data only.** Recommendations are derived solely from your organization's CI history. Nothing is pooled across customers.
+
+Beta participants can find setup instructions in the [Dynamic CI docs](/dynamic-ci). Want in? Reach out on [Slack](https://slack.trunk.io).
