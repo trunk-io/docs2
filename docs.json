@@ -1,6 +1,7 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "name": "Trunk Platform Documentation",
+  "public": true,
   "theme": "aspen",
   "colors": {
     "primary": "#346DDB",
@@ -616,6 +617,12 @@
               }
             ]
           }
+        ]
+      },
+      {
+        "tab": "Dynamic CI",
+        "pages": [
+          "dynamic-ci/index"
         ]
       },
       {
