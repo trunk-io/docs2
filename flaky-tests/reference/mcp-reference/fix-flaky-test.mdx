@@ -31,6 +31,10 @@ You must also provide either `investigationId` or `testCaseId`.
 | `testCaseId` | string | UUID of the test case to retrieve investigations for. Provide this or `investigationId`. |
 | `createNewInvestigation`   | boolean | Whether or not to trigger a new investigation (may take up to 1 minute) |
 
+<Note>
+Setting `createNewInvestigation` to `true` starts a new investigation, which counts against your repository's and your test's monthly [investigation limits](../../agents/autofix-flaky-tests#investigation-limits). Retrieving an existing investigation by `investigationId` or `testCaseId` does not.
+</Note>
+
 ## Getting Parameter Values
 
 If your AI assistant doesn't have direct access to Git information, use these commands:
@@ -69,6 +73,6 @@ Retrieve the investigation for test <testCaseId> with investigationId <investiga
 | ------------------------------ | --------------------------------------------- | --------------------------------------------------------- |
 | `Investigation {investigationId} not found`        | Invalid or non-existent fix ID                | Verify the investigationId from the previous query |
 | `Please provide either \`investigationId\` or \`testCaseId\`.` | Neither `investigationId` nor `testCaseId` was provided | Provide one of `investigationId` or `testCaseId` |
-| `This investigation was skipped before producing a completed summary.` | Investigation was skipped | The setting may be disabled, revisit prerequisites in [Autofix Flaky Tests](../../agents/autofix-flaky-tests) |
+| `This investigation was skipped before producing a completed summary.` | The repository or test reached its monthly [investigation limit](../../agents/autofix-flaky-tests#investigation-limits), or investigations are disabled for the repository | Start the investigation by hand from the test's detail page, which is exempt from both limits, or revisit the prerequisites in [Autofix Flaky Tests](../../agents/autofix-flaky-tests) |
 | `This investigation failed before producing a completed summary. Please contact Trunk support.` | Investigation error | This feature is still in Beta, please contact support |
 | Repository authorization error | Insufficient permissions or invalid repo name | Verify repository name format and your access permissions |
