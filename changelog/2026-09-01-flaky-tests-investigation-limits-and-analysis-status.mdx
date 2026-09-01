@@ -1,0 +1,26 @@
+---
+title: "Flaky Tests: Investigation limits and clearer analysis status"
+description: "Automatic flaky test investigations now have monthly per-repository and per-test limits, and the Analysis tab explains why an analysis was skipped or failed."
+slug: flaky-tests-investigation-limits-and-analysis-status
+date: 2026-09-01
+category: Flaky Tests
+type: update
+---
+
+**Automatic flaky test investigations are now rate-limited per calendar month, so a burst of newly flaky tests can't consume an unbounded amount of analysis.**
+
+Two limits apply, and both reset on the first of the month:
+
+| Limit                                          | Default |
+| ---------------------------------------------- | ------- |
+| Investigations per repository, per month       | 100     |
+| Investigations per individual test, per month  | 5       |
+
+What this means for you:
+
+- **Automatic and MCP-triggered investigations count.** Investigations Trunk starts when a test moves from **Healthy** to **Flaky** or **Broken**, and ones started through the [`fix-flaky-test`](/flaky-tests/reference/mcp-reference/fix-flaky-test) MCP tool, count against both limits. Only investigations that finish and produce a result are counted.
+- **Manual investigations are always available.** Investigations you start from a test's detail page in the Trunk app are exempt from both limits, even after a repository or test hits its cap.
+- **Clearer status when an analysis doesn't run.** The Analysis tab now shows a banner explaining why an analysis was skipped, such as the monthly limit being reached or a previous run still in progress.
+- **Limits can be raised.** If you expect higher volume, such as driving fixes with an agent through MCP, contact [support@trunk.io](mailto:support@trunk.io).
+
+See the [Autofix Flaky Tests docs](/flaky-tests/agents/autofix-flaky-tests#investigation-limits) for full details.
