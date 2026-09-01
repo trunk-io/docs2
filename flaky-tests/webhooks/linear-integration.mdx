@@ -34,7 +34,7 @@ You can create a new endpoint by:
     <img className="hidden dark:block" src="/assets/flaky-tests/webhooks/example-webhook-connector-dark.png" alt="" />
     </Frame>
 4. Paste the Linear GraphQL API endpoint into **Endpoint URL**, which is: `https://api.linear.app/graphql`.
-5. Review the transformation code automatically generated for Linear issues, you can customize this transformation at any time. Learn more about [customizing transformations](./linear-integration#id-5.-customize-your-transformation).
+5. Review the transformation code automatically generated for Linear issues, you can customize this transformation at any time. Learn more about [customizing transformations](./linear-integration#5-customize-your-transformation).
 6. Create the new endpoint. You will be redirected to the endpoint configuration view.
 
 If you're having trouble adding a new webhook endpoint with Svix, please see the [Adding Endpoint docs from Svix](https://docs.svix.com/receiving/using-app-portal/adding-endpoints).
@@ -60,7 +60,7 @@ You need to find your Linear team, project, and label IDs to create issues with 
 
 First, you'll need to find your team ID so you can create Linear issues under the correct team. You can make a request in your terminal using cURL, or a similar tool.
 
-You'll need your Linear API key from [step 1](./linear-integration#id-1.-create-a-linear-personal-access-token).
+You'll need your Linear API key from [step 1](./linear-integration#1-create-a-linear-personal-access-token).
 
 ```bash
 curl \
@@ -171,7 +171,7 @@ Transformations are custom code snippets you can write to customize the Linear i
 
 1. In the endpoint configuration view, navigate to the **Advanced** tab. Under **Transformation**, toggle the **Enabled** switch.
 2. Click **Edit transformation** to update your transformation code, and click **Save** to update the transformation.
-3. You can test the transformation by selecting the `v2.test_case.status_changed` payload and clicking **Run Test**. This will test the transformation but not send a message. You will learn to send a test message[ in step 6](./linear-integration#id-6.-test-your-webhook).
+3. You can test the transformation by selecting the `v2.test_case.status_changed` payload and clicking **Run Test**. This will test the transformation but not send a message. You will learn to send a test message[ in step 6](./linear-integration#6-test-your-webhook).
 
 The generated webhook template contains several configurable constants out of the box:
 

@@ -42,7 +42,7 @@ You can create a new endpoint by:
     <img className="hidden dark:block" src="/assets/flaky-tests/webhooks/example-webhook-connector-dark.png" alt="" />
     </Frame>
 4. Paste your GitHub repo's Issues endpoint into **Endpoint URL.** Your **Endpoint URL** should be formatted as: `https://api.github.com/repos/{OWNER}/{REPO}/issues`. You can verify the URL by visiting it in your browser, such as [https://api.github.com/repos/trunk-io/docs/issues](https://api.github.com/repos/trunk-io/docs/issues).
-5. Review the transformation code automatically generated for GitHub issues. You can customize this transformation at any time. Learn more about [customizing transformations](./github-issues-integration#id-5.-customize-your-transformation).
+5. Review the transformation code automatically generated for GitHub issues. You can customize this transformation at any time. Learn more about [customizing transformations](./github-issues-integration#4-customize-your-transformation).
 6. Create the new endpoint. You will be redirected to the endpoint configuration view.
 
 If you're having trouble adding a new webhook endpoint with Svix, please see the [Adding Endpoint docs from Svix](https://docs.svix.com/receiving/using-app-portal/adding-endpoints).
@@ -68,7 +68,7 @@ Transformations are custom code snippets you can write to customize the GitHub i
 
 1. In the endpoint configuration view, navigate to the **Advanced** tab. Under **Transformation**, toggle the **Enabled** switch.
 2. Click **Edit transformation** to update your transformation code, and click **Save** to update the transformation.
-3. You can test the transformation by selecting the `v2.test_case.status_changed` payload and clicking **Run Test**. This will test the transformation but not send a message. You will learn to send a test message in [step 5](./github-issues-integration#id-5.-test-your-webhook).
+3. You can test the transformation by selecting the `v2.test_case.status_changed` payload and clicking **Run Test**. This will test the transformation but not send a message. You will learn to send a test message in [step 5](./github-issues-integration#5-test-your-webhook).
 
 The generated webhook template contains a configurable constant out of the box:
 
@@ -167,7 +167,7 @@ You can uncomment the code block on lines 25-29 or use a snippet similar to:
 
 1. CODEOWNERS supports assigning files to teams, but GitHub doesn't support assigning issues to teams. **If you have team owners in your CODEOWNERS file, the requests will fail**.
 2. If your code owners do not map 1:1 with GitHub users, you will need to provide your own mapping, or webhooks will fail.
-3. The example payload provided for testing has the CODEOWNERS assigned to `@backend`. If you're testing following the instructions in [step 5](./github-issues-integration#id-5.-test-your-webhook), the delivery attempt can fail.
+3. The example payload provided for testing has the CODEOWNERS assigned to `@backend`. If you're testing following the instructions in [step 5](./github-issues-integration#5-test-your-webhook), the delivery attempt can fail.
 </Info>
 
 ## 5. Test your webhook

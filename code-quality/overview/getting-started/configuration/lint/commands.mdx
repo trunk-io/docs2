@@ -153,7 +153,7 @@ lint:
 
 Most `environment` entries are maps with `name` and `value` keys; these become `name=value` environment variables. For `PATH`, we allow specifying `list`, in which case we concatenate the entries with `:`.
 
-We use the same template syntax for `environment` as we do for [`command`](./commands#commands).
+We use the same template syntax for `environment` as we do for [`command`](./commands#run).
 
 ## Output Types and Parsing
 
@@ -314,7 +314,7 @@ lint:
 
 ## `run`
 
-`run`: The command to run a linter. This command can use variables provided at runtime such as `$plugin}` and `$target}`. [Full list of variables](./commands#template-variables). See [Run](./commands#how-code-qualit-runs-linters) for more details.
+`run`: The command to run a linter. This command can use variables provided at runtime such as `$plugin}` and `$target}`. [Full list of variables](./commands#template-variables). See [Run](./commands#how-code-quality-runs-linters) for more details.
 
 `dart` `format` command: [full source](https://github.com/trunk-io/plugins/blob/main/linters/dart/plugin.yaml)
 
