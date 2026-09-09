@@ -1,0 +1,19 @@
+---
+title: "Merge Queue: Look up submitted PRs by branch"
+description: "The /getSubmittedPullRequest API endpoint now accepts a branch name as an alternative to a PR number."
+date: 2026-07-25
+category: Merge Queue
+type: update
+---
+
+**`/getSubmittedPullRequest` now accepts `pr.branch` as an alternative to `pr.number`.**
+
+You can identify a submitted pull request by its head branch instead of its PR number, which is handy for automation that already knows the branch it just pushed but does not have the PR number on hand.
+
+Because a branch can be reused across many pull requests over time, the endpoint resolves `pr.branch` to a single PR using the following rules:
+
+- If an open PR for that branch has been submitted to the queue, its info is returned.
+- Otherwise, the most recently closed submitted PR from that branch is returned.
+- Otherwise, the endpoint responds with `404`.
+
+Provide either `pr.number` or `pr.branch`, not both. See the [Merge Queue API reference](/merge-queue/reference/merge) for the updated request format and examples.
