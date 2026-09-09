@@ -331,16 +331,32 @@
                   {
                     "group": "API reference",
                     "root": "flaky-tests/reference/api-reference",
-                    "openapi": {
-                      "directory": "/flaky-tests/reference/api-reference",
-                      "source": "/openapi.json"
-                    },
                     "pages": [
                       "POST /flaky-tests/get-test-details",
                       "POST /flaky-tests/link-ticket-to-test-case",
                       "POST /flaky-tests/list-failing-tests",
                       "POST /flaky-tests/list-unhealthy-tests",
                       "POST /flaky-tests/list-quarantined-tests"
+                    ],
+                    "openapi": {
+                      "directory": "/flaky-tests/reference/api-reference",
+                      "source": "/openapi.json"
+                    }
+                  },
+                  {
+                    "group": "API reference (v2)",
+                    "openapi": {
+                      "source": "/openapi-v2.json",
+                      "directory": "/flaky-tests/reference/api-reference/v2"
+                    },
+                    "pages": [
+                      "GET /v2/test-collections",
+                      "POST /v2/test-collections",
+                      "GET /v2/test-collections/{id}",
+                      "GET /v2/test-cases",
+                      "GET /v2/test-cases/{testCaseId}",
+                      "GET /v2/test-cases/{testCaseId}/status-history",
+                      "GET /v2/test-cases/{testCaseId}/test-runs"
                     ]
                   },
                   {

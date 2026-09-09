@@ -1,9 +1,31 @@
 ---
 title: "Flaky Tests API"
-description: "REST API for checking Trunk service status and fetching unhealthy or quarantined tests in your project."
+description: "REST API for test collections, test cases, and the repository-scoped v1 endpoints."
 og:title: "Trunk Flaky Tests API reference"
 ---
-The Trunk Flaky Tests API provides access to check the status of Trunk services and fetch [unhealthy](../detection/) or [quarantined](../quarantining/) tests in your project. The API is an HTTP REST API, returns JSON from all requests, and uses standard HTTP response codes.
+The Trunk Flaky Tests API is an HTTP REST API, returns JSON from all requests, and uses standard HTTP response codes.
+
+**Endpoints come in two scopes, and they are not interchangeable.** Which one you want depends on how your tests are organized — see [migrating to test collections](/flaky-tests/migrate-to-test-collections) if you are moving between them.
+
+## Test collection endpoints
+
+Scoped to [test collections](/flaky-tests/get-started/test-collections), on `/v2`. Use these if your tests are organized into collections.
+
+<Columns cols={2}>
+  <Card title="List test collections" href="/flaky-tests/reference/api-reference/v2/testcollections/list-test-collections" />
+  <Card title="Create a test collection" href="/flaky-tests/reference/api-reference/v2/testcollections/create-a-test-collection" />
+  <Card title="Get a test collection" href="/flaky-tests/reference/api-reference/v2/testcollections/get-a-test-collection" />
+  <Card title="List and search test cases" href="/flaky-tests/reference/api-reference/v2/testcases/list-and-search-test-cases" />
+  <Card title="Get a test case" href="/flaky-tests/reference/api-reference/v2/testcases/get-a-test-case" />
+  <Card title="List a test case's status transitions" href="/flaky-tests/reference/api-reference/v2/testcases/list-a-test-cases-status-transitions" />
+  <Card title="List a test case's runs" href="/flaky-tests/reference/api-reference/v2/testcases/list-a-test-cases-runs" />
+</Columns>
+
+Authenticate with **either** an organization API key as `Authorization: Bearer <key>`, **or** a short-lived first-party token in the `x-trunk-token` header. Existing v1 API tokens work unchanged as organization API keys. Every 4xx and 5xx response is an error envelope — switch on its `code`, which is stable, rather than its prose `message`.
+
+## Repository endpoints
+
+Scoped to repositories, on `/v1`. Use these if your tests are still organized by repository.
 
 All requests must be [authenticated](../../setup-and-administration/apis/#authentication) by providing the `x-api-token` header.
 
@@ -12,7 +34,7 @@ All requests must be [authenticated](../../setup-and-administration/apis/#authen
     title="Get the details of a test case"
     href="/flaky-tests/reference/api-reference/get-the-details-of-a-test-case"
   />
-    
+
   <Card
     title="Link a ticket to a test case"
     href="/flaky-tests/reference/api-reference/link-a-ticket-to-a-test-case"
@@ -32,5 +54,25 @@ All requests must be [authenticated](../../setup-and-administration/apis/#authen
     title="Get a list of quarantined tests"
     href="/flaky-tests/reference/api-reference/get-a-list-of-quarantined-tests"
   />
-    
 </Columns>
+
+## Choosing between them
+
+The two scopes are separate APIs rather than two versions of one, so there is not a collection equivalent of every repository endpoint:
+
+| If you want to | Repository endpoint | Collection endpoint |
+|---|---|---|
+| Read one test case | Get the details of a test case | Get a test case |
+| Find unhealthy tests | Get a list of unhealthy tests | List and search test cases, filtered by status |
+| Find quarantined tests | Get a list of quarantined tests | List and search test cases, filtered by quarantine state |
+| Find recent failures | Get a list of distinct tests that failed | List a test case's runs |
+| Link a ticket to a test | Link a ticket to a test case | *No equivalent yet* — use the app |
+| List or create collections | *Not applicable* | List / Create a test collection |
+
+<Note>
+A test case's ID is not the same value in both scopes, so an ID read from a repository endpoint cannot be passed to a collection endpoint or vice versa. The repository's `repository.id` is the only identifier the two share.
+</Note>
+
+## Questions
+
+Ask us in [Slack](https://slack.trunk.io) or email [support@trunk.io](mailto:support@trunk.io).
