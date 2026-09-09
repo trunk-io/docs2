@@ -174,13 +174,15 @@
                 "group": "Overview",
                 "root": "flaky-tests/overview",
                 "pages": [
-                  "flaky-tests/dashboard"
+                  "flaky-tests/dashboard",
+                  "flaky-tests/migrate-to-test-collections"
                 ]
               },
               {
                 "group": "Getting Started",
                 "root": "flaky-tests/get-started/index",
                 "pages": [
+                  "flaky-tests/get-started/test-collections",
                   {
                     "group": "Test frameworks",
                     "root": "flaky-tests/get-started/frameworks/index",
@@ -2395,6 +2397,18 @@
     {
       "source": "/flaky-tests/use-mcp-server/mcp-tool-reference/fix-flaky-test",
       "destination": "/flaky-tests/reference/mcp-reference/fix-flaky-test"
+    },
+    {
+      "source": "/flaky-tests/collections",
+      "destination": "/flaky-tests/get-started/test-collections"
+    },
+    {
+      "source": "/flaky-tests/migration",
+      "destination": "/flaky-tests/migrate-to-test-collections"
+    },
+    {
+      "source": "/flaky-tests/migrate",
+      "destination": "/flaky-tests/migrate-to-test-collections"
     }
   ]
 }
