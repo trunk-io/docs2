@@ -1,0 +1,36 @@
+---
+title: "Flaky Tests: Test collections"
+description: "Group tests into named collections, each with its own flake detection, quarantining, and ticketing — and migrate from the repository view one CI job at a time."
+slug: flaky-tests-test-collections
+date: 2026-09-09
+category: Flaky Tests
+type: feature
+---
+
+**Test collections are now how Flaky Tests is organized.**
+
+A test collection is a named group of tests with its own settings. Each collection has independent flake detection, quarantining, and ticketing, so you can hold fast unit tests and fragile end-to-end tests to different standards.
+
+Collections and repositories are many-to-many. A collection can include tests from multiple repositories, and a repository can be split across multiple collections. This is decided by which collection ID you pass at upload time:
+
+```bash
+./trunk-analytics-cli upload \
+  --junit-paths "test_output.xml" \
+  --org-url-slug <TRUNK_ORG_URL_SLUG> \
+  --test-collection-id <COLLECTION_ID> \
+  --token $TRUNK_API_TOKEN
+```
+
+Highlights:
+
+- **Any organization member can create a collection.** New collections start with a basic set of flake-detection monitors, so detection begins as soon as results arrive.
+- **Per-collection settings.** Monitors, quarantining, upload handling, and ticketing are all configured on the collection.
+- **A built-in setup checklist** tracks each collection from first upload through quarantining review.
+
+**Migrating from the repository view**
+
+New organizations start on collections. Existing organizations migrate gradually, and both views stay available while you do: click **Legacy view** on the collections list to reach the repository view, and **Test collections** on the repository overview to come back. CI jobs that don't pass a collection ID keep uploading exactly as they do today.
+
+To keep repository links in CI output while your team moves over, pass `--hide-test-collection-links` or set `TRUNK_HIDE_TEST_COLLECTION_LINKS`.
+
+Read the [Test Collections overview](/flaky-tests/get-started/test-collections), follow the [migration guide](/flaky-tests/migrate-to-test-collections), or see the [CLI reference](/flaky-tests/reference/cli-reference#test-collections) for the full flag list.
