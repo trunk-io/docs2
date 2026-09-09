@@ -9,47 +9,71 @@ Trunk Flaky Tests detects flaky tests by analyzing test results. The health of y
 Press <kbd>⌘</kbd> <kbd>K</kbd> (macOS) or <kbd>Ctrl</kbd> <kbd>K</kbd> (Windows and Linux) anywhere in the Trunk app to open the command palette. Start typing to jump to Merge Queue, Flaky Tests, your account settings, or any connected repository by name.
 </Tip>
 
-## Repositories overview
+## Collections overview
 
-When you navigate to `/<your-org>/flaky-tests`, you land on a repositories overview showing all monitored repositories at a glance.
+When you navigate to `/<your-org>/flaky-tests`, you land on your [test collections](./get-started/test-collections). The page exists to answer two questions — which collection is unhealthy, and which is not finished being set up — so every row carries both.
 
-Each repository row displays:
+{/* TODO(shot): the collections list, several collections at different Setup counts, with real sparkline data. Light/dark pair under /assets/flaky-tests/. */}
 
 | Column | Description |
 |--------|-------------|
-| **Tests** | Total tracked test cases in the repository (60-day window) |
+| **ID** | The [Collection ID](./get-started/test-collections#the-collection-id), with a button to copy it. This is the value CI passes to route uploads here. |
+| **Repos** | How many repositories have uploaded to this collection |
+| **Setup** | How many of the collection's setup steps are complete |
+| **Tests** | Total tracked test cases in the collection (60-day window) |
 | **Flaky** | Number of currently flaky test cases, with a 10-day trend sparkline |
 | **Broken** | Number of currently broken test cases, with a 10-day trend sparkline |
-| **Runs / Day** | Bar chart of test run volume over the last 10 days, with per-day tooltips |
+| **Runs / Day** | Bar chart of test run volume over the last 10 days, with per-day tooltips, alongside today's count |
 
-A quarantine status icon appears next to each repository name when quarantining is configured:
+Each row is headed by the collection's name and description. Search narrows the list, and **Create Collection** adds one.
+
+<Info>
+**Setup** is a count, never a percentage. The number of steps grows as features ship, so `3/4` and `3/5` are honestly different where 75% and 60% would invite a comparison that means nothing. It is the same number the collection's own setup checklist shows.
+</Info>
+
+There is deliberately no total row: a flaky count summed across unrelated collections is not a number anyone acts on, and the page's job is to point at one collection. Comparing two collections side by side is not available yet.
+
+### Repositories
+
+While you are migrating, the repository view stays available behind **Legacy view** on this page. It carries the same columns per repository, plus a quarantine status icon beside each name:
 
 | Icon | Meaning |
 |------|---------|
 | Shield | Quarantining is enabled for this repository — auto-quarantine is off |
 | Shield with checkmark | Auto-quarantine is enabled — flaky tests are quarantined automatically |
 
-Active repositories (with test data in the last 30 days) appear at the top of the list. Repositories with no recent data are collapsed under an **Inactive Repositories** section that you can expand to view.
+Active repositories (those with test data in the last 30 days) appear at the top of the list. Repositories with no recent data are collapsed under an **Inactive Repositories** section you can expand. See the [migration guide](./migrate-to-test-collections) for how the two views relate, and [Quarantining](./quarantining/) to configure quarantine settings.
 
-Selecting a repository opens its detailed dashboard. If your organization has no repositories connected yet, the page redirects to onboarding. See [Quarantining](./quarantining/) to learn how to configure quarantine settings.
+## Collection dashboard
 
-## Key repository metrics
+Selecting a collection opens its dashboard, on the **Overview** tab.
 
-<Frame caption="Key repo metrics">
-<img className="block dark:hidden" src="/assets/flaky-tests/key-metrics-light.png" alt="" />
-<img className="hidden dark:block" src="/assets/flaky-tests/key-metrics-dark.png" alt="" />
+<Frame caption="A collection's Overview tab, once test results are flowing.">
+  <img className="block dark:hidden" src="/assets/flaky-tests/get-started/collection-overview-light.png" alt="The Overview tab of a collection, showing its Collection ID, flaky and broken test counts, PRs impacted, three daily charts, and the top ten most unstable tests." />
+  <img className="hidden dark:block" src="/assets/flaky-tests/get-started/collection-overview-dark.png" alt="The Overview tab of a collection, showing its Collection ID, flaky and broken test counts, PRs impacted, three daily charts, and the top ten most unstable tests." />
 </Frame>
 
-Trunk Flaky Tests provides key repo metrics based on the detected health status of your tests. You'll find metrics for the following information at the top of the Flaky Tests dashboard.
+The header carries the collection's name, description, and Collection ID, plus a **7D** / **30D** range toggle that applies to everything below it.
+
+Three cards summarise impact over that window:
 
 | Metric | Description |
 |---|---|
-| Flaky tests | Number of flaky test cases in your repo. |
-| PRs blocked by failed tests | PRs that have been blocked by failed tests in CI. |
+| Flaky tests | Currently flaky test cases, and what share of the collection's tests that is. **View all** opens the **Tests** tab filtered to them. |
+| Broken tests | Currently broken test cases, with the same share and the same link. |
+| PRs impacted | Distinct pull requests that hit a flaky or broken test, as a share of the pull requests the collection saw. |
 
-These numbers are important for understanding the overall health of your repo’s tests, how flaky tests impact your developer productivity, and the developer hours saved from quarantining tests. You can also view the trends in these numbers in the trend charts.
+Three charts show movement by day:
 
-The trend charts display the New Test Cases added by day, as well as Test Transitions and Quarantined Runs. Test Transitions represent the number of tests that have transitioned to a particular status on a particular day, excluding new test cases (which default to a status of Healthy). If a bar shows 5 Healthy, 10 Flaky, and 2 Broken on a single day, that indicates 5 tests transitioned to Healthy, 10 to Flaky, and 2 to Broken on that day. Quarantined Runs represents the number of runs of quarantined tests by day.
+* **New Test Cases** — test cases seen for the first time on each day.
+* **Test Status Changes** — one bar per day, split by what tests changed *to*: **Newly Flaky**, **Newly Broken**, and **Recovered**. This counts transitions rather than totals, so a test that becomes flaky and recovers in the same window appears in both series.
+* **Quarantined Runs** — runs of quarantined tests per day.
+
+Beneath them, a filter bar — branch, code owner, and, unique to collections, repository, since a collection can span several — applies to three tables: **Top 10 Most Unstable Tests**, **Top 10 Longest-Running Tests**, and **Top 10 Longest-Manually-Quarantined Tests**. Every row links to that test's details. A linked-repositories band lists the repositories that have uploaded to the collection.
+
+<Note>
+A collection's metrics begin at its first upload — there is no backfill — so a correctly configured collection can still look empty for a day.
+</Note>
 
 ## Test cases overview
 
