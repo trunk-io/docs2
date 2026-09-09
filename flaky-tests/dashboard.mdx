@@ -11,7 +11,7 @@ Press <kbd>⌘</kbd> <kbd>K</kbd> (macOS) or <kbd>Ctrl</kbd> <kbd>K</kbd> (Windo
 
 ## Collections overview
 
-When you navigate to `/<your-org>/flaky-tests`, you land on your [test collections](./get-started/test-collections). The page exists to answer two questions — what collections have flaky tests, and which are not finished being set up.
+When you navigate to `/<your-org>/flaky-tests`, you land on your [test collections](./test-collections). The page exists to answer two questions — what collections have flaky tests, and which are not finished being set up.
 
 <Frame caption="The collections list. Setup shows how far each collection got; the shield marks quarantining.">
   <img className="block dark:hidden" src="/assets/flaky-tests/collections-list-light.png" alt="A list of five test collections, each with its Collection ID, repository count, setup progress, test counts, flaky and broken trends, and a runs-per-day chart." />
@@ -20,7 +20,7 @@ When you navigate to `/<your-org>/flaky-tests`, you land on your [test collectio
 
 | Column | Description |
 |--------|-------------|
-| **ID** | The [Collection ID](./get-started/test-collections#the-collection-id), with a button to copy it. This is the value CI passes to route uploads here. |
+| **ID** | The [Collection ID](./test-collections#the-collection-id), with a button to copy it. This is the value CI passes to route uploads here. |
 | **Repos** | How many repositories have uploaded to this collection |
 | **Setup** | How many of the collection's setup steps are complete |
 | **Tests** | Total tracked test cases in the collection (60-day window) |
@@ -41,7 +41,7 @@ A quarantine status icon appears next to a collection's name when quarantining i
 
 While you are migrating, the repository view stays available behind **Legacy view** on this page. It carries the same columns and the same quarantine icons, per repository rather than per collection.
 
-Active repositories (those with test data in the last 30 days) appear at the top of the list. Repositories with no recent data are collapsed under an **Inactive Repositories** section you can expand. See the [migration guide](./migrate-to-test-collections) for how the two views relate, and [Quarantining](./quarantining/) to configure quarantine settings.
+Active repositories (those with test data in the last 30 days) appear at the top of the list. Repositories with no recent data are collapsed under an **Inactive Repositories** section you can expand. See the [migration guide](./get-started/migrate-to-test-collections) for how the two views relate, and [Quarantining](./quarantining/) to configure quarantine settings.
 
 ## Collection dashboard
 

@@ -14,7 +14,7 @@ Automatic ticketing works with the built-in [Linear](./linear-integration), [Jir
 
 ## Enabling ticket automation
 
-Connect an integration once for your organization, then choose it on each [test collection](/flaky-tests/get-started/test-collections) that should file tickets.
+Connect an integration once for your organization, then choose it on each [test collection](/flaky-tests/test-collections) that should file tickets.
 
 1. In the Trunk app, navigate to **Settings** → **Organization** → **Ticketing** and connect your Linear, Jira, or Asana integration. An organization can hold several — one Jira project for one team, another for a second.
 2. Open the collection's **Settings** tab, then **Ticketing**, and select which of those integrations the collection files into by default.
@@ -74,7 +74,7 @@ For Jira, the configured close/reopen target status must be reachable in a singl
 
 Repository-level ticketing works the same way, with the integration configured on the repository rather than the organization: navigate to **Settings** → **Repositories** → **[your repository]** → **Ticketing**. Every setting described above behaves identically.
 
-The difference is flexibility: **a repository has exactly one ticketing integration and cannot file into any other.** Collections both choose from every integration connected to your organization and let you file a manual ticket into any of them, so [migrating to collections](/flaky-tests/migrate-to-test-collections) is what buys you more than one destination.
+The difference is flexibility: **a repository has exactly one ticketing integration and cannot file into any other.** Collections both choose from every integration connected to your organization and let you file a manual ticket into any of them, so [migrating to collections](/flaky-tests/get-started/migrate-to-test-collections) is what buys you more than one destination.
 
 ## Legacy webhook-based ticket autocreation
 
