@@ -3,7 +3,7 @@ title: "Migrate to Test Collections"
 description: "Move an existing organization from repository-based Flaky Tests to test collections, one CI job at a time."
 og:title: "Migrating to test collections in Trunk"
 ---
-[Test collections](./get-started/test-collections) replace repositories as the way Flaky Tests is organized. New organizations start on collections. If your organization has been using Flaky Tests already, you will need to gradually migrate to using collections, and both views stay available while you do.
+[Test collections](../test-collections) replace repositories as the way Flaky Tests is organized. New organizations start on collections. If your organization has been using Flaky Tests already, you will need to gradually migrate to using collections, and both views stay available while you do.
 
 Nothing breaks while you migrate. A CI job that doesn't pass a collection ID keeps uploading exactly as it does today.
 
@@ -44,7 +44,7 @@ That is often what you want. You may wish to create different monitors for each 
 <Step title="Create a collection">
 Collections usually map to a team, a service, or a test suite. Group tests you want to configure and review together.
 
-See [Create a collection](./get-started/test-collections#create-a-collection).
+See [Create a collection](../test-collections#create-a-collection).
 </Step>
 
 <Step title="Add the collection ID to one CI job">
@@ -95,7 +95,7 @@ It is one switch for every collection event, not one per event type. What you ar
 - **You cannot deduplicate on `test_case.id`.** Collection and repository events don't share a test-case ID space, so the same underlying test arrives under two unrelated IDs. `repository.id` is the only handle common to both.
 - `repository` is omitted rather than guessed when an upload carries no repository.
 
-Leave it off until your consumer is ready and nothing reaches it in the meantime. See [Webhooks](./webhooks/) for the payloads.
+Leave it off until your consumer is ready and nothing reaches it in the meantime. See [Webhooks](../webhooks/) for the payloads.
 
 ## Dashboards start fresh
 

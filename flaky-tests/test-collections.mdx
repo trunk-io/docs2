@@ -59,9 +59,9 @@ Pass the collection ID to the uploader alongside your organization slug. Both ar
   --token $TRUNK_API_TOKEN
 ```
 
-You can set the ID as the `TRUNK_TEST_COLLECTION_ID` environment variable instead, or pass it as the `test-collection-id` input to the [uploader action](./ci-providers/github-actions).
+You can set the ID as the `TRUNK_TEST_COLLECTION_ID` environment variable instead, or pass it as the `test-collection-id` input to the [uploader action](./get-started/ci-providers/github-actions).
 
-Everything else about your setup is unchanged. Adding the collection ID to a working upload step is the whole change. See [**Test Frameworks**](./frameworks/) and [**CI Providers**](./ci-providers/) for the setup itself, and the [**CLI reference**](../reference/cli-reference#test-collections) for the full flag list.
+Everything else about your setup is unchanged. Adding the collection ID to a working upload step is the whole change. See [**Test Frameworks**](./get-started/frameworks/) and [**CI Providers**](./get-started/ci-providers/) for the setup itself, and the [**CLI reference**](./reference/cli-reference#test-collections) for the full flag list.
 
 <Note>
 A CI job uploads to exactly one collection. To send results to more than one collection, add an upload step per collection.
@@ -75,8 +75,8 @@ A CI job uploads to exactly one collection. To send results to more than one col
 | **Tests** | Every test in the collection, with health status, failure rates, and labels. |
 | **Uploads** | Upload history for the collection. |
 | **Quarantining** | Quarantine analytics for the collection. |
-| **Monitors** | The collection's [flake detection monitors](../detection/). |
-| **Settings** | The collection's name and description, [quarantining](../quarantining/), upload handling, and [ticketing](../management/ticketing/automatic-ticketing). |
+| **Monitors** | The collection's [flake detection monitors](./detection/). |
+| **Settings** | The collection's name and description, [quarantining](./quarantining/), upload handling, and [ticketing](./management/ticketing/automatic-ticketing). |
 
 ## Finish setting up a collection
 

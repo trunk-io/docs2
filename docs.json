@@ -174,6 +174,7 @@
                 "group": "Overview",
                 "root": "flaky-tests/overview",
                 "pages": [
+                  "flaky-tests/test-collections",
                   "flaky-tests/dashboard"
                 ]
               },
@@ -181,8 +182,7 @@
                 "group": "Getting Started",
                 "root": "flaky-tests/get-started/index",
                 "pages": [
-                  "flaky-tests/get-started/test-collections",
-                  "flaky-tests/migrate-to-test-collections",
+                  "flaky-tests/get-started/migrate-to-test-collections",
                   {
                     "group": "Test frameworks",
                     "root": "flaky-tests/get-started/frameworks/index",
@@ -2167,10 +2167,6 @@
       "destination": "/flaky-tests/quarantining/quarantine-service-availability"
     },
     {
-      "source": "/flaky-tests/test-collections",
-      "destination": "/flaky-tests/get-started/test-collections"
-    },
-    {
       "source": "/flaky-tests/test-labels",
       "destination": "/flaky-tests/management/test-labels"
     },
@@ -2397,6 +2393,14 @@
     {
       "source": "/flaky-tests/use-mcp-server/mcp-tool-reference/fix-flaky-test",
       "destination": "/flaky-tests/reference/mcp-reference/fix-flaky-test"
+    },
+    {
+      "source": "/flaky-tests/get-started/test-collections",
+      "destination": "/flaky-tests/test-collections"
+    },
+    {
+      "source": "/flaky-tests/migrate-to-test-collections",
+      "destination": "/flaky-tests/get-started/migrate-to-test-collections"
     }
   ]
 }
