@@ -110,6 +110,7 @@ You make an upload to Trunk using the following command:
 ```sh
 ./trunk-analytics-cli upload --bazel-bep-path=build_events.json \
     --org-url-slug <TRUNK_ORG_URL_SLUG> \
+    --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
     --token <TRUNK_ORG_TOKEN>
 ```
 
@@ -120,6 +121,7 @@ If your test cases don't have file paths that can be matched against your CODEOW
 ```sh
 ./trunk-analytics-cli upload --bazel-bep-path=build_events.json \
     --org-url-slug <TRUNK_ORG_URL_SLUG> \
+    --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
     --token <TRUNK_ORG_TOKEN> \
     --use-bazel-target-for-codeowners
 ```

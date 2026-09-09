@@ -70,6 +70,7 @@ jobs:
         with:
           junit-paths: **/junit.xml        
           org-slug: <TRUNK_ORG_URL_SLUG>
+          test-collection-id: <TRUNK_TEST_COLLECTION_ID>
           token: ${{ secrets.TRUNK_API_TOKEN }}
 ```
 ```yaml XCResult Path
@@ -89,6 +90,7 @@ jobs:
         with:
           xcresult-path: ./test-results.xcresult        
           org-slug: <TRUNK_ORG_URL_SLUG>
+          test-collection-id: <TRUNK_TEST_COLLECTION_ID>
           token: ${{ secrets.TRUNK_API_TOKEN }}
 ```
 ```yaml Bazel BEP JSON
@@ -108,6 +110,7 @@ jobs:
         with:
           bazel-bep-path: ./build_events.json        
           org-slug: <TRUNK_ORG_URL_SLUG>
+          test-collection-id: <TRUNK_TEST_COLLECTION_ID>
           token: ${{ secrets.TRUNK_API_TOKEN }}
 ```
 ```yaml RSpec plugin
@@ -160,6 +163,7 @@ Here's an example file.
 	      with:
 	        junit-paths: <TEST OUTPUT PATH>
 	        org-slug: my-trunk-org-slug
+	        test-collection-id: <TRUNK_TEST_COLLECTION_ID>
 	        token: ${{ secrets.TRUNK_API_TOKEN }}
 ```
 
@@ -185,6 +189,7 @@ This will override the response code of the test command. Make sure to set `cont
 	          junit-paths: <TEST OUTPUT PATH>
 	          run: <COMMAND TO RUN TESTS> # command to run tests goes here
 	          org-slug: my-trunk-org-slug
+	          test-collection-id: <TRUNK_TEST_COLLECTION_ID>
 	          token: ${{ secrets.TRUNK_API_TOKEN }}
 ```
 </Tab>
@@ -202,6 +207,7 @@ When quarantining is enabled, the `trunk-analytics-cli upload` command will **re
 |
     ./trunk-analytics-cli upload \
         --org-url-slug $TRUNK_ORG_URL_SLUG \
+        --test-collection-id $TRUNK_TEST_COLLECTION_ID \
         --token $TRUNK_API_TOKEN \
         --junit-paths $JUNIT_PATH
 ```
@@ -213,6 +219,7 @@ You can also wrap the test command with the Trunk Analytics CLI. When wrapping t
 ```bash
 ./trunk-analytics-cli test \
     --org-url-slug <TRUNK_ORG_URL_SLUG> \
+    --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
     --token $TRUNK_API_TOKEN \
     --junit-paths $JUNIT_PATH \
     --allow-empty-test-results \
@@ -281,6 +288,7 @@ jobs:
         with:
           junit-paths: <TEST OUTPUT PATH>
           org-slug: my-trunk-org-slug
+          test-collection-id: <TRUNK_TEST_COLLECTION_ID>
           token: ${{ secrets.TRUNK_API_TOKEN }}
         env:
           JOB_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/${{ steps.get-job-id.outputs.jobId }}
@@ -322,6 +330,7 @@ jobs:
         with:
           junit-paths: junit.xml
           org-slug: my-trunk-org-slug
+          test-collection-id: <TRUNK_TEST_COLLECTION_ID>
           token: ${{ secrets.TRUNK_API_TOKEN }}
         env:
           JOB_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/${{ steps.get-job-id.outputs.jobId }}
