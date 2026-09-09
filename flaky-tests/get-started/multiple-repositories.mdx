@@ -12,7 +12,7 @@ Three things group tests, and they answer different questions:
 | Grouping | Use it to | Set by |
 |---|---|---|
 | [Test collection](./test-collections) | Group tests you want to configure and review together — by team, service, or suite — with their own monitors, quarantining, and ticketing. | `--test-collection-id` |
-| Repository | Nothing you choose. Detected from the git remote, and keeps test data separate between repositories and forks automatically. | Detected; `--repo-url` overrides |
+| Repository | Detected automatically from the git remote, and keeps test data separate between repositories and forks automatically. | Detected; `--repo-url` overrides |
 | Variant | Separate the *same* test run in different environments or architectures, so a flake on one doesn't condemn the other. | `--variant` |
 
 A collection can span repositories, and a repository's tests can be split across collections — which one an upload lands in is decided by the collection ID you pass.
