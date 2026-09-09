@@ -1,0 +1,114 @@
+---
+title: "Migrate to Test Collections"
+description: "Move an existing organization from repository-based Flaky Tests to test collections, one CI job at a time."
+og:title: "Migrating to test collections in Trunk"
+hidden: true
+---
+[Test collections](./get-started/test-collections) replace repositories as the way Flaky Tests is organized. New organizations start on collections. If your organization has been using Flaky Tests already, you migrate to them at your own pace, and both views stay available while you do.
+
+Nothing breaks while you migrate. A CI job that doesn't pass a collection ID keeps uploading exactly as it does today.
+
+## What changes
+
+| | Repository-based | Collections |
+| --- | --- | --- |
+| Where results land | Determined by your git remote | The collection ID you pass to the uploader |
+| Flake detection | Monitors per repository | Monitors per collection |
+| Quarantining | Settings per repository | Settings per collection |
+| Ticketing | Integration per repository | Integrations per organization, selected per collection |
+| Dashboards | Repository overview | Collection overview |
+| History | Stays where it is | Starts at the collection's first upload |
+
+## Both views, while you migrate
+
+Flaky Tests opens on your test collections. To reach the repository view, click **Legacy view** on the collections list; to come back, click **Test collections** on the repository overview. Trunk remembers whichever you chose and opens there next time.
+
+{/* TODO(shot 2): Composite of the two cross-links — "Test collections" on the repo overview and "Legacy view" on the collections list. Both need an org with each view open. Light/dark pair. */}
+
+<Note>
+The first thing you'll notice is that Flaky Tests now opens on collections rather than your repositories. That's the migration starting, not a setting you lost. **Legacy view** is one click away.
+</Note>
+
+## Nothing carries over from your repositories
+
+Monitors, quarantine overrides, ticketing configuration, and infrastructure-failure thresholds are all per-collection. A repository's configuration does not transfer to a collection, and a collection cannot inherit it.
+
+This cuts both ways, and both halves matter:
+
+- Detection thresholds you have tuned on a repository have to be re-created on the collection you want them on.
+- A new collection is not a blank slate. It [starts with seeded default monitors](./get-started/test-collections#what-a-new-collection-starts-with), so detection is running on it from its first upload.
+
+## Migrate a CI job
+
+<Steps>
+<Step title="Create a collection">
+Decide what the collection is for before you create it — a team, a service, a suite. A collection is the unit you configure and review as a whole, so the useful split is by tests you'd hold to the same standard.
+
+See [Create a collection](./get-started/test-collections#create-a-collection).
+</Step>
+
+<Step title="Add the collection ID to one CI job">
+Add `--test-collection-id <COLLECTION_ID>` to the job's existing upload step, alongside the `--org-url-slug` it already passes. Start with one job rather than all of them.
+
+{/* TODO(diagram B): Two CI jobs, one passing the collection ID and one not, landing in different places. Light/dark pair. */}
+</Step>
+
+<Step title="Confirm the results arrived">
+Open the collection's **Uploads** tab. An upload appears as soon as Trunk accepts it, and fills in once the results are processed — so a bundle that contained no test results visibly stops at the first stage. The collection's **Tests** tab unlocks once test cases have been ingested.
+</Step>
+
+<Step title="Review the collection's monitors">
+Open the collection's **Monitors** tab and check the seeded defaults against what you run on the repository today. Adjust thresholds and branch patterns here rather than assuming the repository's carried over.
+</Step>
+
+<Step title="Turn on quarantining, then re-apply your overrides">
+Quarantining is configured per collection, and enabling it replaces the repository's quarantining for every upload routed to that collection. Your repository's **Always Quarantine** and **Never Quarantine** overrides do not follow.
+
+Overrides can only be set once quarantining is enabled on the collection, so re-apply the ones that matter as soon as you turn it on.
+</Step>
+
+<Step title="Repeat, job by job">
+Move the rest of your CI jobs when you're ready. Uploads without a collection ID keep going to the repository view, so a partly-migrated organization is a normal state to sit in.
+</Step>
+</Steps>
+
+<Warning>
+Enabling quarantining on a collection takes effect immediately, with no overrides in place. Between enabling it and re-applying your overrides, that collection's tests are governed by its own settings and nothing else — a test you had pinned to **Never Quarantine** on the repository is no longer pinned.
+</Warning>
+
+## Links in CI output
+
+Once a job passes a collection ID, the links the CLI prints at the end of a run point at the collection. To keep the repository links while your team is still moving over, pass `--hide-test-collection-links` or set `TRUNK_HIDE_TEST_COLLECTION_LINKS`.
+
+## Running both views at once
+
+While a repository and a collection both have monitors covering the same tests, they detect independently. That's the point — it's how you compare the two before committing — but it means:
+
+- A test can be flagged in both views, at different times, according to each one's thresholds.
+- If you use webhooks, one detection can produce two events. Collection webhook events are off until you turn them on, so nothing reaches your consumers until you're ready. See [Webhooks](./webhooks/).
+
+## Dashboards start fresh
+
+Collections don't backfill. A collection's metrics begin at its first upload, so a correctly configured collection can still look empty for a day, and comparisons against a repository's history aren't meaningful until the collection has accumulated its own.
+
+Your repository history stays where it is and isn't affected by migrating.
+
+## Frequently asked questions
+
+<AccordionGroup>
+<Accordion title="Why is my collection dashboard empty?">
+Collections don't backfill history — metrics start at the collection's first upload. If uploads are arriving and the dashboard is still empty, check the **Uploads** tab to confirm the results were processed and not just accepted.
+</Accordion>
+
+<Accordion title="Why aren't tests being quarantined?">
+Quarantining has to be enabled on the collection, and a test has to have been detected by one of the collection's monitors. Check both on the collection's **Settings** tab and **Monitors** tab.
+</Accordion>
+
+<Accordion title="Can a collection contain tests from several repositories?">
+Yes. Collections and repositories are many-to-many. A repository is part of a test's identity, but that test can be uploaded separately to multiple collections.
+</Accordion>
+</AccordionGroup>
+
+## Questions
+
+Migrations turn up things docs don't cover. Ask us in [Slack](https://slack.trunk.io) or email [support@trunk.io](mailto:support@trunk.io).
