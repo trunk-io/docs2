@@ -11,9 +11,12 @@ Press <kbd>⌘</kbd> <kbd>K</kbd> (macOS) or <kbd>Ctrl</kbd> <kbd>K</kbd> (Windo
 
 ## Collections overview
 
-When you navigate to `/<your-org>/flaky-tests`, you land on your [test collections](./get-started/test-collections). The page exists to answer two questions — which collection is unhealthy, and which is not finished being set up — so every row carries both.
+When you navigate to `/<your-org>/flaky-tests`, you land on your [test collections](./get-started/test-collections). The page exists to answer two questions — what collections have flaky tests, and which are not finished being set up.
 
-{/* TODO(shot): the collections list, several collections at different Setup counts, with real sparkline data. Light/dark pair under /assets/flaky-tests/. */}
+<Frame caption="The collections list. Setup shows how far each collection got; the shield marks quarantining.">
+  <img className="block dark:hidden" src="/assets/flaky-tests/collections-list-light.png" alt="A list of five test collections, each with its Collection ID, repository count, setup progress, test counts, flaky and broken trends, and a runs-per-day chart." />
+  <img className="hidden dark:block" src="/assets/flaky-tests/collections-list-dark.png" alt="A list of five test collections, each with its Collection ID, repository count, setup progress, test counts, flaky and broken trends, and a runs-per-day chart." />
+</Frame>
 
 | Column | Description |
 |--------|-------------|
@@ -27,20 +30,16 @@ When you navigate to `/<your-org>/flaky-tests`, you land on your [test collectio
 
 Each row is headed by the collection's name and description. Search narrows the list, and **Create Collection** adds one.
 
-<Info>
-**Setup** is a count, never a percentage. The number of steps grows as features ship, so `3/4` and `3/5` are honestly different where 75% and 60% would invite a comparison that means nothing. It is the same number the collection's own setup checklist shows.
-</Info>
-
-There is deliberately no total row: a flaky count summed across unrelated collections is not a number anyone acts on, and the page's job is to point at one collection. Comparing two collections side by side is not available yet.
-
-### Repositories
-
-While you are migrating, the repository view stays available behind **Legacy view** on this page. It carries the same columns per repository, plus a quarantine status icon beside each name:
+A quarantine status icon appears next to a collection's name when quarantining is configured:
 
 | Icon | Meaning |
 |------|---------|
-| Shield | Quarantining is enabled for this repository — auto-quarantine is off |
+| Shield | Quarantining is enabled for this collection — auto-quarantine is off |
 | Shield with checkmark | Auto-quarantine is enabled — flaky tests are quarantined automatically |
+
+### Repositories
+
+While you are migrating, the repository view stays available behind **Legacy view** on this page. It carries the same columns and the same quarantine icons, per repository rather than per collection.
 
 Active repositories (those with test data in the last 30 days) appear at the top of the list. Repositories with no recent data are collapsed under an **Inactive Repositories** section you can expand. See the [migration guide](./migrate-to-test-collections) for how the two views relate, and [Quarantining](./quarantining/) to configure quarantine settings.
 
