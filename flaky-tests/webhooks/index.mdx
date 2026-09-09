@@ -30,6 +30,18 @@ Trunk lets you create custom workflows with **event-triggered webhooks**. Flaky 
 
 Trunk publishes three Flaky Tests event types to Svix. Each event includes a full JSON schema with field descriptions visible in the Svix app portal.
 
+## Test collection events
+
+Events for [test collections](/flaky-tests/get-started/test-collections) carry the same event types, with one addition to the payload and one thing you cannot do with it.
+
+**Telling the two apart.** A collection event carries a `test_collection` object — its ID and a link to the collection. Repository events don't. That object is the supported way to distinguish them.
+
+**You cannot deduplicate on `test_case.id`.** Collection and repository events do not share a test-case ID space, so the same underlying test arrives under two unrelated IDs. `repository.id` is the only handle common to both, and it is omitted rather than guessed when an upload carries no repository.
+
+**While you are migrating, collection events are off.** A repository and a collection with monitors over the same tests detect independently, so one detection can produce two events. Switch collection events on from **Settings** → **Organization** → **Webhooks** once your consumer handles the payloads above. It is one switch for every collection event, not one per event type, and it disappears once you have finished migrating — at that point collection events are simply sent. See the [migration guide](/flaky-tests/migrate-to-test-collections#webhooks-while-you-migrate).
+
+## Event payloads
+
 ### `test_case.monitor_status_changed`
 
 Emitted when a monitor activates or resolves for a test case.

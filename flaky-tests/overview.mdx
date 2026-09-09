@@ -5,6 +5,8 @@ og:title: "Trunk Flaky Tests overview"
 ---
 Trunk Flaky Tests lets your teams detect, track, quarantine, and fix **flaky tests** in your codebase. Trunk can also identify **broken tests** — tests failing consistently at a high rate that indicate real regressions needing immediate fixes, not just quarantining. Flaky Tests is language, environment, and framework-agnostic.
 
+Tests are organized into [test collections](/flaky-tests/get-started/test-collections) — named groups, each with its own detection, quarantining and ticketing settings. New organizations start on collections; organizations already using Flaky Tests by repository [migrate to them gradually](/flaky-tests/migrate-to-test-collections).
+
 Let's explore how Trunk Flaky Tests' features help you tackle flaky tests. If you can't wait to try Trunk, follow our [getting started guide](/flaky-tests/get-started).
 
 You can see an overview of Trunk Flaky Tests in this video.
@@ -23,7 +25,7 @@ You can see an overview of Trunk Flaky Tests in this video.
 
 Your dashboard shows a comprehensive overview of your test suite's health at a glance. It lets you see important impact metrics like the number of flaky tests, PRs impacted by flaky tests, and PRs rescued by quarantining flaky tests.
 
-<Frame caption="Key repo metrics">
+<Frame caption="Key metrics for a collection or repository">
 <img className="block dark:hidden" src="/assets/flaky-tests/key-metrics-light.png" alt="" />
 <img className="hidden dark:block" src="/assets/flaky-tests/key-metrics-dark.png" alt="" />
 </Frame>
@@ -110,3 +112,7 @@ To learn more, [learn about our ticketing integrations](./management/ticketing/j
 </Columns>
 
 Start finding flaky tests today by [signing up for Trunk](https://app.trunk.io/signup?intent=flaky%20tests) or reading our [Getting Started guides](./get-started/).
+
+## Questions
+
+Ask us in [Slack](https://slack.trunk.io) or email [support@trunk.io](mailto:support@trunk.io).
