@@ -2397,18 +2397,6 @@
     {
       "source": "/flaky-tests/use-mcp-server/mcp-tool-reference/fix-flaky-test",
       "destination": "/flaky-tests/reference/mcp-reference/fix-flaky-test"
-    },
-    {
-      "source": "/flaky-tests/collections",
-      "destination": "/flaky-tests/get-started/test-collections"
-    },
-    {
-      "source": "/flaky-tests/migration",
-      "destination": "/flaky-tests/migrate-to-test-collections"
-    },
-    {
-      "source": "/flaky-tests/migrate",
-      "destination": "/flaky-tests/migrate-to-test-collections"
     }
   ]
 }
