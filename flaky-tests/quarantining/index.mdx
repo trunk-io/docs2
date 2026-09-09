@@ -99,9 +99,9 @@ Wrap each command and specify its JUnit output path. Trunk captures the exit cod
 
 ```bash
 # run test 1
-./trunk-analytics-cli test --org-url-slug=[org] --token=[token] --junit-paths=test1_output/*.xml -- npm run test1
+./trunk-analytics-cli test --org-url-slug=[org] --test-collection-id=[collection-id] --token=[token] --junit-paths=test1_output/*.xml -- npm run test1
 # run test 2
-./trunk-analytics-cli test --org-url-slug=[org] --token=[token] --junit-paths=test2_output/*.xml -- npm run test2
+./trunk-analytics-cli test --org-url-slug=[org] --test-collection-id=[collection-id] --token=[token] --junit-paths=test2_output/*.xml -- npm run test2
 ```
 
 **Option 2: Handling quarantining during upload**
@@ -117,6 +117,7 @@ To handle build issues that occur outside test runs, use the --test-process-exit
 ```sh
 ./trunk-analytics-cli test --junit-paths "test_output.xml" \
    --org-url-slug <TRUNK_ORG_URL_SLUG> \
+   --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
    --token $TRUNK_API_TOKEN \
    --junit-paths="**/results/*.xml" \
    --test-process-exit-code=1
@@ -201,6 +202,7 @@ If you upload your test results as a second step after you run your tests, you n
 |
     ./trunk-analytics-cli upload \
         --org-url-slug $TRUNK_ORG_URL_SLUG \
+        --test-collection-id $TRUNK_TEST_COLLECTION_ID \
         --token $TRUNK_API_TOKEN \
         --junit-paths $JUNIT_PATH
 ```
@@ -212,6 +214,7 @@ You can also wrap the test command with the Trunk Analytics CLI. When wrapping t
 ```bash
 ./trunk-analytics-cli test \
     --org-url-slug <TRUNK_ORG_URL_SLUG> \
+    --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
     --token $TRUNK_API_TOKEN \
     --junit-paths $JUNIT_PATH \
     --allow-empty-test-results \
@@ -227,6 +230,7 @@ If you want quarantining to gate your CI job but don't want that run's test resu
 ```bash
 ./trunk-analytics-cli upload \
     --org-url-slug $TRUNK_ORG_URL_SLUG \
+    --test-collection-id $TRUNK_TEST_COLLECTION_ID \
     --token $TRUNK_API_TOKEN \
     --junit-paths $JUNIT_PATH \
     --dry-run

@@ -121,6 +121,7 @@ steps:
       ./trunk-analytics-cli upload \
         --junit-paths "<XML_GLOB_PATH>" \
         --org-url-slug <TRUNK_ORG_URL_SLUG> \
+        --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
         --token "${TRUNK_API_TOKEN}"
     waitFor:
       - run-tests
@@ -159,6 +160,7 @@ steps:
       ./trunk-analytics-cli upload \
         --bazel-bep-path bep.json \
         --org-url-slug <TRUNK_ORG_URL_SLUG> \
+        --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
         --token "${TRUNK_API_TOKEN}"
     waitFor:
       - run-tests

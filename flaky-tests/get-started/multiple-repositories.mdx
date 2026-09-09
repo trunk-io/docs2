@@ -109,6 +109,7 @@ Override the repository URL with the `--repo-url` flag:
 ./trunk-analytics-cli upload \
   --junit-paths "test_output.xml" \
   --org-url-slug <TRUNK_ORG_URL_SLUG> \
+  --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
   --token $TRUNK_API_TOKEN \
   --repo-url "https://github.com/your-company/your-repo.git"
 ```
@@ -120,6 +121,7 @@ export TRUNK_REPO_URL="https://github.com/your-company/your-repo.git"
 ./trunk-analytics-cli upload \
   --junit-paths "test_output.xml" \
   --org-url-slug <TRUNK_ORG_URL_SLUG> \
+  --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
   --token $TRUNK_API_TOKEN
 ```
 
@@ -135,6 +137,7 @@ To track different test suites within the same repository separately, use the `-
   --junit-paths "frontend/test_output.xml" \
   --variant "frontend" \
   --org-url-slug <TRUNK_ORG_URL_SLUG> \
+  --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
   --token $TRUNK_API_TOKEN
 
 # Backend tests
@@ -142,6 +145,7 @@ To track different test suites within the same repository separately, use the `-
   --junit-paths "backend/test_output.xml" \
   --variant "backend" \
   --org-url-slug <TRUNK_ORG_URL_SLUG> \
+  --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
   --token $TRUNK_API_TOKEN
 ```
 

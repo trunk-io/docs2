@@ -74,6 +74,7 @@ steps:
     chmod +x trunk-analytics-cli
     ./trunk-analytics-cli upload --junit-paths "<XML_GLOB_PATH>" \
     --org-url-slug $(TRUNK_ORG_URL_SLUG) \
+    --test-collection-id $(TRUNK_TEST_COLLECTION_ID) \
     --token $(TRUNK_API_TOKEN)
   condition: always() # this should always run
   displayName: Upload test results to Trunk.io
@@ -93,6 +94,7 @@ steps:
     chmod +x trunk-analytics-cli
     ./trunk-analytics-cli upload --bazel-bep-path <BEP_JSON_PATH> \
     --org-url-slug $(TRUNK_ORG_URL_SLUG) \
+    --test-collection-id $(TRUNK_TEST_COLLECTION_ID) \
     --token $(TRUNK_API_TOKEN)
   condition: always() # this should always run
   displayName: Upload test results to Trunk.io
@@ -112,6 +114,7 @@ steps:
     chmod +x trunk-analytics-cli
     ./trunk-analytics-cli upload --xcresult-path <XCRESULT_PATH> \
     --org-url-slug $(TRUNK_ORG_URL_SLUG) \
+    --test-collection-id $(TRUNK_TEST_COLLECTION_ID) \
     --token $(TRUNK_API_TOKEN)
   condition: always() # this should always run
   displayName: Upload test results to Trunk.io
@@ -128,6 +131,7 @@ steps:
 
 - script: |
     TRUNK_ORG_URL_SLUG=$(TRUNK_ORG_URL_SLUG) \
+    TRUNK_TEST_COLLECTION_ID=$(TRUNK_TEST_COLLECTION_ID) \
     TRUNK_API_TOKEN=$(TRUNK_API_TOKEN) \
     bundle exec rspec
   displayName: Run RSpec tests and upload results to Trunk.io
