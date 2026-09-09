@@ -1,75 +1,116 @@
 ---
 title: "Test Collections"
-description: "Organize your flaky tests into named collections to track and analyze specific subsets of your test suite."
+description: "Group tests into named collections, each with its own flake detection, quarantining, and ticketing settings."
+og:title: "Organizing tests with collections in Trunk Flaky Tests"
 hidden: true
 ---
-Test Collections let you group tests from any repository into named sets. Use collections to focus on a subset of your test suite, such as tests owned by a specific team, tests covering a critical service, or any grouping that matters to your workflow.
+A test collection is a named group of tests with its own settings. Each collection has independent flake detection, quarantining, and ticketing, so you can hold fast unit tests and fragile end-to-end tests to different standards.
 
-Each collection has its own view of tests, uploads, and settings, separate from the full test suite view.
+You create a collection in the Trunk app, then point a CI job at it by passing the collection's ID to the uploader.
+
+<Frame caption="A collection's Overview tab, once test results are flowing.">
+  <img className="block dark:hidden" src="/assets/flaky-tests/get-started/collection-overview-light.png" alt="The Overview tab of a collection named trunk2-pr-e2e, showing its Collection ID, flaky and broken test counts, PRs impacted, three daily charts, and the top ten most unstable tests." />
+  <img className="hidden dark:block" src="/assets/flaky-tests/get-started/collection-overview-dark.png" alt="The Overview tab of a collection named trunk2-pr-e2e, showing its Collection ID, flaky and broken test counts, PRs impacted, three daily charts, and the top ten most unstable tests." />
+</Frame>
+
+## Collections and repositories
+
+Collections and repositories are many-to-many. A collection can include tests from multiple repositories, and a repository can be broken into multiple collections. This is decided by which collection you specify at upload time.
+
+<Frame>
+  <img src="/assets/flaky-tests/get-started/test-collections-and-repositories.svg" alt="Three repositories uploading into two collections: the api repository sends its unit tests to one collection and its end-to-end tests to another, while the unit test collection also receives uploads from the web repository." />
+</Frame>
+
+## The Collection ID
+
+Every collection has an ID: eight alphanumeric characters, unique across all of Trunk. It appears in the collection's URL, on the collection's page header, and in the **ID** column of the collections list, each with a button to copy it.
+
+```
+https://app.trunk.io/<your-org>/flaky-tests/collections/<collection-id>
+```
+
+The ID is what CI needs. Nothing else about a collection is used to route uploads.
 
 ## Create a collection
 
-Only organization admins can create collections.
+Any member of your organization can create a collection.
 
-1. Navigate to **Flaky Tests** → **Collections** in the Trunk web app.
+1. In Flaky Tests, open **Collections**.
 2. Click **Create Collection**.
-3. Enter a **Name** and optional **Description**.
+3. Enter a **Collection name**, and a description if you want one.
 4. Click **Create collection**.
 
-After creation, you land on the collection detail page. The **Tests** and **Uploads** tabs are disabled until you upload test results to the collection.
+You land on the new collection. Its **Tests** and **Uploads** tabs stay disabled until test results arrive.
 
-## Upload tests to a collection
+## What a new collection starts with
 
-To populate a collection with test data, include the collection's short ID in your uploader configuration. The collection short ID appears in the URL when viewing the collection:
+A new collection starts with a basic set of flake-detection monitors, so detection starts working as soon as test results arrive.
 
-```
-https://app.trunk.io/<org>/flaky-tests/collections/<short-id>
-```
+You can change them, and everything else about the collection, from its **Monitors** and **Settings** tabs.
 
-Pass the short ID when uploading results using the Trunk CLI:
+## Upload test results to a collection
+
+Pass the collection ID to the uploader alongside your organization slug. Both are required:
 
 ```bash
-trunk flakytests upload --test-collection-short-id <short-id> ...
+./trunk-analytics-cli upload \
+  --junit-paths "test_output.xml" \
+  --org-url-slug <TRUNK_ORG_URL_SLUG> \
+  --test-collection-id <COLLECTION_ID> \
+  --token $TRUNK_API_TOKEN
 ```
 
-See the [Uploader reference](../reference/cli-reference) for full upload options.
+You can set the ID as the `TRUNK_TEST_COLLECTION_ID` environment variable instead, or pass it as the `test-collection-id` input to the [uploader action](./ci-providers/github-actions).
 
-## View collection tests and uploads
+Everything else about your setup is unchanged. Adding the collection ID to a working upload step is the whole change. See [**Test Frameworks**](./frameworks/) and [**CI Providers**](./ci-providers/) for the setup itself, and the [**CLI reference**](../reference/cli-reference#test-collections) for the full flag list.
 
-Once tests are uploaded to a collection, the **Tests** and **Uploads** tabs become active on the collection detail page.
+<Note>
+A CI job uploads to exactly one collection. To send results to more than one collection, add an upload step per collection.
+</Note>
 
-* **Tests** tab: Shows all tests associated with this collection, with their flaky status, failure rates, and labels.
-* **Uploads** tab: Shows the history of test uploads sent to this collection.
-* **Overview** tab: Shows setup instructions and the upload configuration for this collection.
-* **Tests** tab: Shows all tests associated with this collection, with their flaky status, failure rates, and labels.
-* **Uploads** tab: Shows the history of test uploads sent to this collection.
+## Collection tabs
 
-## Edit a collection
+| Tab | What it holds |
+| --- | --- |
+| **Overview** | Setup instructions before results arrive; the collection's dashboard afterwards. |
+| **Tests** | Every test in the collection, with health status, failure rates, and labels. |
+| **Uploads** | Upload history for the collection. |
+| **Quarantining** | Quarantine analytics for the collection. |
+| **Monitors** | The collection's [flake detection monitors](../detection/). |
+| **Settings** | The collection's name and description, [quarantining](../quarantining/), upload handling, and [ticketing](../management/ticketing/automatic-ticketing). |
 
-Only organization admins can edit collection settings.
+## Finish setting up a collection
 
-1. Navigate to the collection detail page.
-2. Click the **Settings** tab.
-3. Update the **Name** or **Description**.
-4. Click **Save changes**.
+Each collection has a setup checklist, on its **Overview** tab before results arrive and on its **Settings** tab permanently. It tracks four steps:
 
-## Delete a collection
+1. **Send your first upload**
+2. **Ingest your test results**
+3. **Review flake detection**
+4. **Review quarantining**
 
-Only organization admins can delete collections.
-
-1. Navigate to the collection's **Settings** tab.
-2. Click **Delete collection**.
-3. Confirm deletion in the dialog.
-
-Deleting a collection removes it from the **Collections** list. Test data uploaded to the collection is not deleted from your overall test suite.
+The first two complete on their own once uploads are flowing. The rest can be configured in the app.
 
 ## Permissions
 
-| Action                   | Admin | Member |
-| ------------------------ | ----- | ------ |
-| View collections         | Yes   | Yes    |
-| Create collection        | Yes   | No     |
-| Edit collection settings | Yes   | No     |
-| Delete collection        | Yes   | No     |
+| Action | Admin | Member |
+| --- | --- | --- |
+| View collections | Yes | Yes |
+| Create a collection | Yes | Yes |
+| Edit a collection's name or description | Yes | No |
+| Change quarantining settings | Yes | No |
+| Delete a collection | Yes | No |
 
-Members can browse existing collections and view tests and uploads, but cannot create, edit, or delete collections.
+
+## Delete a collection
+
+Only organization admins can delete a collection.
+
+1. Open the collection's **Settings** tab.
+2. Click **Delete collection**.
+3. Confirm in the dialog.
+
+The collection disappears from the collections list. Test results already uploaded to it are not deleted.
+
+## Questions
+
+Ask us in [Slack](https://slack.trunk.io) or email [support@trunk.io](mailto:support@trunk.io).
