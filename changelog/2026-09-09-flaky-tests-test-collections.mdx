@@ -11,7 +11,7 @@ type: feature
 
 A test collection is a named group of tests with its own settings. Each collection has independent flake detection, quarantining, and ticketing, so you can hold fast unit tests and fragile end-to-end tests to different standards.
 
-Collections and repositories are many-to-many. A collection can include tests from multiple repositories, and a repository can be split across multiple collections. You decide by which collection ID you pass at upload time:
+Collections and repositories are many-to-many. A collection can include tests from multiple repositories, and a repository can be split across multiple collections. This is decided by which collection ID you pass at upload time:
 
 ```bash
 ./trunk-analytics-cli upload \
