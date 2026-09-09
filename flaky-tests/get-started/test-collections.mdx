@@ -12,11 +12,11 @@ You create a collection in the Trunk app, then point a CI job at it by passing t
 
 ## Collections and repositories
 
-Collections and repositories are many-to-many. A repository is part of a test's identity, so the same test file in two repositories is two different test cases. That test can be uploaded to more than one collection.
+Collections and repositories are many-to-many. A collection can include tests from multiple repositories, and a repository can be broken into multiple collections. This is decided by which collection you specify at upload time.
 
-{/* TODO(diagram A): One org, two collections, three repos, one test appearing in both collections. Light/dark pair. */}
-
-You never pick a collection's repositories. They appear on the collection as uploads arrive, and the collection's **Repos** count reflects what has actually been uploaded to it.
+<Frame>
+  <img src="/assets/flaky-tests/get-started/test-collections-and-repositories.svg" alt="Three repositories uploading into two collections: the api repository sends its unit tests to one collection and its end-to-end tests to another, while the unit test collection also receives uploads from the web repository." />
+</Frame>
 
 ## The Collection ID
 
@@ -41,11 +41,9 @@ You land on the new collection. Its **Tests** and **Uploads** tabs stay disabled
 
 ## What a new collection starts with
 
-A new collection is not empty. Trunk seeds it with default flake-detection monitors and default quarantining settings, so detection starts working as soon as test results arrive.
+A new collection starts with a basic set of flake-detection monitors, so detection starts working as soon as test results arrive.
 
-{/* TODO: enumerate the seeded defaults — which monitors, at what thresholds, and whether auto-quarantine is on among them. Source: TRUNK-19408. A reader deciding what to add first needs to see what is already watching, so this section is not publishable as prose alone. */}
-
-You can change any of it later from the collection's **Monitors** tab and **Settings** tab.
+You can change them, and everything else about the collection, from its **Monitors** and **Settings** tabs.
 
 ## Upload test results to a collection
 
@@ -87,11 +85,7 @@ Each collection has a setup checklist, on its **Overview** tab before results ar
 3. **Review flake detection**
 4. **Review quarantining**
 
-The first two complete on their own once uploads are landing. The last two are decisions, and you complete them by making one — including deciding against: **Keep defaults** and **Not using this** both count as done. The checklist shows how many of the four are complete, and stops prompting you once none are outstanding.
-
-<Info>
-Splitting "upload" and "ingest" into separate steps distinguishes "CI hasn't run yet" from "the upload arrived but contained no test results" — usually a test reporter that isn't writing its output file, or a path that doesn't match what the CLI was given.
-</Info>
+The first two complete on their own once uploads are flowing. The rest can be configured in the app.
 
 ## Permissions
 
@@ -103,7 +97,6 @@ Splitting "upload" and "ingest" into separate steps distinguishes "CI hasn't run
 | Change quarantining settings | Yes | No |
 | Delete a collection | Yes | No |
 
-Members can create collections and browse every collection in the organization. Editing, deleting, and quarantining settings are restricted to organization admins.
 
 ## Delete a collection
 

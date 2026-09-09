@@ -4,7 +4,7 @@ description: "Move an existing organization from repository-based Flaky Tests to
 og:title: "Migrating to test collections in Trunk"
 hidden: true
 ---
-[Test collections](./get-started/test-collections) replace repositories as the way Flaky Tests is organized. New organizations start on collections. If your organization has been using Flaky Tests already, you migrate to them at your own pace, and both views stay available while you do.
+[Test collections](./get-started/test-collections) replace repositories as the way Flaky Tests is organized. New organizations start on collections. If your organization has been using Flaky Tests already, you will need to gradually migrate to using collections, and both views stay available while you do.
 
 Nothing breaks while you migrate. A CI job that doesn't pass a collection ID keeps uploading exactly as it does today.
 
@@ -25,32 +25,23 @@ Flaky Tests opens on your test collections. To reach the repository view, click 
 
 {/* TODO(shot 2): Composite of the two cross-links — "Test collections" on the repo overview and "Legacy view" on the collections list. Both need an org with each view open. Light/dark pair. */}
 
-<Note>
-The first thing you'll notice is that Flaky Tests now opens on collections rather than your repositories. That's the migration starting, not a setting you lost. **Legacy view** is one click away.
-</Note>
-
 ## Nothing carries over from your repositories
 
-Monitors, quarantine overrides, ticketing configuration, and infrastructure-failure thresholds are all per-collection. A repository's configuration does not transfer to a collection, and a collection cannot inherit it.
+Monitors, quarantine overrides, ticketing configuration, and infrastructure-failure thresholds are all per-collection. A repository's configuration does not transfer to a collection, so anything you have tuned on a repository has to be set up again on the collection you want it on.
 
-This cuts both ways, and both halves matter:
-
-- Detection thresholds you have tuned on a repository have to be re-created on the collection you want them on.
-- A new collection is not a blank slate. It [starts with seeded default monitors](./get-started/test-collections#what-a-new-collection-starts-with), so detection is running on it from its first upload.
+That is often what you want. You may wish to create different monitors for each collection, such as more sensitive flakiness detection for unit tests than for end-to-end tests.
 
 ## Migrate a CI job
 
 <Steps>
 <Step title="Create a collection">
-Decide what the collection is for before you create it — a team, a service, a suite. A collection is the unit you configure and review as a whole, so the useful split is by tests you'd hold to the same standard.
+Collections usually map to a team, a service, or a test suite. Group tests you want to configure and review together.
 
 See [Create a collection](./get-started/test-collections#create-a-collection).
 </Step>
 
 <Step title="Add the collection ID to one CI job">
 Add `--test-collection-id <COLLECTION_ID>` to the job's existing upload step, alongside the `--org-url-slug` it already passes. Start with one job rather than all of them.
-
-{/* TODO(diagram B): Two CI jobs, one passing the collection ID and one not, landing in different places. Light/dark pair. */}
 </Step>
 
 <Step title="Confirm the results arrived">
@@ -85,7 +76,19 @@ Once a job passes a collection ID, the links the CLI prints at the end of a run 
 While a repository and a collection both have monitors covering the same tests, they detect independently. That's the point — it's how you compare the two before committing — but it means:
 
 - A test can be flagged in both views, at different times, according to each one's thresholds.
-- If you use webhooks, one detection can produce two events. Collection webhook events are off until you turn them on, so nothing reaches your consumers until you're ready. See [Webhooks](./webhooks/).
+- If you use webhooks, one detection can produce two events — see below.
+
+## Webhooks while you migrate
+
+Collection webhook events are **off by default while you are migrating**, and you switch them on from your organization's webhooks settings once your consumers are ready. The control appears only while you have both views, since that is the only time it changes anything — once you have fully migrated, collection events are simply sent.
+
+It is one switch for every collection event, not one per event type. What you are asserting by turning it on is that your consumer handles collection payloads at all:
+
+- A collection event carries a `test_collection` object. Repository events don't, and that is the only supported way to tell the two apart.
+- **You cannot deduplicate on `test_case.id`.** Collection and repository events don't share a test-case ID space, so the same underlying test arrives under two unrelated IDs. `repository.id` is the only handle common to both.
+- `repository` is omitted rather than guessed when an upload carries no repository.
+
+Leave it off until your consumer is ready and nothing reaches it in the meantime. See [Webhooks](./webhooks/) for the payloads.
 
 ## Dashboards start fresh
 
