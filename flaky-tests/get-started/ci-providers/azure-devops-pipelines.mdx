@@ -131,6 +131,7 @@ steps:
 
 - script: |
     TRUNK_ORG_URL_SLUG=$(TRUNK_ORG_URL_SLUG) \
+    TRUNK_TEST_COLLECTION_ID=$(TRUNK_TEST_COLLECTION_ID) \
     TRUNK_API_TOKEN=$(TRUNK_API_TOKEN) \
     bundle exec rspec
   displayName: Run RSpec tests and upload results to Trunk.io
