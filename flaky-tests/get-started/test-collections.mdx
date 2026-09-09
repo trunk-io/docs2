@@ -8,7 +8,10 @@ A test collection is a named group of tests with its own settings. Each collecti
 
 You create a collection in the Trunk app, then point a CI job at it by passing the collection's ID to the uploader.
 
-{/* TODO(shot 1): Collection Overview, populated — all bands with data. Light/dark pair under /assets/flaky-tests/get-started/. */}
+<Frame caption="A collection's Overview tab, once test results are flowing.">
+  <img className="block dark:hidden" src="/assets/flaky-tests/get-started/collection-overview-light.png" alt="The Overview tab of a collection named trunk2-pr-e2e, showing its Collection ID, flaky and broken test counts, PRs impacted, three daily charts, and the top ten most unstable tests." />
+  <img className="hidden dark:block" src="/assets/flaky-tests/get-started/collection-overview-dark.png" alt="The Overview tab of a collection named trunk2-pr-e2e, showing its Collection ID, flaky and broken test counts, PRs impacted, three daily charts, and the top ten most unstable tests." />
+</Frame>
 
 ## Collections and repositories
 
@@ -32,8 +35,8 @@ The ID is what CI needs. Nothing else about a collection is used to route upload
 
 Any member of your organization can create a collection.
 
-1. Open the **Test collections** view in Flaky Tests.
-2. Click **Create collection**.
+1. In Flaky Tests, open **Collections**.
+2. Click **Create Collection**.
 3. Enter a **Collection name**, and a description if you want one.
 4. Click **Create collection**.
 
