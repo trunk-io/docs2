@@ -66,7 +66,9 @@ Here's what each of these options does:
 
 ### Collection-level quarantining settings
 
-[Test Collections](../get-started/test-collections) have their own quarantining settings that override the repository-level settings for any uploads routed to that collection. This lets you apply different quarantining policies to different subsets of your test suite.
+[Test Collections](../get-started/test-collections) have their own quarantining settings, which lets you apply different quarantining policies to different subsets of your test suite.
+
+While you are migrating, which settings apply is decided per upload: **if quarantining is enabled on the collection an upload was routed to, that collection's quarantining and flaky state are used. Otherwise the repository's are.**
 
 To configure collection quarantining, navigate to **Flaky Tests** → **Collections** → **[collection name]** → **Settings** → **Quarantining**.
 
@@ -81,9 +83,7 @@ The same two toggles are available at the collection level:
 Only organization admins can change collection quarantining settings. Members can view the settings page but cannot toggle the controls.
 </Info>
 
-<Note>
-**New test collections have quarantining enabled by default.** You can disable it from the collection's Settings page at any time. Auto-Quarantine remains off by default and must be turned on separately.
-</Note>
+Manual **Always Quarantine** and **Never Quarantine** overrides can only be set once quarantining is enabled on the collection. With it off, the override control on a test's details page is disabled and points you at these settings — so a collection's overrides are always re-created after quarantining is turned on, never staged before it.
 
 When you disable collection quarantining, auto-quarantine is also disabled automatically. Re-enabling quarantining for the collection does not restore auto-quarantine — you must turn it back on separately.
 
