@@ -146,6 +146,27 @@ Variant names are displayed in brackets next to test names in your dashboard:
 <img className="hidden dark:block" src="/assets/flaky-tests/reference/variants-dark-border.png" alt="" />
 </Frame>
 
+## Test Collections
+
+[Test collections](/flaky-tests/get-started/test-collections) group tests so they can be configured and reviewed together, with their own flake detection and quarantining. To upload into one, pass its ID with `--test-collection-id`:
+
+```sh Upload to a test collection
+./trunk-analytics-cli upload --junit-paths "test_output.xml" \
+   --org-url-slug <TRUNK_ORG_URL_SLUG> \
+   --test-collection-id <COLLECTION_ID> \
+   --token $TRUNK_API_TOKEN
+```
+
+The collection ID is eight alphanumeric characters, and you copy it from the collection in the Trunk app. `--org-url-slug` is still required — the collection ID is an addition to it, not a replacement.
+
+You can set the ID as the `TRUNK_TEST_COLLECTION_ID` environment variable instead, and the [uploader action](/flaky-tests/get-started/ci-providers/github-actions) takes it as the `test-collection-id` input.
+
+<Note>
+Each invocation uploads to a single collection. To send the same results to more than one collection, run the upload once per collection.
+</Note>
+
+When a collection ID is passed, the links printed at the end of a run point at the collection rather than the repository. Pass `--hide-test-collection-links` to keep the repository links.
+
 ## Running and Quarantining Tests
 
 You can also execute tests and upload results to Trunk in a single step using the `test` command to **wrap** your test command.
@@ -257,6 +278,8 @@ The `upload` and `test` commands accept the following options:
 | `--use-bazel-target-for-codeowners` | When uploading a Bazel BEP file, use the Bazel target as a fallback path to associate test cases to codeowners. **Optional**. |
 | `--allow-empty-test-results` | Don't fail commands if test results are empty or missing. Use it when you sometimes skip all tests for certain CI jobs. Defaults to `true`. |
 | `--variant <VARIANT_NAME>` | Upload tests to a specific variant group. **Optional**. |
+| `--test-collection-id <COLLECTION_ID>` | Upload to a [test collection](/flaky-tests/get-started/test-collections), in addition to (not instead of) `--org-url-slug`. Can also be set with the `TRUNK_TEST_COLLECTION_ID` environment variable. **Optional**. |
+| `--hide-test-collection-links` | Print repository links at the end of a run instead of test collection links. Only has an effect when a collection ID is passed. Can also be set with the `TRUNK_HIDE_TEST_COLLECTION_LINKS=true` environment variable. **Optional**. |
 | `--test-process-exit-code` `<EXIT_CODE>` | Specify the exit code of the test previously run. This is used by the upload command to identify errors that happen outside of the context of the test execution (such as build errors). |
 | `--dry-run` | Write the test results bundle to a local `./bundle_upload` directory instead of uploading it to Trunk. [Quarantining](../quarantining/#quarantining-without-uploading) still runs and still determines the exit code. Can also be set with the `TRUNK_DRY_RUN=true` environment variable. **Optional**. |
 
