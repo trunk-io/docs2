@@ -174,8 +174,7 @@
                 "group": "Overview",
                 "root": "flaky-tests/overview",
                 "pages": [
-                  "flaky-tests/dashboard",
-                  "flaky-tests/migrate-to-test-collections"
+                  "flaky-tests/dashboard"
                 ]
               },
               {
@@ -183,6 +182,7 @@
                 "root": "flaky-tests/get-started/index",
                 "pages": [
                   "flaky-tests/get-started/test-collections",
+                  "flaky-tests/migrate-to-test-collections",
                   {
                     "group": "Test frameworks",
                     "root": "flaky-tests/get-started/frameworks/index",
