@@ -17,8 +17,10 @@ All requests must be [authenticated](../../setup-and-administration/apis/#authen
 | [`/cancelPullRequest`](/merge-queue/reference/merge/cancel-a-pull-request-in-a-merge-queue) | POST | Remove a PR from the merge queue |
 | [`/restartTestsOnPullRequest`](/merge-queue/reference/merge/restart-tests-on-a-pull-request-in-a-merge-queue) | POST | Re-run tests on a PR currently in the queue |
 | [`/getSubmittedPullRequest`](/merge-queue/reference/merge/get-a-submitted-pull-request-from-a-merge-queue) | POST | Check the status of a submitted PR |
+| [`/getSubmittedPullRequests`](/merge-queue/reference/merge/get-several-submitted-pull-requests-from-a-merge-queue) | POST | Check the status of many submitted PRs at once |
 | [`/setImpactedTargets`](/merge-queue/reference/merge/set-impacted-targets-for-a-pull-request) | POST | Set impacted targets for a PR (used with [parallel queues](../optimizations/parallel-queues/)) |
 | [`/getMergeQueueTestingDetails`](/merge-queue/reference/merge/get-details-about-testing-that-merge-queue-is-performing) | POST | Get details about in-progress merge queue testing |
+| [`/listMergeQueueTestingResults`](/merge-queue/reference/merge/list-completed-merge-queue-testing-for-a-time-range) | POST | List completed merge queue testing over a time range |
 | [`/createQueue`](/merge-queue/reference/merge/create-a-new-merge-queue) | POST | Create a new merge queue for a branch |
 | [`/deleteQueue`](/merge-queue/reference/merge/delete-the-specified-merge-queue-the-queue-must-be-empty-in-order-to-be-deleted) | POST | Delete an empty merge queue |
 | [`/getQueue`](/merge-queue/reference/merge/get-the-merge-queue) | POST | Get queue state, configuration, and enqueued PRs |
@@ -156,10 +158,12 @@ The response includes the queue state (`RUNNING`, `PAUSED`, `DRAINING`, or `SWIT
 <CardGroup cols={2}>
   <Card title="Cancel a pull request in a merge queue" href="/merge-queue/reference/merge/cancel-a-pull-request-in-a-merge-queue"/>
   <Card title="Get a submitted pull request from a merge queue" href="/merge-queue/reference/merge/get-a-submitted-pull-request-from-a-merge-queue"/>
+  <Card title="Get several submitted pull requests from a merge queue" href="/merge-queue/reference/merge/get-several-submitted-pull-requests-from-a-merge-queue"/>
   <Card title="Restart tests on a pull request in a merge queue" href="/merge-queue/reference/merge/restart-tests-on-a-pull-request-in-a-merge-queue"/>
   <Card title="Set impacted targets for a pull request" href="/merge-queue/reference/merge/set-impacted-targets-for-a-pull-request"/>
   <Card title="Submit a pull request to a merge queue" href="/merge-queue/reference/merge/submit-a-pull-request-to-a-merge-queue"/>
   <Card title="Get details about testing that Merge Queue is performing" href="/merge-queue/reference/merge/get-details-about-testing-that-merge-queue-is-performing"/>
+  <Card title="List completed merge queue testing for a time range" href="/merge-queue/reference/merge/list-completed-merge-queue-testing-for-a-time-range"/>
 </CardGroup>
 
 <Info>
