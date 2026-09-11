@@ -118,10 +118,13 @@
                     "pages": [
                       "POST /cancelPullRequest",
                       "POST /getSubmittedPullRequest",
+                      "POST /getSubmittedPullRequests",
+                      "POST /listPullRequests",
                       "POST /restartTestsOnPullRequest",
                       "POST /setImpactedTargets",
                       "POST /submitPullRequest",
-                      "POST /getMergeQueueTestingDetails"
+                      "POST /getMergeQueueTestingDetails",
+                      "POST /listMergeQueueTestingResults"
                     ]
                   },
                   {
