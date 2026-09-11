@@ -18,6 +18,7 @@ All requests must be [authenticated](../../setup-and-administration/apis/#authen
 | [`/restartTestsOnPullRequest`](/merge-queue/reference/merge/restart-tests-on-a-pull-request-in-a-merge-queue) | POST | Re-run tests on a PR currently in the queue |
 | [`/getSubmittedPullRequest`](/merge-queue/reference/merge/get-a-submitted-pull-request-from-a-merge-queue) | POST | Check the status of a submitted PR |
 | [`/getSubmittedPullRequests`](/merge-queue/reference/merge/get-several-submitted-pull-requests-from-a-merge-queue) | POST | Check the status of many submitted PRs at once |
+| [`/listPullRequests`](/merge-queue/reference/merge/list-pull-requests-in-a-merge-queue) | POST | List the PRs in a queue, filtered by state or concluded time range |
 | [`/setImpactedTargets`](/merge-queue/reference/merge/set-impacted-targets-for-a-pull-request) | POST | Set impacted targets for a PR (used with [parallel queues](../optimizations/parallel-queues/)) |
 | [`/getMergeQueueTestingDetails`](/merge-queue/reference/merge/get-details-about-testing-that-merge-queue-is-performing) | POST | Get details about in-progress merge queue testing |
 | [`/listMergeQueueTestingResults`](/merge-queue/reference/merge/list-completed-merge-queue-testing-for-a-time-range) | POST | List completed merge queue testing over a time range |
@@ -159,12 +160,20 @@ The response includes the queue state (`RUNNING`, `PAUSED`, `DRAINING`, or `SWIT
   <Card title="Cancel a pull request in a merge queue" href="/merge-queue/reference/merge/cancel-a-pull-request-in-a-merge-queue"/>
   <Card title="Get a submitted pull request from a merge queue" href="/merge-queue/reference/merge/get-a-submitted-pull-request-from-a-merge-queue"/>
   <Card title="Get several submitted pull requests from a merge queue" href="/merge-queue/reference/merge/get-several-submitted-pull-requests-from-a-merge-queue"/>
+  <Card title="List pull requests in a merge queue" href="/merge-queue/reference/merge/list-pull-requests-in-a-merge-queue"/>
   <Card title="Restart tests on a pull request in a merge queue" href="/merge-queue/reference/merge/restart-tests-on-a-pull-request-in-a-merge-queue"/>
   <Card title="Set impacted targets for a pull request" href="/merge-queue/reference/merge/set-impacted-targets-for-a-pull-request"/>
   <Card title="Submit a pull request to a merge queue" href="/merge-queue/reference/merge/submit-a-pull-request-to-a-merge-queue"/>
   <Card title="Get details about testing that Merge Queue is performing" href="/merge-queue/reference/merge/get-details-about-testing-that-merge-queue-is-performing"/>
   <Card title="List completed merge queue testing for a time range" href="/merge-queue/reference/merge/list-completed-merge-queue-testing-for-a-time-range"/>
 </CardGroup>
+
+Three endpoints read pull request state, and which one you want depends on whether you already know
+the pull requests you care about:
+
+* [`/getSubmittedPullRequest`](/merge-queue/reference/merge/get-a-submitted-pull-request-from-a-merge-queue) — one known PR, identified by number or head branch.
+* [`/getSubmittedPullRequests`](/merge-queue/reference/merge/get-several-submitted-pull-requests-from-a-merge-queue) — up to 50 known PRs in one request, with the same full record each: readiness, whether the PR is currently submitted, and optionally the timeline of every state change.
+* [`/listPullRequests`](/merge-queue/reference/merge/list-pull-requests-in-a-merge-queue) — discovery, when you don't know which PRs to ask about. Pages through the queue with a cursor and filters by state or by when PRs concluded, returning a summary row per PR rather than the full record.
 
 <Info>
 Large monorepos can produce target lists that exceed the 20 MiB request body limit. If you hit this limit, send `"ALL"` as the `impactedTargets` value to mark the PR as impacting every target.
