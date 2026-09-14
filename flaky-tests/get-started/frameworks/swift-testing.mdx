@@ -29,7 +29,18 @@ Due to a [known bug](https://github.com/swiftlang/swift-package-manager/issues/4
 
 ### Report File Path
 
-The test report will be written to the location specified by the `--xunit-output` argument. In the example above, it would be at `./junit.xml`.
+A single run writes **two** files, and neither is named exactly what you passed to `--xunit-output`:
+
+| File | Contains |
+| --- | --- |
+| `junit-swift-testing.xml` | Swift Testing results (`@Test`, `@Suite`) |
+| `junit.xml` | XCTest results (`XCTestCase` subclasses) |
+
+Swift Testing results always land in the `-swift-testing.xml` file, so that is the one to upload for a Swift Testing suite. If your package also contains XCTest cases, upload both files.
+
+<Warning>
+Without `--parallel`, the XCTest file is not written at all. The XCTest cases still run and still report in the console, so a package that omits the flag silently uploads only its Swift Testing results.
+</Warning>
 
 ## Try It Locally
 
@@ -45,7 +56,7 @@ curl -fL --retry 3 \
   | tar -xz
 
 chmod +x trunk-analytics-cli
-./trunk-analytics-cli validate --junit-paths "./junit.xml"
+./trunk-analytics-cli validate --junit-paths "./junit*.xml"
 ```
 ```bash Linux (arm64)
 SKU="trunk-analytics-cli-aarch64-unknown-linux.tar.gz"
@@ -54,7 +65,7 @@ curl -fL --retry 3 \
   | tar -xz
 
 chmod +x trunk-analytics-cli
-./trunk-analytics-cli validate --junit-paths "./junit.xml"
+./trunk-analytics-cli validate --junit-paths "./junit*.xml"
 ```
 ```bash macOS (arm64)
 SKU="trunk-analytics-cli-aarch64-apple-darwin.tar.gz"
@@ -63,7 +74,7 @@ curl -fL --retry 3 \
   | tar -xz
 
 chmod +x trunk-analytics-cli
-./trunk-analytics-cli validate --junit-paths "./junit.xml"
+./trunk-analytics-cli validate --junit-paths "./junit*.xml"
 ```
 ```bash macOS (x64)
 SKU="trunk-analytics-cli-x86_64-apple-darwin.tar.gz"
@@ -72,7 +83,7 @@ curl -fL --retry 3 \
   | tar -xz
 
 chmod +x trunk-analytics-cli
-./trunk-analytics-cli validate --junit-paths "./junit.xml"
+./trunk-analytics-cli validate --junit-paths "./junit*.xml"
 ```
 </CodeGroup>
 
@@ -82,14 +93,17 @@ chmod +x trunk-analytics-cli
 
 Before modifying your CI jobs to automatically upload test results to Trunk, try uploading a single test run manually.
 
-You make an upload to Trunk using the following command:
+Upload `swift test` reports with the `--swift-test-xunit-paths` argument rather than `--junit-paths`:
 
 ```sh
-./trunk-analytics-cli upload --junit-paths "./junit.xml" \
+./trunk-analytics-cli upload \
+    --swift-test-xunit-paths "./junit-swift-testing.xml,./junit.xml" \
     --org-url-slug <TRUNK_ORG_URL_SLUG> \
     --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
     --token <TRUNK_ORG_TOKEN>
 ```
+
+`--swift-test-xunit-paths` takes a comma-separated list of **files**, not globs. Drop `./junit.xml` from the list if your package has no XCTest cases. You can also supply the same list through the `TRUNK_SWIFT_TEST_XUNIT_PATHS` environment variable.
 
 You can find your Trunk organization slug and token in the settings or by following these [instructions](/flaky-tests/get-started/ci-providers/otherci#trunk-organization-slug-and-token). The collection ID identifies the [test collection](/flaky-tests/test-collections) the results belong to, and you copy it from that collection in the Trunk app. After your upload, you can verify that Trunk has received and processed it successfully in the **Uploads** tab. Warnings will be displayed if the report has issues.
 
@@ -98,9 +112,27 @@ You can find your Trunk organization slug and token in the settings or by follow
 <img className="hidden dark:block" src="/assets/_shared/data-uploads-dark.png" alt="" />
 </Frame>
 
+## Attributing Tests to Their Declaring File
+
+The XML that `swift test --xunit-output` writes carries no file path for any test case. Given `--swift-test-xunit-paths`, Trunk resolves each test to the source file it is *declared* in by asking a language server for the symbols in your checkout — which is what makes CODEOWNERS attribution and file-level links work. Uploading the same files with `--junit-paths` skips that step, and the tests arrive with no file attached.
+
+This requires:
+
+* `sourcekit-lsp` on `PATH`. It ships with the Swift toolchain, and with the Xcode Command Line Tools on macOS.
+* The upload to run inside the repository the tests were built from. Pass `--repo-root` if you run it from elsewhere.
+* `trunk-analytics-cli` 0.15.5 or newer.
+
+<Warning>
+**Switching from `--junit-paths` resets history for these tests.**
+
+A test's identity includes the file it lives in, so attaching a file to test cases that previously had none changes their IDs. Each affected test starts a fresh history on your first upload with `--swift-test-xunit-paths`, and previously detected flakes reset once.
+
+For the same reason, a test uploaded from an `.xcresult` bundle and the same test uploaded from `swift test` XML are two distinct tests to Trunk. Pick one format per repository rather than uploading both.
+</Warning>
+
 ## Next Steps
 
-Configure your CI to upload test runs to Trunk. Find the guides for your CI framework below:
+Configure your CI to upload test runs to Trunk. On GitHub Actions, `--swift-test-xunit-paths` is the [`swift-test-xunit-paths` input](/flaky-tests/get-started/ci-providers/github-actions) on `trunk-io/analytics-uploader`. Find the guides for your CI framework below:
 
 <Columns cols={3}>
   <Card
