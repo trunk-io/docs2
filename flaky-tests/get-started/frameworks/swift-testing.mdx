@@ -25,7 +25,7 @@ To output a compatible report, add the `--xunit-output` argument to your Swift t
 swift test --xunit-output junit.xml --parallel
 ```
 
-Due to a [known bug](https://github.com/swiftlang/swift-package-manager/issues/4752) with Swift, you must include the `--parallel` flag for the XML report to output properly.
+Due to a [known bug](https://github.com/swiftlang/swift-package-manager/issues/4752) with Swift, you must include the `--parallel` flag — without it, XCTest results are never written to a file.
 
 ### Report File Path
 
@@ -39,7 +39,7 @@ A single run writes **two** files, and neither is named exactly what you passed 
 Swift Testing results always land in the `-swift-testing.xml` file, so that is the one to upload for a Swift Testing suite. If your package also contains XCTest cases, upload both files.
 
 <Warning>
-Without `--parallel`, the XCTest file is not written at all. The XCTest cases still run and still report in the console, so a package that omits the flag silently uploads only its Swift Testing results.
+Without `--parallel`, the XCTest file is not written at all — see [swiftlang/swift-package-manager#4752](https://github.com/swiftlang/swift-package-manager/issues/4752), open since 2018. The XCTest cases still run and still report in the console, so a package that omits the flag silently uploads only its Swift Testing results.
 </Warning>
 
 ## Try It Locally
