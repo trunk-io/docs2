@@ -118,9 +118,11 @@ The XML that `swift test --xunit-output` writes carries no file path for any tes
 
 This requires:
 
-* `sourcekit-lsp` on `PATH`. It ships with the Swift toolchain, and with the Xcode Command Line Tools on macOS.
-* The upload to run inside the repository the tests were built from. Pass `--repo-root` if you run it from elsewhere.
+* `sourcekit-lsp`. On Linux it ships with the Swift toolchain and is found on `PATH`; on macOS it is found through `xcrun`, so Xcode or the Command Line Tools is enough.
+* The upload to run inside the checkout the tests were built from. Pass `--repo-root` if you run it from elsewhere.
 * `trunk-analytics-cli` 0.15.5 or newer.
+
+A test that can't be resolved is left without a file rather than failing the upload. The upload warns when that happens — `N of M swift test case(s) have no declaration under <repo root>` — which is usually a sign that the checkout doesn't match the reports.
 
 <Warning>
 **Switching from `--junit-paths` resets history for these tests.**
