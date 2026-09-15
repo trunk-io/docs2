@@ -1,0 +1,74 @@
+---
+title: "Personal Notifications"
+description: "Connect your GitHub and Slack accounts to Trunk to receive notifications about your own pull requests."
+og:title: "Personal notifications in Trunk"
+---
+Personal notifications keep you updated on your own pull requests as they move through Trunk. You configure them in the Trunk app under **Settings** → **Account** → **Notifications**.
+
+These are per-user connections that apply only to you. They are separate from the organization-level integrations an admin sets up:
+
+* The [Trunk GitHub App](./github-app-permissions) grants Trunk access to your organization's repositories.
+* The [Trunk Slack app](../merge-queue/integration-for-slack#installing-the-trunk-slack-app) connects your organization's Slack workspace.
+
+Connecting your personal GitHub account tells Trunk which GitHub user you are, so it can match pull requests to you and notify you about them.
+
+## Connect your GitHub account
+
+1. In the Trunk app, navigate to **Settings** → **Account** → **Notifications**.
+2. Under **GitHub**, click **Connect**.
+
+<Frame caption="The GitHub section before connecting">
+![](/assets/setup-and-administration/notifications-github-connect.png)
+</Frame>
+
+3. Trunk shows a modal describing the access it requests, including a preview of GitHub's authorization screen. Click **Connect** to continue to GitHub.
+
+<Frame caption="Trunk's confirmation modal, previewing the GitHub authorization screen you'll see next">
+![](/assets/setup-and-administration/notifications-github-authorize.png)
+</Frame>
+
+4. On GitHub's authorization screen, click **Authorize trunk-io**. GitHub redirects you back to Trunk, which confirms the connection and names the GitHub user it linked.
+
+<Frame caption="Both accounts connected, with a confirmation of the linked GitHub user">
+![](/assets/setup-and-administration/notifications-github-connected.png)
+</Frame>
+
+### What Trunk can access
+
+<Note>
+This connection grants read-only access to your personal GitHub profile information and nothing else. It does not grant access to any repository. Repository access comes from the separate [Trunk GitHub App](./github-app-permissions), which an organization admin installs.
+</Note>
+
+### Disconnecting
+
+To disconnect, return to **Settings** → **Account** → **Notifications** and click **Disconnect** in the **GitHub** section. The section title changes to **Disconnect GitHub Account** once an account is linked.
+
+Disconnecting stops notifications that depend on knowing your GitHub identity, including most personal Slack notifications. You can reconnect at any time by repeating the steps above.
+
+## Connect your Slack account
+
+Personal Slack notifications send you a direct message as your pull requests are queued, tested, merged, or fail. Setting them up is covered in [Integration for Slack](../merge-queue/integration-for-slack#personal-slack-notifications).
+
+<Note>
+Connect your GitHub account as well. If you connect Slack without connecting GitHub, the **Slack** section displays a warning and you receive only Merge Queue updates — Trunk cannot match pull requests to you without knowing your GitHub identity. Connecting GitHub clears the warning and enables the full set of notification topics.
+</Note>
+
+## Frequently asked questions
+
+<AccordionGroup>
+<Accordion title="How is this different from the Trunk GitHub App?">
+They serve different purposes and are configured in different places.
+
+The [Trunk GitHub App](./github-app-permissions) is installed once per organization by an admin under **Settings** → **Organization** → **GitHub**. It grants Trunk access to your repositories so it can manage merge queue branches, read check results, and post pull request comments.
+
+The connection described on this page is per-user, made under **Settings** → **Account** → **Notifications**. It only identifies you, so Trunk knows which pull requests are yours. Your organization needs the GitHub App installed regardless of whether you personally connect your account.
+</Accordion>
+
+<Accordion title="Why are my Slack notifications limited to Merge Queue updates?">
+Because your GitHub account isn't connected. Most personal notifications are about your own pull requests, and Trunk can't determine which pull requests are yours until you link your GitHub identity. Until then, only Merge Queue updates are sent. Follow the steps in [Connect your GitHub account](./personal-notifications#connect-your-github-account) to enable the rest.
+</Accordion>
+
+<Accordion title="Does connecting my GitHub account give Trunk access to my code?">
+No. This connection grants read-only access to your GitHub profile information only. Access to repository contents comes from the [Trunk GitHub App](./github-app-permissions), which is installed separately at the organization level.
+</Accordion>
+</AccordionGroup>
