@@ -1,0 +1,21 @@
+---
+title: "Flaky Tests: Test Collections"
+description: "Group tests into named collections, each with its own flake detection, quarantining, and ticketing settings."
+slug: flaky-tests-test-collections
+date: 2026-09-15
+category: Flaky Tests
+type: new-feature
+---
+
+**Test Collections are the new way Flaky Tests is organized.**
+
+A collection is a named group of tests with independent flake detection, quarantining, and ticketing settings. You can hold fast unit tests and fragile end-to-end tests to different standards, or split one repository across several collections and see each one on its own dashboard.
+
+- **Route uploads with a Collection ID.** Create a collection in the Trunk app, then pass `--test-collection-id` (or `TRUNK_TEST_COLLECTION_ID`) to the uploader. Nothing else about your CI setup changes.
+- **Independent monitors, quarantining, and ticketing.** Every collection gets its own [flake detection monitors](/flaky-tests/detection), quarantine settings, and ticketing configuration. New collections start with baseline monitors so detection begins as soon as results arrive.
+- **Many-to-many with repositories.** A collection can pull tests from several repositories, and a repository can feed multiple collections. You decide by which collection ID you pass at upload time.
+- **Per-collection dashboard.** The collection's **Overview**, **Tests**, **Uploads**, **Quarantining**, **Monitors**, and **Settings** tabs replace the repository dashboards for anything uploaded with a collection ID.
+
+New organizations start on collections. Existing organizations can migrate one CI job at a time — uploads without a collection ID keep flowing to the repository view, and both views stay available while you move over. See the [migration guide](/flaky-tests/get-started/migrate-to-test-collections) for the recommended path, including how to re-apply quarantine overrides and switch on collection webhook events when your consumers are ready.
+
+Head to **Flaky Tests → Collections** to create your first one, or read the [Test Collections docs](/flaky-tests/test-collections) for the full reference.
