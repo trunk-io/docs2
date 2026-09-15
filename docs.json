@@ -1,6 +1,7 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "name": "Trunk Platform Documentation",
+  "public": true,
   "theme": "aspen",
   "colors": {
     "primary": "#346DDB",
@@ -117,10 +118,13 @@
                     "pages": [
                       "POST /cancelPullRequest",
                       "POST /getSubmittedPullRequest",
+                      "POST /getSubmittedPullRequests",
+                      "POST /listPullRequests",
                       "POST /restartTestsOnPullRequest",
                       "POST /setImpactedTargets",
                       "POST /submitPullRequest",
-                      "POST /getMergeQueueTestingDetails"
+                      "POST /getMergeQueueTestingDetails",
+                      "POST /listMergeQueueTestingResults"
                     ]
                   },
                   {
@@ -173,6 +177,7 @@
                 "group": "Overview",
                 "root": "flaky-tests/overview",
                 "pages": [
+                  "flaky-tests/test-collections",
                   "flaky-tests/dashboard"
                 ]
               },
@@ -180,6 +185,7 @@
                 "group": "Getting Started",
                 "root": "flaky-tests/get-started/index",
                 "pages": [
+                  "flaky-tests/get-started/migrate-to-test-collections",
                   {
                     "group": "Test frameworks",
                     "root": "flaky-tests/get-started/frameworks/index",
@@ -330,16 +336,32 @@
                   {
                     "group": "API reference",
                     "root": "flaky-tests/reference/api-reference",
-                    "openapi": {
-                      "directory": "/flaky-tests/reference/api-reference",
-                      "source": "/openapi.json"
-                    },
                     "pages": [
                       "POST /flaky-tests/get-test-details",
                       "POST /flaky-tests/link-ticket-to-test-case",
                       "POST /flaky-tests/list-failing-tests",
                       "POST /flaky-tests/list-unhealthy-tests",
                       "POST /flaky-tests/list-quarantined-tests"
+                    ],
+                    "openapi": {
+                      "directory": "/flaky-tests/reference/api-reference",
+                      "source": "/openapi.json"
+                    }
+                  },
+                  {
+                    "group": "API reference (v2)",
+                    "openapi": {
+                      "source": "/openapi-v2.json",
+                      "directory": "/flaky-tests/reference/api-reference/v2"
+                    },
+                    "pages": [
+                      "GET /v2/test-collections",
+                      "POST /v2/test-collections",
+                      "GET /v2/test-collections/{id}",
+                      "GET /v2/test-cases",
+                      "GET /v2/test-cases/{testCaseId}",
+                      "GET /v2/test-cases/{testCaseId}/status-history",
+                      "GET /v2/test-cases/{testCaseId}/test-runs"
                     ]
                   },
                   {
@@ -616,6 +638,12 @@
               }
             ]
           }
+        ]
+      },
+      {
+        "tab": "Dynamic CI",
+        "pages": [
+          "dynamic-ci/index"
         ]
       },
       {
@@ -2140,10 +2168,6 @@
     {
       "source": "/flaky-tests/quarantine-service-availability",
       "destination": "/flaky-tests/quarantining/quarantine-service-availability"
-    },
-    {
-      "source": "/flaky-tests/test-collections",
-      "destination": "/flaky-tests/get-started/test-collections"
     },
     {
       "source": "/flaky-tests/test-labels",

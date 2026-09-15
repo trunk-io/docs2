@@ -86,6 +86,7 @@ Run Tests and Upload to Trunk:
           ./trunk-analytics-cli upload \
             --junit-paths "<XML_GLOB_PATH>" \
             --org-url-slug ${bamboo.TRUNK_ORG_URL_SLUG} \
+            --test-collection-id ${bamboo.TRUNK_TEST_COLLECTION_ID} \
             --token ${bamboo.TRUNK_API_TOKEN}
 
 variables:
@@ -119,6 +120,7 @@ Run Tests and Upload to Trunk:
           ./trunk-analytics-cli upload \
             --bazel-bep-path <BEP_JSON_PATH> \
             --org-url-slug ${bamboo.TRUNK_ORG_URL_SLUG} \
+            --test-collection-id ${bamboo.TRUNK_TEST_COLLECTION_ID} \
             --token ${bamboo.TRUNK_API_TOKEN}
 
 variables:
@@ -152,6 +154,7 @@ Run Tests and Upload to Trunk:
           ./trunk-analytics-cli upload \
             --xcresult-path <XCRESULT_PATH> \
             --org-url-slug ${bamboo.TRUNK_ORG_URL_SLUG} \
+            --test-collection-id ${bamboo.TRUNK_TEST_COLLECTION_ID} \
             --token ${bamboo.TRUNK_API_TOKEN}
 
 variables:
