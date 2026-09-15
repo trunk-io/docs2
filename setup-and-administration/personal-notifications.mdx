@@ -47,7 +47,18 @@ Disconnecting stops notifications that depend on knowing your GitHub identity, i
 
 ## Connect your Slack account
 
-Personal Slack notifications send you a direct message as your pull requests are queued, tested, merged, or fail. Setting them up is covered in [Integration for Slack](../merge-queue/integration-for-slack#personal-slack-notifications).
+Personal Slack notifications send you a direct message as your pull requests are queued, tested, merged, or fail.
+
+The **Slack** section guides you through two steps, which you complete in order:
+
+1. **Connect your Slack workspace.** A Slack admin must install the Trunk app for your workspace. Click **Go to Slack settings** to reach the organization-level setup.
+2. **Complete setup in Slack.** Once the workspace is connected, click **Open in Slack** to open the Trunk Slack app's Home tab, where you link your personal account and choose your notification topics. This button stays disabled until step 1 is done.
+
+<Frame caption="The Slack setup steps before a workspace is connected. Open in Slack becomes available once step 1 is complete.">
+![](/assets/setup-and-administration/notifications-slack-setup-steps.png)
+</Frame>
+
+For the full walkthrough, including notification topics and the Slack Home dashboard, see [Integration for Slack](../merge-queue/integration-for-slack#personal-slack-notifications).
 
 <Note>
 Connect your GitHub account as well. If you connect Slack without connecting GitHub, the **Slack** section displays a warning and you receive only Merge Queue updates — Trunk cannot match pull requests to you without knowing your GitHub identity. Connecting GitHub clears the warning and enables the full set of notification topics.
