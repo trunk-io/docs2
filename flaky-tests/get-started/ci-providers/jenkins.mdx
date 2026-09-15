@@ -115,7 +115,7 @@ pipeline {
   }
   stages {
     stage('Run Tests and Upload Results to Trunk.io'){
-      sh 'TRUNK_ORG_URL_SLUG=$TRUNK_ORG_URL_SLUG TRUNK_API_TOKEN=$TRUNK_API_TOKEN bundle exec rspec'
+      sh 'TRUNK_ORG_URL_SLUG=$TRUNK_ORG_URL_SLUG TRUNK_TEST_COLLECTION_ID=$TRUNK_TEST_COLLECTION_ID TRUNK_API_TOKEN=$TRUNK_API_TOKEN bundle exec rspec'
     }
   }
 }

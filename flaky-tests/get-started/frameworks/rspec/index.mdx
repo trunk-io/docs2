@@ -99,6 +99,7 @@ You make an upload to Trunk using the following command:
 
 ```sh
 TRUNK_ORG_URL_SLUG=<TRUNK_ORG_URL_SLUG> \
+TRUNK_TEST_COLLECTION_ID=<TRUNK_TEST_COLLECTION_ID> \
 TRUNK_API_TOKEN=<TRUNK_ORG_TOKEN> \
 bundle exec rspec
 ```
@@ -113,7 +114,7 @@ After your upload, you can verify that Trunk has received and processed it succe
 </Frame>
 
 <Info>
-You do not need to download the `trunk-analytics-cli` when using the Trunk RSpec plugin. Uploads are handled for you as long as you have set `TRUNK_ORG_URL_SLUG` and `TRUNK_API_TOKEN`.
+You do not need to download the `trunk-analytics-cli` when using the Trunk RSpec plugin. Uploads are handled for you as long as you have set `TRUNK_ORG_URL_SLUG`, `TRUNK_API_TOKEN`, and `TRUNK_TEST_COLLECTION_ID`.
 </Info>
 
 ## Next Steps

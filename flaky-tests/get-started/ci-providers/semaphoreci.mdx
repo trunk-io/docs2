@@ -169,7 +169,7 @@ blocks:
       jobs:
         - name: Run Tests
           commands: 
-            - TRUNK_ORG_URL_SLUG=${TRUNK_ORG_URL_SLUG} TRUNK_API_TOKEN=${TRUNK_API_TOKEN} bundle exec rspec
+            - TRUNK_ORG_URL_SLUG=${TRUNK_ORG_URL_SLUG} TRUNK_TEST_COLLECTION_ID=${TRUNK_TEST_COLLECTION_ID} TRUNK_API_TOKEN=${TRUNK_API_TOKEN} bundle exec rspec
 ```
 </CodeGroup>
 
