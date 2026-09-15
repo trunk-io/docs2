@@ -128,9 +128,9 @@ jobs:
         continue-on-error: true # don't fail this job if the upload fails
         uses: trunk-io/analytics-uploader@v2
         with:
-          # Files, not globs. One run writes both: swift-testing results to
-          # junit-swift-testing.xml and XCTest results to junit.xml.
-          swift-test-xunit-paths: junit-swift-testing.xml,junit.xml
+          # One run writes both: swift-testing results to junit-swift-testing.xml
+          # and XCTest results to junit.xml, so one glob covers the pair.
+          swift-test-xunit-paths: junit*.xml
           org-slug: <TRUNK_ORG_URL_SLUG>
           token: ${{ secrets.TRUNK_API_TOKEN }}
 ```

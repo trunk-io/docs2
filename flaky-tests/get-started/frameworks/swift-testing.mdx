@@ -96,14 +96,15 @@ Before modifying your CI jobs to automatically upload test results to Trunk, try
 Upload `swift test` reports with the `--swift-test-xunit-paths` argument rather than `--junit-paths`:
 
 ```sh
-./trunk-analytics-cli upload \
-    --swift-test-xunit-paths "./junit-swift-testing.xml,./junit.xml" \
+./trunk-analytics-cli upload --swift-test-xunit-paths "./junit*.xml" \
     --org-url-slug <TRUNK_ORG_URL_SLUG> \
     --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
     --token <TRUNK_ORG_TOKEN>
 ```
 
-`--swift-test-xunit-paths` takes a comma-separated list of **files**, not globs. Drop `./junit.xml` from the list if your package has no XCTest cases. You can also supply the same list through the `TRUNK_SWIFT_TEST_XUNIT_PATHS` environment variable.
+`--swift-test-xunit-paths` takes a comma-separated list of glob patterns, resolved against your repository root exactly like `--junit-paths`. One pattern covers both files a run writes, or you can name them individually with `"./junit-swift-testing.xml,./junit.xml"`. A file matched by more than one pattern is uploaded once, so overlapping patterns don't duplicate tests.
+
+You can also supply the same list through the `TRUNK_SWIFT_TEST_XUNIT_PATHS` environment variable.
 
 You can find your Trunk organization slug and token in the settings or by following these [instructions](/flaky-tests/get-started/ci-providers/otherci#trunk-organization-slug-and-token). The collection ID identifies the [test collection](/flaky-tests/test-collections) the results belong to, and you copy it from that collection in the Trunk app. After your upload, you can verify that Trunk has received and processed it successfully in the **Uploads** tab. Warnings will be displayed if the report has issues.
 
