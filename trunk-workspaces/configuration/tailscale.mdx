@@ -1,0 +1,40 @@
+---
+title: "Tailscale"
+description: "Connect Trunk Workspaces to an organization's Tailscale network."
+groups: ["firewatch"]
+---
+
+{/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
+
+An organization Tailscale enrollment lets newly started workspaces join the
+organization's tailnet with the configured tags and naming rules.
+
+Navigate to **Settings** → **Organization** → **Tailscale** to inspect the current
+enrollment. Organization admins and owners can enroll or disconnect the organization;
+other members see the current read-only state.
+
+<Frame caption="Enroll the organization in Tailscale.">
+  ![The organization Tailscale settings
+  page.](/assets/trunk-workspaces/tailscale-settings.png)
+</Frame>
+
+<Steps>
+  <Step title="Start enrollment">
+    Click the enrollment action and complete the Tailscale authorization in your
+    browser.
+  </Step>
+  <Step title="Review the configuration">
+    Return to the trunk app and confirm that the organization is connected with
+    the expected tailnet and tags.
+  </Step>
+  <Step title="Start a workspace">
+    Create or resume a workspace so its boot process receives a fresh Tailscale
+    key.
+  </Step>
+</Steps>
+
+<Note>
+  Disconnecting the organization prevents later workspace boots from receiving a
+  key. It does not serve as an immediate remote kill switch for an
+  already-running Tailscale node.
+</Note>

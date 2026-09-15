@@ -1,0 +1,33 @@
+---
+title: "Use the terminal"
+description: "Open and organize terminal tabs in a Trunk Workspace."
+groups: ["firewatch"]
+---
+
+{/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
+
+The **Terminal** tab opens a shell in the selected workspace. Terminal sessions live
+in the remote sandbox and can reconnect after you navigate away or restart the app.
+
+## Work with tabs
+
+- Create, rename, reorder, and close terminal tabs from the tab strip.
+- Drag files into the workspace to upload them at the active terminal's working
+  directory.
+- Configure whether closing a tab requires confirmation under **Settings** →
+  **Appearance** → **Terminal**.
+- Move the terminal tab strip to the top or bottom from the same settings page.
+
+On macOS, use `Command+T` to create a terminal tab and `Command+W` to close one.
+Use `Shift+Command+W` to close the window. On Windows and Linux, use
+`Ctrl+Shift+T` and `Ctrl+Shift+W`; the terminal reserves bare `Ctrl+T` and
+`Ctrl+W` for shell applications.
+
+If the workspace is asleep or stopped, the terminal shows a **Wake** or **Resume**
+action instead of connecting. Resuming preserves the workspace disk, but a stopped
+workspace does not preserve in-memory processes.
+
+<Frame caption="A running workspace opens on the Terminal tab.">
+  ![A Trunk Workspace with the Terminal tab
+  selected.](/assets/trunk-workspaces/workspace-terminal.png)
+</Frame>
