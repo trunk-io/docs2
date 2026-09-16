@@ -95,7 +95,7 @@ The uploaded tests are processed by Trunk periodically, not in real-time. Wait f
 Trunk accepts uploads from three main report sources, [JUnit XML](https://github.com/testmoapp/junitxml), [Bazel Event Protocol JSONs](https://bazel.build/remote/bep#consuming-bep-text-json), and Swift (both XCode XCResult paths and the XML written by `swift test --xunit-output`). You can upload each of these test report sources using the `./trunk-analytics-cli upload` command like this:
 
 <Tabs>
-<Tab title="XML">
+<Tab title="JUnit XML">
 Trunk can accept JUnit XMLs through the `--junit-paths` argument:
 
 ```
@@ -185,7 +185,7 @@ You can also execute tests and upload results to Trunk in a single step using th
 This is especially useful for [Quarantining](../quarantining/), where the Trunk Analytics CLI will **override the exit code** of the test command if all failures can be quarantined, **preventing** flaky tests from failing your builds in CI.
 
 <Tabs>
-<Tab title="XML">
+<Tab title="JUnit XML">
 Trunk can accept JUnit XMLs through the `--junit-paths` argument:
 
 ```
