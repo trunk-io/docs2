@@ -1364,12 +1364,17 @@
           },
           "isForceEnqueued": {
             "type": "boolean",
-            "description": "Enqueue the pull request even though a readiness condition is unmet, letting the queue test it immediately instead of holding it in `notReady`. It does NOT bypass verification — required checks must still pass to merge. Rejected for org-token callers, whose enqueue lane cannot honour it. Write-only: the value is not reflected on `QueueEntry`.",
+            "description": "Enqueue the pull request even though a readiness condition is unmet, letting the queue test it immediately instead of holding it in `notReady`. It does NOT bypass verification — required checks must still pass to merge. Honoured on both lanes: a user token requires repository-admin permission in trunk1, while an org API key is trusted. Write-only: the value is not reflected on `QueueEntry`.",
+            "example": false
+          },
+          "allowBatching": {
+            "type": "boolean",
+            "description": "Whether this entry may be tested in a batch with others. `false` gives it a test run of its own, which is why it costs the same permission as changing priority. Omit to leave the entry's current setting alone.",
             "example": false
           }
         },
         "additionalProperties": false,
-        "description": "Patches one or more attributes of a live queue entry; at least one must be sent. `priorityValue` and `priorityName` are mutually exclusive. `skipsTheLine` is not accepted — it is derived from `priorityValue === 0`, so send that. `isForceEnqueued` is rejected for org-token callers, whose enqueue lane ignores the field.",
+        "description": "Patches one or more attributes of a live queue entry; at least one must be sent. `priorityValue` and `priorityName` are mutually exclusive. `skipsTheLine` is not accepted — it is derived from `priorityValue === 0`, so send that. An omitted field leaves that attribute of the entry unchanged.",
         "minProperties": 1,
         "not": {
           "required": ["priorityValue", "priorityName"]
@@ -1454,7 +1459,8 @@
           "merge-failure",
           "mid-pr-stack",
           "required-check",
-          "merge-queue-is-required"
+          "merge-queue-is-required",
+          "paths-filter"
         ],
         "description": "Which independent signal produced a contribution to a job's verdict. These identifiers are also what `ignoreSignals` accepts.",
         "example": "historical-pass-rate"
@@ -1534,11 +1540,6 @@
             "description": "`github.event_name`.",
             "example": "pull_request"
           },
-          "workflowPath": {
-            "type": "string",
-            "description": "From `github.workflow_ref`; identifies the workflow whose jobs are in scope.",
-            "example": ".github/workflows/ci.yaml"
-          },
           "jobKeys": {
             "type": "array",
             "items": {
@@ -1557,6 +1558,11 @@
             "maxItems": 64,
             "description": "Signals to drop from the tally. An unrecognized identifier is rejected, so a typo surfaces.",
             "example": ["estimated-cost"]
+          },
+          "workflowPath": {
+            "type": "string",
+            "description": "From `github.workflow_ref`; identifies the workflow whose jobs are in scope.",
+            "example": ".github/workflows/ci.yaml"
           }
         },
         "required": [
@@ -1589,6 +1595,97 @@
           }
         },
         "required": ["owner", "name"]
+      },
+      "BuildkitePlanRequest": {
+        "type": "object",
+        "properties": {
+          "repo": {
+            "$ref": "#/components/schemas/PlanRepo"
+          },
+          "commitSha": {
+            "type": "string",
+            "description": "The commit being built — `BUILDKITE_COMMIT`.",
+            "example": "9f2c1b7c2b4c9d1e0a3f5b6c7d8e9f0a1b2c3d4e"
+          },
+          "baseSha": {
+            "type": ["string", "null"],
+            "description": "The commit to diff against. Null for a non-pull-request event, leaving diff-derived signals without evidence.",
+            "example": "1a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d"
+          },
+          "branch": {
+            "type": "string",
+            "example": "feature/widget-cache"
+          },
+          "prNumber": {
+            "type": ["integer", "null"],
+            "description": "Null for a non-pull-request event.",
+            "example": 4213
+          },
+          "runId": {
+            "type": "string",
+            "description": "`BUILDKITE_BUILD_ID`, recorded so the plan can later be scored against the build's outcome.",
+            "example": "01a0a151-99d4-4097-8806-a837f0830d9d"
+          },
+          "runAttempt": {
+            "type": "integer",
+            "description": "Which attempt this is, counting from 1. An agent's `BUILDKITE_RETRY_COUNT` counts from 0, so send it plus one.",
+            "example": 1
+          },
+          "triggeringActor": {
+            "type": "string",
+            "description": "`BUILDKITE_BUILD_CREATOR`.",
+            "example": "octocat"
+          },
+          "eventName": {
+            "type": "string",
+            "description": "What triggered the build — `BUILDKITE_SOURCE`.",
+            "example": "webhook"
+          },
+          "jobKeys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 1000,
+            "default": [],
+            "description": "The step `key:` values to decide — what Trunk ingests from `buildkite.step.key`. **Empty means every keyed step in the pipeline** — the usual call.",
+            "example": ["unit-tests"]
+          },
+          "ignoreSignals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SignalType"
+            },
+            "maxItems": 64,
+            "description": "Signals to drop from the tally. An unrecognized identifier is rejected, so a typo surfaces.",
+            "example": ["estimated-cost"]
+          },
+          "buildkiteOrganizationSlug": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "`BUILDKITE_ORGANIZATION_SLUG` on an agent.",
+            "example": "acme"
+          },
+          "buildkitePipelineSlug": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "`BUILDKITE_PIPELINE_SLUG` on an agent.",
+            "example": "widgets-pr"
+          }
+        },
+        "required": [
+          "repo",
+          "commitSha",
+          "baseSha",
+          "branch",
+          "prNumber",
+          "runId",
+          "runAttempt",
+          "buildkiteOrganizationSlug",
+          "buildkitePipelineSlug"
+        ]
       },
       "CiWorkflowList": {
         "type": "object",
@@ -1953,21 +2050,127 @@
             "type": "string",
             "example": "slow-on-prs"
           },
-          "color": {
-            "type": "string",
-            "example": "#4F46E5"
-          },
           "description": {
             "type": "string",
             "example": "Tests that only get slow on pull-request runs."
           },
-          "createdAt": {
+          "assignedAt": {
             "type": "string",
             "format": "date-time",
+            "description": "The earliest of `sources[].assignedAt`. Exact when a user applied the label; see `MonitorLabelSource.assignedAt` for when a monitor did.",
             "example": "2026-05-01T00:00:00.000Z"
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LabelSource"
+            },
+            "maxItems": 100,
+            "description": "Everything that put this label on the test. More than one entry means several sources applied the same label independently; removing it clears them all."
           }
         },
-        "required": ["id", "name", "color", "description", "createdAt"]
+        "required": ["id", "name", "description", "assignedAt", "sources"],
+        "description": "A label on a test case, folded across its sources — one entry per label, never one per assignment."
+      },
+      "LabelSource": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/UserLabelSource"
+          },
+          {
+            "$ref": "#/components/schemas/MonitorLabelSource"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "type",
+          "mapping": {
+            "user": "#/components/schemas/UserLabelSource",
+            "monitor": "#/components/schemas/MonitorLabelSource"
+          }
+        },
+        "description": "Something that put a label on a test case. A `user` source carries no monitor fields and a `monitor` source carries no user."
+      },
+      "UserLabelSource": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["user"]
+          },
+          "user": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LabelUser"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Who applied the label. Null when an API token did — a token resolves to no user."
+          },
+          "assignedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the user applied the label.",
+            "example": "2026-06-01T00:00:00.000Z"
+          }
+        },
+        "required": ["type", "user", "assignedAt"],
+        "description": "A label applied by hand."
+      },
+      "LabelUser": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "6f708192-a3b4-4c5d-8e9f-0a1b2c3d4e5f"
+          },
+          "name": {
+            "type": ["string", "null"],
+            "description": "Null only if the user record could not be resolved; the id still identifies them.",
+            "example": "Ada Lovelace"
+          }
+        },
+        "required": ["id", "name"],
+        "description": "The person who applied a label."
+      },
+      "MonitorLabelSource": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["monitor"]
+          },
+          "monitorId": {
+            "type": "string",
+            "example": "1a2b3c4d-5e6f-4a1b-8c9d-0e1f2a3b4c5d"
+          },
+          "monitorType": {
+            "$ref": "#/components/schemas/LabelingMonitorType"
+          },
+          "assignedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The monitor has applied this label since at least this time. Muting the monitor, then unmuting it, and editing its label action all re-create the assignment, so this can be later than the first time it applied the label.",
+            "example": "2026-06-01T00:00:00.000Z"
+          }
+        },
+        "required": ["type", "monitorId", "monitorType", "assignedAt"],
+        "description": "A label applied by a monitor."
+      },
+      "LabelingMonitorType": {
+        "type": "string",
+        "enum": [
+          "failureRate",
+          "passOnRetry",
+          "failureCount",
+          "newTest",
+          "skippedTest",
+          "slowTest",
+          "timeoutInflation"
+        ],
+        "description": "A monitor type that can apply a label.",
+        "example": "failureRate"
       },
       "TestCaseMetrics": {
         "type": "object",
@@ -2051,9 +2254,15 @@
           },
           "monitorType": {
             "$ref": "#/components/schemas/ActiveMonitorType"
+          },
+          "activeSince": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The monitor has been active on this test since at least this time.",
+            "example": "2026-06-05T00:00:00.000Z"
           }
         },
-        "required": ["monitorId", "monitorType"],
+        "required": ["monitorId", "monitorType", "activeSince"],
         "description": "A monitor watching this test. Includes types that never affect its status."
       },
       "ActiveMonitorType": {
@@ -2130,6 +2339,12 @@
           "status": {
             "$ref": "#/components/schemas/TestStatus"
           },
+          "statusSince": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "When `status` last changed — how long the test has been in its current state. Null for a test no monitor has ever classified.",
+            "example": "2026-06-01T10:00:00.000Z"
+          },
           "quarantineState": {
             "$ref": "#/components/schemas/QuarantineState"
           },
@@ -2165,6 +2380,7 @@
           "crossVariantId",
           "codeowners",
           "status",
+          "statusSince",
           "quarantineState",
           "labels"
         ]
@@ -2600,6 +2816,16 @@
           },
           "401": {
             "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`INSUFFICIENT_PERMISSIONS`",
             "content": {
               "application/json": {
                 "schema": {
@@ -4725,7 +4951,7 @@
         "operationId": "pullRequests.updateQueueEntry",
         "tags": ["pullRequests"],
         "summary": "Update a queued pull request's entry",
-        "description": "Patches a live queue entry. `priorityValue` and `priorityName` are mutually exclusive. `skipsTheLine` is not settable — it is derived from `priorityValue === 0`, so send that instead. `isForceEnqueued` force-enqueues past unmet readiness (an org API key is trusted; a user token requires repository-admin permission).",
+        "description": "Patches a live queue entry; an omitted field leaves that attribute unchanged. `priorityValue` and `priorityName` are mutually exclusive. `skipsTheLine` is not settable — it is derived from `priorityValue === 0`, so send that instead. `isForceEnqueued` force-enqueues past unmet readiness (an org API key is trusted; a user token requires repository-admin permission). `allowBatching: false` gives the entry a test run of its own.",
         "parameters": [
           {
             "schema": {
@@ -5104,6 +5330,96 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/CiPlanRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The plan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CiPlan"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`VALIDATION_FAILED` | `CI_HOST_UNSUPPORTED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`REPOSITORY_NOT_FOUND`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "`UPSTREAM_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/dynamic-ci/generate-buildkite-plan": {
+      "post": {
+        "operationId": "dynamicCi.generateBuildkitePlan",
+        "tags": ["dynamicCi"],
+        "summary": "Generate a CI skip plan for a Buildkite pipeline",
+        "description": "As [`dynamicCi.generatePlan`](#tag/dynamicCi/operation/dynamicCi.generatePlan), for a Buildkite pipeline. Identical request and response but for the workflow identity: Buildkite has no workflow file, so the pipeline is named by the organization and pipeline slugs its agent exports, and `jobKeys` are step `key:` values.\n\n**Fail open.** A job absent from `jobs` must be run — that is the contract, not an error. Treat any non-200 the same way.\n\nThe changed file set is not sent: Trunk fetches the diff between `baseSha` and `commitSha` through your GitHub App installation.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BuildkitePlanRequest"
               }
             }
           }
@@ -5625,6 +5941,16 @@
           },
           "401": {
             "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`INSUFFICIENT_PERMISSIONS`",
             "content": {
               "application/json": {
                 "schema": {
@@ -6174,6 +6500,16 @@
               }
             }
           },
+          "403": {
+            "description": "`INSUFFICIENT_PERMISSIONS`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "429": {
             "description": "`RATE_LIMIT_EXCEEDED`",
             "content": {
@@ -6614,6 +6950,16 @@
           },
           "401": {
             "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`INSUFFICIENT_PERMISSIONS`",
             "content": {
               "application/json": {
                 "schema": {
