@@ -12,7 +12,6 @@ Work through the steps below in order. Once you've finished the last one, you'll
 <Steps>
   <Step title={<a href="#generating-reports">Generate a compatible test report</a>} />
   <Step title={<a href="#report-file-path">Configure the report file path or glob</a>} />
-  <Step title={<a href="#disable-retries">Disable retries for better detection accuracy</a>} />
   <Step title={<a href="#try-it-locally">Test uploads locally</a>} />
 </Steps>
 
@@ -91,23 +90,6 @@ You can change the report file path by configuring the `reportsDirectory` in you
 ```
 
 The example above will output JUnit XML reports that can be located with the `/target/junit/*.xml` glob.
-</Tab>
-</Tabs>
-
-### Disable Retries
-
-You need to disable automatic retries if you previously enabled them. Retries compromise the accurate detection of flaky tests. You should disable retries for accurate detection and use the [Quarantining](../../quarantining/) feature to stop flaky tests from failing your CI jobs.
-
-<Tabs>
-<Tab title="Gradle">
-If you've enabled retries using a plugin like the [test-retry-gradle-plugin](https://github.com/gradle/test-retry-gradle-plugin), disable it when running tests for Trunk Flaky Tests.
-</Tab>
-<Tab title="Maven">
-Maven uses the `maven-surefire-plugin` to run tests, which allows you to control the test retry behavior. You can disable retries by specifying 0 retries:
-
-```
-mvn -Dsurefire.rerunFailingTestsCount=0 test
-```
 </Tab>
 </Tabs>
 

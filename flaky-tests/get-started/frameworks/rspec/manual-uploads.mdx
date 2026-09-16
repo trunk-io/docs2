@@ -16,7 +16,6 @@ Work through the steps below in order. Once you've finished the last one, you'll
 <Steps>
   <Step title={<a href="#generating-reports">Generate a compatible test report</a>} />
   <Step title={<a href="#report-file-path">Configure the report file path or glob</a>} />
-  <Step title={<a href="#disable-retries">Disable retries for better detection accuracy</a>} />
   <Step title={<a href="#try-it-locally">Test uploads locally</a>} />
 </Steps>
 
@@ -39,12 +38,6 @@ rspec --format RspecJunitFormatter --out junit.xml
 ### Report File Path
 
 The JUnit report will be written to the location specified by the `--out` argument. In the example above, the report would be at `./junit.xml`. You will need this when you update your CI config to integrate with Trunk.
-
-### Disable Retries
-
-You need to disable automatic retries if you previously enabled them. Retries compromise the accurate detection of flaky tests.
-
-If you have a step in CI to rerun failed tests with the `--only-failures` option, or you're using a package like [rspec-retry](https://github.com/NoRedInk/rspec-retry), remember to disable them.
 
 ## Try It Locally
 

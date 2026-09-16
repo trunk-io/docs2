@@ -12,7 +12,6 @@ Work through the steps below in order. Once you've finished the last one, you'll
 <Steps>
   <Step title={<a href="#generating-reports">Generate a compatible test report</a>} />
   <Step title={<a href="#report-file-path">Configure the report file path or glob</a>} />
-  <Step title={<a href="#disable-retries">Disable retries for better detection accuracy</a>} />
   <Step title={<a href="#try-it-locally">Test uploads locally</a>} />
 </Steps>
 
@@ -41,36 +40,6 @@ def main(plan):
     ...
 ```
 </CodeGroup>
-
-## Disable Retries
-
-You need to disable automatic retries if you previously enabled them. Retries compromise the accurate detection of flaky tests. You should disable retries for accurate detection and use the [Quarantining](../../quarantining/) feature to stop flaky tests from failing your CI jobs.
-
-### Task-level Retries
-
-If you're using execution pools (ThreadPool, ProcessPool) and have configured tasks with the rerun parameter, you should remove this configuration:
-
-```python
-# Remove or set rerun=0
-task = Task(target='make_multitest', module='tasks', rerun=2) 
-plan.schedule(task, resource='MyPool')
-
-# Instead, use:
-task = Task(target='make_multitest', module='tasks')
-plan.schedule(task, resource='MyPool')
-```
-
-### Thread Pool Retries
-
-If you're using ThreadPools, tasks retries can be disabled at the pool level, you should remove this configuration:
-
-```python
-# Set allow_task_rerun=FALSE
-pool = ThreadPool(name="MyPool", allow_task_rerun=True) 
-
-# Instead, use:
-pool = ThreadPool(name="MyPool", allow_task_rerun=False)
-```
 
 ## Try It Locally
 

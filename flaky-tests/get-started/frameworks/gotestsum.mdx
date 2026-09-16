@@ -16,7 +16,6 @@ Work through the steps below in order. Once you've finished the last one, you'll
 <Steps>
   <Step title={<a href="#generating-junit-xml-reports-from-go-tests">Generate a compatible test report (JUnit XML)</a>} />
   <Step title={<a href="#report-file-path">Configure the report file path or glob</a>} />
-  <Step title={<a href="#disable-retries">Disable retries for better detection accuracy</a>} />
   <Step title={<a href="#try-it-locally">Test uploads locally</a>} />
 </Steps>
 
@@ -58,12 +57,6 @@ The tools will write a JUnit test report to the file specified (e.g., `junit.xml
 <Info>
 If a subtest's top-level duration is reported as 0ms, timing-based analysis in the dashboard has less to work with for that case. See [Known limitations](../../dashboard#known-limitations) for the recommended workaround.
 </Info>
-
-#### Disable Retries
-
-Regardless of the tool chosen, you need to disable automatic retries if you previously enabled them. Retries compromise the accurate detection of flaky tests.\
-\
-If you're using a package like [**retry**](https://pkg.go.dev/github.com/hashicorp/consul/sdk/testutil/retry), disable it to get more accurate results from Trunk.
 
 ## Try It Locally
 
