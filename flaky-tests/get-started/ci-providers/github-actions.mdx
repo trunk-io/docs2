@@ -113,6 +113,28 @@ jobs:
           test-collection-id: <TRUNK_TEST_COLLECTION_ID>
           token: ${{ secrets.TRUNK_API_TOKEN }}
 ```
+```yaml Swift Test XUnit
+jobs:
+  test:
+    name: Upload Tests
+    runs-on: macos-latest
+
+    steps:
+      - name: Run Tests
+        run: swift test --parallel --xunit-output junit.xml
+
+      - name: Upload Test Results to Trunk.io
+        if: ${{ !cancelled() }} # Upload the results even if the tests fail
+        continue-on-error: true # don't fail this job if the upload fails
+        uses: trunk-io/analytics-uploader@v2
+        with:
+          # One run writes both: swift-testing results to junit-swift-testing.xml
+          # and XCTest results to junit.xml, so one glob covers the pair.
+          swift-test-xunit-paths: junit*.xml
+          org-slug: <TRUNK_ORG_URL_SLUG>
+          test-collection-id: <TRUNK_TEST_COLLECTION_ID>
+          token: ${{ secrets.TRUNK_API_TOKEN }}
+```
 ```yaml RSpec plugin
 jobs:
   test:
