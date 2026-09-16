@@ -356,10 +356,13 @@ mq_testing_slots_active{branch="main",queue_type="main"} / 8
 **Failure analysis:**
 
 ```promql
-# Failure rate over the last hour
+# Failure rate over the last hour, per repo.
+# Restrict the denominator to the three exit conclusions: this metric also carries
+# non-terminal `conclusion` values, and a bare sum() over it inflates the denominator
+# and strips `repo` so the result is not per-repo either.
 mq_pr_conclusions_1h_total{conclusion="failed"}
-  /
-ignoring(conclusion) sum(mq_pr_conclusions_1h_total)
+  /ignoring(conclusion)
+sum without (conclusion) (mq_pr_conclusions_1h_total{conclusion=~"merged|failed|cancelled"})
 
 # Alert on high failure count
 mq_pr_conclusions_1h_total{conclusion="failed"} > 5
@@ -368,14 +371,18 @@ mq_pr_conclusions_1h_total{conclusion="failed"} > 5
 **Duration analysis:**
 
 ```promql
-# P90 wait time (time before testing starts)
-histogram_quantile(0.90, sum(mq_pr_wait_duration_1h_seconds_bucket) by (le))
+# P90 wait time (time before testing starts), per repo. Keep `repo` in the `by`
+# clause when scraping a whole org, or every repo blends into one number.
+histogram_quantile(0.90, sum by (le, repo) (mq_pr_wait_duration_1h_seconds_bucket))
 
 # Average wait time
 mq_pr_wait_duration_1h_seconds_sum / mq_pr_wait_duration_1h_seconds_count
 
-# Restart ratio (restarts per merge)
-mq_pr_restarts_1h_total / mq_pr_conclusions_1h_total{conclusion="merged"}
+# Restart ratio (restarts per merge). `conclusion` exists on one side only,
+# so it has to be ignored or the two vectors never match and the panel is empty.
+mq_pr_restarts_1h_total
+  /ignoring(conclusion)
+mq_pr_conclusions_1h_total{conclusion="merged"}
 ```
 
 **Per-state analysis:**
