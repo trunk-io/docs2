@@ -233,7 +233,13 @@ All metrics include these labels:
 
 Each histogram emits `_bucket{le="..."}`, `_sum`, and `_count` series. Bucket boundaries (in seconds): 60, 300, 600, 900, 1800, 3600, 5400, 7200, +Inf.
 
-Each histogram also has companion percentile gauges — `_p50`, `_p75`, `_p90`, `_p95`, and `_p99` — carrying the same labels as the histogram they belong to. These are computed by Trunk over the same rolling window, so you can read a quantile directly instead of interpolating one out of the buckets with `histogram_quantile()`.
+Every one of these histograms also has companion percentile gauges — `_p50`, `_p75`, `_p90`, `_p95`, and `_p99`. Each carries the same labels as its histogram except `le`, which is a bucket boundary and so has no meaning on a percentile. For example, `mq_pr_time_in_queue_1h_seconds_p95{repo="...",branch="...",queue_type="...",conclusion="..."}`.
+
+Trunk computes these over the raw observations in the window, not from the buckets, so prefer them over `histogram_quantile()`: a bucket-derived quantile above the top boundary of 7200s can only be extrapolated and is not trustworthy, while the gauges stay accurate into the tail.
+
+<Warning>
+Percentiles are already aggregated, so they cannot be re-aggregated. `avg()` or `sum()` over a `_p95` across repos or branches does not produce the p95 of the combined population. To get a quantile spanning several repos, use `histogram_quantile()` over their summed `_bucket` series instead, accepting the 7200s ceiling.
+</Warning>
 
 For clarity, PRs in the "Waiting to Enter Queue" state (submitted to the queue but still waiting on prerequisites such as GitHub mergeability before they can be admitted to the queue) are not considered to be "in the queue" yet. So any time spent in this state is not counted in the Wait Duration or Time in Queue metrics. It is reported separately by `mq_pr_state_duration_1h_seconds` under `state="not_ready"`.
 
@@ -245,24 +251,28 @@ Rolling window metrics use **gauge semantics**, not true Prometheus counters. Th
 
 `mq_pr_state_duration_1h_seconds` breaks time down by the state a PR was sitting in, rather than by the queue as a whole. Where `mq_pr_wait_duration_1h_seconds` and `mq_pr_test_duration_1h_seconds` each cover one state, this metric covers every state, with the state carried on a `state` label:
 
-| `state` | Meaning |
-| --- | --- |
-| `not_ready` | Waiting to be admitted to the queue, on prerequisites such as required reviews, status checks, or GitHub mergeability |
-| `pending` | In the queue, waiting for a testing slot |
-| `testing` | Running the required tests |
-| `tests_passed` | Tests passed, waiting on the PRs ahead of it to merge first |
-| `pending_failure` | Held behind a PR that failed, under [pending failure depth](../optimizations/pending-failure-depth) |
-| `merged`, `failed`, `cancelled` | Terminal states — see the caveat below |
+| `state` | Meaning | Counted in Time in queue? |
+| --- | --- | --- |
+| `not_ready` | Waiting to be admitted to the queue, on prerequisites such as required reviews, status checks, or GitHub mergeability. The PRs counted by the `mq_awaiting_mergeability` gauge are the ones currently in this state. | No — not yet in the queue |
+| `pending` | In the queue, waiting for a testing slot | Yes |
+| `testing` | Running the required tests | Yes |
+| `tests_passed` | Tests passed, waiting on the PRs ahead of it to merge first | Yes |
+| `pending_failure` | Held behind a PR that failed, under [pending failure depth](../optimizations/pending-failure-depth) | Yes |
+| `merged`, `failed`, `cancelled` | Terminal states — see the caveat below | No — the PR has exited |
 
-The label is not a fixed list. It reports the state your queue actually recorded, so a state added later shows up as a new label value rather than going missing.
+The four states marked Yes are exactly what `mq_pr_time_in_queue_1h_seconds` sums, so `state=~"pending|testing|tests_passed|pending_failure"` is the selector that decomposes Time in queue. Use it rather than excluding the terminal states by name: the state label is an open set, so a state added later is picked up by a deny-list regex whether or not it belongs in the total.
 
 **A duration is recorded when a PR leaves a state.** A `state` series appears only once at least one PR exited that state during the window — a state that nothing left contributes no series at all, rather than a series reading zero. Time a PR is still accruing in its current state is not counted until it moves on.
 
+That makes this metric retrospective, and a poor primary signal for paging. During an active stall nothing is leaving the stalled state, so the series you would alert on thins out or disappears entirely, and only recovers once PRs start draining again. Alert on a stall with the point-in-time gauges — `mq_depth_current`, `mq_prs_testing`, `mq_awaiting_mergeability` — which report the queue as it stands right now, and use the state durations for SLOs, trend review, and working out where to optimize.
+
 <Warning>
-**Terminal states measure something different.** `merged`, `failed`, and `cancelled` are only ever left when the same PR is re-submitted to the queue, so those series measure time-until-resubmit, which commonly runs to days and lands in the `+Inf` bucket. Filter them out (for example `state!~"merged|failed|cancelled"`) before aggregating across states, or they will drag your quantiles out.
+**Terminal states measure something different.** `merged`, `failed`, and `cancelled` are only ever left when the same PR is re-submitted to the queue, so those series measure time-until-resubmit, which commonly runs to days and lands in the `+Inf` bucket. Select the in-queue states explicitly (`state=~"pending|testing|tests_passed|pending_failure"`) before aggregating across states, or they will drag your quantiles out.
 </Warning>
 
-`state="pending"` and `state="testing"` report the same durations as `mq_pr_wait_duration_1h_seconds` and `mq_pr_test_duration_1h_seconds`. Those two metrics are unchanged and are not going away, so existing dashboards and alerts keep working as they are.
+`state="pending"` and `state="testing"` are computed from the same observations as `mq_pr_wait_duration_1h_seconds` and `mq_pr_test_duration_1h_seconds` and report the same values. Those two metrics are unchanged and are not going away, so existing dashboards and alerts keep working as they are.
+
+For new dashboards, prefer `mq_pr_state_duration_1h_seconds`: one metric covers every state, so adding a panel for another phase of the queue is a label change rather than a new metric. The one difference to know about is presence rather than value — the older metrics emit a zero-filled histogram whenever a repo saw any queue activity in the window, whereas a `state` series is absent unless that particular state was exited. An absent series and a present zero behave differently in PromQL, so a panel or alert that must render something even on an idle queue needs `or vector(0)`, or the older metric.
 
 ### Scrape configuration
 
@@ -374,32 +384,50 @@ mq_pr_restarts_1h_total / mq_pr_conclusions_1h_total{conclusion="merged"}
 # P90 time spent waiting for a testing slot, read straight off the percentile gauge
 mq_pr_state_duration_1h_seconds_p90{state="pending"}
 
-# Where is the time going? Mean seconds per state, terminal states excluded
-sum by (state) (mq_pr_state_duration_1h_seconds_sum{state!~"merged|failed|cancelled"})
+# Where is the time going? Mean seconds per state, for the states that make up time in queue
+sum by (state) (mq_pr_state_duration_1h_seconds_sum{state=~"pending|testing|tests_passed|pending_failure"})
   /
-sum by (state) (mq_pr_state_duration_1h_seconds_count{state!~"merged|failed|cancelled"})
+sum by (state) (mq_pr_state_duration_1h_seconds_count{state=~"pending|testing|tests_passed|pending_failure"})
 
-# Alert when PRs are queueing up behind a failure
-mq_pr_state_duration_1h_seconds_p95{state="pending_failure"} > 1800
+# Same breakdown as a share of total queue time - the one panel that answers
+# "which phase should we optimize?"
+sum by (state) (mq_pr_state_duration_1h_seconds_sum{state=~"pending|testing|tests_passed|pending_failure"})
+  /ignoring(state) group_left
+sum (mq_pr_state_duration_1h_seconds_sum{state=~"pending|testing|tests_passed|pending_failure"})
 
-# P95 for one state, computed from the buckets
-histogram_quantile(0.95, sum(mq_pr_state_duration_1h_seconds_bucket{state="testing"}) by (le))
+# P95 per state across several repos. Keep `state` in the `by` clause, or every state
+# collapses into one line.
+histogram_quantile(
+  0.95,
+  sum by (le, state) (mq_pr_state_duration_1h_seconds_bucket{state=~"pending|testing|tests_passed|pending_failure"})
+)
+
+# How much testing work is being thrown away: share of testing time that ended in a restart
+mq_pr_restarts_1h_total
+  /ignoring(state)
+mq_pr_state_duration_1h_seconds_count{state="testing"}
 ```
+
+Set a threshold for an alert from your own baseline rather than from a figure here — a healthy p95 testing duration is whatever your test suite takes, and differs by an order of magnitude between repos. Read the metric for a week first, then alert on a multiple of what you saw. And see the note above on why a stalled queue is better caught with the point-in-time gauges than with these.
 
 ### Sample output
 
 ```
-# HELP mq_depth_current PRs currently in the queue
+# HELP mq_depth_current Number of PRs currently in the queue (in any non-terminal state).
 # TYPE mq_depth_current gauge
 mq_depth_current{repo="my-org/my-repo",branch="main",queue_type="main"} 4
 
-# HELP mq_awaiting_mergeability Number of PRs currently awaiting mergeability
+# HELP mq_awaiting_mergeability Number of PRs currently awaiting mergeability before being admitted to the queue.
 # TYPE mq_awaiting_mergeability gauge
 mq_awaiting_mergeability{repo="my-org/my-repo",branch="main",queue_type="main"} 1
 
-# HELP mq_testing_slots_active PRs currently in TESTING state
+# HELP mq_testing_slots_active Number of test runs currently executing, representing active CI concurrency consumption. A batch of PRs testing together counts as one slot.
 # TYPE mq_testing_slots_active gauge
 mq_testing_slots_active{repo="my-org/my-repo",branch="main",queue_type="main"} 3
+
+# HELP mq_prs_testing Number of PRs currently in TESTING state. With batching enabled this can exceed mq_testing_slots_active, since one test run covers every PR in its batch.
+# TYPE mq_prs_testing gauge
+mq_prs_testing{repo="my-org/my-repo",branch="main",queue_type="main"} 5
 
 # HELP mq_pr_conclusions_1h_total PRs exiting the queue in last hour
 # TYPE mq_pr_conclusions_1h_total gauge
