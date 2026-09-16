@@ -1,0 +1,45 @@
+---
+title: "Desktop reference"
+description: "Desktop-specific behavior, keyboard shortcuts, SSH setup, notifications, and updates."
+groups: ["firewatch"]
+---
+
+{/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
+
+## Keyboard shortcuts
+
+| Action              | macOS             | Windows and Linux            |
+| ------------------- | ----------------- | ---------------------------- |
+| Create terminal tab | `Command+T`       | `Ctrl+Shift+T`               |
+| Close terminal tab  | `Command+W`       | `Ctrl+Shift+W`               |
+| Close window        | `Shift+Command+W` | Use the window close control |
+
+On macOS, `Command+W` closes the window when the current screen has no terminal tab
+to close.
+
+## SSH configuration
+
+After authentication, the desktop app maintains a Trunk-managed block in your user
+SSH configuration. Remote-editor links use this configuration to reach the selected
+workspace. Windows uses a bundled proxy helper; macOS and Linux use the helper
+installed with the app.
+
+If a remote editor cannot connect, confirm that the workspace is running, then retry
+the editor link from **Details** → **Summary** → **Remote connection**.
+
+## Localhost forwarding
+
+While a workspace is selected, the app listens on `127.0.0.1` for its exposed HTTP
+ports. Forwarding is opt-out per workspace and stored on the current device. See
+[Connect to a workspace](/trunk-workspaces/workspaces/connect).
+
+## Notifications
+
+The app can raise a native notification when an agent session needs attention. Your
+operating system may ask for notification permission the first time this occurs.
+
+## Updates
+
+The app checks its production update channel and presents available release notes.
+Windows and macOS use the in-app updater. Linux packages register the production
+Trunk apt or yum repository so the system package manager can install updates.
