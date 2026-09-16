@@ -92,7 +92,7 @@ Your organization slug is the tail of your dashboard URL (`app.trunk.io/<org-slu
 The uploaded tests are processed by Trunk periodically, not in real-time. Wait for at least an hour after the initial upload before they’re displayed in the [Uploads tab](/flaky-tests/get-started#step-3-verify-integration). Multiple uploads are required before a test can be accurately detected as flaky.
 </Info>
 
-Trunk accepts uploads from three main report sources, [XML](https://github.com/testmoapp/junitxml), [Bazel Event Protocol JSONs](https://bazel.build/remote/bep#consuming-bep-text-json), and Swift (both XCode XCResult paths and the XML written by `swift test --xunit-output`). You can upload each of these test report sources using the `./trunk-analytics-cli upload` command like this:
+Trunk accepts uploads from three main report sources, [JUnit XML](https://github.com/testmoapp/junitxml), [Bazel Event Protocol JSONs](https://bazel.build/remote/bep#consuming-bep-text-json), and Swift (both XCode XCResult paths and the XML written by `swift test --xunit-output`). You can upload each of these test report sources using the `./trunk-analytics-cli upload` command like this:
 
 <Tabs>
 <Tab title="XML">
