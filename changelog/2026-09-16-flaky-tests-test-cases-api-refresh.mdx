@@ -1,0 +1,23 @@
+---
+title: "Flaky Tests: Test Cases API response updates"
+description: "The v2 Test Cases API now returns label provenance, monitor activation timestamps, and how long a test has been in its current status."
+slug: flaky-tests-test-cases-api-refresh
+date: 2026-09-16
+category: Flaky Tests
+type: update
+---
+
+**The v2 Test Cases API response shape has changed. If you consume it, review the updates below before your next deploy.**
+
+## What's new
+
+- **Label provenance.** Each label on a test case now includes a `sources[]` array showing everything that applied it (a user, a monitor, and so on), folded into one entry per label. A new top-level `assignedAt` on the label reflects the earliest of those sources.
+- **`ActiveMonitor.activeSince`.** Each active monitor watching a test now reports when it started watching, so you can tell how long a monitor has been in play without cross-referencing other endpoints.
+- **`TestCaseSummary.statusSince`.** Test case summaries now include how long the test has been in its current status. It's `null` for tests no monitor has ever classified.
+- **`403 INSUFFICIENT_PERMISSIONS`** is now documented on `GET /v2/test-cases` and `GET /v2/test-collections` so you can handle it explicitly alongside the existing error codes.
+
+## Breaking change on labels
+
+The `Label` object no longer includes `color` or `createdAt`. If your integration reads either field, switch to `sources[]` for attribution and `assignedAt` for timing. Label colors still exist in **Settings → Test Labels** and are unaffected in the UI.
+
+See the [Flaky Tests API reference](/flaky-tests/reference/api-reference) for the full schemas.
