@@ -658,6 +658,7 @@
               {
                 "group": "September",
                 "pages": [
+                  "changelog/2026-09-16-flaky-tests-test-cases-api-refresh",
                   "changelog/2026-09-15-flaky-tests-test-collections"
                 ]
               },
