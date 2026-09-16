@@ -132,6 +132,7 @@ jobs:
           # and XCTest results to junit.xml, so one glob covers the pair.
           swift-test-xunit-paths: junit*.xml
           org-slug: <TRUNK_ORG_URL_SLUG>
+          test-collection-id: <TRUNK_TEST_COLLECTION_ID>
           token: ${{ secrets.TRUNK_API_TOKEN }}
 ```
 ```yaml RSpec plugin
