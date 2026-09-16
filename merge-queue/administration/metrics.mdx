@@ -229,14 +229,40 @@ All metrics include these labels:
 | `mq_pr_wait_duration_1h_seconds` | Histogram | `le` (bucket boundary) | Distribution of time PRs spent waiting before testing starts |
 | `mq_pr_test_duration_1h_seconds` | Histogram | `le` (bucket boundary) | Distribution of time PRs spent in the testing phase |
 | `mq_pr_time_in_queue_1h_seconds` | Histogram | `le` (bucket boundary) | Distribution of total time PRs spent in the queue, from entry to exit (includes waiting, testing, and any other phases, such as [pending failure](../optimizations/pending-failure-depth)). |
+| `mq_pr_state_duration_1h_seconds` | Histogram | `le` (bucket boundary), `state` | Distribution of time PRs spent in each individual queue state, broken out by state. See [Per-state durations](#per-state-durations). |
 
 Each histogram emits `_bucket{le="..."}`, `_sum`, and `_count` series. Bucket boundaries (in seconds): 60, 300, 600, 900, 1800, 3600, 5400, 7200, +Inf.
 
-For clarity, PRs in the "Waiting to Enter Queue" state (submitted to the queue but still waiting on prerequisites such as GitHub mergeability before they can be admitted to the queue) are not considered to be "in the queue" yet. So any time spent in this state is not counted in the Wait Duration or Time in Queue metrics.
+Each histogram also has companion percentile gauges — `_p50`, `_p75`, `_p90`, `_p95`, and `_p99` — carrying the same labels as the histogram they belong to. These are computed by Trunk over the same rolling window, so you can read a quantile directly instead of interpolating one out of the buckets with `histogram_quantile()`.
+
+For clarity, PRs in the "Waiting to Enter Queue" state (submitted to the queue but still waiting on prerequisites such as GitHub mergeability before they can be admitted to the queue) are not considered to be "in the queue" yet. So any time spent in this state is not counted in the Wait Duration or Time in Queue metrics. It is reported separately by `mq_pr_state_duration_1h_seconds` under `state="not_ready"`.
 
 <Note>
 Rolling window metrics use **gauge semantics**, not true Prometheus counters. They represent a snapshot of the last hour, not cumulative totals. PromQL functions like `rate()` and `increase()` are **not meaningful** on these metrics. Use the values directly instead.
 </Note>
+
+### Per-state durations
+
+`mq_pr_state_duration_1h_seconds` breaks time down by the state a PR was sitting in, rather than by the queue as a whole. Where `mq_pr_wait_duration_1h_seconds` and `mq_pr_test_duration_1h_seconds` each cover one state, this metric covers every state, with the state carried on a `state` label:
+
+| `state` | Meaning |
+| --- | --- |
+| `not_ready` | Waiting to be admitted to the queue, on prerequisites such as required reviews, status checks, or GitHub mergeability |
+| `pending` | In the queue, waiting for a testing slot |
+| `testing` | Running the required tests |
+| `tests_passed` | Tests passed, waiting on the PRs ahead of it to merge first |
+| `pending_failure` | Held behind a PR that failed, under [pending failure depth](../optimizations/pending-failure-depth) |
+| `merged`, `failed`, `cancelled` | Terminal states — see the caveat below |
+
+The label is not a fixed list. It reports the state your queue actually recorded, so a state added later shows up as a new label value rather than going missing.
+
+**A duration is recorded when a PR leaves a state.** A `state` series appears only once at least one PR exited that state during the window — a state that nothing left contributes no series at all, rather than a series reading zero. Time a PR is still accruing in its current state is not counted until it moves on.
+
+<Warning>
+**Terminal states measure something different.** `merged`, `failed`, and `cancelled` are only ever left when the same PR is re-submitted to the queue, so those series measure time-until-resubmit, which commonly runs to days and lands in the `+Inf` bucket. Filter them out (for example `state!~"merged|failed|cancelled"`) before aggregating across states, or they will drag your quantiles out.
+</Warning>
+
+`state="pending"` and `state="testing"` report the same durations as `mq_pr_wait_duration_1h_seconds` and `mq_pr_test_duration_1h_seconds`. Those two metrics are unchanged and are not going away, so existing dashboards and alerts keep working as they are.
 
 ### Scrape configuration
 
@@ -342,6 +368,24 @@ mq_pr_wait_duration_1h_seconds_sum / mq_pr_wait_duration_1h_seconds_count
 mq_pr_restarts_1h_total / mq_pr_conclusions_1h_total{conclusion="merged"}
 ```
 
+**Per-state analysis:**
+
+```promql
+# P90 time spent waiting for a testing slot, read straight off the percentile gauge
+mq_pr_state_duration_1h_seconds_p90{state="pending"}
+
+# Where is the time going? Mean seconds per state, terminal states excluded
+sum by (state) (mq_pr_state_duration_1h_seconds_sum{state!~"merged|failed|cancelled"})
+  /
+sum by (state) (mq_pr_state_duration_1h_seconds_count{state!~"merged|failed|cancelled"})
+
+# Alert when PRs are queueing up behind a failure
+mq_pr_state_duration_1h_seconds_p95{state="pending_failure"} > 1800
+
+# P95 for one state, computed from the buckets
+histogram_quantile(0.95, sum(mq_pr_state_duration_1h_seconds_bucket{state="testing"}) by (le))
+```
+
 ### Sample output
 
 ```
@@ -366,4 +410,19 @@ mq_pr_conclusions_1h_total{repo="my-org/my-repo",branch="main",queue_type="main"
 # HELP mq_pr_restarts_1h_total PR restarts in last hour
 # TYPE mq_pr_restarts_1h_total gauge
 mq_pr_restarts_1h_total{repo="my-org/my-repo",branch="main",queue_type="main"} 2
+
+# HELP mq_pr_state_duration_1h_seconds_p90 90th percentile of time spent in each queue state, for states exited in the last hour. A terminal state is only ever exited by a re-submit, so state="cancelled"/"failed"/"merged" measure time until re-submit.
+# TYPE mq_pr_state_duration_1h_seconds_p90 gauge
+mq_pr_state_duration_1h_seconds_p90{repo="my-org/my-repo",branch="main",queue_type="main",state="pending"} 412
+mq_pr_state_duration_1h_seconds_p90{repo="my-org/my-repo",branch="main",queue_type="main",state="testing"} 987
+
+# HELP mq_pr_state_duration_1h_seconds Distribution of time spent in each queue state, for states exited in the last hour. A terminal state is only ever exited by a re-submit, so state="cancelled"/"failed"/"merged" measure time until re-submit.
+# TYPE mq_pr_state_duration_1h_seconds histogram
+mq_pr_state_duration_1h_seconds_bucket{le="60",repo="my-org/my-repo",branch="main",queue_type="main",state="testing"} 0
+mq_pr_state_duration_1h_seconds_bucket{le="300",repo="my-org/my-repo",branch="main",queue_type="main",state="testing"} 2
+mq_pr_state_duration_1h_seconds_bucket{le="600",repo="my-org/my-repo",branch="main",queue_type="main",state="testing"} 9
+# ... one bucket per boundary (900, 1800, 3600, 5400, 7200) elided
+mq_pr_state_duration_1h_seconds_bucket{le="+Inf",repo="my-org/my-repo",branch="main",queue_type="main",state="testing"} 13
+mq_pr_state_duration_1h_seconds_sum{repo="my-org/my-repo",branch="main",queue_type="main",state="testing"} 7104
+mq_pr_state_duration_1h_seconds_count{repo="my-org/my-repo",branch="main",queue_type="main",state="testing"} 13
 ```
