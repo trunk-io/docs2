@@ -12,7 +12,6 @@ Work through the steps below in order. Once you've finished the last one, you'll
 <Steps>
   <Step title={<a href="#generating-reports">Generate a compatible test report</a>} />
   <Step title={<a href="#report-file-path">Configure the report file path or glob</a>} />
-  <Step title={<a href="#disable-retries">Disable retries for better detection accuracy</a>} />
   <Step title={<a href="#try-it-locally">Test uploads locally</a>} />
 </Steps>
 
@@ -34,12 +33,6 @@ cargo nextest run --profile ci
 ### Report File Path
 
 `cargo-nextest` outputs artifacts at `target/nextest` by default. When you provide a profile and a file name via the config example above, it produces a report at `target/nextest/ci/junit.xml`.
-
-### Disable Retries
-
-You need to disable automatic retries if you previously enabled them. Retries compromise the accurate detection of flaky tests.
-
-Omit the `--retries` option.
 
 ## Try It Locally
 

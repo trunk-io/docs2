@@ -12,7 +12,6 @@ Work through the steps below in order. Once you've finished the last one, you'll
 <Steps>
   <Step title={<a href="#generating-reports">Generate a compatible test report</a>} />
   <Step title={<a href="#report-file-path">Configure the report file path or glob</a>} />
-  <Step title={<a href="#disable-retries">Disable retries for better detection accuracy</a>} />
   <Step title={<a href="#try-it-locally">Test uploads locally</a>} />
 </Steps>
 
@@ -31,12 +30,6 @@ dotnet test -o build  -- NUnit.TestOutputXml="junit"
 .NET will output each build to the path specified by `-o <BUILD_PATH>` and test results under a sub-folder of `<BUILD PATH>/test-reports`, specified by the `-- NUnit.TestOutputXml="<XML PATH>"` option.
 
 In the example command from the [Generating Reports step](./nunit#generating-reports), the XMLs will be located under `./build/test-reports/junit/*.xml`. This is also the glob you'll use to locate the results when uploading test results.
-
-### Disable Retries
-
-You need to disable automatic retries if you previously included them. Retries compromise the accurate detection of flaky tests.
-
-Omit `[Retry(n)]` from tests to disable retries.
 
 ## Try It Locally
 

@@ -12,7 +12,6 @@ Work through the steps below in order. Once you've finished the last one, you'll
 <Steps>
   <Step title={<a href="#generating-reports">Generate a compatible test report</a>} />
   <Step title={<a href="#report-file-path">Configure the report file path or glob</a>} />
-  <Step title={<a href="#disable-retries">Disable retries for better detection accuracy</a>} />
   <Step title={<a href="#try-it-locally">Test uploads locally</a>} />
 </Steps>
 
@@ -44,12 +43,6 @@ If you configured your output folder to be under `./test-reports`, the JUnit XML
 
 When using globs, it's important to clean up old test reports between test runs. If your glob path contains old JUnit files, uploading old test results can cause tests to be mislabeled.
 </Info>
-
-### Disable Retries
-
-You need to disable automatic retries if you previously enabled them. Retries compromise the accurate detection of flaky tests.
-
-Nightwatch doesn't implement any form of automatic retry for failed or flaky tests by default. If you have a custom implementation of retries, remember to disable them.
 
 ## Try It Locally
 
