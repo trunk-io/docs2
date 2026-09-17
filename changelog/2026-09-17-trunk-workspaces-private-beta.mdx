@@ -1,0 +1,22 @@
+---
+title: "Trunk Workspaces: Private beta"
+description: "Spin up cloud development environments with coding agents, terminals, and remote editors from the trunk desktop app."
+slug: trunk-workspaces-private-beta
+date: 2026-09-17
+category: Trunk Workspaces
+type: new-feature
+---
+
+**Trunk Workspaces is now in private beta.**
+
+Create an isolated cloud development environment from the trunk desktop app, pair with a coding agent, and open the workspace in your local editor. Compute runs remotely while your files persist on the workspace disk.
+
+- **Create from a template.** Pick an organization template, region, size, and coding agent from **Add workspace**. Templates set the startup script, environment, default ports, and working directory. See [Create a workspace](/trunk-workspaces/workspaces/create).
+- **Work with an agent and terminals.** Use the built-in [coding agent](/trunk-workspaces/workspaces/agent) and multiple [terminal](/trunk-workspaces/workspaces/terminal) tabs from the app.
+- **Open in VS Code, Cursor, or Zed.** Trunk configures a managed SSH host and launches your editor at the template's working directory. See [Connect to a workspace](/trunk-workspaces/workspaces/connect).
+- **Expose HTTP ports.** Publish a public URL for any port in the workspace and forward it to `127.0.0.1` on the same port.
+- **Manage compute and disk separately.** Stop or sleep the sandbox while keeping the [workspace disk](/trunk-workspaces/workspaces/manage), and resume later.
+- **Share with teammates.** [Share a running workspace](/trunk-workspaces/workspaces/share) with another organization member.
+- **Configure the organization.** Manage [templates](/trunk-workspaces/configuration/templates), [repositories](/trunk-workspaces/configuration/repositories), [AWS](/trunk-workspaces/configuration/aws), and [Tailscale](/trunk-workspaces/configuration/tailscale) from one place.
+
+Head to the [Trunk Workspaces overview](/trunk-workspaces) to get started, or [contact us](/setup-and-administration/support) for beta access.

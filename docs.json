@@ -697,6 +697,7 @@
               {
                 "group": "September",
                 "pages": [
+                  "changelog/2026-09-17-trunk-workspaces-private-beta",
                   "changelog/2026-09-15-flaky-tests-test-collections"
                 ]
               },
