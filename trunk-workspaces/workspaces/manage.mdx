@@ -1,0 +1,39 @@
+---
+title: "Manage a workspace"
+description: "Monitor workspace resources and stop, sleep, wake, or resume its sandbox."
+groups: ["firewatch"]
+---
+
+{/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
+
+Open **Details** to inspect and manage the selected workspace.
+
+## View workspace details
+
+**Details** → **Summary** shows the workspace template, working directory, exposed
+ports, remote connection options, sharing controls, and sandbox lifecycle actions.
+
+Open **Details** → **Activity Monitor** to inspect recent CPU and memory usage. Use
+the available time-range controls to change the displayed window.
+
+## Stop or sleep compute
+
+- **Sleep** preserves in-memory state when the workspace supports it. If sleep is
+  unavailable, the app warns that it stopped compute instead.
+- **Stop** shuts down compute and loses in-memory processes while retaining the
+  workspace disk and exposed URLs.
+- **Wake** restores a sleeping workspace.
+- **Resume** starts a stopped workspace from its persistent disk.
+
+The sidebar action menu exposes the same available lifecycle actions as the
+**Sandbox** section.
+
+<Frame caption="Manage the selected workspace's sandbox.">
+  ![The Sandbox section with Stop and Sleep
+  controls.](/assets/trunk-workspaces/sandbox-controls.png)
+</Frame>
+
+<Warning>
+  Stop does not preserve running processes or other in-memory state. Commit or
+  save work that exists only in memory before confirming.
+</Warning>

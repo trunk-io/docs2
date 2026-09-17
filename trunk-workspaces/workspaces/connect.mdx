@@ -1,0 +1,41 @@
+---
+title: "Connect to a workspace"
+description: "Expose HTTP ports, forward them to localhost, and open a workspace in a remote editor."
+groups: ["firewatch"]
+---
+
+{/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
+
+Open **Details** → **Summary** to find HTTP and remote-editor connections for the
+selected workspace.
+
+## Expose an HTTP port
+
+1. In **HTTP ports**, click **New port**.
+2. Enter the port used by the service in your workspace.
+3. Click **Expose**.
+4. Open the generated public URL from the ports table.
+
+<Frame caption="Expose another HTTP service from the workspace.">
+  ![The Expose a new port dialog.](/assets/trunk-workspaces/expose-port.png)
+</Frame>
+
+The desktop app also forwards each exposed HTTP port to `127.0.0.1` on the same port.
+The **Local** column shows whether the listener is available. A red indicator means
+another local process already uses that port. Stop that process and allow up to ten
+seconds for the app to retry.
+
+Turn **Forward to localhost** off for a workspace when you only need its public URLs.
+This setting is stored on the current device and does not remove the server-side
+port exposure.
+
+## Open a remote editor
+
+In **Remote connection**, click **Open in VS Code**, **Open in Cursor**, or
+**Open in Zed**. The app configures a Trunk-managed SSH host after you sign in and
+uses the template's working directory when one is set.
+
+<Frame caption="Open the workspace with a supported remote editor.">
+  ![The Remote connection section with editor
+  links.](/assets/trunk-workspaces/remote-editors.png)
+</Frame>

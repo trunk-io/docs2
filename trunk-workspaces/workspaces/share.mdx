@@ -1,0 +1,29 @@
+---
+title: "Share a workspace"
+description: "Share a running Trunk Workspace with organization members or an organization-scoped link."
+groups: ["firewatch"]
+---
+
+{/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
+
+Workspace owners can share access from **Details** → **Summary**.
+
+## Share with an organization member
+
+Use **Share with** to add or remove members of the selected organization. Added
+members see the workspace under **Shared workspaces** in their sidebar.
+
+## Share with a link
+
+Create an organization-shareable link when you want a member to add themselves.
+The recipient must sign in and belong to the workspace's organization. Opening the
+link adds the recipient and redirects them into the workspace.
+
+<Frame caption="Workspace owners manage member and link access from Summary.">
+  ![The workspace sharing
+  controls.](/assets/trunk-workspaces/share-workspace.png)
+</Frame>
+
+Shared viewers can use the **Agent** tab collaboratively and inspect the workspace's
+HTTP ports in **Details**. They cannot open a terminal, change lifecycle state,
+manage sharing, or change the owner's workspace configuration.

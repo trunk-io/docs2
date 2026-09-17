@@ -648,6 +648,45 @@
         ]
       },
       {
+        "tab": "Trunk Workspaces",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "trunk-workspaces/index",
+              "trunk-workspaces/getting-started"
+            ]
+          },
+          {
+            "group": "Using workspaces",
+            "pages": [
+              "trunk-workspaces/workspaces/create",
+              "trunk-workspaces/workspaces/agent",
+              "trunk-workspaces/workspaces/terminal",
+              "trunk-workspaces/workspaces/connect",
+              "trunk-workspaces/workspaces/manage",
+              "trunk-workspaces/workspaces/share"
+            ]
+          },
+          {
+            "group": "Configuration",
+            "pages": [
+              "trunk-workspaces/configuration/templates",
+              "trunk-workspaces/configuration/repositories",
+              "trunk-workspaces/configuration/aws",
+              "trunk-workspaces/configuration/tailscale",
+              "trunk-workspaces/configuration/preferences"
+            ]
+          },
+          {
+            "group": "Reference",
+            "pages": [
+              "trunk-workspaces/desktop-reference"
+            ]
+          }
+        ]
+      },
+      {
         "tab": "Changelog",
         "hidden": true,
         "pages": [
