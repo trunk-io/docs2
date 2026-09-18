@@ -1,0 +1,16 @@
+---
+title: "Weekly roundup: Merge Queue metrics and API expansions"
+description: "New per-state duration metric for Merge Queue, expanded Merge Queue API for bulk PR reads and discovery, and a v2 Test Cases API response refresh."
+slug: 2026-09-18-weekly-roundup
+date: 2026-09-18
+category: Merge Queue
+type: update
+---
+
+**A few product updates shipped this week across Merge Queue and Flaky Tests.**
+
+## Updates
+
+- **Merge Queue: per-state duration metric.** A new Prometheus histogram, `mq_pr_state_duration_1h_seconds`, breaks queue time down by the state a PR was sitting in (`not_ready`, `pending`, `testing`, `tests_passed`, `pending_failure`), rather than by the queue as a whole. One metric now covers every phase of the queue, so adding a panel for another phase is a label change rather than a new metric. Existing `mq_pr_wait_duration_1h_seconds` and `mq_pr_test_duration_1h_seconds` are unchanged. See [Per-state durations](/merge-queue/administration/metrics#per-state-durations).
+- **Merge Queue API: bulk reads and discovery.** Two additions to the [Merge Queue API](/merge-queue/reference/merge): `/getSubmittedPullRequests` returns full status records for up to 50 known PRs in one request, and `/listPullRequests` pages through a queue with a cursor and filters by state or concluded time range for cases when you don't know which PRs to ask about. `/getSubmittedPullRequest` also now accepts a PR head branch as an alternative to a PR number.
+- **Flaky Tests: v2 Test Cases API response refresh.** The `/v2/test-cases` endpoints now return a consistent test case shape that includes labels, quarantine override, and active monitors currently applied to each test. `GET /v2/test-cases/{testCaseId}` supports `include=metrics` with a `period` of `1d`, `7d`, `14d`, or `30d` to embed flake metrics in the response. See the [Flaky Tests API reference](/flaky-tests/reference/api-reference).
