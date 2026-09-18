@@ -1,0 +1,105 @@
+---
+title: "CI on a pull request"
+description: "See which checks ran on which commit of a pull request, what is failing, and what needs a person."
+og:title: "Trunk CI on a pull request"
+---
+
+Open the **Pull Requests** tab in the Trunk app for a cross-repository list of
+your organization's open pull requests, and a detail view of any one of them.
+
+CI data is what makes these surfaces work, so a repository has to have
+[CI Intelligence enabled](/ci/get-started). Until it does, the detail page says
+so instead of guessing at a history.
+
+## The list
+
+<Frame>
+  ![The Pull Requests list, with a CI column and a merge queue column](/assets/ci/pull-requests/pr-list.png)
+</Frame>
+
+Each row is one pull request, with its CI state and — if you use Trunk Merge
+Queue — its queue standing. Rows update while you watch, so a run turning red
+does not need a refresh.
+
+Use the tabs to narrow the list to pull requests that are failing CI, in the
+queue, or recently merged.
+
+<Note>
+  A pull request with a merge conflict reads **Blocked — Merge Conflicts**, and
+  its check counts are hidden rather than shown. GitHub cannot build the merge
+  commit for a conflicted pull request, so the checks never start and any counts
+  would describe an older commit.
+</Note>
+
+## The detail view
+
+Click a row to open one pull request.
+
+<Frame>
+  ![A pull request's detail view, showing the attempt picker and the CI tab](/assets/ci/pull-requests/pr-detail.png)
+</Frame>
+
+### The attempt picker
+
+A pull request is not one CI result — it is one per commit, plus one per trip
+through the merge queue. The picker across the top is that list, oldest to
+newest, and everything below it is scoped to whichever you select.
+
+Each commit carries a health verdict:
+
+| Verdict | Meaning |
+| --- | --- |
+| **Passing CI** | Every required check is green on its latest attempt. |
+| **Failing CI** | Something required failed. |
+| **Running CI** | Still executing. |
+| **Cancelled CI** | A required check was stopped. Nothing failed, but nothing passed either. |
+
+Quarantined and newly-flaky tests count as passing. A commit that passed only
+after a rescue reads **Passing\*** — the asterisk means "not perfect, look", and
+the Activity tab is where to look.
+
+### CI
+
+The default tab. A [commit trace](/ci/commit-traces): every workflow that ran on
+the selected commit, every job inside it, and how long each spent queued versus
+running.
+
+This is the tab for "why was this slow" and "what actually ran".
+
+### Activity
+
+Two lanes, for "what is red" and "what do I do about it".
+
+**CI** — on the left — lists every check reported on the commit, with the
+required ones marked. Filter pills narrow it by state; a job red because of test
+failures links across to the other lane rather than counting twice.
+
+**Needs Attention** — on the right — lists only what a reviewer has to act on:
+failing jobs, failing tests, and quarantined tests. Passing tests are
+deliberately absent.
+
+It is scoped to required jobs by default, with a **+ N non-required** toggle for
+the rest. A failing job here carries a **re-run** button that re-runs that one
+GitHub Actions job — it sits on this lane, not the CI lane, because this is the
+row that names the failure you want to retry.
+
+A job re-running after a failure is badged **retrying after failure**, so a
+spinner is distinguishable from a first attempt.
+
+Select a merge-queue trip in the picker instead of a commit, and this tab shows
+that trip's timeline.
+
+### Dynamic CI
+
+If your organization is in the [Dynamic CI](/dynamic-ci) beta, this tab shows
+which jobs Dynamic CI recommended skipping on each attempt and the signals behind
+each verdict.
+
+## When a pull request shows nothing
+
+- **"No CI data recorded for this org."** The repository has not sent any CI
+  data. Check that [CI Intelligence is on](/ci/get-started) for it.
+- **"CI cannot run until the merge conflict is resolved."** Exactly what it
+  says — resolve the conflict and the checks will start.
+- **An older commit with an empty CI lane** is a plain absence: it ran before
+  whatever changed, and nothing was recorded for it.

@@ -1,0 +1,125 @@
+---
+title: "The CI tab"
+description: "Every job your organization runs, ranked by volume, duration, and pass rate — plus what is running right now."
+og:title: "The CI tab in Trunk"
+---
+
+Open the **CI** tab in the Trunk app for an organization-wide view of your CI:
+every job across every repository, what it costs, and how reliably it passes.
+
+Filters — repository, workflow, provider — are shared across the tab, so
+narrowing to a repository on one screen keeps it narrowed on the next.
+
+## Jobs
+
+The list of every job Trunk has seen run, one row each.
+
+<Frame>
+  ![The Jobs list, with pass rate, run count, and duration columns](/assets/ci/ci-tab/jobs-list.png)
+</Frame>
+
+| Column | What it is |
+| --- | --- |
+| Job | The job, with its repository beneath it |
+| Pass rate | Passes as a share of runs that reached a verdict |
+| Runs | How many times it ran in the range, with skipped runs beneath |
+| Median duration | The p50, with the p95 beneath it |
+| Total | Every executed run in the range, added up |
+| Recent runs | One bar per run, height by duration and colour by outcome |
+
+Sort by any of pass rate, duration, or total; search across job, workflow, and
+repository names (press <kbd>/</kbd> to jump into the box); and set the time
+range from the presets or a custom span.
+
+The repository picker is its own control rather than an entry in the filter
+menu, because it is the thing you narrow on every visit. It remembers what you
+last selected per organization, so you do not re-narrow the page each time. A
+repository named in the URL always wins over what it remembers.
+
+Every view is fully described by the URL, so a link reproduces exactly what you
+are looking at.
+
+<Note>
+  Only jobs that ran at least once in the selected range appear, and every
+  figure is computed within that range. Data is retained for 90 days, so ranges
+  are clamped to it.
+</Note>
+
+### How the numbers are defined
+
+Three different questions need three different sets of runs, and a job reads the
+same way everywhere in Trunk because they are used consistently:
+
+- **Pass rate** is `success / (success + failure + timed out)`. Cancelled and
+  skipped runs are in neither half — a job that only ever cancelled has no pass
+  rate rather than a zero.
+- **Runs** counts every finished run that was not skipped, including ones that
+  took no measurable time. A fast gate job is reported as having run, not as
+  having run zero times.
+- **Median and p95** need a duration, so they are computed only over runs that
+  have one.
+
+A run with no measurable duration is real — timestamps are second-resolution and
+a job can start and finish inside one — so it is counted but cannot be plotted.
+That is why a duration chart's count can sit below the run count.
+
+## Job detail
+
+Click a row to open one job.
+
+<Frame>
+  ![A job's detail page, with its stat strip and pass/fail history](/assets/ci/ci-tab/job-detail.png)
+</Frame>
+
+The header names the job and links to the workflow file that declares it, with a
+**Healthy** or **Flaky** badge from Trunk's flake detection. Beneath it, three
+figures over the selected range: pass rate, median duration with p95, and
+retries.
+
+**Run History** is the default tab: a daily pass/fail chart — click a bar to
+filter the table to that day — over a list of every run, with its duration,
+pull request, branch, test results, and commit. Filter by outcome, by what
+triggered it, or by branch. Click a run to open its
+[commit trace](/ci/commit-traces).
+
+**Performance** plots duration over time for the same runs, so a job that has
+been getting slower is visible as a trend rather than as a single percentile.
+
+## Overview
+
+Where the Jobs list answers "which jobs are unreliable", Overview answers "what
+is CI doing right now, and what is consuming it". It defaults to a short window
+rather than a multi-day one.
+
+<Frame>
+  ![The CI Overview tab, showing in-flight counts and a concurrency chart](/assets/ci/ci-tab/overview.png)
+</Frame>
+
+- **Queued and running** counts for right now, each with the range's peak and
+  the longest wait currently outstanding.
+- **A concurrency chart** of running versus queued jobs over the range. Set a
+  queue-age threshold to ask "how many jobs waited longer than this", and drag
+  across the chart to scope everything below it to that span.
+- **Per-runner charts**, split by the labels jobs requested, for which kind of
+  runner is saturated.
+- **A capacity table** ranked by what is consuming your CI, one row per job:
+  in-flight count, attempts, queue time at p50 and p95, duration at p50 and p95,
+  and total runner time.
+
+The table's unit is a job, not a run. There are roughly sixty attempts per
+distinct job in a typical window, so a reverse-chronological list of attempts is
+unreadable; per-run detail lives on the job page.
+
+## In flight
+
+The full list behind Overview's queued and running counts: every job executing
+or waiting right now, with breakdowns by repository, workflow, job, and
+requested labels.
+
+There is no time range here — "currently running" is defined by now, not by a
+window. The list polls, so it stays current while you watch it.
+
+<Info>
+  A queued job has no run yet, only its wait. It appears in the list by name but
+  has nothing to open until a runner picks it up.
+</Info>

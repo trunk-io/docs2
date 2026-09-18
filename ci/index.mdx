@@ -1,0 +1,63 @@
+---
+title: "CI"
+description: "See every job your CI runs — what it costs, how often it fails, and why a pull request is red — without instrumenting your pipelines."
+og:title: "Trunk CI"
+---
+
+Trunk CI records what your CI actually did. Every workflow run, every job, every
+step, the time each one spent waiting for a runner, and which runner picked it
+up — collected as spans and kept for 90 days.
+
+You get two things out of it:
+
+- **A view on every pull request.** Which checks ran on which commit, which one
+  is red, and a waterfall of the whole run so you can see what was slow and what
+  was waiting.
+- **An org-wide view of your CI.** A list of every job across every repository,
+  ranked by run volume, duration, and pass rate — plus what is running and
+  queued right now.
+
+## What it collects
+
+Trunk builds a small model out of what your provider reports:
+
+| Trunk concept | GitHub Actions                  | Buildkite                             |
+| ------------- | ------------------------------- | ------------------------------------- |
+| Repository    | The repository                  | Parsed from the pipeline's git remote |
+| Pipeline      | A workflow file                 | A Buildkite pipeline                  |
+| Pipeline run  | A workflow run                  | A build                               |
+| Job           | A job under `jobs:`             | A step                                |
+| Job run       | One execution of that job       | A Buildkite job                       |
+| Step          | A step under `steps:`           | —                                     |
+| Queue wait    | Created → picked up by a runner | Runnable → picked up by an agent      |
+
+Spans are written as a run progresses rather than at the end, so a run is
+visible while it is still executing.
+
+## Get set up
+
+Ingestion is per repository and off by default. Turn it on for one repository,
+push a commit, and the data appears on the next run.
+
+<Card title="Set up CI" icon="plug" href="/ci/get-started">
+  Connect GitHub Actions or Buildkite.
+</Card>
+
+## What you can do with it
+
+<CardGroup cols={2}>
+  <Card title="CI on a pull request" icon="code-pull-request" href="/ci/pull-requests">
+    Which checks ran on which commit, and what is blocking the merge.
+  </Card>
+  <Card title="The CI tab" icon="list-check" href="/ci/ci-tab">
+    Every job in your organization, with pass rate, duration, and run volume.
+  </Card>
+  <Card title="Commit traces" icon="chart-gantt" href="/ci/commit-traces">
+    The waterfall of everything that ran on one commit.
+  </Card>
+</CardGroup>
+
+<Note>
+  CI data is retained for **90 days**. Time ranges are clamped to that window,
+  and nothing is backfilled from before you enabled a repository.
+</Note>

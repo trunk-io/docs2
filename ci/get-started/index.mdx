@@ -1,0 +1,51 @@
+---
+title: "Getting Started"
+description: "Turn on CI data collection for a repository, then point your CI provider at Trunk."
+og:title: "Set up Trunk CI"
+---
+
+Setting up CI is two things: telling Trunk which repositories to collect data
+for, and — for providers Trunk does not already receive events from — pointing
+your CI at Trunk's ingest endpoint.
+
+## Prerequisites
+
+Both providers need the repository to exist in Trunk and to be opted in.
+
+<Steps>
+  <Step title="Connect the repository to Trunk">
+    For GitHub, that means installing the Trunk GitHub App on the repository.
+    See [Connecting to Trunk](/setup-and-administration/connecting-to-trunk).
+
+    This is what creates the repository in Trunk, and it is required even if
+    your builds run on Buildkite — Trunk identifies a build's repository by its
+    git remote, and collects nothing for a repository it has never seen.
+  </Step>
+
+  <Step title="Turn on CI Intelligence">
+    In the Trunk app, navigate to **Settings** → **Repositories**, find
+    **[your repository]**, and toggle **CI Intelligence** on.
+
+    <Frame>
+      ![The CI Intelligence toggle on the Repositories settings screen](/assets/ci/get-started/ci-intelligence-toggle.png)
+    </Frame>
+
+    <Note>
+      Only organization admins can change this. A member sees the toggle in its
+      real state but cannot move it.
+    </Note>
+  </Step>
+</Steps>
+
+CI Intelligence is off by default for every repository, and turning it on
+collects data from that point forward. Nothing before it is backfilled.
+
+## Choose your provider
+
+<CardGroup cols={2}>
+  <Card title="GitHub Actions" arrow href="./github-actions" />
+  <Card title="Buildkite" arrow href="./buildkite" />
+</CardGroup>
+
+A repository can report from both at once — the two lanes land in the same
+model, and jobs from each keep their provider.

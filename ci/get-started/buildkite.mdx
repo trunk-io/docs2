@@ -1,0 +1,122 @@
+---
+title: "Buildkite"
+description: "Export Buildkite's OpenTelemetry traces to Trunk to collect CI data from your builds."
+og:title: "Set up Trunk CI for Buildkite"
+---
+
+Buildkite emits OpenTelemetry traces natively. Setting up Trunk CI is pointing
+that export at Trunk's ingest endpoint.
+
+There are two exports, and they are complementary:
+
+- **The notification service**, configured once for your Buildkite
+  organization. It reports build and job lifecycle — start, finish, conclusion,
+  queue wait. This is the one to set up first, and it is enough on its own.
+- **Agent tracing**, configured on your agents. It adds execution-time detail
+  from inside the running build.
+
+Both send to the same endpoint and share a trace, so a build reads as one thing
+whether you run one or both.
+
+## Before you start
+
+Buildkite tells Trunk nothing about which repository a build belongs to except
+its **git remote**. Trunk parses `owner/name` out of that remote and looks for a
+matching repository in your organization.
+
+So the repository must already exist in Trunk and have **CI Intelligence**
+toggled on — see [Getting Started](/ci/get-started). A pipeline whose remote does
+not resolve to a repository Trunk knows about is skipped silently.
+
+## Get your organization API token
+
+In the Trunk app, navigate to **Settings** → **Organization** → **General**, and
+copy the **API Token**.
+
+<Frame>
+  ![The API Token field under Settings, Organization, General](/assets/ci/get-started/org-api-token.png)
+</Frame>
+
+<Warning>
+  This is your organization token, not a per-repository one. Treat it as a
+  secret — anything holding it can write CI data into your organization.
+</Warning>
+
+## Configure the notification service
+
+In Buildkite, navigate to **Settings** → **Notification Services**, then add an
+**OpenTelemetry Tracing** service. This needs Buildkite organization admin
+access.
+
+| Field | Value |
+| --- | --- |
+| URL | `https://api.trunk.io/v2/ci/buildkite` |
+| Headers | `Authorization: Bearer <your Trunk API token>` |
+
+<Note>
+  Enter the URL exactly as above, with **no** `/v1/traces` on the end. Buildkite
+  appends that path itself, and a URL that already carries it will not reach
+  Trunk.
+</Note>
+
+Trigger a build. Its jobs appear in Trunk as they run.
+
+## Configure agent tracing (optional)
+
+Agent tracing adds command-level timing from inside the build. Start your agents
+with `--opentelemetry-tracing` and point the standard OTLP variables at Trunk:
+
+```bash
+export OTEL_EXPORTER_OTLP_ENDPOINT="https://api.trunk.io/v2/ci/buildkite"
+export OTEL_EXPORTER_OTLP_PROTOCOL="http/protobuf"
+export OTEL_EXPORTER_OTLP_HEADERS="Authorization=Bearer <your Trunk API token>"
+
+buildkite-agent start --opentelemetry-tracing
+```
+
+<Note>
+  `OTEL_EXPORTER_OTLP_PROTOCOL` must be `http/protobuf`. Trunk's endpoint speaks
+  OTLP over HTTP; an agent left on the gRPC default will not deliver anything.
+</Note>
+
+## Troubleshooting
+
+**Nothing arrives at all.** The endpoint answers `401` for a token it does not
+recognize and `200` for everything it accepts, including an export it skips.
+Check the token first, then the repository gate below.
+
+**Builds arrive for one pipeline but not another.** Each pipeline is matched to
+a Trunk repository through its own git remote. Confirm the remote resolves to a
+repository that exists in your Trunk organization and has **CI Intelligence**
+on.
+
+**A repository was just enabled and still shows nothing.** The gate is cached
+for up to 30 seconds. Trigger another build.
+
+**Jobs show as running forever.** Trunk closes a Buildkite job on the state
+Buildkite reports it finishing in. If you see this on a real pipeline, tell us —
+Buildkite's OTLP vocabulary differs from its REST API's, and an unrecognized
+state is deliberately treated as still-running rather than as a failure.
+
+## How Buildkite maps onto Trunk
+
+| Buildkite | Trunk |
+| --- | --- |
+| Pipeline | Pipeline, keyed on `{org slug}/{pipeline slug}` |
+| Build | Pipeline run |
+| Step | Job |
+| Job | Job run |
+| Group | A label on each job in the group, not a level of its own |
+| Agent | The worker that ran the job |
+
+A few Buildkite specifics are worth knowing:
+
+- **Queue wait is synthesized.** Buildkite reports when a job became runnable
+  and when it started, rather than emitting a span for the wait, so Trunk builds
+  one from those two times.
+- **Time held by a concurrency group is not queue time.** It is time waiting for
+  a concurrency slot, not for an agent, and is deliberately left out of queue
+  duration.
+- **A retry is a new attempt of the same step.** Buildkite gives each retry a
+  fresh job id and reuses the build, so Trunk numbers attempts by when each one
+  became runnable.
