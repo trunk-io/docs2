@@ -1,0 +1,26 @@
+---
+title: "Tailscale access"
+description: "Give a template a Tailscale tag so its workspaces join your tailnet."
+groups: ["firewatch"]
+---
+
+{/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
+
+A template can carry a **Tailscale tag**. A workspace from that template joins your
+organization's tailnet and advertises the tag. Your Tailscale ACLs then decide what
+the workspace can reach.
+
+## Set the tag
+
+1. Open the template in **Settings** → **Organization** → **Templates**.
+2. In **Tailscale tag**, enter an owned tag, for example `tag:trunk-sandbox`.
+3. Save the template.
+
+<Note>
+  The **Tailscale tag** field is available only when your organization is
+  enrolled in Tailscale. See
+  [Tailscale](/trunk-workspaces/access-policy/tailscale) to enroll and to learn
+  which tags the OAuth client owns.
+</Note>
+
+The app mints a fresh Tailscale key for the tag on every workspace boot.

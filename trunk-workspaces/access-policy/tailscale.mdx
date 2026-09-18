@@ -1,0 +1,45 @@
+---
+title: "Tailscale"
+description: "Connect workspaces to your organization's Tailscale network with an OAuth client."
+groups: ["firewatch"]
+---
+
+{/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
+
+An organization Tailscale enrollment lets a new workspace join your tailnet with a
+configured tag. An organization admin or owner enrolls or disconnects the
+organization. Other members see the current state as read-only.
+
+## Create the Tailscale OAuth client
+
+Trunk enrolls with a Tailscale **OAuth client**, not a personal key.
+
+1. In the Tailscale admin console, open **Settings** → **OAuth clients**. See the
+   Tailscale guide:
+   [OAuth clients](https://tailscale.com/kb/1215/oauth-clients).
+2. Give the client the **`auth_keys`** scope.
+3. Make the client an **owner of the tags** it will issue, for example
+   `tag:trunk-sandbox`. A client can mint keys only for the tags it owns.
+4. Copy the client **ID** and **secret**.
+
+## Enroll the organization
+
+1. Go to **Settings** → **Organization** → **Tailscale**.
+2. Enter the OAuth client **ID** and **secret**. Add a **tailnet** only when the
+   client does not use its own tailnet.
+3. Save. Trunk validates the client and reports an error if Tailscale rejects it.
+
+<Frame caption="Enroll the organization in Tailscale.">
+  ![The organization Tailscale settings
+  page.](/assets/trunk-workspaces/tailscale-settings.png)
+</Frame>
+
+After enrollment, a template can carry one of the owned tags. A workspace from that
+template joins the tailnet and advertises the tag. See
+[Tailscale access in a template](/trunk-workspaces/templating/tailscale).
+
+<Note>
+  Disconnecting the organization stops later workspace boots from getting a key.
+  It is not an immediate remote kill switch for a workspace that already runs a
+  Tailscale node.
+</Note>

@@ -1,0 +1,27 @@
+---
+title: "Environment variables"
+description: "Set environment variables on a template for the workspaces it creates."
+groups: ["firewatch"]
+---
+
+{/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
+
+A template can set environment variables. Every workspace from the template gets
+them in its shells and processes.
+
+## Add a variable
+
+1. Open the template in **Settings** → **Organization** → **Templates**, or open
+   your personal template in **Settings** → **User** → **Template**.
+2. In **Environment variables**, click **Add variable**.
+3. Enter a **Key** and a **Value**.
+4. Save the template.
+
+<Note>
+  A key must be a valid shell identifier. It starts with a letter or an
+  underscore, and it uses only letters, digits, and underscores. The app refuses
+  a small set of reserved names that the workspace needs for itself.
+</Note>
+
+A template change applies during a later workspace boot. It does not change a
+workspace that already runs.

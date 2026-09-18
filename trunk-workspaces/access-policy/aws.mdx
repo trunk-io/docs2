@@ -1,0 +1,69 @@
+---
+title: "AWS access"
+description: "Give workspaces access to your AWS roles through a proxy in your own infrastructure."
+groups: ["firewatch"]
+---
+
+{/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
+
+Workspaces reach your AWS account through a proxy that runs in **your own**
+infrastructure. Real AWS credentials never reach the workspace. Your AWS request
+data never passes through Trunk — the proxy makes only a small authorization check
+to Trunk on each request.
+
+You install the proxy with a Helm chart
+(`oci://ghcr.io/trunk-io/charts/aws-egress-proxy`) into your own cluster. **Contact
+us** to set it up. An organization admin or owner manages the proxies, connectors,
+and template attachments.
+
+## Proxy
+
+A proxy is the endpoint in your infrastructure that signs AWS requests. Enroll it
+so Trunk can point workspaces at it.
+
+1. Go to **Settings** → **Organization** → **AWS**.
+2. Click **Add proxy**.
+3. Enter a **Proxy name** and the **Endpoint URL** of your installed proxy.
+4. Click **Create**.
+5. Copy the **introspection secret** from the next screen and store it. Trunk shows
+   this value only once, and your proxy uses it for the authorization check.
+
+<Frame caption="Organization AWS proxies and connectors.">
+  ![The AWS settings page with a proxy and
+  connector.](/assets/trunk-workspaces/aws-settings.png)
+</Frame>
+
+<Note>
+  The proxy's own AWS role is part of the Helm chart values, not this form. The
+  form needs only the name and the endpoint URL.
+</Note>
+
+## Connector
+
+A connector maps one proxy to one target AWS role. Create a connector for each role
+you want workspaces to assume. Many connectors can map to one proxy.
+
+1. From **Settings** → **Organization** → **AWS**, click **Add connector**.
+2. Select the **Proxy** that assumes the role.
+3. Enter a **Name** to tell connectors apart, the **Role ARN**, and an optional
+   **Region**.
+4. Click **Create**.
+
+## Template attachment
+
+You give a template access to a role by attaching a connector and naming its AWS
+profile.
+
+1. Open an organization template.
+2. In **AWS connectors**, attach a connector.
+3. Enter the **profile name** it becomes in the workspace.
+
+Different templates can use the same profile name for different connectors. See
+[AWS access in a template](/trunk-workspaces/templating/aws) for how a workspace
+uses the profile.
+
+<Warning>
+  Rotating a proxy secret invalidates the previous secret. Update the proxy
+  before you rely on new workspace sessions. Deleting a proxy also deletes its
+  connectors.
+</Warning>
