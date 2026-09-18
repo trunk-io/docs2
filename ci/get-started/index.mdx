@@ -6,25 +6,14 @@ og:title: "Set up Trunk CI"
 
 Setting up CI is two things: telling Trunk which repositories to collect data for, and configuring ingestion from all your CI providers. 
 
-## Prerequisites
+#### Prerequisites
+
+- GitHub repositories install the Trunk app and Trunk CI app. [See Integrating with GitHub](/setup/integrations/github).
+- If you are already using a trunk merge queue or uploading test data data ingestion will auto-start. Otherwise navigate to app.trunk.io/settings/
 
 <Steps>
-  <Step title="Connect the repository to Trunk">
-    For GitHub users install the Trunk app and Trunk CI app. [See Integrating with GitHub](/setup/integrations/github).
+  <Step title="Connect the repost.">
 
-    This is what creates the repository in Trunk, and it is required even if
-    your builds run on Buildkite — Trunk identifies a build's repository by its
-    git remote, and collects nothing for a repository it has never seen.
-  </Step>
-
-  <Step title="Turn on CI Intelligence">
-    In the Trunk app, navigate to **Settings** → **Repositories**, find
-    **[your repository]**, and toggle **CI Intelligence** on.
-
-    <Note>
-      Only organization admins can change this. A member sees the toggle in its
-      real state but cannot move it.
-    </Note>
   </Step>
 </Steps>
 
