@@ -91,8 +91,14 @@
                   "merge-queue/using-the-queue/stacked-pull-requests",
                   "merge-queue/using-the-queue/monitor-queue-status",
                   "merge-queue/using-the-queue/handle-failed-pull-requests",
-                  "merge-queue/using-the-queue/emergency-pull-requests",
-                  "merge-queue/using-the-queue/direct-to-queue"
+                  "merge-queue/using-the-queue/emergency-pull-requests"
+                ]
+              },
+              {
+                "group": "Direct-to-Queue",
+                "pages": [
+                  "merge-queue/using-the-queue/direct-to-queue",
+                  "setup-and-administration/trunk-sudo-app"
                 ]
               },
               "merge-queue/integration-for-slack",
@@ -465,7 +471,6 @@
           {
             "group": "Integrations",
             "pages": [
-              "setup-and-administration/trunk-sudo-app",
               {
                 "group": "Slack",
                 "pages": [

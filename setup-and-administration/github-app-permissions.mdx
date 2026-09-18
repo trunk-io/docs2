@@ -22,29 +22,19 @@ Enables the Merge Queue [Direct-to-Queue](/merge-queue/using-the-queue/direct-to
   </thead>
   <tbody>
     <tr>
-      <td>Administration</td>
-      <td>Read-only</td>
-      <td>Inspect branch-protection rules and rulesets</td>
+      <td>**Actions**</td>
+      <td>Read</td>
+      <td>Receives `workflow_job` and `workflow_run` events and downloads GitHub Actions job logs.</td>
     </tr>
     <tr>
-      <td>Metadata</td>
-      <td>Read-only</td>
-      <td>Access basic repository metadata, required for GitHub Apps</td>
+      <td>**Contents**</td>
+      <td>Read</td>
+      <td>Receives `push` events and reads workflow files, reusable workflows, and composite actions from repositories.</td>
     </tr>
     <tr>
-      <td>Contents</td>
-      <td>Read and write</td>
-      <td>Merge commits into the target branch</td>
-    </tr>
-    <tr>
-      <td>Pull requests</td>
-      <td>Read and write</td>
-      <td>Read PR state and complete merges</td>
-    </tr>
-    <tr>
-      <td>Workflows</td>
-      <td>Read and write</td>
-      <td>Merge PRs that modify files under `.github/workflows/`</td>
+      <td>**Metadata**</td>
+      <td>Read</td>
+      <td>Reads basic repository information, such as repository names and identifiers. GitHub automatically requires this permission for every GitHub App.</td>
     </tr>
   </tbody>
 </table>
