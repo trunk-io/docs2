@@ -474,7 +474,7 @@
               {
                 "group": "Slack",
                 "pages": [
-                  "setup-and-administration/personal-notifications"
+                  "setup/integrations/slack/personal-notifications"
                 ]
               },
               {
