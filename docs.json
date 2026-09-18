@@ -391,7 +391,7 @@
         "tab": "Setup",
         "groups": [
           {
-            "group": "Setup & Administration",
+            "group": "Setup",
             "pages": [
               "setup-and-administration/connecting-to-trunk",
               "setup-and-administration/personal-notifications",
@@ -1092,11 +1092,6 @@
     ],
     "global": {
       "anchors": [
-        {
-          "href": "https://app.trunk.io",
-          "icon": "/logo/trunk-mark.svg",
-          "anchor": "Open app"
-        },
         {
           "href": "/changelog",
           "icon": "bullhorn",
