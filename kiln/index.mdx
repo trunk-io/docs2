@@ -1,0 +1,56 @@
+---
+title: "Kiln"
+description: "Run your CI jobs on Trunk-hosted runners. Each job gets a fresh, isolated VM."
+groups: ["firewatch"]
+---
+
+{/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
+
+Kiln runs your CI jobs on Trunk-hosted runners. You add one label to a job, and
+Trunk runs that job on a fresh, isolated VM. Each job gets a clean machine with
+your tools ready.
+
+## Why Kiln
+
+<CardGroup cols={2}>
+  <Card title="A clean machine per job" icon="server">
+    Every job runs in its own fresh VM. No leftover state from an earlier job.
+  </Card>
+  <Card title="Pick the size you need" icon="gauge">
+    One label sets the CPU count. Ask for more memory when a job needs it.
+  </Card>
+  <Card title="Faster builds" icon="bolt">
+    A shared cache lets jobs reuse build results across runs.
+  </Card>
+  <Card title="Your defaults" icon="sliders">
+    Set an organization default template, region, and size, so most jobs need
+    only a size.
+  </Card>
+</CardGroup>
+
+## How it works
+
+You keep your workflows on GitHub. You change one thing: the `runs-on` label of a
+job. That label tells Trunk to run the job. Trunk starts a VM, runs the job, and
+removes the VM when the job ends.
+
+<Card title="Get started" icon="arrow-right" href="/kiln/getting-started">
+  Turn on Kiln for your organization and run your first job.
+</Card>
+
+## What you can configure
+
+- **The runner** — the `runs-on` label sets the size and, when you want, the
+  region, the template, the cache, and the run identity. See
+  [The runs-on label](/kiln/actions/runs-on).
+- **Caching** — turn the shared cache on or off, per repository or for the whole
+  organization. See [Caching](/kiln/cache/index).
+- **Organization defaults** — set a default template, region, and size. See
+  [Organization defaults](/kiln/settings/ci-defaults).
+- **Limits and priority** — set a CPU limit for CI and mark priority branches.
+  See [Limits and priority](/kiln/settings/limits-and-priority).
+
+<Info>
+  Kiln also runs Buildkite jobs, and more features are on the way. See the
+  [Roadmap](/kiln/roadmap).
+</Info>

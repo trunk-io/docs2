@@ -1,0 +1,45 @@
+---
+title: "Roadmap"
+description: "Kiln features that are on the way."
+groups: ["firewatch"]
+---
+
+{/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
+
+These Kiln features are on the way. Ask the Trunk team about early access.
+
+<Note>
+  This page lists near-term work. The list can change. A feature here is not yet
+  ready for every organization.
+</Note>
+
+## Coming soon
+
+<CardGroup cols={2}>
+  <Card title="Buildkite on Kiln" icon="box">
+    Run your Buildkite jobs on the same Trunk runners. You target a Kiln queue
+    and set the size, template, and region with agent tags.
+  </Card>
+  <Card title="Runners for public repositories" icon="globe">
+    Serve public repositories on a hardened runner, so you can run CI on open
+    repositories with the right guardrails.
+  </Card>
+  <Card title="Cache visibility" icon="database">
+    See and clear your cache entries. View the size, the age, and the usage of
+    your cache.
+  </Card>
+  <Card title="Workflow migration" icon="git-pull-request">
+    Trunk opens a pull request that moves your existing jobs onto Kiln, so you
+    do not edit each workflow by hand.
+  </Card>
+  <Card title="Agent CI" icon="robot">
+    Start a coding agent from a comment on GitHub or Slack. The agent works in a
+    Trunk workspace.
+  </Card>
+</CardGroup>
+
+## In Beta
+
+<Card title="Run as a user" icon="user" href="/kiln/actions/run-as">
+  Run a job as the person who started it. Available now in Beta.
+</Card>

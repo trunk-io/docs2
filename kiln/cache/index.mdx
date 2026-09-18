@@ -1,0 +1,46 @@
+---
+title: "Caching"
+description: "The shared cache lets jobs reuse build results, so they finish faster."
+groups: ["firewatch"]
+---
+
+{/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
+
+Kiln has a shared build cache. Jobs reuse build results across runs, so they
+finish faster. The cache is on by default.
+
+## What the cache supports
+
+The shared cache works with the GitHub Actions cache and common build tools:
+
+- The GitHub Actions cache (`actions/cache`)
+- `sccache`
+- `bazel`
+- `gradle`
+- `ccache`
+
+Common build-tool lanes work with no setup. To choose the cache for the GitHub
+Actions cache on one job, use the `cache` option.
+
+## The cache option
+
+Add `cache` to the `runs-on` label to choose the cache for a job:
+
+| Value          | Effect                                                  |
+| -------------- | ------------------------------------------------------- |
+| `cache=kiln`   | Use the Kiln shared cache for the GitHub Actions cache. |
+| `cache=github` | Use the GitHub cache for that job.                      |
+
+```yaml
+runs-on: trunk-kiln=${{ github.run_id }}-${{ github.run_attempt }}..size=medium..cache=kiln
+```
+
+<Info>
+  A fork pull request gets read-only cache access. A push to your own repository
+  can write to the cache.
+</Info>
+
+## Turn the cache on or off
+
+An admin can turn the shared cache off, per repository or for the whole
+organization. See [Cache settings](/kiln/cache/settings).

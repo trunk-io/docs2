@@ -1,0 +1,36 @@
+---
+title: "Cache settings"
+description: "Turn the shared cache on or off, per repository or for the organization."
+groups: ["firewatch"]
+---
+
+{/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
+
+The shared cache is on by default. An admin can turn it off. This page shows the
+settings and who can change them.
+
+## Where the setting applies
+
+| Level        | What it controls                  |
+| ------------ | --------------------------------- |
+| Repository   | The cache for one repository.     |
+| Organization | The default for every repository. |
+
+The repository setting wins over the organization default. If a repository has no
+setting, the job uses the organization default. If the organization has no
+default, the cache is on.
+
+## Who can change it
+
+An **organization admin** or a **repository admin** on GitHub can change the
+setting.
+
+## Turn the cache off for one job
+
+To keep the cache on but skip it for one job, add `cache=github` to the job's
+`runs-on` label. See [Caching](/kiln/cache/index).
+
+<Note>
+  When you turn the cache off, jobs stop reading and writing the shared cache. A
+  job that already started keeps its cache until it ends.
+</Note>

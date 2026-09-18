@@ -731,6 +731,48 @@
         ]
       },
       {
+        "tab": "Kiln",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "kiln/index",
+              "kiln/getting-started"
+            ]
+          },
+          {
+            "group": "GitHub Actions",
+            "pages": [
+              "kiln/actions/runs-on",
+              "kiln/actions/sizes",
+              "kiln/actions/templates-and-regions",
+              "kiln/actions/run-as"
+            ]
+          },
+          {
+            "group": "Caching",
+            "pages": [
+              "kiln/cache/index",
+              "kiln/cache/settings"
+            ]
+          },
+          {
+            "group": "Organization settings",
+            "pages": [
+              "kiln/settings/ci-defaults",
+              "kiln/settings/limits-and-priority"
+            ]
+          },
+          {
+            "group": "Reference",
+            "pages": [
+              "kiln/reference/runs-on-grammar",
+              "kiln/roadmap"
+            ]
+          }
+        ]
+      },
+      {
         "tab": "Changelog",
         "hidden": true,
         "pages": [

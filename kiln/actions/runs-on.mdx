@@ -1,0 +1,65 @@
+---
+title: "The runs-on label"
+description: "One label selects the Kiln runner and sets its options."
+groups: ["firewatch"]
+---
+
+{/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
+
+You point a job at Kiln with one `runs-on` label. The label starts with the Kiln
+anchor and adds options after it. Each option uses `key=value`, and `..` joins the
+options.
+
+```yaml
+runs-on: trunk-kiln=${{ github.run_id }}-${{ github.run_attempt }}..size=medium
+```
+
+<Note>
+  The anchor holds a unique value per run: `${{ github.run_id }}-${{
+  github.run_attempt }}`. This value keeps each job on its own runner, so one job
+  never takes another job's runner.
+</Note>
+
+## Options
+
+| Option     | Required | What it sets                                                                                                         |
+| ---------- | -------- | -------------------------------------------------------------------------------------------------------------------- |
+| `size`     | Yes      | The machine size, which sets the CPU count. See [Machine sizes](/kiln/actions/sizes).                                |
+| `memory`   | No       | `high` for 4 GiB per CPU instead of 2. See [Machine sizes](/kiln/actions/sizes).                                     |
+| `template` | No       | The template (a prepared environment) for the job. See [Templates and regions](/kiln/actions/templates-and-regions). |
+| `region`   | No       | The region for the job. See [Templates and regions](/kiln/actions/templates-and-regions).                            |
+| `cache`    | No       | `kiln` or `github` to choose the cache. See [Caching](/kiln/cache/index).                                            |
+| `run-as`   | No       | Run the job as the person who started it. See [Run as a user](/kiln/actions/run-as).                                 |
+
+Only `size` is required. If you leave out `template` or `region`, the job uses
+your [organization defaults](/kiln/settings/ci-defaults).
+
+## Examples
+
+A medium runner with high memory:
+
+```yaml
+runs-on: trunk-kiln=${{ github.run_id }}-${{ github.run_attempt }}..size=large..memory=high
+```
+
+A job on a chosen template and region:
+
+```yaml
+runs-on: trunk-kiln=${{ github.run_id }}-${{ github.run_attempt }}..size=medium..template=<template-id>..region=us-west
+```
+
+## Rules
+
+- **A wrong key fails the job with a clear message.** A typo never runs the wrong
+  machine.
+- **The order of the options does not matter.**
+- **Keys are not case-sensitive.**
+- **A key must not repeat.**
+
+<Warning>
+  If a job does not start, read the job's error message first. Kiln reports the
+  exact reason, such as an unknown option or a missing `size`.
+</Warning>
+
+See the [full label format](/kiln/reference/runs-on-grammar) for every option in
+one table.

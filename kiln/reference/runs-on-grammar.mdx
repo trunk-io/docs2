@@ -1,0 +1,53 @@
+---
+title: "runs-on label reference"
+description: "The full Kiln runs-on label format in one table, with examples."
+groups: ["firewatch"]
+---
+
+{/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
+
+This page lists every option of the Kiln `runs-on` label in one place. For a guide
+with more context, see [The runs-on label](/kiln/actions/runs-on).
+
+## Format
+
+```text
+trunk-kiln=<run>..size=<size>[..memory=<value>][..template=<id>][..region=<name>][..cache=<value>][..run-as=<mode>]
+```
+
+- `trunk-kiln=<run>` — the anchor. Use `${{ github.run_id }}-${{
+github.run_attempt }}` for `<run>`, so each job keeps its own runner.
+- `..` joins the options.
+- Each option is `key=value`.
+
+## Options
+
+| Option     | Required | Values                                         | Default               |
+| ---------- | -------- | ---------------------------------------------- | --------------------- |
+| `size`     | Yes      | `xsmall`, `small`, `medium`, `large`, `xlarge` | None                  |
+| `memory`   | No       | `standard`, `high`                             | `standard`            |
+| `template` | No       | A template ID                                  | Organization default  |
+| `region`   | No       | A region name                                  | Organization default  |
+| `cache`    | No       | `kiln`, `github`                               | On, per your settings |
+| `run-as`   | No       | `dispatcher`, `actor`                          | Off                   |
+
+## Rules
+
+- The order of the options does not matter.
+- Keys are not case-sensitive.
+- A key must not repeat.
+- A wrong or unknown key fails the job with a clear message.
+
+## Examples
+
+A medium runner:
+
+```yaml
+runs-on: trunk-kiln=${{ github.run_id }}-${{ github.run_attempt }}..size=medium
+```
+
+A large runner with high memory, a chosen template, and the Kiln cache:
+
+```yaml
+runs-on: trunk-kiln=${{ github.run_id }}-${{ github.run_attempt }}..size=large..memory=high..template=<template-id>..cache=kiln
+```

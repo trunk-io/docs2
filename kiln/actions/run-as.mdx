@@ -1,0 +1,45 @@
+---
+title: "Run as a user"
+description: "Run a job as the person who started it, not a shared CI identity."
+groups: ["firewatch"]
+---
+
+{/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
+
+<Warning>
+  This feature is in Beta. It may be off for your organization. Ask the Trunk
+  team to turn it on.
+</Warning>
+
+By default, a Kiln job runs as a shared CI identity. With `run-as`, a job runs as
+the real person who started it. This makes the job's actions and logs belong to
+that person.
+
+Trunk finds the person from the GitHub event that started the job. You do not name
+a user in the label. The label only says that the job should run as its actor.
+
+## Modes
+
+Add `run-as` with one of two modes:
+
+| Mode                | When it applies                                                      |
+| ------------------- | -------------------------------------------------------------------- |
+| `run-as=dispatcher` | A run you start by hand (`workflow_dispatch`) on the default branch. |
+| `run-as=actor`      | A `push` or a pull request on any branch.                            |
+
+```yaml
+runs-on: trunk-kiln=${{ github.run_id }}-${{ github.run_attempt }}..size=medium..run-as=dispatcher
+```
+
+## Rules
+
+- **The job never fails because of `run-as`.** If Trunk cannot find the person,
+  the job runs as the shared CI identity instead.
+- **A pull request from a fork does not run as a user.** Trunk refuses it for
+  safety.
+- **The person must be a member of your organization.**
+
+<Info>
+  Use `run-as` when a job acts on a person's behalf, such as a coding agent that
+  works in the job. The job then uses that person's identity.
+</Info>
