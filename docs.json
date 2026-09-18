@@ -40,7 +40,60 @@
       {
         "tab": "Overview",
         "pages": [
-          "index"
+          "index",
+          {
+            "group": "Dynamic CI (beta)",
+            "pages": [
+              "dynamic-ci/index"
+            ]
+          },
+          {
+            "group": "Workspaces (beta)",
+            "pages": [
+              {
+                "group": "Overview",
+                "pages": [
+                  "trunk-workspaces/index",
+                  "trunk-workspaces/getting-started"
+                ]
+              },
+              {
+                "group": "Using workspaces",
+                "pages": [
+                  "trunk-workspaces/workspaces/home",
+                  "trunk-workspaces/workspaces/agent",
+                  "trunk-workspaces/workspaces/cooperation",
+                  "trunk-workspaces/workspaces/lifecycle",
+                  "trunk-workspaces/workspaces/connect",
+                  "trunk-workspaces/workspaces/share"
+                ]
+              },
+              {
+                "group": "Access policy",
+                "pages": [
+                  "trunk-workspaces/access-policy/aws",
+                  "trunk-workspaces/access-policy/tailscale",
+                  "trunk-workspaces/access-policy/network-egress"
+                ]
+              },
+              {
+                "group": "Templating",
+                "pages": [
+                  "trunk-workspaces/templating/lifecycle",
+                  "trunk-workspaces/templating/environment-variables",
+                  "trunk-workspaces/templating/tailscale",
+                  "trunk-workspaces/templating/aws",
+                  "trunk-workspaces/templating/composability"
+                ]
+              },
+              {
+                "group": "Reference",
+                "pages": [
+                  "trunk-workspaces/desktop-reference"
+                ]
+              }
+            ]
+          }
         ]
       },
       {
@@ -164,7 +217,7 @@
               },
               "merge-queue/changelog"
             ],
-            "icon": "/assets/icons/product-merge-queue.svg"
+            "icon": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGcgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwXzcxOTJfNzM0OSkiPgo8cGF0aCBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsaXAtcnVsZT0iZXZlbm9kZCIgZD0iTTMuODc3MjMgNS4yOTE5QzQuNjU4NTMgNS4yOTE5IDUuMjkxOSA0LjY1ODUzIDUuMjkxOSAzLjg3NzIzQzUuMjkxOSAzLjA5NTk0IDQuNjU4NTMgMi40NjI1NyAzLjg3NzIzIDIuNDYyNTdDMy4wOTU5NCAyLjQ2MjU3IDIuNDYyNTcgMy4wOTU5NCAyLjQ2MjU3IDMuODc3MjNDMi40NjI1NyA0LjY1ODUzIDMuMDk1OTQgNS4yOTE5IDMuODc3MjMgNS4yOTE5Wk0zLjg3NzIzIDYuNTA0NDdDNS4zMjgyMiA2LjUwNDQ3IDYuNTA0NDcgNS4zMjgyMiA2LjUwNDQ3IDMuODc3MjNDNi41MDQ0NyAyLjQyNjI1IDUuMzI4MjIgMS4yNSAzLjg3NzIzIDEuMjVDMi40MjYyNSAxLjI1IDEuMjUgMi40MjYyNSAxLjI1IDMuODc3MjNDMS4yNSA1LjMyODIyIDIuNDI2MjUgNi41MDQ0NyAzLjg3NzIzIDYuNTA0NDdaIiBmaWxsPSIjMDgwOTBEIi8+CjxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBkPSJNMy4zNTE5MSAxNC4wMjI0TDMuMzUxOTEgNS40NTM1OEw0LjU2NDQ4IDUuNDUzNThMNC41NjQ0OCAxNC4wMjI0QzQuNTY0NDggMTQuMzU3MiA0LjI5MzA0IDE0LjYyODcgMy45NTgyIDE0LjYyODdDMy42MjMzNiAxNC42Mjg3IDMuMzUxOTEgMTQuMzU3MiAzLjM1MTkxIDE0LjAyMjRaIiBmaWxsPSIjMDgwOTBEIi8+CjxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBkPSJNMTIuMTIyNyAxMy4zNzU4QzEyLjkwNCAxMy4zNzU4IDEzLjUzNzQgMTIuNzQyNCAxMy41Mzc0IDExLjk2MTFDMTMuNTM3NCAxMS4xNzk4IDEyLjkwNCAxMC41NDY0IDEyLjEyMjcgMTAuNTQ2NEMxMS4zNDE0IDEwLjU0NjQgMTAuNzA4MSAxMS4xNzk4IDEwLjcwODEgMTEuOTYxMUMxMC43MDgxIDEyLjc0MjQgMTEuMzQxNCAxMy4zNzU4IDEyLjEyMjcgMTMuMzc1OFpNMTIuMTIyNyAxNC41ODgzQzEzLjU3MzcgMTQuNTg4MyAxNC43NSAxMy40MTIxIDE0Ljc1IDExLjk2MTFDMTQuNzUgMTAuNTEwMSAxMy41NzM3IDkuMzMzODYgMTIuMTIyNyA5LjMzMzg2QzEwLjY3MTcgOS4zMzM4NiA5LjQ5NTQ4IDEwLjUxMDEgOS40OTU0OCAxMS45NjExQzkuNDk1NDggMTMuNDEyMSAxMC42NzE3IDE0LjU4ODMgMTIuMTIyNyAxNC41ODgzWiIgZmlsbD0iIzA4MDkwRCIvPgo8cGF0aCBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsaXAtcnVsZT0iZXZlbm9kZCIgZD0iTTkuNjk3NiAyLjc0NTUxQzExLjM3MTggMi43NDU1MSAxMi43MjkgNC4xMDI3MyAxMi43MjkgNS43NzY5NEwxMi43MjkgOS4zMzM4MUMxMi43MjkgOS42Njg2NSAxMi40NTc2IDkuOTQwMDkgMTIuMTIyNyA5Ljk0MDA5QzExLjc4NzkgOS45NDAwOSAxMS41MTY0IDkuNjY4NjUgMTEuNTE2NCA5LjMzMzgxTDExLjUxNjQgNS43NzY5NEMxMS41MTY0IDQuNzcyNDEgMTAuNzAyMSAzLjk1ODA4IDkuNjk3NiAzLjk1ODA4TDguNDQ0NjEgMy45NTgwOEM4LjEwOTc3IDMuOTU4MDggNy44MzgzMiAzLjY4NjY0IDcuODM4MzIgMy4zNTE4QzcuODM4MzIgMy4wMTY5NiA4LjEwOTc3IDIuNzQ1NTEgOC40NDQ2MSAyLjc0NTUxTDkuNjk3NiAyLjc0NTUxWiIgZmlsbD0iIzA4MDkwRCIvPgo8L2c+CjxkZWZzPgo8Y2xpcFBhdGggaWQ9ImNsaXAwXzcxOTJfNzM0OSI+CjxyZWN0IHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0id2hpdGUiLz4KPC9jbGlwUGF0aD4KPC9kZWZzPgo8L3N2Zz4K"
           }
         ]
       },
@@ -390,78 +443,30 @@
                 ]
               },
               "flaky-tests/changelog"
-            ]
+            ],
+            "icon": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+CjxwYXRoIGQ9Ik0xNCAydjZhMiAyIDAgMCAwIC4yNDUuOTZsNS41MSAxMC4wOEEyIDIgMCAwIDEgMTggMjJINmEyIDIgMCAwIDEtMS43NTUtMi45Nmw1LjUxLTEwLjA4QTIgMiAwIDAgMCAxMCA4VjIiLz4KPHBhdGggZD0iTTYuNDUzIDE1aDExLjA5NCIvPgo8cGF0aCBkPSJNOC41IDJoNyIvPgo8L3N2Zz4K"
           }
-        ],
-        "icon": "flask"
-      },
-      {
-        "tab": "CI",
-        "pages": [
-          "ci/index",
-          {
-            "group": "Getting Started",
-            "root": "ci/get-started/index",
-            "pages": [
-              "ci/get-started/github-actions",
-              "ci/get-started/buildkite"
-            ]
-          },
-          "ci/pull-requests",
-          "ci/ci-tab"
-        ],
-        "icon": "/assets/icons/product-ci.svg"
-      },
-      {
-        "tab": "Dynamic CI",
-        "pages": [
-          "dynamic-ci/index"
         ]
       },
       {
-        "tab": "Workspaces",
+        "tab": "CI",
         "groups": [
           {
-            "group": "Overview",
+            "group": "CI",
             "pages": [
-              "trunk-workspaces/index",
-              "trunk-workspaces/getting-started"
-            ]
-          },
-          {
-            "group": "Using workspaces",
-            "pages": [
-              "trunk-workspaces/workspaces/home",
-              "trunk-workspaces/workspaces/agent",
-              "trunk-workspaces/workspaces/cooperation",
-              "trunk-workspaces/workspaces/lifecycle",
-              "trunk-workspaces/workspaces/connect",
-              "trunk-workspaces/workspaces/share"
-            ]
-          },
-          {
-            "group": "Access policy",
-            "pages": [
-              "trunk-workspaces/access-policy/aws",
-              "trunk-workspaces/access-policy/tailscale",
-              "trunk-workspaces/access-policy/network-egress"
-            ]
-          },
-          {
-            "group": "Templating",
-            "pages": [
-              "trunk-workspaces/templating/lifecycle",
-              "trunk-workspaces/templating/environment-variables",
-              "trunk-workspaces/templating/tailscale",
-              "trunk-workspaces/templating/aws",
-              "trunk-workspaces/templating/composability"
-            ]
-          },
-          {
-            "group": "Reference",
-            "pages": [
-              "trunk-workspaces/desktop-reference"
-            ]
+              "ci/index",
+              {
+                "group": "Getting Started",
+                "root": "ci/get-started/index",
+                "pages": [
+                  "ci/get-started/github-actions",
+                  "ci/get-started/buildkite"
+                ]
+              },
+              "ci/pull-requests",
+              "ci/ci-tab"
+            ],
+            "icon": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEzLjMwNjYgMTMuMzAzOUM4LjIwNjc0IDE4LjQ0NDUgLTAuNDgzMzQ0IDEzLjk5MDYgMC41OTEwMTcgNi43ODk3MUMxLjM2NjE5IDEuNjAxNSA3LjQxMTE3IC0xLjIxMzYgMTEuODg1NCAxLjU2NzVDMTMuNTY0OSAwLjY0OTUzMSAxNS4zNTMzIDIuNDE3NDcgMTQuNDE0OSA0LjA5NzAxQzE2LjIyMzYgNy4wMjA5IDE1LjcxMzcgMTAuODkgMTMuMzEzNCAxMy4zMTA3TDEzLjMwNjYgMTMuMzAzOVpNMTMuNjk0MSA0Ljc5NzM4QzEyLjM1NDYgNS40MTYxNiAxMC44NzkgNC40NDM3OSAxMS4wMTUgMi45NDc4NUMxMS4wMzU0IDIuNzMwMjYgMTEuMTIzOCAyLjUyNjI2IDExLjE3MTQgMi4zMjIyN0M4LjA0MzU0IDAuNTEzNTM2IDQuMDM4NDkgMS43MjM4OSAyLjMxODE1IDQuODQ0OThDMC4yMzc0MyA4LjYxMjA0IDIuMzU4OTUgMTMuMzY1MSA2LjUyNzIgMTQuMzMwNkMxMS40MzY2IDE1LjQ2NjIgMTUuNjY2MSAxMC44NzY0IDE0LjIxNzcgNi4wNjIxM0MxNC4wODg1IDUuNjIwMTUgMTMuODc3NyA1LjIxODk2IDEzLjcwMDkgNC43OTczOEgxMy42OTQxWk0xMy42NjY5IDMuMTQ1MDRDMTMuNjY2OSAyLjY4OTQ2IDEzLjI5OTggMi4zMTU0NyAxMi44Mzc0IDIuMzE1NDdDMTIuMzc1IDIuMzE1NDcgMTIuMDA3OCAyLjY4MjY2IDEyLjAwNzggMy4xNDUwNEMxMi4wMDc4IDMuNjA3NDIgMTIuMzc1IDMuOTc0NjEgMTIuODM3NCAzLjk3NDYxQzEzLjI5OTggMy45NzQ2MSAxMy42NjY5IDMuNjA3NDIgMTMuNjY2OSAzLjE0NTA0WiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik04LjAwMDAyIDkuMjQ0NDZDOC42ODczIDkuMjQ0NDYgOS4yNDQ0NiA4LjY4NzMgOS4yNDQ0NiA4LjAwMDAyQzkuMjQ0NDYgNy4zMTI3MyA4LjY4NzMgNi43NTU1NyA4LjAwMDAyIDYuNzU1NTdDNy4zMTI3MyA2Ljc1NTU3IDYuNzU1NTcgNy4zMTI3MyA2Ljc1NTU3IDguMDAwMDJDNi43NTU1NyA4LjY4NzMgNy4zMTI3MyA5LjI0NDQ2IDguMDAwMDIgOS4yNDQ0NlpNOC4wMDAwMiAxMC4zMTExQzkuMjc2NDEgMTAuMzExMSAxMC4zMTExIDkuMjc2NDEgMTAuMzExMSA4LjAwMDAyQzEwLjMxMTEgNi43MjM2MiA5LjI3NjQxIDUuNjg4OSA4LjAwMDAyIDUuNjg4OUM2LjcyMzYyIDUuNjg4OSA1LjY4ODkgNi43MjM2MiA1LjY4ODkgOC4wMDAwMkM1LjY4ODkgOS4yNzY0MSA2LjcyMzYyIDEwLjMxMTEgOC4wMDAwMiAxMC4zMTExWiIgZmlsbD0iIzA4MDkwRCIvPgo8cGF0aCBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsaXAtcnVsZT0iZXZlbm9kZCIgZD0iTTUuNzM1NDkgMTIuMjc5NkM1LjczNTQ5IDEyLjU3NDIgNS40OTY3MSAxMi44MTMgNS4yMDIxNiAxMi44MTNMMy4xMjA3NyAxMi44MTNMMy4xMjA3NyAxNC44OTQ0QzMuMTIwNzcgMTUuMTg4OSAyLjg4MTk5IDE1LjQyNzcgMi41ODc0MyAxNS40Mjc3QzIuMjkyODggMTUuNDI3NyAyLjA1NDEgMTUuMTg4OSAyLjA1NDEgMTQuODk0NEwyLjA1NDEgMTEuNzQ2M0w1LjIwMjE2IDExLjc0NjNDNS40OTY3MSAxMS43NDYzIDUuNzM1NDkgMTEuOTg1MSA1LjczNTQ5IDEyLjI3OTZaIiBmaWxsPSIjMDgwOTBEIi8+Cjwvc3ZnPgo="
           }
         ]
       },
