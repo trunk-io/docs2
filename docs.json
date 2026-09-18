@@ -163,7 +163,8 @@
                 ]
               },
               "merge-queue/changelog"
-            ]
+            ],
+            "icon": "/assets/icons/product-merge-queue.svg"
           }
         ]
       },
@@ -391,7 +392,8 @@
               "flaky-tests/changelog"
             ]
           }
-        ]
+        ],
+        "icon": "flask"
       },
       {
         "tab": "CI",
@@ -407,7 +409,8 @@
           },
           "ci/pull-requests",
           "ci/ci-tab"
-        ]
+        ],
+        "icon": "/assets/icons/product-ci.svg"
       },
       {
         "tab": "Dynamic CI",
