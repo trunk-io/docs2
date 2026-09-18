@@ -423,225 +423,217 @@
               {
                 "group": "Code Quality",
                 "pages": [
+                  "code-quality/overview/index",
+                  "code-quality/overview/initialize-trunk",
+                  "code-quality/overview/deal-with-existing-issues",
+                  "code-quality/overview/prevent-new-issues/index",
                   {
-                    "group": "Overview",
-                    "root": "code-quality/overview/index",
+                    "group": "IDE integrations",
+                    "root": "code-quality/overview/ide-integration/index",
                     "pages": [
-                      "code-quality/overview/initialize-trunk",
-                      "code-quality/overview/deal-with-existing-issues",
-                      "code-quality/overview/prevent-new-issues/index",
+                      "code-quality/overview/ide-integration/vscode",
+                      "code-quality/overview/ide-integration/openai-codex-support",
+                      "code-quality/overview/ide-integration/neovim",
+                      "code-quality/overview/ide-integration/github-codespaces"
+                    ]
+                  },
+                  {
+                    "group": "Code Quality CLI",
+                    "root": "code-quality/overview/getting-started/index",
+                    "pages": [
+                      "code-quality/overview/getting-started/code-quality",
+                      "code-quality/overview/getting-started/install",
+                      "code-quality/overview/getting-started/tools",
                       {
-                        "group": "IDE integrations",
-                        "root": "code-quality/overview/ide-integration/index",
+                        "group": "Actions",
+                        "root": "code-quality/overview/getting-started/actions/index",
                         "pages": [
-                          "code-quality/overview/ide-integration/vscode",
-                          "code-quality/overview/ide-integration/openai-codex-support",
-                          "code-quality/overview/ide-integration/neovim",
-                          "code-quality/overview/ide-integration/github-codespaces"
+                          "code-quality/overview/getting-started/actions/git-hooks"
+                        ]
+                      },
+                      "code-quality/overview/getting-started/announce",
+                      "code-quality/overview/getting-started/compatibility",
+                      "code-quality/overview/getting-started/caching",
+                      {
+                        "group": "Commands reference",
+                        "root": "code-quality/overview/getting-started/commands-reference/index",
+                        "pages": [
+                          "code-quality/overview/getting-started/commands-reference/code-quality",
+                          "code-quality/overview/getting-started/commands-reference/actions"
                         ]
                       },
                       {
-                        "group": "Code Quality CLI",
-                        "root": "code-quality/overview/getting-started/index",
+                        "group": "Configuration",
+                        "root": "code-quality/overview/getting-started/configuration/index",
                         "pages": [
-                          "code-quality/overview/getting-started/code-quality",
-                          "code-quality/overview/getting-started/install",
-                          "code-quality/overview/getting-started/tools",
+                          {
+                            "group": "Plugins",
+                            "root": "code-quality/overview/getting-started/configuration/plugins/index",
+                            "pages": [
+                              "code-quality/overview/getting-started/configuration/plugins/external-repositories",
+                              "code-quality/overview/getting-started/configuration/plugins/exported-configs"
+                            ]
+                          },
+                          "code-quality/overview/getting-started/configuration/runtimes",
+                          "code-quality/overview/getting-started/configuration/tools",
+                          {
+                            "group": "Lint",
+                            "root": "code-quality/overview/getting-started/configuration/lint/index",
+                            "pages": [
+                              "code-quality/overview/getting-started/configuration/lint/definitions",
+                              "code-quality/overview/getting-started/configuration/lint/commands",
+                              "code-quality/overview/getting-started/configuration/lint/output",
+                              "code-quality/overview/getting-started/configuration/lint/output-parsing",
+                              "code-quality/overview/getting-started/configuration/lint/files-and-caching",
+                              "code-quality/overview/getting-started/configuration/lint/dependencies",
+                              "code-quality/overview/getting-started/configuration/lint/auto-enable"
+                            ]
+                          },
                           {
                             "group": "Actions",
-                            "root": "code-quality/overview/getting-started/actions/index",
+                            "root": "code-quality/overview/getting-started/configuration/actions/index",
                             "pages": [
-                              "code-quality/overview/getting-started/actions/git-hooks"
+                              "code-quality/overview/getting-started/configuration/actions/notifications",
+                              "code-quality/overview/getting-started/configuration/actions/logging-and-troubleshooting"
                             ]
                           },
-                          "code-quality/overview/getting-started/announce",
-                          "code-quality/overview/getting-started/compatibility",
-                          "code-quality/overview/getting-started/caching",
-                          {
-                            "group": "Commands reference",
-                            "root": "code-quality/overview/getting-started/commands-reference/index",
-                            "pages": [
-                              "code-quality/overview/getting-started/commands-reference/code-quality",
-                              "code-quality/overview/getting-started/commands-reference/actions"
-                            ]
-                          },
-                          {
-                            "group": "Configuration",
-                            "root": "code-quality/overview/getting-started/configuration/index",
-                            "pages": [
-                              {
-                                "group": "Plugins",
-                                "root": "code-quality/overview/getting-started/configuration/plugins/index",
-                                "pages": [
-                                  "code-quality/overview/getting-started/configuration/plugins/external-repositories",
-                                  "code-quality/overview/getting-started/configuration/plugins/exported-configs"
-                                ]
-                              },
-                              "code-quality/overview/getting-started/configuration/runtimes",
-                              "code-quality/overview/getting-started/configuration/tools",
-                              {
-                                "group": "Lint",
-                                "root": "code-quality/overview/getting-started/configuration/lint/index",
-                                "pages": [
-                                  "code-quality/overview/getting-started/configuration/lint/definitions",
-                                  "code-quality/overview/getting-started/configuration/lint/commands",
-                                  "code-quality/overview/getting-started/configuration/lint/output",
-                                  "code-quality/overview/getting-started/configuration/lint/output-parsing",
-                                  "code-quality/overview/getting-started/configuration/lint/files-and-caching",
-                                  "code-quality/overview/getting-started/configuration/lint/dependencies",
-                                  "code-quality/overview/getting-started/configuration/lint/auto-enable"
-                                ]
-                              },
-                              {
-                                "group": "Actions",
-                                "root": "code-quality/overview/getting-started/configuration/actions/index",
-                                "pages": [
-                                  "code-quality/overview/getting-started/configuration/actions/notifications",
-                                  "code-quality/overview/getting-started/configuration/actions/logging-and-troubleshooting"
-                                ]
-                              },
-                              "code-quality/overview/getting-started/configuration/merge",
-                              "code-quality/overview/getting-started/configuration/telemetry",
-                              "code-quality/overview/getting-started/configuration/per-user-overrides"
-                            ]
-                          }
+                          "code-quality/overview/getting-started/configuration/merge",
+                          "code-quality/overview/getting-started/configuration/telemetry",
+                          "code-quality/overview/getting-started/configuration/per-user-overrides"
                         ]
-                      },
-                      {
-                        "group": "Linters",
-                        "root": "code-quality/overview/linters/index",
-                        "pages": [
-                          {
-                            "group": "Supported linters",
-                            "root": "code-quality/overview/linters/supported/index",
-                            "pages": [
-                              "code-quality/overview/linters/supported/actionlint",
-                              "code-quality/overview/linters/supported/ansible-lint",
-                              "code-quality/overview/linters/supported/autopep8",
-                              "code-quality/overview/linters/supported/bandit",
-                              "code-quality/overview/linters/supported/biome",
-                              "code-quality/overview/linters/supported/black",
-                              "code-quality/overview/linters/supported/brakeman",
-                              "code-quality/overview/linters/supported/buf",
-                              "code-quality/overview/linters/supported/buildifier",
-                              "code-quality/overview/linters/supported/cfnlint",
-                              "code-quality/overview/linters/supported/checkov",
-                              "code-quality/overview/linters/supported/circleci",
-                              "code-quality/overview/linters/supported/clang-format",
-                              "code-quality/overview/linters/supported/clang-tidy",
-                              "code-quality/overview/linters/supported/clippy",
-                              "code-quality/overview/linters/supported/cmake-format",
-                              "code-quality/overview/linters/supported/codespell",
-                              "code-quality/overview/linters/supported/cspell",
-                              "code-quality/overview/linters/supported/cue-fmt",
-                              "code-quality/overview/linters/supported/dart",
-                              "code-quality/overview/linters/supported/deno",
-                              "code-quality/overview/linters/supported/detekt",
-                              "code-quality/overview/linters/supported/djlint",
-                              "code-quality/overview/linters/supported/dotenv-linter",
-                              "code-quality/overview/linters/supported/dotnet-format",
-                              "code-quality/overview/linters/supported/dustilock",
-                              "code-quality/overview/linters/supported/eslint",
-                              "code-quality/overview/linters/supported/flake8",
-                              "code-quality/overview/linters/supported/git-diff-check",
-                              "code-quality/overview/linters/supported/gitleaks",
-                              "code-quality/overview/linters/supported/gofmt",
-                              "code-quality/overview/linters/supported/gofumpt",
-                              "code-quality/overview/linters/supported/goimports",
-                              "code-quality/overview/linters/supported/gokart",
-                              "code-quality/overview/linters/supported/golangci-lint",
-                              "code-quality/overview/linters/supported/golines",
-                              "code-quality/overview/linters/supported/google-java-format",
-                              "code-quality/overview/linters/supported/graphql-schema-linter",
-                              "code-quality/overview/linters/supported/hadolint",
-                              "code-quality/overview/linters/supported/haml-lint",
-                              "code-quality/overview/linters/supported/isort",
-                              "code-quality/overview/linters/supported/iwyu",
-                              "code-quality/overview/linters/supported/ktlint",
-                              "code-quality/overview/linters/supported/kube-linter",
-                              "code-quality/overview/linters/supported/markdown-link-check",
-                              "code-quality/overview/linters/supported/markdown-table-prettify",
-                              "code-quality/overview/linters/supported/markdownlint",
-                              "code-quality/overview/linters/supported/markdownlint-cli2",
-                              "code-quality/overview/linters/supported/mypy",
-                              "code-quality/overview/linters/supported/nancy",
-                              "code-quality/overview/linters/supported/nixpkgs-fmt",
-                              "code-quality/overview/linters/supported/opa",
-                              "code-quality/overview/linters/supported/osv-scanner",
-                              "code-quality/overview/linters/supported/oxipng",
-                              "code-quality/overview/linters/supported/perlcritic",
-                              "code-quality/overview/linters/supported/perltidy",
-                              "code-quality/overview/linters/supported/php-cs-fixer",
-                              "code-quality/overview/linters/supported/phpstan",
-                              "code-quality/overview/linters/supported/pmd",
-                              "code-quality/overview/linters/supported/pragma-once",
-                              "code-quality/overview/linters/supported/pre-commit-hooks",
-                              "code-quality/overview/linters/supported/prettier",
-                              "code-quality/overview/linters/supported/prisma",
-                              "code-quality/overview/linters/supported/psscriptanalyzer",
-                              "code-quality/overview/linters/supported/pylint",
-                              "code-quality/overview/linters/supported/pyright",
-                              "code-quality/overview/linters/supported/regal",
-                              "code-quality/overview/linters/supported/remark-lint",
-                              "code-quality/overview/linters/supported/renovate",
-                              "code-quality/overview/linters/supported/rome",
-                              "code-quality/overview/linters/supported/rubocop",
-                              "code-quality/overview/linters/supported/ruff",
-                              "code-quality/overview/linters/supported/rufo",
-                              "code-quality/overview/linters/supported/rustfmt",
-                              "code-quality/overview/linters/supported/scalafmt",
-                              "code-quality/overview/linters/supported/semgrep",
-                              "code-quality/overview/linters/supported/shellcheck",
-                              "code-quality/overview/linters/supported/shfmt",
-                              "code-quality/overview/linters/supported/sort-package-json",
-                              "code-quality/overview/linters/supported/sourcery",
-                              "code-quality/overview/linters/supported/sql-formatter",
-                              "code-quality/overview/linters/supported/sqlfluff",
-                              "code-quality/overview/linters/supported/sqlfmt",
-                              "code-quality/overview/linters/supported/squawk",
-                              "code-quality/overview/linters/supported/standardrb",
-                              "code-quality/overview/linters/supported/stringslint",
-                              "code-quality/overview/linters/supported/stylelint",
-                              "code-quality/overview/linters/supported/stylua",
-                              "code-quality/overview/linters/supported/svgo",
-                              "code-quality/overview/linters/supported/swiftformat",
-                              "code-quality/overview/linters/supported/swiftlint",
-                              "code-quality/overview/linters/supported/taplo",
-                              "code-quality/overview/linters/supported/terraform",
-                              "code-quality/overview/linters/supported/terragrunt",
-                              "code-quality/overview/linters/supported/terrascan",
-                              "code-quality/overview/linters/supported/tflint",
-                              "code-quality/overview/linters/supported/tfsec",
-                              "code-quality/overview/linters/supported/tofu",
-                              "code-quality/overview/linters/supported/trivy",
-                              "code-quality/overview/linters/supported/trufflehog",
-                              "code-quality/overview/linters/supported/txtpbfmt",
-                              "code-quality/overview/linters/supported/vale",
-                              "code-quality/overview/linters/supported/yamllint",
-                              "code-quality/overview/linters/supported/yapf"
-                            ]
-                          },
-                          "code-quality/overview/linters/run-linters",
-                          "code-quality/overview/linters/manage-linters",
-                          "code-quality/overview/linters/configure-linters",
-                          "code-quality/overview/linters/ignoring-issues-and-files",
-                          "code-quality/overview/linters/custom-linters",
-                          "code-quality/overview/linters/shared-configs",
-                          "code-quality/overview/linters/upgrades"
-                        ]
-                      },
-                      "code-quality/overview/debugging",
-                      "code-quality/overview/licensing"
+                      }
                     ]
-                  }
+                  },
+                  {
+                    "group": "Linters",
+                    "root": "code-quality/overview/linters/index",
+                    "pages": [
+                      {
+                        "group": "Supported linters",
+                        "root": "code-quality/overview/linters/supported/index",
+                        "pages": [
+                          "code-quality/overview/linters/supported/actionlint",
+                          "code-quality/overview/linters/supported/ansible-lint",
+                          "code-quality/overview/linters/supported/autopep8",
+                          "code-quality/overview/linters/supported/bandit",
+                          "code-quality/overview/linters/supported/biome",
+                          "code-quality/overview/linters/supported/black",
+                          "code-quality/overview/linters/supported/brakeman",
+                          "code-quality/overview/linters/supported/buf",
+                          "code-quality/overview/linters/supported/buildifier",
+                          "code-quality/overview/linters/supported/cfnlint",
+                          "code-quality/overview/linters/supported/checkov",
+                          "code-quality/overview/linters/supported/circleci",
+                          "code-quality/overview/linters/supported/clang-format",
+                          "code-quality/overview/linters/supported/clang-tidy",
+                          "code-quality/overview/linters/supported/clippy",
+                          "code-quality/overview/linters/supported/cmake-format",
+                          "code-quality/overview/linters/supported/codespell",
+                          "code-quality/overview/linters/supported/cspell",
+                          "code-quality/overview/linters/supported/cue-fmt",
+                          "code-quality/overview/linters/supported/dart",
+                          "code-quality/overview/linters/supported/deno",
+                          "code-quality/overview/linters/supported/detekt",
+                          "code-quality/overview/linters/supported/djlint",
+                          "code-quality/overview/linters/supported/dotenv-linter",
+                          "code-quality/overview/linters/supported/dotnet-format",
+                          "code-quality/overview/linters/supported/dustilock",
+                          "code-quality/overview/linters/supported/eslint",
+                          "code-quality/overview/linters/supported/flake8",
+                          "code-quality/overview/linters/supported/git-diff-check",
+                          "code-quality/overview/linters/supported/gitleaks",
+                          "code-quality/overview/linters/supported/gofmt",
+                          "code-quality/overview/linters/supported/gofumpt",
+                          "code-quality/overview/linters/supported/goimports",
+                          "code-quality/overview/linters/supported/gokart",
+                          "code-quality/overview/linters/supported/golangci-lint",
+                          "code-quality/overview/linters/supported/golines",
+                          "code-quality/overview/linters/supported/google-java-format",
+                          "code-quality/overview/linters/supported/graphql-schema-linter",
+                          "code-quality/overview/linters/supported/hadolint",
+                          "code-quality/overview/linters/supported/haml-lint",
+                          "code-quality/overview/linters/supported/isort",
+                          "code-quality/overview/linters/supported/iwyu",
+                          "code-quality/overview/linters/supported/ktlint",
+                          "code-quality/overview/linters/supported/kube-linter",
+                          "code-quality/overview/linters/supported/markdown-link-check",
+                          "code-quality/overview/linters/supported/markdown-table-prettify",
+                          "code-quality/overview/linters/supported/markdownlint",
+                          "code-quality/overview/linters/supported/markdownlint-cli2",
+                          "code-quality/overview/linters/supported/mypy",
+                          "code-quality/overview/linters/supported/nancy",
+                          "code-quality/overview/linters/supported/nixpkgs-fmt",
+                          "code-quality/overview/linters/supported/opa",
+                          "code-quality/overview/linters/supported/osv-scanner",
+                          "code-quality/overview/linters/supported/oxipng",
+                          "code-quality/overview/linters/supported/perlcritic",
+                          "code-quality/overview/linters/supported/perltidy",
+                          "code-quality/overview/linters/supported/php-cs-fixer",
+                          "code-quality/overview/linters/supported/phpstan",
+                          "code-quality/overview/linters/supported/pmd",
+                          "code-quality/overview/linters/supported/pragma-once",
+                          "code-quality/overview/linters/supported/pre-commit-hooks",
+                          "code-quality/overview/linters/supported/prettier",
+                          "code-quality/overview/linters/supported/prisma",
+                          "code-quality/overview/linters/supported/psscriptanalyzer",
+                          "code-quality/overview/linters/supported/pylint",
+                          "code-quality/overview/linters/supported/pyright",
+                          "code-quality/overview/linters/supported/regal",
+                          "code-quality/overview/linters/supported/remark-lint",
+                          "code-quality/overview/linters/supported/renovate",
+                          "code-quality/overview/linters/supported/rome",
+                          "code-quality/overview/linters/supported/rubocop",
+                          "code-quality/overview/linters/supported/ruff",
+                          "code-quality/overview/linters/supported/rufo",
+                          "code-quality/overview/linters/supported/rustfmt",
+                          "code-quality/overview/linters/supported/scalafmt",
+                          "code-quality/overview/linters/supported/semgrep",
+                          "code-quality/overview/linters/supported/shellcheck",
+                          "code-quality/overview/linters/supported/shfmt",
+                          "code-quality/overview/linters/supported/sort-package-json",
+                          "code-quality/overview/linters/supported/sourcery",
+                          "code-quality/overview/linters/supported/sql-formatter",
+                          "code-quality/overview/linters/supported/sqlfluff",
+                          "code-quality/overview/linters/supported/sqlfmt",
+                          "code-quality/overview/linters/supported/squawk",
+                          "code-quality/overview/linters/supported/standardrb",
+                          "code-quality/overview/linters/supported/stringslint",
+                          "code-quality/overview/linters/supported/stylelint",
+                          "code-quality/overview/linters/supported/stylua",
+                          "code-quality/overview/linters/supported/svgo",
+                          "code-quality/overview/linters/supported/swiftformat",
+                          "code-quality/overview/linters/supported/swiftlint",
+                          "code-quality/overview/linters/supported/taplo",
+                          "code-quality/overview/linters/supported/terraform",
+                          "code-quality/overview/linters/supported/terragrunt",
+                          "code-quality/overview/linters/supported/terrascan",
+                          "code-quality/overview/linters/supported/tflint",
+                          "code-quality/overview/linters/supported/tfsec",
+                          "code-quality/overview/linters/supported/tofu",
+                          "code-quality/overview/linters/supported/trivy",
+                          "code-quality/overview/linters/supported/trufflehog",
+                          "code-quality/overview/linters/supported/txtpbfmt",
+                          "code-quality/overview/linters/supported/vale",
+                          "code-quality/overview/linters/supported/yamllint",
+                          "code-quality/overview/linters/supported/yapf"
+                        ]
+                      },
+                      "code-quality/overview/linters/run-linters",
+                      "code-quality/overview/linters/manage-linters",
+                      "code-quality/overview/linters/configure-linters",
+                      "code-quality/overview/linters/ignoring-issues-and-files",
+                      "code-quality/overview/linters/custom-linters",
+                      "code-quality/overview/linters/shared-configs",
+                      "code-quality/overview/linters/upgrades"
+                    ]
+                  },
+                  "code-quality/overview/debugging",
+                  "code-quality/overview/licensing"
                 ]
               }
             ]
           }
         ]
-      },
-      {
-        "tab": "Code Quality CLI"
       },
       {
         "tab": "Dynamic CI",
