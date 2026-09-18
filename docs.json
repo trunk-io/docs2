@@ -394,7 +394,6 @@
             "group": "Setup",
             "pages": [
               "setup-and-administration/connecting-to-trunk",
-              "setup-and-administration/personal-notifications",
               "setup-and-administration/managing-your-organization",
               "setup-and-administration/support",
               "setup-and-administration/billing",
@@ -414,7 +413,13 @@
             "group": "Integrations",
             "pages": [
               "setup-and-administration/github-app-permissions",
-              "setup-and-administration/trunk-sudo-app"
+              "setup-and-administration/trunk-sudo-app",
+              {
+                "group": "Slack",
+                "pages": [
+                  "setup-and-administration/personal-notifications"
+                ]
+              }
             ]
           },
           {
@@ -1103,7 +1108,8 @@
       "view",
       "chatgpt",
       "claude"
-    ]
+    ],
+    "display": "toc"
   },
   "footer": {
     "socials": {
