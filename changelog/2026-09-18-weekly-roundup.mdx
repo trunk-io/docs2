@@ -1,0 +1,55 @@
+---
+title: "Weekly roundup: Workspaces preview, Merge Queue API and metrics, v2 Test Cases refresh"
+description: "Trunk Workspaces enters private preview, Merge Queue's public API gains new endpoints and a per-state duration metric, and the v2 Test Cases API response is refreshed."
+slug: 2026-09-18-weekly-roundup
+date: 2026-09-18
+category: Weekly Roundup
+type: update
+---
+
+Here's what shipped across Trunk this week.
+
+## New features
+
+**Trunk Workspaces private preview**
+
+Trunk Workspaces is available in private preview. Workspaces gives you an isolated cloud development environment with a coding agent, persistent files, terminal access, and shareable HTTP services, all driven from a desktop app.
+
+- Start a warm environment with your disk caches baked in.
+- Work alongside a coding agent and multiple terminal tabs, or kick off tasks from Slack.
+- Share agent chats with colleagues directly instead of exporting markdown.
+- Sleep and resume workspaces quickly to keep compute costs down.
+- Audit agent access to external services through proxies, and bring your own encryption keys.
+
+Access is invite-only for now. See the [Workspaces overview](/trunk-workspaces) and [Get started](/trunk-workspaces/getting-started) for details.
+
+**Merge Queue: expanded public API**
+
+The Merge Queue API picks up new endpoints and richer fields for building automation around the queue.
+
+- `/getSubmittedPullRequest` now accepts a head branch (`pr.branch`) as an alternative to `pr.number`, so callers that only know the branch no longer have to resolve the PR number first.
+- `/getSubmittedPullRequests` looks up up to 50 known PRs in a single request, returning readiness, submission status, and an optional state-change timeline for each.
+- `/listPullRequests` pages through a queue with a cursor and filters by state or concluded time range, for discovery when you don't already know which PRs to ask about.
+- `/getMergeQueueTestingDetails` and `/listMergeQueueTestingResults` expose in-progress and completed testing details for a time range.
+
+See the [Merge Queue API reference](/merge-queue/reference/merge) for the full endpoint list.
+
+## Updates
+
+**Merge Queue: per-state duration metric**
+
+A new histogram, `mq_pr_state_duration_1h_seconds`, breaks queue time down by the state a PR was sitting in, rather than by the queue as a whole. Each series carries a `state` label (`not_ready`, `pending`, `testing`, `tests_passed`, `pending_failure`, or a terminal state), so you can see exactly where PRs are spending their time.
+
+Use `state=~"pending|testing|tests_passed|pending_failure"` to decompose Time in queue without pulling in terminal states, which measure time-until-resubmit. Companion `_p50` through `_p99` gauges are exposed alongside the histogram so tail-end quantiles stay accurate above the 7200-second top bucket.
+
+The metric is retrospective: a duration is recorded when a PR leaves a state. Keep using the point-in-time gauges (`mq_depth_current`, `mq_prs_testing`, `mq_awaiting_mergeability`) for stall alerts, and use per-state durations for SLOs and optimization work. See [Merge Queue metrics](/merge-queue/administration/metrics#per-state-durations) for the field reference and PromQL guidance.
+
+**Flaky Tests: v2 Test Cases API response refresh**
+
+The v2 Test Cases endpoints on the [Flaky Tests API](/flaky-tests/reference/api-reference) have a refreshed response shape covering [`Get a test case`](/flaky-tests/reference/api-reference/v2/testcases/get-a-test-case), [`List and search test cases`](/flaky-tests/reference/api-reference/v2/testcases/list-and-search-test-cases), [`List a test case's runs`](/flaky-tests/reference/api-reference/v2/testcases/list-a-test-cases-runs), and [`List a test case's status transitions`](/flaky-tests/reference/api-reference/v2/testcases/list-a-test-cases-status-transitions). Fields are grouped more consistently across the four endpoints. Every 4xx and 5xx response remains a stable error envelope; switch on `code` rather than the prose `message`.
+
+If your tests are still organized by repository, the `/v1` endpoints are unchanged. See [Migrating to test collections](/flaky-tests/get-started/migrate-to-test-collections) if you're moving between scopes.
+
+**Flaky Tests: Swift report source support**
+
+Analytics uploader 0.15.5 recognizes Swift-native report sources for `swift test`. Point the uploader at your JUnit XML or xcresult bundle output and pass `--test-collection-id` (or `TRUNK_TEST_COLLECTION_ID`) to route uploads into the right collection. `--swift-test-xunit-paths` accepts globs. See the [Swift Testing](/flaky-tests/get-started/frameworks/swift-testing) and [XCTest](/flaky-tests/get-started/frameworks/xctest) guides for the current invocation.
