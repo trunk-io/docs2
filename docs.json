@@ -654,8 +654,7 @@
             ]
           },
           "ci/pull-requests",
-          "ci/ci-tab",
-          "ci/commit-traces"
+          "ci/ci-tab"
         ]
       },
       {
