@@ -42,13 +42,13 @@
         "pages": [
           "index",
           {
-            "group": "Dynamic CI",
+            "group": "Dynamic CI (beta)",
             "pages": [
               "dynamic-ci/index"
             ]
           },
           {
-            "group": "Workspaces",
+            "group": "Workspaces (beta)",
             "pages": [
               {
                 "group": "Overview",
