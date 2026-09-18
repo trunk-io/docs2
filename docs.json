@@ -396,8 +396,6 @@
               "setup-and-administration/connecting-to-trunk",
               "setup-and-administration/personal-notifications",
               "setup-and-administration/managing-your-organization",
-              "setup-and-administration/github-app-permissions",
-              "setup-and-administration/trunk-sudo-app",
               "setup-and-administration/support",
               "setup-and-administration/billing",
               "setup-and-administration/security",
@@ -410,6 +408,13 @@
                   "setup-and-administration/apis/webhooks"
                 ]
               }
+            ]
+          },
+          {
+            "group": "Integrations",
+            "pages": [
+              "setup-and-administration/github-app-permissions",
+              "setup-and-administration/trunk-sudo-app"
             ]
           },
           {
