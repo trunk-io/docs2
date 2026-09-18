@@ -13,7 +13,7 @@ Trunk identifies your account by the email address you signed in with. It has no
 Until you connect, Trunk can't tell which pull requests are yours. You'll still receive Merge Queue updates, but the personal notifications that depend on knowing your GitHub identity won't reach you. If a teammate has told you your notifications look wrong, this is usually why.
 
 <Info>
-This is a per-user setting that affects only you. It's unrelated to the organization-level [Trunk GitHub App](./github-app-permissions), which an admin installs once to give Trunk access to your repositories. You don't need to install anything.
+This is a per-user setting that affects only you. It's unrelated to the organization-level [Trunk GitHub App](/setup/integrations/github/trunk-app), which an admin installs once to give Trunk access to your repositories. You don't need to install anything.
 </Info>
 
 ## Connect your GitHub account
@@ -42,7 +42,7 @@ The connection applies to pull requests you already have open, not just new ones
 ### What Trunk can access
 
 <Note>
-This connection grants read-only access to your personal GitHub profile information and nothing else. It does not grant access to any repository, and it can't act on your behalf. Repository access comes from the separate [Trunk GitHub App](./github-app-permissions) that an organization admin installs.
+This connection grants read-only access to your personal GitHub profile information and nothing else. It does not grant access to any repository, and it can't act on your behalf. Repository access comes from the separate [Trunk GitHub App](/setup/integrations/github/trunk-app) that an organization admin installs.
 </Note>
 
 ### Disconnecting
@@ -82,13 +82,13 @@ Connecting your GitHub account is what makes that link. It's a one-time step.
 <Accordion title="How is this different from the Trunk GitHub App?">
 They do different jobs and are set up in different places.
 
-The [Trunk GitHub App](./github-app-permissions) is installed once per organization by an admin, under **Settings** → **Organization** → **GitHub**. It grants Trunk access to your repositories so it can manage merge queue branches, read check results, and post pull request comments. If Trunk is already running your merge queue, this is installed and you don't need to touch it.
+The [Trunk GitHub App](/setup/integrations/github/trunk-app) is installed once per organization by an admin, under **Settings** → **Organization** → **GitHub**. It grants Trunk access to your repositories so it can manage merge queue branches, read check results, and post pull request comments. If Trunk is already running your merge queue, this is installed and you don't need to touch it.
 
 The connection on this page is yours alone, under **Settings** → **Account** → **Notifications**. It only tells Trunk who you are. It grants no repository access.
 </Accordion>
 
 <Accordion title="Does connecting my GitHub account give Trunk access to my code?">
-No. This connection grants read-only access to your GitHub profile information only. Trunk's access to repository contents comes from the [Trunk GitHub App](./github-app-permissions), installed separately at the organization level, and is unchanged by whether you personally connect.
+No. This connection grants read-only access to your GitHub profile information only. Trunk's access to repository contents comes from the [Trunk GitHub App](/setup/integrations/github/trunk-app), installed separately at the organization level, and is unchanged by whether you personally connect.
 </Accordion>
 
 <Accordion title="The confirmation named the wrong GitHub user.">
