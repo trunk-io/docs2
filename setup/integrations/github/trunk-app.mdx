@@ -1,18 +1,12 @@
 ---
-title: "Trunk GitHub App"
-description: "Learn more about which permissions the Trunk GitHub app requests and why Trunk needs them."
+title: "Trunk  App"
 og:title: "Trunk GitHub App permissions"
+mode: "default"
 ---
 
-The Trunk GitHub App integrates [Merge Queue](../merge-queue/getting-started/) and [Flaky Tests](../flaky-tests/management/github-pull-request-comments) with your GitHub repos. Install it under **Settings** → **Organization** → **GitHub** → **Install GitHub App**.
+Core integration for the Merge Queue. Required for all Trunk products. To properly link your Trunk organization to GitHub install from [here](https://app.trunk.io/settings/organization/github)<br />
 
-Trunk only uses the permissions relevant to the tools you've enabled. For the underlying GitHub definitions, see the [GitHub developer docs](https://docs.github.com/en/rest/authentication/permissions-required-for-github-apps).
-
-<Info>
-**Looking for the Trunk Sudo app?** Trunk provides a separate [Trunk Sudo GitHub App](./trunk-sudo-app) for features that need to merge PRs while bypassing branch protections (such as [Direct to queue](../merge-queue/using-the-queue/direct-to-queue)). It's optional.
-</Info>
-
-## Repository permissions
+#### GitHub Repository permissions
 
 <table>
   <colgroup>
@@ -76,9 +70,31 @@ Trunk only uses the permissions relevant to the tools you've enabled. For the un
   </tbody>
 </table>
 
-## Organization permissions
+#### GitHub Organization permissions
 
-| Permission | Access | What Trunk uses it for |
-| --- | --- | --- |
-| Events | Read | Track org events to keep app install info current. |
-| Members | Read | Subscribe to org rename events to keep app install info current. |
+<table>
+  <colgroup>
+    <col width="148" />
+    <col width="117" />
+    <col width="453" />
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Permission</th>
+      <th>Access</th>
+      <th>What Trunk uses it for</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Events</td>
+      <td>Read</td>
+      <td>Track org events to keep app install info current.</td>
+    </tr>
+    <tr>
+      <td>Members</td>
+      <td>Read</td>
+      <td>Subscribe to org rename events to keep app install info current.</td>
+    </tr>
+  </tbody>
+</table>

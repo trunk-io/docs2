@@ -465,12 +465,20 @@
           {
             "group": "Integrations",
             "pages": [
-              "setup-and-administration/github-app-permissions",
               "setup-and-administration/trunk-sudo-app",
               {
                 "group": "Slack",
                 "pages": [
                   "setup-and-administration/personal-notifications"
+                ]
+              },
+              {
+                "group": "GitHub",
+                "pages": [
+                  "setup-and-administration/integrations/github",
+                  "setup/integrations/github/trunk-app",
+                  "setup/integrations/github/trunk-sudo",
+                  "setup/integrations/github/trunk-ci"
                 ]
               }
             ]

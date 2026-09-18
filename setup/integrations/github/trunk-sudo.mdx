@@ -1,0 +1,50 @@
+---
+title: "Trunk  Sudo"
+og:title: "Trunk GitHub App permissions"
+---
+
+Enables the Merge Queue [Direct-to-Queue](/merge-queue/using-the-queue/direct-to-queue) feature. 
+
+#### GitHub Repository permissions
+
+<table>
+  <colgroup>
+    <col width="148" />
+    <col width="117" />
+    <col width="453" />
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Permission</th>
+      <th>Access</th>
+      <th>What Trunk uses it for</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Administration</td>
+      <td>Read-only</td>
+      <td>Inspect branch-protection rules and rulesets</td>
+    </tr>
+    <tr>
+      <td>Metadata</td>
+      <td>Read-only</td>
+      <td>Access basic repository metadata, required for GitHub Apps</td>
+    </tr>
+    <tr>
+      <td>Contents</td>
+      <td>Read and write</td>
+      <td>Merge commits into the target branch</td>
+    </tr>
+    <tr>
+      <td>Pull requests</td>
+      <td>Read and write</td>
+      <td>Read PR state and complete merges</td>
+    </tr>
+    <tr>
+      <td>Workflows</td>
+      <td>Read and write</td>
+      <td>Merge PRs that modify files under `.github/workflows/`</td>
+    </tr>
+  </tbody>
+</table>
