@@ -1,5 +1,5 @@
 ---
-title: "Pull Request "
+title: "Pull Request View"
 description: "Track the lifecycle of your pull requests as they are updated"
 og:title: "Trunk CI on a pull request"
 ---
@@ -45,26 +45,7 @@ deliberately absent.
 
 It is scoped to required jobs by default, with a **+ N non-required** toggle for
 the rest. A failing job here carries a **re-run** button that re-runs that one
-GitHub Actions job — it sits on this lane, not the CI lane, because this is the
-row that names the failure you want to retry.
+job.
 
 A job re-running after a failure is badged **retrying after failure**, so a
 spinner is distinguishable from a first attempt.
-
-Select a merge-queue trip in the picker instead of a commit, and this tab shows
-that trip's timeline.
-
-### Dynamic CI
-
-If your organization is in the [Dynamic CI](/dynamic-ci) beta, this tab shows
-which jobs Dynamic CI recommended skipping on each attempt and the signals behind
-each verdict.
-
-## When a pull request shows nothing
-
-- **"No CI data recorded for this org."** The repository has not sent any CI
-  data. Check that [CI Intelligence is on](/ci/get-started) for it.
-- **"CI cannot run until the merge conflict is resolved."** Exactly what it
-  says — resolve the conflict and the checks will start.
-- **An older commit with an empty CI lane** is a plain absence: it ran before
-  whatever changed, and nothing was recorded for it.
