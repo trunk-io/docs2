@@ -391,7 +391,7 @@
               },
               "flaky-tests/changelog"
             ],
-            "icon": "flask"
+            "icon": "/assets/icons/product-flaky-tests.svg"
           }
         ]
       },
