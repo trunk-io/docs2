@@ -643,24 +643,19 @@
       },
       {
         "tab": "CI",
-        "groups": [
+        "pages": [
+          "ci/index",
           {
-            "group": "CI",
+            "group": "Getting Started",
+            "root": "ci/get-started/index",
             "pages": [
-              "ci/index",
-              {
-                "group": "Getting Started",
-                "root": "ci/get-started/index",
-                "pages": [
-                  "ci/get-started/github-actions",
-                  "ci/get-started/buildkite"
-                ]
-              },
-              "ci/pull-requests",
-              "ci/ci-tab",
-              "ci/commit-traces"
+              "ci/get-started/github-actions",
+              "ci/get-started/buildkite"
             ]
-          }
+          },
+          "ci/pull-requests",
+          "ci/ci-tab",
+          "ci/commit-traces"
         ]
       },
       {
