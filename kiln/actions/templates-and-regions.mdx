@@ -1,0 +1,40 @@
+---
+title: "Templates and regions"
+description: "Run a job on a chosen template or region, or use your organization defaults."
+groups: ["firewatch"]
+---
+
+{/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
+
+A job can run on a chosen template or in a chosen region. If you do not choose,
+the job uses your [organization defaults](/kiln/settings/ci-defaults).
+
+## Templates
+
+A template is a prepared environment for a job. It holds the tools and the setup
+your jobs need, so a job starts ready. Your organization admin creates templates
+and sets an organization default.
+
+Add `template` to run a job on a chosen template:
+
+```yaml
+runs-on: trunk-kiln=${{ github.run_id }}-${{ github.run_attempt }}..size=medium..template=<template-id>
+```
+
+If you leave out `template`, the job uses the organization default template.
+
+## Regions
+
+A region is the location where the job runs. Your organization admin sets a
+default region. Add `region` to run a job in a chosen region:
+
+```yaml
+runs-on: trunk-kiln=${{ github.run_id }}-${{ github.run_attempt }}..size=medium..region=us-west
+```
+
+If you leave out `region`, the job uses the organization default region.
+
+<Info>
+  Ask your organization admin for the template IDs and the regions your
+  organization can use.
+</Info>

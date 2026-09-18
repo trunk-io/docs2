@@ -1,0 +1,34 @@
+---
+title: "Limits and priority"
+description: "Set a CPU limit for CI, and mark the branches that run first when CI is busy."
+groups: ["firewatch"]
+---
+
+{/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
+
+An organization admin sets how much CI your organization runs at once, and which
+jobs run first when CI is busy.
+
+## CPU limit
+
+Your organization has a limit on the total CPUs that CI jobs use at once. When
+jobs reach the limit, Kiln holds new jobs until CPUs free up. The held jobs start
+when there is room. A job is not lost; it waits.
+
+<Info>
+  Ask the Trunk team to raise your CPU limit if your CI waits too often.
+</Info>
+
+## Priority branches
+
+You can mark branches as priority. Jobs on those branches run first when CI is
+busy. Kiln does not hold a priority job under load.
+
+Use priority branches for the branches that must stay fast, such as your default
+branch or a release branch.
+
+<Note>
+  Priority changes the order of jobs. It does not raise the CPU limit. Under
+  heavy load, a priority job runs before other jobs, but the total CPUs still
+  stay under the limit.
+</Note>

@@ -1,0 +1,46 @@
+---
+title: "Machine sizes"
+description: "Pick a size to set the CPU count. Ask for high memory when a job needs it."
+groups: ["firewatch"]
+---
+
+{/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
+
+The `size` option sets the CPU count of the runner. `size` is required in the
+`runs-on` label.
+
+## Sizes
+
+| Size     | CPUs |
+| -------- | ---- |
+| `xsmall` | 1    |
+| `small`  | 2    |
+| `medium` | 4    |
+| `large`  | 8    |
+| `xlarge` | 16   |
+
+```yaml
+runs-on: trunk-kiln=${{ github.run_id }}-${{ github.run_attempt }}..size=large
+```
+
+<Note>
+  There is no default size. You must set `size` on every Kiln job. A missing or
+  unknown size fails the job with a clear message.
+</Note>
+
+## Memory
+
+By default, a runner has 2 GiB of memory per CPU. When a job needs more, add
+`memory=high` for 4 GiB per CPU. The size still sets the CPU count.
+
+```yaml
+runs-on: trunk-kiln=${{ github.run_id }}-${{ github.run_attempt }}..size=large..memory=high
+```
+
+A `large` runner with `memory=high` has 8 CPUs and 32 GiB of memory.
+
+<Tip>
+  Start with a size that matches your job. Add `memory=high` only for a job that
+  runs out of memory, such as a large build or a test suite that holds a lot of
+  data.
+</Tip>

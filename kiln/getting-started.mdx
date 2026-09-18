@@ -1,0 +1,66 @@
+---
+title: "Get started"
+description: "Turn on Kiln, set your defaults, and run your first job."
+groups: ["firewatch"]
+---
+
+{/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
+
+This page shows how to run your first job on Kiln.
+
+<Steps>
+  <Step title="Connect your organization">
+    Install the Trunk GitHub App on your organization. On a demo call, the Trunk
+    team turns on Kiln for you and sets up your access.
+  </Step>
+  <Step title="Set your defaults">
+    Set an organization default template, region, and size. Most jobs then need
+    only a size in the label. See
+    [Organization defaults](/kiln/settings/ci-defaults).
+  </Step>
+  <Step title="Point a job at Kiln">
+    Change the `runs-on` label of a job to the Kiln label. The label sets the
+    machine size. See [The runs-on label](/kiln/actions/runs-on).
+
+    ```yaml
+    jobs:
+      build:
+        runs-on: trunk-kiln=${{ github.run_id }}-${{ github.run_attempt }}..size=medium
+        steps:
+          - uses: actions/checkout@v4
+          - run: make build
+    ```
+
+  </Step>
+  <Step title="Run the workflow">
+    Push a commit or start the workflow. Trunk provisions a fresh VM, runs the
+    job, and removes the VM when the job ends.
+  </Step>
+</Steps>
+
+<Info>
+  Do you have many workflows to move? Trunk can open a pull request that
+  rewrites your `runs-on` labels for you. Ask the Trunk team. See the
+  [Roadmap](/kiln/roadmap).
+</Info>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="The runs-on label" icon="tag" href="/kiln/actions/runs-on">
+    Every option you can set on a job.
+  </Card>
+  <Card title="Machine sizes" icon="gauge" href="/kiln/actions/sizes">
+    The sizes, their CPU counts, and high memory.
+  </Card>
+  <Card title="Caching" icon="database" href="/kiln/cache/index">
+    Reuse build results to make jobs faster.
+  </Card>
+  <Card
+    title="Limits and priority"
+    icon="sliders"
+    href="/kiln/settings/limits-and-priority"
+  >
+    Set a CPU limit and mark priority branches.
+  </Card>
+</CardGroup>
