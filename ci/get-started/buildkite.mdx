@@ -26,7 +26,7 @@ So the repository must already exist in Trunk and have **CI Intelligence**
 toggled on - see [Getting Started](/ci/get-started). A pipeline whose remote does
 not resolve to a repository Trunk knows about is skipped silently.
 
-#### Create API Key for the Uploads
+#### Create Trunk API Key for the Uploads
 
 In the Trunk app, navigate to [app.trunk.io/settings/developer/api-tokens](https://app.trunk.io/settings/developer/api-tokens).
 
@@ -34,20 +34,12 @@ In the Trunk app, navigate to [app.trunk.io/settings/developer/api-tokens](https
 
 #### Configure the notification service
 
-In BuildKite, navigate to **Settings** → **Notification Services**, then add an
-**OpenTelemetry Tracing** service. This needs Buildkite organization admin
-access.
+In BuildKite, navigate to **Settings** → **Notification Services**, then add an **OpenTelemetry Tracing** service. <br /><br />
 
 | Field | Value |
 | --- | --- |
 | URL | `https://api.trunk.io/v2/ci/buildkite` |
 | Headers | `Authorization: Bearer <your Trunk API token>` |
-
-<Note>
-  Enter the URL exactly as above, with **no** `/v1/traces` on the end. Buildkite
-  appends that path itself, and a URL that already carries it will not reach
-  Trunk.
-</Note>
 
 Trigger a build. Its jobs appear in Trunk as they run.
 
