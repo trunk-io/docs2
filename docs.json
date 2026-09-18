@@ -406,7 +406,8 @@
             ]
           },
           "ci/pull-requests",
-          "ci/ci-tab"
+          "ci/ci-tab",
+          "ci/commit-traces"
         ]
       },
       {
