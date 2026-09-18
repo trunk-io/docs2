@@ -1,29 +1,34 @@
 ---
 title: "Share a workspace"
-description: "Share a running Trunk Workspace with organization members or an organization-scoped link."
+description: "Share a workspace with organization members or an organization-scoped link."
 groups: ["firewatch"]
 ---
 
 {/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
 
-Workspace owners can share access from **Details** → **Summary**.
+A workspace owner shares access from **Details** → **Summary**. A member you share
+with sees the workspace under **Shared workspaces** in their sidebar.
 
-## Share with an organization member
+## Share with a member
 
-Use **Share with** to add or remove members of the selected organization. Added
-members see the workspace under **Shared workspaces** in their sidebar.
+Use **Share with** to add or remove members of your organization. An added member
+gets access right away.
 
 ## Share with a link
 
-Create an organization-shareable link when you want a member to add themselves.
-The recipient must sign in and belong to the workspace's organization. Opening the
-link adds the recipient and redirects them into the workspace.
+Create an organization-shareable link when you want a member to add themselves. The
+member must sign in and belong to the workspace's organization. The link adds the
+member and opens the workspace for them.
 
-<Frame caption="Workspace owners manage member and link access from Summary.">
+<Frame caption="Owners manage member and link access from Summary.">
   ![The workspace sharing
   controls.](/assets/trunk-workspaces/share-workspace.png)
 </Frame>
 
-Shared viewers can use the **Agent** tab collaboratively and inspect the workspace's
-HTTP ports in **Details**. They cannot open a terminal, change lifecycle state,
-manage sharing, or change the owner's workspace configuration.
+To learn what a shared collaborator can do with the agent, see
+[Collaborate](/trunk-workspaces/workspaces/cooperation).
+
+<Note>
+  A member who already opened a running workspace keeps access until the
+  workspace stops. Stop the workspace to end access for a removed member.
+</Note>

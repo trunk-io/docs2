@@ -1,0 +1,56 @@
+---
+title: "Launch a workspace"
+description: "Launch a workspace from the home screen and read the workspace list at a glance."
+groups: ["firewatch"]
+---
+
+{/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
+
+The home screen is your organization's landing page. It lists your workspaces and
+holds the composer that launches a new one.
+
+## Launch a workspace
+
+The composer at the bottom of the home screen is the fastest way to start.
+
+<Steps>
+  <Step title="Describe the work">
+    Type a first prompt for the coding agent. An empty organization opens on
+    this same composer, so this is also where your first workspace starts.
+  </Step>
+  <Step title="Choose the options">
+    Open **Options** to set the agent, workspace type, region, size, and
+    template. Each option keeps your last choice as its default.
+  </Step>
+  <Step title="Create">
+    Click **Create**. The workspace appears immediately. You can move elsewhere
+    in the app while its sandbox provisions. The app opens the workspace when
+    the sandbox is ready.
+  </Step>
+</Steps>
+
+<Frame caption="The home screen lists your workspaces and holds the launch composer.">
+  ![The home screen with a grouped workspace list and the launch
+  composer.](/assets/trunk-workspaces/home.png)
+</Frame>
+
+When a workspace is open, use the **Add workspace** button in the sidebar to launch
+another. It opens the same options as the composer.
+
+## Read the workspace list
+
+The home screen groups workspaces by how much they need your attention. The most
+urgent group is first.
+
+| Group               | Meaning                                                         |
+| ------------------- | --------------------------------------------------------------- |
+| **Needs Attention** | The agent asks for your input, for example a permission prompt. |
+| **Awaiting Review** | The agent finished a turn and is ready for your review.         |
+| **Active**          | The agent is working now.                                       |
+| **Recent**          | Idle, and used in the last 7 days.                              |
+| **Older**           | Idle, and not used for more than 7 days.                        |
+
+Each row shows a status badge for the agent state and a leading icon for the
+sandbox state — a box for a running sandbox, a moon for an asleep sandbox, and a
+stop icon for a stopped sandbox. See
+[Workspace lifecycle](/trunk-workspaces/workspaces/lifecycle) for these states.

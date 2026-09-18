@@ -1,0 +1,30 @@
+---
+title: "Template composability"
+description: "Build a template from other templates, and how the app resolves the result."
+groups: ["firewatch"]
+---
+
+{/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
+
+A template can **include** other templates. This lets you share common setup across
+many templates. You order the include list, and you can reorder it.
+
+## How the app resolves an include chain
+
+The app walks the include list and combines the templates into one effective
+template. The rules are:
+
+- **Included once.** When two includes both pull in the same template, the app
+  resolves that shared template one time.
+- **Scripts append.** The app joins the creation commands and the refresh commands
+  in include order. The template's own commands run last.
+- **Scalar settings use last-one-wins.** For an environment variable, the Tailscale
+  tag, and the default working directory, the last template to set a value wins. The
+  template's own value takes precedence over an included value.
+- **Ports merge.** The app collects the exposed ports from every template and
+  removes duplicates.
+
+<Note>
+  The template form shows a live rendered preview of the effective template, so
+  you can check the result before you save.
+</Note>

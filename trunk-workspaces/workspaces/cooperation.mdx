@@ -1,0 +1,48 @@
+---
+title: "Collaborate"
+description: "Work with your team in one agent room, and launch workspaces from Slack or GitHub."
+groups: ["firewatch"]
+---
+
+{/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
+
+Workspaces are collaborative. Your team can work with the same agent together, and
+you can launch a workspace from Slack or GitHub.
+
+## Work with your team in one agent room
+
+When you share a workspace, the **Agent** tab becomes multiplayer. Several members
+of your organization join the same room and work with the same agent.
+
+A collaborator in a shared room can:
+
+- Send prompts to the agent.
+- Answer a permission prompt.
+- Cancel a queued message.
+
+Only the owner starts a room. A shared collaborator waits for the owner to start
+one. A shared collaborator cannot open a terminal, change the workspace lifecycle,
+or manage sharing.
+
+<Frame caption="Two developers work with the same agent in one room.">
+  ![The agent chat room with messages from more than one
+  person.](/assets/trunk-workspaces/agent-room-collaboration.png)
+</Frame>
+
+To share a workspace with a member, see
+[Share a workspace](/trunk-workspaces/workspaces/share).
+
+## Launch from Slack
+
+You can start a workspace without opening the app.
+
+Mention **@blaze** in a Slack thread with your request. The app replies in the
+thread with a picker for the template, size, region, and agent. Click **Launch
+workspace**. The app creates a workspace that you own, with the thread as the first
+prompt, and replies with a link to follow along.
+
+<Frame caption="Mention @blaze in Slack to launch a workspace.">
+  ![A Slack thread where a user mentions @blaze and the app replies that the
+  workspace is ready with a follow-along
+  link.](/assets/trunk-workspaces/slack-blaze-launch.png)
+</Frame>
