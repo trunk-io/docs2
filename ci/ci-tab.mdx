@@ -7,7 +7,7 @@ og:title: "The CI tab in Trunk"
 Open the **CI** tab in the Trunk app for an organization-wide view of your CI:
 every job across every repository, what it costs, and how reliably it passes.
 
-Filters — repository, workflow, provider — are shared across the tab, so
+Filters - repository, workflow, provider - are shared across the tab, so
 narrowing to a repository on one screen keeps it narrowed on the next.
 
 ## Jobs
@@ -15,35 +15,10 @@ narrowing to a repository on one screen keeps it narrowed on the next.
 The list of every job Trunk has seen run, one row each.
 
 <Frame>
-  ![The Jobs list, with pass rate, run count, and duration columns](/assets/ci/ci-tab/jobs-list.png)
+  ![Ci Jobs List](/ci-jobs-list.jpeg "Ci Jobs List")
 </Frame>
 
-| Column | What it is |
-| --- | --- |
-| Job | The job, with its repository beneath it |
-| Pass rate | Passes as a share of runs that reached a verdict |
-| Runs | How many times it ran in the range, with skipped runs beneath |
-| Median duration | The p50, with the p95 beneath it |
-| Total | Every executed run in the range, added up |
-| Recent runs | One bar per run, height by duration and colour by outcome |
-
-Sort by any of pass rate, duration, or total; search across job, workflow, and
-repository names (press <kbd>/</kbd> to jump into the box); and set the time
-range from the presets or a custom span.
-
-The repository picker is its own control rather than an entry in the filter
-menu, because it is the thing you narrow on every visit. It remembers what you
-last selected per organization, so you do not re-narrow the page each time. A
-repository named in the URL always wins over what it remembers.
-
-Every view is fully described by the URL, so a link reproduces exactly what you
-are looking at.
-
-<Note>
-  Only jobs that ran at least once in the selected range appear, and every
-  figure is computed within that range. Data is retained for 90 days, so ranges
-  are clamped to it.
-</Note>
+Sort by any of pass rate, duration, or total; search across job, workflow, and repository.
 
 ### How the numbers are defined
 
@@ -51,16 +26,11 @@ Three different questions need three different sets of runs, and a job reads the
 same way everywhere in Trunk because they are used consistently:
 
 - **Pass rate** is `success / (success + failure + timed out)`. Cancelled and
-  skipped runs are in neither half — a job that only ever cancelled has no pass
+  skipped runs are in neither half - a job that only ever cancelled has no pass
   rate rather than a zero.
-- **Runs** counts every finished run that was not skipped, including ones that
-  took no measurable time. A fast gate job is reported as having run, not as
-  having run zero times.
-- **Median and p95** need a duration, so they are computed only over runs that
-  have one.
+- **Runs** counts every finished run that was not skipped, including ones that took no measurable time. 
 
-A run with no measurable duration is real — timestamps are second-resolution and
-a job can start and finish inside one — so it is counted but cannot be plotted.
+A run with no measurable duration is real - timestamps are second-resolution and a job can start and finish inside one - so it is counted but cannot be plotted.
 That is why a duration chart's count can sit below the run count.
 
 ## Job detail
