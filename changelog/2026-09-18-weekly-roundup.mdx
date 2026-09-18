@@ -1,0 +1,32 @@
+---
+title: "Weekly roundup: September 15–18, 2026"
+description: "Trunk Workspaces enters private preview, Merge Queue adds a per-state duration metric, and the v2 Test Cases API response gets a refresh."
+slug: weekly-roundup-2026-09-18
+date: 2026-09-18
+category: Platform
+type: update
+---
+
+**A quick summary of what shipped this week across Trunk.**
+
+## New features
+
+**Trunk Workspaces (private preview)**
+
+Trunk Workspaces gives you an isolated cloud development environment with a coding agent, terminal access, persistent files, and shareable HTTP services, steered from a desktop app. Use workspaces to start a warm coding environment with your caches baked in, hand tasks off to a coding agent, share agent chats with teammates, and audit agent access to external services.
+
+Workspaces is available in private preview. Read the [Trunk Workspaces overview](/trunk-workspaces/index) or jump into [Get started](/trunk-workspaces/getting-started).
+
+## Updates
+
+**Merge Queue: per-state duration metric**
+
+A new histogram, `mq_pr_state_duration_1h_seconds`, breaks queue time down by the state a PR was sitting in — `pending`, `testing`, `tests_passed`, `pending_failure`, and so on — carried on a `state` label. One metric now covers every phase of the queue, so adding a panel for another state is a label change rather than a new metric. Existing `mq_pr_wait_duration_1h_seconds` and `mq_pr_test_duration_1h_seconds` are unchanged. Use the point-in-time gauges (`mq_depth_current`, `mq_prs_testing`, `mq_awaiting_mergeability`) to alert on stalls, and the state durations for SLOs and trend review. See [Merge Queue metrics](/merge-queue/administration/metrics) for the full reference.
+
+**Flaky Tests: v2 Test Cases API response refresh**
+
+Responses from the `/v2` Test Cases endpoints now return a cleaner, more consistent shape across `List and search test cases`, `Get a test case`, and the runs and status-transition endpoints. If you consume the collection-scoped API, review the updated fields in the [Flaky Tests API reference](/flaky-tests/reference/api-reference).
+
+## Bug fixes
+
+Nothing user-facing this week.
