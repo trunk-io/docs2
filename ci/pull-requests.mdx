@@ -29,17 +29,13 @@ For customers using the Test Intelligence feature - jobs that passed because of 
 
 ### CI
 
-The default tab. A [commit trace](/ci/commit-traces): every workflow that ran on
-the selected commit, every job inside it, and how long each spent queued versus
-running.
-
-This is the tab for "why was this slow" and "what actually ran".
+The default tab presents a waterfall of all jobs run on that commit. This is the tab to explain what ran and why is this pull request blocked. 
 
 ### Activity
 
 Two lanes, for "what is red" and "what do I do about it".
 
-**CI** — on the left — lists every check reported on the commit, with the
+**CI** -  on the left — lists every check reported on the commit, with the
 required ones marked. Filter pills narrow it by state; a job red because of test
 failures links across to the other lane rather than counting twice.
 
