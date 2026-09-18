@@ -12,34 +12,87 @@ groups: ["firewatch"]
 </Warning>
 
 By default, a Kiln job runs as a shared CI identity. With `run-as`, a job runs as
-the real person who started it. This makes the job's actions and logs belong to
-that person.
+the real person who started it. The job gets that person's Linux user and their
+home directory, so a tool in the job reads their own configuration and
+credentials.
 
 Trunk finds the person from the GitHub event that started the job. You do not name
-a user in the label. The label only says that the job should run as its actor.
+a user in the label. The label only says that the job must run as its actor.
 
 ## Modes
 
 Add `run-as` with one of two modes:
 
-| Mode                | When it applies                                                      |
-| ------------------- | -------------------------------------------------------------------- |
-| `run-as=dispatcher` | A run you start by hand (`workflow_dispatch`) on the default branch. |
-| `run-as=actor`      | A `push` or a pull request on any branch.                            |
+| Mode                | Triggers it applies to                                             | More conditions                                                                                                 |
+| ------------------- | ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| `run-as=dispatcher` | `workflow_dispatch`                                                | The run must be on the default branch.                                                                          |
+| `run-as=actor`      | `workflow_dispatch`, `push`, `pull_request`, `pull_request_target` | The head commit must be signed, unless review already controls the code. See [Signed commits](#signed-commits). |
 
 ```yaml
-runs-on: trunk-kiln=${{ github.run_id }}-${{ github.run_attempt }}..size=medium..run-as=dispatcher
+runs-on: trunk-kiln=${{ github.run_id }}-${{ github.run_attempt }}..size=medium..run-as=actor
 ```
+
+`run-as=actor` accepts every run that `run-as=dispatcher` accepts. A change from
+`dispatcher` to `actor` thus loses no run.
+
+Kiln refuses all other triggers, such as `schedule`, `workflow_run`, and
+`merge_group`. Those jobs run as the shared CI identity.
+
+## Signed commits
+
+With `run-as=actor`, Kiln usually reads the signature of the run's head commit.
+The job then runs as the actor only if:
+
+- GitHub reports the signature as verified, and
+- the account that signed the commit is a member of your organization.
+
+The signer and the actor can be different people. This lets more than one person
+work on the same branch, and the person who pushed last is the identity.
+
+A commit with no signature is the most frequent reason that a job does not run as
+a user. To sign your commits, add a signing key to your GitHub account. GitHub
+keeps signing keys in a different list from authentication keys.
+
+### When Kiln does not read the signature
+
+Kiln does not read the signature when review already controls the code. Either of
+these two conditions is sufficient:
+
+- The run is on the default branch, whichever trigger started it.
+- The trigger is `pull_request_target`, which uses the workflow file from the
+  default branch.
+
+The signature is then not a condition, and an unsigned commit does not prevent the
+job from running as the actor. The [rules](#rules) below continue to apply.
 
 ## Rules
 
-- **The job never fails because of `run-as`.** If Trunk cannot find the person,
-  the job runs as the shared CI identity instead.
-- **A pull request from a fork does not run as a user.** Trunk refuses it for
-  safety.
-- **The person must be a member of your organization.**
+- **A job does not fail because it cannot run as a user.** If a condition is not
+  satisfied, the job runs as the shared CI identity instead.
+- **The person must have a Trunk user, and that user must be a member of your
+  organization.** Link your GitHub account in Trunk first.
+- **A pull request from a fork never runs as a user.** Kiln also refuses a run
+  when it cannot confirm that the pull request comes from your own repository,
+  for example a re-run after the pull request closed.
+- **A runner group that permits public repositories never runs a job as a user.**
+- **The person who starts a re-run becomes the actor.** A re-run thus runs as the
+  person who clicked, not as the person who pushed.
+- **`run-as` does not change git authentication.** `actions/checkout` continues to
+  supply the credential for git, so commits and pushes from the job are not
+  attributed to the person.
+
+## Find the identity a job received
+
+A job that asks for `run-as` writes a line in its log. The line tells you if the
+job runs as your Trunk user, and if it does not, which condition refused it.
 
 <Info>
-  Use `run-as` when a job acts on a person's behalf, such as a coding agent that
-  works in the job. The job then uses that person's identity.
+  Use `run-as` when a job acts for a person, such as a coding agent that works
+  in the job. The job then uses that person's identity.
 </Info>
+
+<Note>
+  A workflow that must have the person's identity can fail on its own when the
+  job falls back to the shared CI identity. Read the log line above to find the
+  cause.
+</Note>
