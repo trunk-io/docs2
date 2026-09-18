@@ -717,6 +717,7 @@
               {
                 "group": "September",
                 "pages": [
+                  "changelog/2026-09-18-merge-queue-direct-to-queue",
                   "changelog/2026-09-15-flaky-tests-test-collections"
                 ]
               },

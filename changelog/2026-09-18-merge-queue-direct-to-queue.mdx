@@ -1,0 +1,24 @@
+---
+title: "Merge Queue: Direct to Queue"
+description: "Admins can send a pull request straight to the queue when branch protection isn't satisfied — tests still run, only the final merge bypasses protection."
+slug: merge-queue-direct-to-queue
+date: 2026-09-18
+category: Merge Queue
+type: new-feature
+---
+
+**Direct to Queue lets a repo admin push a pull request into the Merge Queue even when GitHub branch protection isn't satisfied.** The PR is still tested end-to-end; only the final protection gate is bypassed at merge time.
+
+## New features
+
+- **Direct to Queue submission.** Comment `/trunk merge --direct` on any PR. Trunk verifies admin identity through GitHub comment authorship, admits the PR without waiting for branch-protection to be green, and merges it after tests pass. `--force` still works as an alias so existing automation keeps running. See the [Direct to Queue docs](/merge-queue/using-the-queue/direct-to-queue).
+- **Trunk Sudo GitHub App.** A new, separately-installed GitHub App powers the bypass merge. Install it alongside the core Trunk app on any repo that needs Direct to Queue. See the [Trunk Sudo configuration guide](/setup-and-administration/trunk-sudo-app) and the [permissions reference](/setup/integrations/github/trunk-sudo).
+- **Combine with priority.** Direct to Queue composes with other flags — for example `/trunk merge --direct --priority=urgent` to fast-track an urgent bypass merge. See [priority merging](/merge-queue/optimizations/priority-merging).
+- **"Forced" badge in the dashboard.** PRs sent through Direct to Queue show a **Forced** badge in the Merge Queue PR list so you can see at a glance which merges bypassed branch protection.
+- **Live setup checklist.** Every Merge Queue **Settings** tab now includes a Trunk Sudo checklist that validates the app installation, ruleset bypass configuration, and permissions end-to-end. If the checklist is green, Direct to Queue is ready.
+
+## What it means for you
+
+Direct to Queue replaces the old direct-to-`main` escape hatch when a required check is broken, a status is stuck, or an emergency fix has to ship before reviews land. You keep queue validation — predictive testing, batching, failure handling — while unblocking the merge, and you don't have to weaken branch protection for everyone else.
+
+Direct to Queue is admin-only and only accepts submissions from GitHub PR comments; non-admins get an automated rejection reply. To get started, [install Trunk Sudo and add it to your rulesets' bypass list](/setup-and-administration/trunk-sudo-app), then comment `/trunk merge --direct` on a PR.
