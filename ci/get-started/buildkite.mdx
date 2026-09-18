@@ -16,7 +16,7 @@ There are two exports, and they are complementary:
 Both send to the same endpoint and share a trace, so a build reads as one thing
 whether you run one or both.
 
-## Before you start
+#### Before you start
 
 BuildKite tells Trunk nothing about which repository a build belongs to except
 its **git remote**. Trunk parses `owner/name` out of that remote and looks for a
@@ -26,7 +26,7 @@ So the repository must already exist in Trunk and have **CI Intelligence**
 toggled on - see [Getting Started](/ci/get-started). A pipeline whose remote does
 not resolve to a repository Trunk knows about is skipped silently.
 
-## Get your organization API token
+#### Create API Key for the Uploads
 
 In the Trunk app, navigate to **Settings** → **Organization** → **General**, and
 copy the **API Token**.
