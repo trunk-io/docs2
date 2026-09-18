@@ -23,22 +23,9 @@ From the pull request detail view you can see each change that has been committe
 
 ### The attempt picker
 
-A pull request is not one CI result — it is one per commit, plus one per trip
-through the merge queue. The picker across the top is that list, oldest to
-newest, and everything below it is scoped to whichever you select.
+Each commit is shown in the attempt picker at the top which tracks the status of the pull request as it was updated. 
 
-Each commit carries a health verdict:
-
-| Verdict | Meaning |
-| --- | --- |
-| **Passing CI** | Every required check is green on its latest attempt. |
-| **Failing CI** | Something required failed. |
-| **Running CI** | Still executing. |
-| **Cancelled CI** | A required check was stopped. Nothing failed, but nothing passed either. |
-
-Quarantined and newly-flaky tests count as passing. A commit that passed only
-after a rescue reads **Passing\*** — the asterisk means "not perfect, look", and
-the Activity tab is where to look.
+For customers using the Test intearantined and newly-flaky tests count as passing. A commit that passed only after a rescue reads **Passing\*** — the asterisk means "not perfect, look", and the Activity tab is where to look.
 
 ### CI
 
