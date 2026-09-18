@@ -3,9 +3,39 @@ title: "Trunk  CI"
 og:title: "Trunk GitHub App permissions"
 ---
 
-Enables the Merge Queue [Direct-to-Queue](/merge-queue/using-the-queue/direct-to-queue) feature. 
-
 #### GitHub Repository permissions
+
+<table>
+  <colgroup>
+    <col width="148" />
+    <col width="117" />
+    <col width="453" />
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Permission</th>
+      <th>Access</th>
+      <th>What Trunk uses it for</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>**Actions**</td>
+      <td>Read</td>
+      <td>Receives `workflow_job` and `workflow_run` events and downloads GitHub Actions job logs.</td>
+    </tr>
+    <tr>
+      <td>**Contents**</td>
+      <td>Read</td>
+      <td>Receives `push` events and reads workflow files, reusable workflows, and composite actions from repositories.</td>
+    </tr>
+    <tr>
+      <td>**Metadata**</td>
+      <td>Read</td>
+      <td>Reads basic repository information, such as repository names and identifiers. GitHub automatically requires this permission for every GitHub App.</td>
+    </tr>
+  </tbody>
+</table>
 
 <table>
   <colgroup>
