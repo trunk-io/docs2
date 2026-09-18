@@ -97,9 +97,11 @@
               {
                 "group": "Direct-to-Queue",
                 "pages": [
-                  "merge-queue/using-the-queue/direct-to-queue",
+                  "merge-queue/direct-to-queue/overview",
+                  "merge-queue/direct-to-queue/overview",
                   "setup-and-administration/trunk-sudo-app"
-                ]
+                ],
+                "root": "merge-queue/using-the-queue/direct-to-queue"
               },
               "merge-queue/integration-for-slack",
               "merge-queue/browser-extensions",
