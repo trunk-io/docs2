@@ -480,11 +480,11 @@
               {
                 "group": "GitHub",
                 "pages": [
-                  "setup-and-administration/integrations/github",
                   "setup/integrations/github/trunk-app",
                   "setup/integrations/github/trunk-sudo",
                   "setup/integrations/github/trunk-ci"
-                ]
+                ],
+                "root": "setup-and-administration/integrations/github"
               }
             ]
           },
