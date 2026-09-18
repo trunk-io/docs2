@@ -1113,8 +1113,9 @@
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/trunk_io",
-      "github": "https://github.com/trunk-io"
+      "x": "https://x.com/trunkio",
+      "github": "https://github.com/trunk-io",
+      "linkedin": "https://linkedin.com/company/trunkio"
     },
     "links": [
       {
@@ -2441,5 +2442,9 @@
   ],
   "interaction": {
     "drilldown": true
+  },
+  "styling": {
+    "eyebrows": "section",
+    "codeblocks": "system"
   }
 }
