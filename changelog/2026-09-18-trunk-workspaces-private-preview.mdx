@@ -1,0 +1,22 @@
+---
+title: "Trunk Workspaces: Private preview"
+description: "Cloud development workspaces with a built-in coding agent, terminal access, remote connections, and team sharing. Now in private preview."
+slug: trunk-workspaces-private-preview
+date: 2026-09-18
+category: Workspaces
+type: new-feature
+---
+
+**Trunk Workspaces is now in private preview.**
+
+Workspaces are isolated cloud development environments with a coding agent, terminal access, persistent files, and shareable HTTP services. Launch one from the desktop app, keep it warm with your caches baked in, and hand it off to a teammate when you're done.
+
+- **Coding agent in every workspace.** The [Agent tab](/trunk-workspaces/workspaces/agent) is a frontend for a coding-agent CLI (like `claude`) running inside your workspace. Sessions keep running when you switch tabs or move to another workspace.
+- **Terminal and persistent files.** Open a shell in the [Terminal tab](/trunk-workspaces/workspaces/agent#use-the-terminal). Files persist across sleep and resume.
+- **Remote connections.** [Expose HTTP ports](/trunk-workspaces/workspaces/connect#expose-an-http-port) with public URLs, forward them to localhost, or connect over SSH and remote editors.
+- **Share with your team.** Add organization members from **Details → Summary**, or generate an [org-scoped share link](/trunk-workspaces/workspaces/share). Collaborate in a single [agent room](/trunk-workspaces/workspaces/cooperation) so multiple people can steer the same agent.
+- **Launch from Slack.** Mention **@blaze** in a Slack thread with your request. The app replies with a picker for template, size, region, and agent, then creates a workspace using the thread as the first prompt.
+- **Templates, access policies, and auditing.** Admins manage [workspace templates](/trunk-workspaces/templating/lifecycle), [environment variables](/trunk-workspaces/templating/environment-variables), and access policies for [AWS](/trunk-workspaces/access-policy/aws), [Tailscale](/trunk-workspaces/access-policy/tailscale), and [network egress](/trunk-workspaces/access-policy/network-egress). Agent access to external services runs through auditing proxies.
+- **Bring your own encryption keys.** Meet organization security requirements with customer-managed keys.
+
+Onboarding starts with a demo. [Book a call with the Trunk team](https://calendly.com/trunk/demo) to get your organization set up, or read the [Workspaces docs](/trunk-workspaces) for the full reference.
