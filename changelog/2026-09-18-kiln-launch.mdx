@@ -1,0 +1,23 @@
+---
+title: "Introducing Kiln: Trunk-hosted CI runners"
+description: "Kiln runs your CI jobs on Trunk-hosted VMs. Add one runs-on label and each job gets a fresh, isolated machine with a shared cache."
+slug: kiln-launch
+date: 2026-09-18
+category: Kiln
+type: new-feature
+---
+
+**Kiln is Trunk's new CI product. It runs your GitHub Actions jobs on Trunk-hosted runners, with a fresh isolated VM per job.**
+
+Point a job at Kiln by changing one thing: its `runs-on` label. Trunk provisions a clean VM, runs the job, and tears the VM down when the job finishes. Your workflows stay on GitHub.
+
+- **A clean machine per job.** Every job runs in its own fresh VM with no leftover state from earlier runs. See [The runs-on label](/kiln/actions/runs-on).
+- **Pick the size you need.** One label sets the CPU count, and you can ask for high memory when a job needs it. See [Machine sizes](/kiln/actions/sizes).
+- **Shared cache for faster builds.** Jobs reuse build results across runs. Turn caching on or off per repository or for the whole organization. See [Caching](/kiln/cache/index).
+- **Organization defaults.** Set a default template, region, and size so most jobs only need to specify a size. See [Organization defaults](/kiln/settings/ci-defaults).
+- **Limits and priority.** Cap CI CPU usage and mark priority branches. See [Limits and priority](/kiln/settings/limits-and-priority).
+- **Run-as (Beta).** Configure the identity a job runs under. See [Run-as](/kiln/actions/run-as).
+
+Kiln also runs Buildkite jobs, with more features on the way — see the [Roadmap](/kiln/roadmap).
+
+To try Kiln, install the Trunk GitHub App and [reach out to the Trunk team](/setup-and-administration/support) to enable it for your organization. Then follow the [Get started guide](/kiln/getting-started) to run your first job.
