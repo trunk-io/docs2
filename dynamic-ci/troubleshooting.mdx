@@ -1,0 +1,153 @@
+---
+title: "Troubleshooting"
+description: "Nothing is skipping, a check never reports, a notice you do not recognize."
+og:title: "Troubleshoot Trunk Dynamic CI"
+groups: ["dynamic-ci"]
+---
+
+Dynamic CI fails safe in one direction: when anything is wrong, everything runs. So almost
+every symptom looks the same — nothing skipped — and the answer is in the log.
+
+## Nothing is skipping
+
+Work down this list; it is roughly ordered by how often each one is the answer.
+
+<AccordionGroup>
+  <Accordion title="The repository is in learning mode">
+    The intended state for a new repository, and the plan says so with a
+    `REPO_IN_SHADOW_MODE` notice. Verdicts are real and recorded, but nothing may be
+    withheld. Switch the repository to enforced from the mode control on its Dynamic CI
+    page when the numbers convince you.
+  </Accordion>
+
+  <Accordion title="A notice explains it">
+    `ORG_NOT_ENABLED` and `REPO_NOT_ENABLED` mean Dynamic CI is not turned on for you yet.
+    `WORKFLOW_NOT_RECOGNIZED` means Trunk has not enumerated this workflow or pipeline's
+    jobs — usually a workflow that has not run enough since ingestion was turned on.
+    `ENGINE_UNAVAILABLE` is an outage, and resolves itself. See
+    [the notice table](/dynamic-ci/how-it-works#when-something-goes-wrong).
+  </Accordion>
+
+  <Accordion title="This is the merge queue">
+    Expected. The merge-queue lane enables only the `paths-filter` signal, and with no rules
+    configured it concludes nothing — so every job runs. Nothing skips in your queue until
+    you deliberately configure a filter for it.
+  </Accordion>
+
+  <Accordion title="There is not enough history">
+    A job Trunk has not seen enough of gets an `INCOMPLETE` contribution rather than a vote,
+    and enough of those fail the job safe, to running. New jobs, new repositories and jobs
+    whose key was only just resolved all land here. It resolves itself as runs accumulate.
+  </Accordion>
+
+  <Accordion title="Trunk cannot see the diff">
+    Without a base commit — a non-pull-request build, or a checkout too shallow to find the
+    merge base — the diff-derived signals have no evidence and abstain. On Buildkite, check
+    `baseSha` in the `debug: true` request body; a null there is the tell.
+  </Accordion>
+
+  <Accordion title="The job is not addressed the way you think">
+    Verdicts are keyed on the job **key** (`jobs:` key on GitHub Actions, `key:` on
+    Buildkite), never the display name. A Buildkite step with no `key:` always runs. A
+    GitHub job whose output you re-exported under a different name than its key never gets
+    the verdict you are reading.
+  </Accordion>
+
+  <Accordion title="A policy pinned the job to Always">
+    Check the Configuration tab for the job's policy. An **Always** policy means no verdict
+    is ever asked for, which is exactly what it is for — but it is easy to forget one was
+    set months ago.
+  </Accordion>
+
+  <Accordion title="Something failed open">
+    A transport error, a non-2xx response, a malformed response or a request past the 30s
+    budget all resolve to run-everything. Every one is logged with its reason — search the
+    step's log for the fail-open line, and enable `enable-annotation: true` (GitHub Actions)
+    if you want it surfaced on the run.
+  </Accordion>
+</AccordionGroup>
+
+## A skipped job still ran
+
+Two causes, both in the workflow rather than in Trunk:
+
+- **The conditional is not gating what you think.** `needs.<filter-job>.outputs.<key>` has
+  to name the filter job's re-exported output, and the job has to `needs:` the filter job.
+  A typo in either place evaluates to an empty string, which `!= 'false'` treats as run.
+- **The job is ungated.** On GitHub Actions a job with no `if:` is never Trunk's to decide,
+  even when a verdict for it exists.
+
+## A job was skipped that Trunk never voted on
+
+Two shapes, both in the conditional:
+
+- **The filter job itself did not run** — a `push` event, a cancelled run — so GitHub skips
+  everything that `needs:` it. `!cancelled() &&` in front of the comparison is what keeps
+  the downstream job running anyway, which is why every example here includes it.
+- **The conditional tests `== 'true'`.** An absent output is the empty string, so this skips
+  the job whenever Trunk did not answer — a service outage, a job it has never seen, a key
+  it has not resolved. Always write `!= 'false'`.
+
+## A required check never reports
+
+This is the matrix case, and it is worth understanding rather than working around blindly.
+
+GitHub evaluates a job's `if:` **before** it expands the matrix, so a matrix job that
+Dynamic CI skips emits a single check run under its **unexpanded** name — the literal
+`Test for ${{ matrix.platform.target }}`, uninterpolated. Per-leg contexts like
+`Test for x86_64-apple-darwin` then never report, and a pull request whose branch protection
+requires them waits on **"Expected — Waiting for status to be reported"** indefinitely.
+Required contexts are exact-match strings, so wildcards are no help.
+
+Non-matrix jobs are unaffected: a skipped job reports a `skipped` conclusion, which branch
+protection accepts as satisfied.
+
+| Option                           | How it works                                                                                                                    | Trade-off                                                                                                       |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| **Fan-in job** (recommended)     | One `if: always()` job that `needs` the gated jobs and passes when each finished `success` or `skipped`. Require its name instead. | Aggregates per job, so it cannot require a subset of legs. Never gate the fan-in job itself — a gate that can be skipped cannot report. |
+| **Require the workflow**         | GitHub's "Require workflows to pass before merging" ruleset rule keys on the workflow file, and a run whose jobs all skip still concludes successfully. | GitHub Enterprise Cloud only, and it requires the workflow as a whole — jobs you had left out of the required set start blocking merges. |
+| **Leave the job ungated**        | Omit the matrix job from the filter's `outputs:` and give it no `if:`.                                                            | No savings on that job; everything else in the workflow can still be gated.                                      |
+| **In-step gating** (discouraged) | Move the verdict from the job's `if:` into each step's `if:`, so every leg still boots and reports.                              | Spends the runner anyway, and reports `success` without doing the work — which feeds the pass-rate signals a pass that never happened. |
+
+## A job was skipped and it would have failed
+
+That is a **false skip**, and it is the error class Dynamic CI measures itself on. Trunk
+records it as a first-class row when the merge queue — or a later run — catches what the
+pull-request lane let through, counts it per repository, and shows it beside the savings.
+
+What to do about one:
+
+1. **Unblock yourself now** with a [force override](/dynamic-ci/configuration#force-overrides)
+   on the pull request, which can re-trigger the affected workflows immediately.
+2. **Take the job off the engine** if its cost of being wrongly skipped is high — a
+   **Never skip** policy, or `exclude-keys` on Buildkite.
+3. **Tell us.** A recorded false skip is what tunes the configuration for that job, and
+   during the beta it is the single most useful thing you can report:
+   [slack.trunk.io](https://slack.trunk.io).
+
+## Buildkite: no steps are ever marked
+
+Set `debug: true` on the plugin and read the three collapsed groups it prints — the step
+keys it asked about, the request body it sent, and the plan it got back.
+
+| What to look at in the body   | What it tells you                                                                                        |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `repo.owner` / `repo.name`    | How the plugin parsed `BUILDKITE_REPO`. It must match the repository CI ingestion created from that same remote, or no repository resolves. |
+| `buildkitePipelineSlug`       | Whether the pipeline Trunk sees is the one you think.                                                      |
+| `baseSha`                     | A null here means no diff, so the diff-derived signals abstain.                                            |
+| `jobKeys`                     | Steps without a `key:` are not in this list, and cannot be decided about.                                  |
+
+Also check that the agent's platform is one the plugin ships a `jq` for (linux-amd64,
+linux-arm64, macos-arm64) — on any other it says so and uploads your pipeline unchanged.
+
+## Interpolation broke after adding the plugin
+
+`$$FOO` turning into something like `206FOO` means the upload ran with
+`--no-interpolation`. The filter renders a YAML pipeline without interpolation, so your
+`buildkite-agent pipeline upload` is what performs the single pass — drop the flag.
+
+## Still stuck
+
+Dynamic CI is tuned against real repositories during the beta, and reaching out is the
+fastest way to change it. Bring the job log (or the `debug: true` output) and the pull
+request: [slack.trunk.io](https://slack.trunk.io).

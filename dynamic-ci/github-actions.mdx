@@ -1,0 +1,221 @@
+---
+title: "GitHub Actions"
+description: "Gate your workflow's jobs on a Trunk verdict with the Dynamic CI action."
+og:title: "Set up Trunk Dynamic CI for GitHub Actions"
+groups: ["dynamic-ci"]
+---
+
+The [`trunk-io/dynamic-ci`](https://github.com/trunk-io/dynamic-ci) action asks Trunk for a
+verdict per job and emits each one as a job output. Your jobs gate on those outputs with an
+ordinary `if:`.
+
+## Before you start
+
+- **CI Intelligence is on for the repository** and workflow runs are reaching Trunk. See
+  [Trunk CI → GitHub Actions](/ci/get-started/github-actions).
+- **Dynamic CI is enabled for your organization.** Until it is, every request comes back
+  with an `ORG_NOT_ENABLED` notice and every job runs. Reach out on
+  [Slack](https://slack.trunk.io).
+- **You have an organization API token.** In the Trunk app, navigate to **Settings** →
+  **Manage Organization** → **Organization API Token**. Make sure you take the
+  *organization* token, not a repository token.
+
+## Set it up
+
+<Steps>
+  <Step title="Store the token as a repository secret">
+    Add it as an Actions secret — `TRUNK_API_TOKEN` in the examples below. An organization
+    secret works too if you are rolling out across several repositories.
+  </Step>
+
+  <Step title="Add the filter job">
+    One upstream job asks for verdicts for the whole workflow. Per-job outputs are set at
+    runtime, so GitHub cannot declare them for you: re-export each job you intend to gate
+    on, by name.
+
+    ```yaml
+    jobs:
+      dynamic-ci-filter:
+        name: Dynamic CI Filter
+        runs-on: ubuntu-latest
+        timeout-minutes: 5
+        # Only ask on pull requests. On other events there are no outputs to compare
+        # against, so every job below runs.
+        if: github.event_name == 'pull_request'
+        outputs:
+          unit-tests: ${{ steps.ci-filter.outputs.unit-tests }}
+          integration-tests: ${{ steps.ci-filter.outputs.integration-tests }}
+        steps:
+          - name: Run Dynamic CI Filter
+            id: ci-filter
+            uses: trunk-io/dynamic-ci@v1
+            with:
+              token: ${{ secrets.TRUNK_API_TOKEN }}
+    ```
+  </Step>
+
+  <Step title="Gate your jobs on the outputs">
+    ```yaml
+      unit-tests:
+        name: Unit Tests
+        runs-on: ubuntu-latest
+        needs: [dynamic-ci-filter]
+        # Always compare against 'false', never 'true'.
+        if: >-
+          !cancelled() &&
+          needs.dynamic-ci-filter.outputs.unit-tests != 'false'
+        steps:
+          - run: make test
+    ```
+
+    `!cancelled()` is what keeps the gated job running when the filter job was skipped —
+    on a `push` event, for example, where the filter job's own `if:` did not fire.
+  </Step>
+
+  <Step title="Open a pull request and read the log">
+    The filter step prints a verdict per job with every signal that voted. In
+    [learning mode](/dynamic-ci/configuration#repository-mode) — where repositories start
+    — the verdicts are real but nothing is withheld, so your CI behaves exactly as before
+    while the numbers accumulate.
+  </Step>
+</Steps>
+
+## Address jobs by key, not by name
+
+Jobs are addressed by their **key** — what the job is written as under `jobs:`, and what
+`github.job` reports — not by the `name:` it displays under. A display name changes with a
+job's matrix values; the key does not.
+
+The output is named for the key verbatim. GitHub already constrains a `jobs:` key to
+something an expression can dereference, so a job written as `unit-tests` reads back as
+`steps.ci-filter.outputs.unit-tests` with no transformation to work out.
+
+## Always write `!= 'false'`
+
+<Warning>
+  Gate on `!= 'false'`, never on `== 'true'`.
+</Warning>
+
+A job with no verdict — a service outage, a job Trunk has not seen before, a job whose key
+it has not resolved yet — emits no output at all. `!= 'false'` correctly runs that job.
+`== 'true'` would silently skip your entire test suite the first time anything went wrong.
+
+That convention is what makes the action's fail-open behavior work. A transport error, a
+non-2xx response, a malformed response, or a request past the latency budget (30s by
+default) all resolve to "run", and the step itself never fails. Every fail-open is logged
+with its reason, so a real skip is always distinguishable from a degraded one.
+
+## Inputs
+
+| Input               | Required | Description                                                                                                                                                     |
+| ------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `token`             | yes      | Trunk organization API token.                                                                                                                                       |
+| `job-keys`          | no       | A job key, or comma-separated list of keys, to scope the request to. Leave unset to get a verdict for every job in the workflow.                                     |
+| `ignore-signals`    | no       | Comma-separated [signal identifiers](/dynamic-ci/how-it-works#the-signals) to drop from the tally. An identifier this version does not know is warned about and still sent, so a typo cannot take your gate down. |
+| `enable-annotation` | no       | Post the recommendation to the run's annotation list and job summary. Defaults to `false`; the step's log is written either way.                                     |
+
+### Environment variables
+
+| Variable                      | Default                | Description                                                                          |
+| ----------------------------- | ---------------------- | -------------------------------------------------------------------------------------- |
+| `TRUNK_PUBLIC_API_ADDRESS`    | `https://api.trunk.io` | Trunk API base address. The recommendation path is appended to it.                       |
+| `TRUNK_DYNAMIC_CI_TIMEOUT_MS` | `30000`                | Request timeout, which is also the fail-open latency budget. Invalid values fall back to the default. |
+
+## Pre-step mode
+
+A single job can ask only about itself and skip its own work. It is simpler to adopt — no
+upstream job, no `outputs:` to maintain — but the runner has already booted by the time the
+verdict arrives, so the saving is capped at the work itself.
+
+```yaml
+steps:
+  - uses: actions/checkout@v4
+
+  - name: Run Dynamic CI Filter
+    id: ci-filter
+    uses: trunk-io/dynamic-ci@v1
+    with:
+      token: ${{ secrets.TRUNK_API_TOKEN }}
+      job-keys: unit-tests
+
+  - name: Unit Tests
+    if: steps.ci-filter.outputs.unit-tests != 'false'
+    run: make test
+```
+
+Use it to get started, then move to pre-job mode for the full saving.
+
+## Merge queues
+
+You do not need to gate the queue yourself. Trunk derives the lane from the branch —
+`trunk-merge/*` for [Trunk Merge Queue](/merge-queue/merge-queue), `gh-readonly-queue/*`
+for GitHub's native queue — and the merge-queue lane skips nothing unless you have
+deliberately configured a paths filter for it.
+
+In particular, **do not** add `github.event_name != 'pull_request'`: with draft merge-queue
+pull requests enabled, queue batches arrive as `pull_request` events on `trunk-merge/*`
+branches, so the event name cannot tell them apart from real pull requests.
+
+A third-party queue that validates on some other branch prefix is not recognized, so gate
+that one yourself:
+
+```yaml
+if: >-
+  !cancelled() &&
+  (startsWith(github.ref_name, 'my-queue/') ||
+  needs.dynamic-ci-filter.outputs.unit-tests != 'false')
+```
+
+## Matrix jobs and required checks
+
+A matrix expands into many legs beneath one key, and Trunk issues one verdict for the whole
+job: every leg runs, or every leg skips.
+
+That matters for branch protection. GitHub evaluates a job's `if:` before it expands the
+matrix, so a skipped matrix job reports a single check run under its **unexpanded** name —
+and a pull request that requires per-leg contexts waits on them forever. The recommended
+fix is a fan-in job:
+
+```yaml
+  tests-complete:
+    name: Tests Complete
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [unit-tests, integration-tests]
+    steps:
+      - name: Check results
+        run: |
+          [[ "${{ contains(needs.*.result, 'failure') }}" == "false" ]] || exit 1
+          [[ "${{ contains(needs.*.result, 'cancelled') }}" == "false" ]] || exit 1
+```
+
+Require `Tests Complete` in place of the per-leg contexts, and never gate the fan-in job
+itself with Dynamic CI — a gate that can be skipped cannot report. The other three options,
+and their trade-offs, are in
+[Troubleshooting](/dynamic-ci/troubleshooting#a-required-check-never-reports).
+
+## Rolling it out
+
+<Steps>
+  <Step title="Ship the wiring in learning mode">
+    Add the filter job and the `if:` conditions while the repository is still in learning
+    mode. Nothing is withheld, so this is a no-op change to your CI that starts producing
+    evidence.
+  </Step>
+
+  <Step title="Read the numbers">
+    On the repository's Dynamic CI page: what would have been skipped, what it is worth in
+    compute and wait time, and how often the recommendation would have been wrong.
+  </Step>
+
+  <Step title="Take the jobs you never want skipped off the engine">
+    A deploy or release gate belongs on an **Always run** policy, or simply left ungated.
+    See [Configuration](/dynamic-ci/configuration#per-job-policies).
+  </Step>
+
+  <Step title="Switch the repository to enforced">
+    From the mode control on the repository's Dynamic CI page. Turning enforcement on asks
+    for confirmation, because it changes what CI runs for everyone pushing to the
+    repository; turning it back off is immediate.
+  </Step>
+</Steps>

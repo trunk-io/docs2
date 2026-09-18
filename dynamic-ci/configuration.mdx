@@ -1,0 +1,200 @@
+---
+title: "Configuration"
+description: "Modes, per-job policies, signal tuning, paths filters and force overrides — and what each one is for."
+og:title: "Configure Trunk Dynamic CI"
+groups: ["dynamic-ci"]
+---
+
+Dynamic CI is meant to work with nothing configured. Everything here is a way to take a
+decision away from the engine, or to give it a rule you want applied deterministically.
+
+| Knob                                          | Scope                    | Where it lives                                |
+| --------------------------------------------- | ------------------------ | ---------------------------------------------- |
+| [Repository mode](#repository-mode)           | One repository           | The repository's Dynamic CI page in the Trunk app |
+| [Per-job policy](#per-job-policies)           | One job, per lane        | The Configuration tab of the Dynamic CI product   |
+| [Signal configuration](#signal-configuration) | One job, per lane        | Set with Trunk during the private beta            |
+| [Paths filters](#paths-filters)               | One job, per lane        | Set with Trunk during the private beta            |
+| [`ignore-signals`](#ignore-signals)           | One request              | The action input or plugin option                 |
+| [Force overrides](#force-overrides)           | One pull request         | The pull request's Dynamic CI tab, or the API      |
+| [Scoping the filter](#scoping-what-is-considered) | One workflow or pipeline | `job-keys`, `only-keys`, `exclude-keys`       |
+
+## What happens with nothing configured
+
+Every setting below is sparse — the common case is no stored configuration at all. This is
+the complete answer to what Dynamic CI does then:
+
+| Question                              | Default                                                    |
+| ------------------------------------- | ---------------------------------------------------------- |
+| Repository mode                       | **Learning** — real verdicts, nothing withheld             |
+| Policy on a job, pull-request lane    | **Automatic** — Dynamic CI decides                         |
+| Policy on a job, merge-queue lane     | **Automatic**                                              |
+| Which signals run on a pull request   | **All of them**, including any signal added later          |
+| Which signals run in the merge queue  | **`paths-filter` only** — and with no rules it concludes nothing, so everything runs |
+| Paths filter rules                    | None                                                       |
+
+The merge queue is safe by construction rather than by a switch: it excludes every signal
+nobody named, and the one signal it does enable has nothing to say until you write a rule.
+The first thing that can ever skip in your queue is a filter somebody deliberately wrote.
+
+## Repository mode
+
+The mode decides whether a verdict is allowed to withhold anything.
+
+| Mode         | Engine                          | Your CI                                                      |
+| ------------ | ------------------------------- | ------------------------------------------------------------ |
+| **Learning** | Computes and records real verdicts | Runs everything                                            |
+| **Enforced** | Computes and records real verdicts | Honors them                                                |
+
+Set it from the mode control on the repository's Dynamic CI page — it hangs off the pill in
+the page header, beside the evidence you would use to decide. Repositories start in learning
+mode.
+
+Two things worth knowing about that control:
+
+- **Turning enforcement on asks for confirmation; turning it off does not.** Enabling it
+  changes what CI runs for everyone pushing to the repository. Going back to learning only
+  makes CI run more, so it takes effect immediately.
+- **Either mode turns CI Intelligence on with it.** Both serving modes score against CI
+  telemetry, so on a repository with ingestion off the mode would be silently inert. The
+  control says so when it applies.
+
+<Info>
+  The pill and the mode are different questions. The pill reports what Dynamic CI has
+  actually *done* in this repository — managed, learning, or unmanaged — while the mode is
+  what it is *allowed* to do. A repository switched to enforced this morning has skipped
+  nothing yet, and the two genuinely disagree for a while.
+</Info>
+
+## Per-job policies
+
+A policy takes one job off the engine, in one lane or both.
+
+| Policy        | Effect                                                            |
+| ------------- | ------------------------------------------------------------------ |
+| **Automatic** | Dynamic CI decides from the change set. The default.               |
+| **Always**    | The job always runs. No verdict, no skip, whatever the signals say. |
+| **Never**     | The job never runs in that lane.                                   |
+
+Policies are set **per lane** — pull request and merge queue are separate — so a job can be
+decided automatically on pull requests while always running in the queue, which is the usual
+shape for anything expensive that gates a merge.
+
+Open the **Configuration** tab of the Dynamic CI product to read the roster this applies
+to: every workflow file Dynamic CI manages, the jobs inside it, and per job what one
+run costs, how often it has been skipped, and how often that was wrong. During the private
+beta the policy selector there is not yet writable — tell us which jobs you want pinned and
+we will set them.
+
+<Tip>
+  A job you never want skipped has three homes for that rule, and the right one depends on
+  where the decision belongs: an **Always** policy (survives YAML edits, visible with the
+  rest of your Dynamic CI settings), `exclude-keys` on the Buildkite plugin (visible in the
+  pipeline), or simply leaving the job ungated on GitHub Actions.
+</Tip>
+
+## Signal configuration
+
+Each signal can be enabled, disabled, or weighted per job and per lane, and some carry
+their own tunables. This is the layer that lets a repository say "cost is not a
+consideration for this job" or "this job's pass rate is not evidence of anything".
+
+Two defaults are worth stating, because they are opposites and both are deliberate:
+
+- **On the pull-request lane, a signal nobody mentioned runs.** Adding a signal to the
+  engine turns it on for every existing repository, which is what makes shipping one
+  useful.
+- **On the merge-queue lane, a signal nobody mentioned does not run.** A new signal is
+  inert there until somebody names it, which keeps the queue from silently gaining a skip
+  reason.
+
+During the private beta, signal configuration is set with Trunk rather than in the app.
+
+## Paths filters
+
+A paths filter is the escape hatch for a rule you want to state rather than infer — and the
+only signal enabled in the merge-queue lane. It is at parity with
+[`dorny/paths-filter`](https://github.com/dorny/paths-filter), verified against v4.0.3, so
+an existing filter can be carried over rather than reinvented:
+
+- Matching is `picomatch` with `{ dot: true }`, so it is **case-sensitive** and `**` matches
+  dotfiles — bit-comparable with dorny's results.
+- A rule is a glob, optionally qualified by change type: `added`, `copied`, `deleted`,
+  `modified`.
+- Exclusions are an explicit `exclude` list, with `some-with-excludes` semantics: order
+  independent, and final. `!`-prefixed patterns inside an include list are **not** supported,
+  because under dorny's own default quantifier they silently do nothing, and importing them
+  verbatim would change what your gate does.
+- `renamed` and `unmerged` are accepted so an imported filter round-trips, but neither ever
+  matches: a rename is normalized into an added entry plus a deleted one, exactly as dorny
+  does, and `unmerged` is a git index state the API never reports.
+- The `every` quantifier, and dorny's `list-files` / `<filter>_count` / `<filter>_files`
+  outputs, are out of scope. This signal decides run or skip; it does not feed later steps.
+
+Rules live in their own store rather than inline on each job, so one `ts/**` gate shared by
+dozens of jobs is one thing to edit rather than dozens of copies.
+
+## `ignore-signals`
+
+Per request, and useful mostly for experiments and for working around a signal you do not
+yet trust:
+
+```yaml
+# GitHub Actions
+- uses: trunk-io/dynamic-ci@v1
+  with:
+    token: ${{ secrets.TRUNK_API_TOKEN }}
+    ignore-signals: estimated-cost,mid-pr-stack
+```
+
+```yaml
+# Buildkite
+plugins:
+  - https://github.com/trunk-io/dynamic-ci.git/dynamic-ci-buildkite-plugin#main:
+      ignore-signals: estimated-cost,mid-pr-stack
+```
+
+An ignored signal is still computed and still reported — the log shows what it *would* have
+contributed, marked as ignored — so you can see the counterfactual rather than losing it.
+The [full list of identifiers](/dynamic-ci/how-it-works#the-signals) is in How it works.
+
+## Force overrides
+
+A force override is the per-pull-request answer to "run it anyway". It is deliberately
+one-directional: it can force a job to run, never force one to skip.
+
+- **Scope** — the whole pull request, one workflow, or a single job.
+- **Where** — the pull request's Dynamic CI tab, or `PUT /v2/dynamic-ci/force-overrides` on
+  the public API.
+- **Lifetime** — it belongs to the pull request, and records the head commit it was saved
+  against.
+- Forcing can optionally re-trigger the affected workflows immediately, so you do not have
+  to push an empty commit to get the jobs you just asked for.
+
+<Warning>
+  The API call **replaces** the set of overrides; it does not append to it. A partial list
+  silently revokes every force it leaves out.
+</Warning>
+
+## Scoping what is considered
+
+The cheapest configuration is often not configuration at all — just narrowing what you ask
+about:
+
+| Provider           | Narrow to                            | Keep out                                     |
+| ------------------ | ------------------------------------ | --------------------------------------------- |
+| **GitHub Actions** | `job-keys`, or only gating the jobs you wire an `if:` onto | Leave a job out of `outputs:` and give it no `if:` |
+| **Buildkite**      | `only-keys`                          | `exclude-keys`                                |
+
+On GitHub Actions the default is opt-in: a job with no `if:` is never Trunk's to decide. On
+Buildkite it is the reverse — once the plugin is on the upload step, every step with a
+`key:` is a candidate — so `exclude-keys` is how you opt one back out.
+
+## Seeing what configuration did
+
+Every verdict carries the signals behind it, and a signal that a policy or configuration
+silenced says so. The three places to read that back:
+
+- **The job log**, for the run in front of you.
+- **The pull request's Dynamic CI tab**, for every decision on every commit of that PR.
+- **The repository's Dynamic CI page**, for what all of it has been worth — and what it has
+  cost in false skips.

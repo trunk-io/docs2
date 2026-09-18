@@ -1,0 +1,75 @@
+---
+title: "In the Trunk app"
+description: "Where Dynamic CI reports what it decided, what that was worth, and what it got wrong."
+og:title: "Trunk Dynamic CI in the app"
+groups: ["dynamic-ci"]
+---
+
+Dynamic CI has four surfaces in the Trunk app. Three of them are accounts of decisions
+already taken; the fourth is the one you act on.
+
+## The Dynamic CI overview
+
+The product's own page reports, per **repository**, how much CI was not run and what that
+bought back, over a 7, 30 or 90-day window. Repositories are split by how Dynamic CI relates
+to them:
+
+| Segment           | What is in it                                                                                    |
+| ----------------- | -------------------------------------------------------------------------------------------------- |
+| **Managed**       | Repositories where Dynamic CI decides and a workflow gates on it. These figures are banked.        |
+| **Learning mode** | Repositories where it votes and nothing acts on it. These figures are what adopting the gate *would* be worth — none of it has been banked. |
+| **Unmanaged**     | Repositories running CI that Dynamic CI has never voted on. No savings to report, only the compute that is currently unexamined. |
+
+Each segment reports the same measures, named for whether they were banked or not:
+
+| Measure                                     | What it counts                                                                                     |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| **Time saved** / **Time available**         | Runner time the skips avoided. Cancelled runs prove nothing either way and are excluded.              |
+| **Wallclock saved** / **Wallclock available** | Wall-clock waiting avoided, from each run's long pole. A skip only saves anyone *time* when the skipped job would have been the longest one — skipping a two-minute lint out of a forty-minute run saves compute and nobody a second of waiting. |
+| **Runs skipped**                            | A count of job runs, which is a different lens from time: skipping ten cheap jobs and one expensive one are the same number of runs. |
+| **False skips**                             | Skips that turned out to be wrong. A floor rather than a rate — an honored skip leaves no counterfactual to check. |
+| **Ignored**                                 | Skip verdicts a workflow did not act on. A large number here usually means the wiring is incomplete rather than the recommendations are bad. |
+
+<Info>
+  Compute and wall-clock are two different lenses on the same jobs, and the app never mixes
+  them in one column. Pick the question first — "how much runner time" or "how many runs" —
+  and read the column that answers it.
+</Info>
+
+## A repository's page
+
+A repository row drills into the same measures **by workflow**, expandable to the job. This
+is the altitude adoption actually happens at: a repository reported at 60% managed raises a
+question only this page answers — which workflows the other 40% are, and whether they are
+the expensive ones.
+
+It also carries the repository's **mode control**, which hangs off the pill in the page
+header. The evidence and the switch are on one screen deliberately, so moving a repository
+from learning to enforced is self-serve rather than a support request. See
+[Configuration](/dynamic-ci/configuration#repository-mode).
+
+## The Configuration tab
+
+Beside the three segments, the **Configuration** tab lists every workflow file Dynamic CI
+manages and the jobs inside it that the engine decides, with the three figures you would
+weigh before changing anything: what one run of the job costs, how often it has been
+skipped, and how often that was wrong — plus the job's policy.
+
+Cards arrive collapsed, one per workflow file, because the reader is usually looking for one
+file rather than every job in the organization. A workflow with no verdicts is not listed:
+there is nothing there to set a policy on.
+
+## A pull request's Dynamic CI tab
+
+The audit trail for one pull request: a job × commit matrix of every run/skip decision, the
+signals behind whichever one you select, the false skips, and the jobs whose skip verdict
+the workflow ignored.
+
+It is also where you [force jobs to run](/dynamic-ci/configuration#force-overrides) on this
+pull request — for the whole pull request, one workflow, or a single job — and re-trigger
+them without pushing an empty commit.
+
+<Tip>
+  When someone asks "why did *this* job not run on *my* PR", this tab is the answer, and it
+  keeps the per-signal breakdown after the run's logs have expired.
+</Tip>
