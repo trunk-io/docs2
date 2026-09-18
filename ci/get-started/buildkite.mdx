@@ -4,13 +4,11 @@ description: "Export Buildkite's OpenTelemetry traces to Trunk to collect CI dat
 og:title: "Set up Trunk CI for Buildkite"
 ---
 
-Buildkite emits OpenTelemetry traces natively. Setting up Trunk CI is pointing
-that export at Trunk's ingest endpoint.
+BuildKite emits OpenTelemetry traces natively. To setup Trunk CI we need to add Trunk's ingest endpoint to the OTEL setup in BuildKite.
 
 There are two exports, and they are complementary:
 
-- **The notification service**, configured once for your Buildkite
-  organization. It reports build and job lifecycle — start, finish, conclusion,
+- **The notification service**, configured once for your BuildKite organization. It reports build and job lifecycle 0 start, finish, conclusion,
   queue wait. This is the one to set up first, and it is enough on its own.
 - **Agent tracing**, configured on your agents. It adds execution-time detail
   from inside the running build.
