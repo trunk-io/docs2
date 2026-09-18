@@ -44,7 +44,19 @@
           {
             "group": "Dynamic CI (beta)",
             "pages": [
-              "dynamic-ci/index"
+              "dynamic-ci/index",
+              "dynamic-ci/how-it-works",
+              "dynamic-ci/use-cases",
+              "dynamic-ci/in-the-app",
+              {
+                "group": "Setup",
+                "pages": [
+                  "dynamic-ci/github-actions",
+                  "dynamic-ci/buildkite"
+                ]
+              },
+              "dynamic-ci/configuration",
+              "dynamic-ci/troubleshooting"
             ]
           },
           {
