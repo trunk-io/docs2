@@ -1,0 +1,50 @@
+---
+title: "Template lifecycle"
+description: "How a template builds its image and runs setup scripts on rebuild and on workspace boot."
+groups: ["firewatch"]
+---
+
+{/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
+
+A template defines a repeatable workspace setup. It builds a reusable disk image,
+and the app rebuilds that image from time to time. A template runs two scripts at
+two different times.
+
+## Creation commands
+
+**Creation commands** run once when the template is published, and the app bakes the
+result into the disk image. Put slow, cacheable setup here. Good examples are
+toolchain installs, `apt` packages, and `git clone`.
+
+A change to the creation commands starts a new image build.
+
+## Refresh commands
+
+**Refresh commands** run when a workspace first boots, after the image is in place.
+Put quick, per-workspace setup here. Good examples are `git fetch && git pull` to
+update the cloned repository, and `pnpm install`.
+
+<Note>
+  Refresh commands run on the first boot of a workspace. A later resume or
+  reboot reuses the prepared disk and does not run them again.
+</Note>
+
+<Frame caption="Inspect and manage an organization template.">
+  ![An organization workspace template in the trunk
+  app.](/assets/trunk-workspaces/templates.png)
+</Frame>
+
+## Organization and personal templates
+
+- **Organization templates** — go to **Settings** → **Organization** →
+  **Templates**. An admin creates a reusable setup for the whole organization. Only
+  an organization template has creation commands.
+- **Personal template** — go to **Settings** → **User** → **Template**. This setup
+  applies only to workspaces you create in the organization. Your personal refresh
+  commands run after the organization template.
+
+<Info>
+  A template can also set environment variables, a Tailscale tag, AWS
+  connectors, a default working directory, and default ports. The next pages
+  cover these.
+</Info>

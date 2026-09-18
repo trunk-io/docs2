@@ -1,0 +1,23 @@
+---
+title: "Network egress policies"
+description: "Limit the domains that workspaces can reach with an allowlist you attach to a template."
+groups: ["firewatch"]
+---
+
+{/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
+
+<Warning>
+  Network egress policies are in Beta. The controls and behavior can change.
+</Warning>
+
+A network egress policy sets an allowlist of domains that a workspace can reach.
+Traffic to a domain outside the list is blocked.
+
+You attach a policy to a template. Every workspace from that template then follows
+the policy. This lets you keep a workspace's outbound access to only the services it
+needs.
+
+<Info>
+  This page describes the planned behavior. The setup steps and screenshots
+  follow when the feature is available. Contact us if you want early access.
+</Info>

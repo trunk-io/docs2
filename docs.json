@@ -659,22 +659,30 @@
           {
             "group": "Using workspaces",
             "pages": [
-              "trunk-workspaces/workspaces/create",
+              "trunk-workspaces/workspaces/home",
               "trunk-workspaces/workspaces/agent",
-              "trunk-workspaces/workspaces/terminal",
+              "trunk-workspaces/workspaces/cooperation",
+              "trunk-workspaces/workspaces/lifecycle",
               "trunk-workspaces/workspaces/connect",
-              "trunk-workspaces/workspaces/manage",
               "trunk-workspaces/workspaces/share"
             ]
           },
           {
-            "group": "Configuration",
+            "group": "Access policy",
             "pages": [
-              "trunk-workspaces/configuration/templates",
-              "trunk-workspaces/configuration/repositories",
-              "trunk-workspaces/configuration/aws",
-              "trunk-workspaces/configuration/tailscale",
-              "trunk-workspaces/configuration/preferences"
+              "trunk-workspaces/access-policy/aws",
+              "trunk-workspaces/access-policy/tailscale",
+              "trunk-workspaces/access-policy/network-egress"
+            ]
+          },
+          {
+            "group": "Templating",
+            "pages": [
+              "trunk-workspaces/templating/lifecycle",
+              "trunk-workspaces/templating/environment-variables",
+              "trunk-workspaces/templating/tailscale",
+              "trunk-workspaces/templating/aws",
+              "trunk-workspaces/templating/composability"
             ]
           },
           {

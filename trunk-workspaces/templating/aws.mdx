@@ -1,0 +1,29 @@
+---
+title: "AWS access"
+description: "Attach AWS connectors to a template so its workspaces get a ready AWS config."
+groups: ["firewatch"]
+---
+
+{/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
+
+A template can give its workspaces access to your AWS roles. You attach a connector
+and name the AWS profile it becomes.
+
+## Attach a connector
+
+1. Open the template in **Settings** → **Organization** → **Templates**.
+2. In **AWS connectors**, attach a connector.
+3. Enter the **profile name** it becomes in the workspace's `~/.aws/config`.
+4. Save the template.
+
+A workspace from the template gets a ready `~/.aws/config` with that profile. A
+command like `aws --profile <name> …` and the AWS SDKs work with no AWS key on the
+workspace. The proxy signs each request in your own infrastructure.
+
+<Note>
+  A connector attaches to a template directly. A template does not inherit the
+  connectors of an included template today.
+</Note>
+
+To create the proxies and connectors first, see
+[AWS access](/trunk-workspaces/access-policy/aws).
