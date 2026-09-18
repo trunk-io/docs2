@@ -38,28 +38,10 @@ In BuildKite, navigate to **Settings** → **Notification Services**, then add a
 
 | Field | Value |
 | --- | --- |
-| URL | `https://api.trunk.io/v2/ci/buildkite` |
-| Headers | `Authorization: Bearer <your Trunk API token>` |
+| Endpoint | `https://api.trunk.io/v2/ci/buildkite` |
+| Headers | `Authorization: Bearer <your Trunk API key>` |
 
 Trigger a build. Its jobs appear in Trunk as they run.
-
-## Configure agent tracing (optional)
-
-Agent tracing adds command-level timing from inside the build. Start your agents
-with `--opentelemetry-tracing` and point the standard OTLP variables at Trunk:
-
-```bash
-export OTEL_EXPORTER_OTLP_ENDPOINT="https://api.trunk.io/v2/ci/buildkite"
-export OTEL_EXPORTER_OTLP_PROTOCOL="http/protobuf"
-export OTEL_EXPORTER_OTLP_HEADERS="Authorization=Bearer <your Trunk API token>"
-
-buildkite-agent start --opentelemetry-tracing
-```
-
-<Note>
-  `OTEL_EXPORTER_OTLP_PROTOCOL` must be `http/protobuf`. Trunk's endpoint speaks
-  OTLP over HTTP; an agent left on the gRPC default will not deliver anything.
-</Note>
 
 ## Troubleshooting
 
