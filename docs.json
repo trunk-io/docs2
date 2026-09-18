@@ -390,27 +390,32 @@
                 ]
               },
               "flaky-tests/changelog"
-            ]
+            ],
+            "icon": "flask"
           }
-        ],
-        "icon": "flask"
+        ]
       },
       {
         "tab": "CI",
-        "pages": [
-          "ci/index",
+        "groups": [
           {
-            "group": "Getting Started",
-            "root": "ci/get-started/index",
+            "group": "CI",
             "pages": [
-              "ci/get-started/github-actions",
-              "ci/get-started/buildkite"
-            ]
-          },
-          "ci/pull-requests",
-          "ci/ci-tab"
-        ],
-        "icon": "/assets/icons/product-ci.svg"
+              "ci/index",
+              {
+                "group": "Getting Started",
+                "root": "ci/get-started/index",
+                "pages": [
+                  "ci/get-started/github-actions",
+                  "ci/get-started/buildkite"
+                ]
+              },
+              "ci/pull-requests",
+              "ci/ci-tab"
+            ],
+            "icon": "/assets/icons/product-ci.svg"
+          }
+        ]
       },
       {
         "tab": "Dynamic CI",
