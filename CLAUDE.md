@@ -14,18 +14,20 @@ Run this after editing any product icon SVG, and commit the regenerated
 python3 scripts/embed-nav-icons.py
 ```
 
-A navigation `icon` in `docs.json` **cannot** point at a repo file. Mintlify
+A navigation `icon` **cannot** point at a repo file — neither a group icon in
+`docs.json` nor a page's `icon:` frontmatter. Mintlify
 rewrites such a path to `/_mintlify/image/<project>/<path>`, which is unsigned,
 so CloudFront answers `403 MissingKey`: the sidebar `<img>` loads nothing and
 the group header shows a blank gap where the icon belongs. This is specific to
-nav icons — images inside a page are rewritten to *signed* `mintcdn.com` URLs
-and are fine.
+nav icons — anything inside a page, including a `<Card icon="...">`, is
+rewritten to a *signed* `mintcdn.com` URL and loads fine, so leave those as
+plain paths.
 
 So the icons are inlined into `docs.json` as `data:` URIs, which Mintlify has no
 reason to proxy. The SVGs under `assets/icons/` stay the source of truth; the
 script regenerates the inlined copies from them. Add a new product icon by
 dropping the SVG in `assets/icons/` and adding a `group -> path` entry to the
-script's `ICONS` map.
+script's `GROUP_ICONS` map (or `PAGE_ICONS`, for a page's frontmatter icon).
 
 If Mintlify ever signs nav-icon URLs, drop the entry and restore the plain path.
 Built-in icon names (`"flask"`, Lucide/Font Awesome) are unaffected by this bug
