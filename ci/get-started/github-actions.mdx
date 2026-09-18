@@ -1,39 +1,28 @@
 ---
 title: "GitHub Actions"
-description: "Collect CI data from GitHub Actions with no changes to your workflow files."
 og:title: "Set up Trunk CI for GitHub Actions"
 ---
 
-GitHub Actions needs no pipeline changes and no exporter. Trunk collects CI data
-from the webhooks the Trunk GitHub App already receives.
+Trunk collects CI data from the webhooks the Trunk GitHub apps already receive.
 
 ## Setup
 
 <Steps>
-  <Step title="Install the Trunk GitHub App">
-    See [Connecting to Trunk](/setup-and-administration/connecting-to-trunk).
+  <Step title="Install the Trunk app and Trunk CI app">
+    See [Connecting to Trunk](/setup/integrations/github).
 
-    The App's existing **Actions** permission is what carries workflow and job
-    results, so there is nothing extra to grant.
+    You need to install both the core Trunk app and the Trunk CI app. The CI apps **Actions** permission is what carries workflow and job results. The core app is used to track pull requests in the table. 
   </Step>
 
   <Step title="Turn on CI Intelligence for the repository">
-    In the Trunk app, navigate to **Settings** → **Repositories**, find
-    **[your repository]**, and toggle **CI Intelligence** on.
+    In the Trunk app, navigate to [app.trunk.io/settings/repositories](https://app.trunk.io/settings/repositories). Toggle **CI Intelligence** on.
   </Step>
 
   <Step title="Run a workflow">
-    Push a commit, or open a pull request. Data appears as the run executes —
+    Push a commit, or open a pull request. Data appears as the run executes -
     you do not have to wait for it to finish.
   </Step>
 </Steps>
-
-<Note>
-  Turn CI Intelligence on **between** runs, not during one. A run already in
-  progress when you flip the toggle started before Trunk was listening, so its
-  jobs have no run to attach to and are dropped. The first run started after
-  the toggle is the first complete one you will see.
-</Note>
 
 ## What you get
 
@@ -51,10 +40,7 @@ so a flaky job's history shows every try.
 
 ### Jobs are identified by their key, not their name
 
-A job's identity is what it is written as under `jobs:` — what `github.job`
-reports — not the `name:` it displays under. Display names change with matrix
-values and with edits; the key does not, so a job keeps its history when you
-rename it.
+A job's identity is what it is written as under `jobs:` - what `github.job` reports - not the `name:` it displays under. Display names change with matrix values and with edits; the key does not, so a job keeps its history when you rename it.
 
 A job Trunk has not resolved a key for yet is recorded under its rendered name
 and renamed in place once the workflow file is parsed.
@@ -62,7 +48,7 @@ and renamed in place once the workflow file is parsed.
 ### Check runs appear under "Other checks"
 
 A check run posted through the GitHub Checks API with the Actions token is
-reported by GitHub as a *job of a workflow run* — and not necessarily the run
+reported by GitHub as a *job of a workflow run* - and not necessarily the run
 that created it. GitHub files it under the earliest check suite opened for the
 app on that commit, which is often an unrelated workflow.
 
@@ -74,5 +60,5 @@ was ever enqueued for them.
 ### Runner labels are what the job asked for
 
 `runs-on:` labels are recorded as the labels the job *requested*. The runner
-that picked it up had at least those, usually more — GitHub does not report the
+that picked it up had at least those, usually more - GitHub does not report the
 runner's own label set on the webhook, so Trunk does not invent one.
