@@ -1,12 +1,12 @@
 ---
 title: "CI"
-description: "See every job your CI runs — what it costs, how often it fails, and why a pull request is red — without instrumenting your pipelines."
+description: "See every job your CI runs - what it costs, how often it fails, and why a pull request is red — without instrumenting your pipelines."
 og:title: "Trunk CI"
 ---
 
 Trunk CI records what your CI actually did. Every workflow run, every job, every
 step, the time each one spent waiting for a runner, and which runner picked it
-up — collected as spans and kept for 90 days.
+up.
 
 You get two things out of it:
 
@@ -14,7 +14,7 @@ You get two things out of it:
   is red, and a waterfall of the whole run so you can see what was slow and what
   was waiting.
 - **An org-wide view of your CI.** A list of every job across every repository,
-  ranked by run volume, duration, and pass rate — plus what is running and
+  ranked by run volume, duration, and pass rate - plus what is running and
   queued right now.
 
 ## What it collects
@@ -28,8 +28,7 @@ Trunk builds a small model out of what your provider reports:
 | Pipeline run  | A workflow run                  | A build                               |
 | Job           | A job under `jobs:`             | A step                                |
 | Job run       | One execution of that job       | A Buildkite job                       |
-| Step          | A step under `steps:`           | —                                     |
-| Queue wait    | Created → picked up by a runner | Runnable → picked up by an agent      |
+| Step | A step under `steps:` | N/A |
 
 Spans are written as a run progresses rather than at the end, so a run is
 visible while it is still executing.
