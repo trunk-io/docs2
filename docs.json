@@ -394,6 +394,23 @@
         ]
       },
       {
+        "tab": "CI",
+        "pages": [
+          "ci/index",
+          {
+            "group": "Getting Started",
+            "root": "ci/get-started/index",
+            "pages": [
+              "ci/get-started/github-actions",
+              "ci/get-started/buildkite"
+            ]
+          },
+          "ci/pull-requests",
+          "ci/ci-tab",
+          "ci/commit-traces"
+        ]
+      },
+      {
         "tab": "Dynamic CI",
         "pages": [
           "dynamic-ci/index"

@@ -1,0 +1,23 @@
+---
+title: "Getting Started"
+description: "Turn on CI data collection for a repository"
+og:title: "Set up Trunk CI"
+---
+
+Setting up CI is two things: telling Trunk which repositories to collect data for, and configuring ingestion from all your CI providers. 
+
+#### Prerequisites
+
+- GitHub repositories install the Trunk app and Trunk CI app. [See Integrating with GitHub](/setup/integrations/github).
+- If you are already using a trunk merge queue or uploading test data data ingestion will auto-start. Otherwise navigate to app.trunk.io/settings/repositories and enable 'CI Intelligence'
+
+<Columns cols={2}>
+  <Column>
+    <Card title="GitHub Actions" icon="github" href="ci/get-started/github-actions" cta="configure">
+    </Card>
+  </Column>
+  <Column>
+    <Card title="BuildKite Pipelines" icon="/assets/icons/buildkite.svg" href="ci/get-started/buildkite" cta="configure">
+    </Card>
+  </Column>
+</Columns>

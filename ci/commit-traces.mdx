@@ -1,0 +1,88 @@
+---
+title: "Commit traces"
+description: "The waterfall of everything CI ran on one commit - every workflow, every attempt, down to the individual step and its logs."
+og:title: "Commit traces in Trunk"
+---
+
+A commit trace is every workflow run that executed on a single commit - across
+every re-run attempt - drawn as one waterfall.
+
+You arrive at one by clicking a run: a row in a job's **Run History** on the
+[CI tab](/ci/ci-tab), or a check on a pull request. The
+[pull request detail view](/ci/pull-requests) embeds the same waterfall as its
+**CI** tab.
+
+## The waterfall
+
+The left pane holds the lanes, the right pane inspects whichever span is
+selected, and the divider between them is draggable - where you put it is
+remembered.
+
+Lanes nest three deep: a workflow run, the jobs it ran, and each job's steps.
+
+**Every attempt is on screen at once.** There is no attempt selector - a
+workflow that was re-run three times contributes three rows, so a link to any
+one run always lands on something visible rather than on something hidden
+behind a picker.
+
+### Reading the axis
+
+The axis measures *elapsed active time*, not wall clock. A long idle stretch -
+a re-run kicked off the next morning - is compressed into a marked band, so the
+real work stays legible instead of collapsing into a sliver at one end.
+
+Diagonal stripes are queue time: the wait between a job being enqueued and a
+runner picking it up. Each lane prints one duration per segment, just past the
+bar that ends furthest right.
+
+A job that is still running draws in its in-progress color rather than the grey
+of a skipped or cancelled run, and a job that is queued with no runner yet gets
+a lane before it has started. The trace updates in place until every span has
+finished.
+
+### Filtering and revealing
+
+Three controls sit above the lanes:
+
+- **Type to filter.** There is no search box - just start typing. Matches are
+  highlighted where they are and never hidden; press Enter to commit the query,
+  then step between matches. Escape clears it.
+- **+ steps.** Steps are collapsed by default, because a run has several times
+  more steps than jobs and the full tree buries the shape of it. This reveals
+  every step on screen; a single job's chevron expands just that job.
+- **+ N skipped jobs.** Skipped jobs are hidden, and so is the time they
+  occupy - a matrix guard that fires minutes after the real work is finished
+  would otherwise stretch the axis to reach it.
+
+### Other checks
+
+A check run posted through the GitHub Checks API is reported by GitHub as a job
+of whichever workflow opened the earliest check suite on that commit, which is
+often an unrelated one. Trunk hoists these into a separate **Other checks**
+lane instead of showing them as work the hosting workflow performed. They have
+no queue time, because nothing was ever enqueued for them. See
+[GitHub Actions](/ci/get-started/github-actions) for the details.
+
+## Inspecting a span
+
+Selecting a bar opens it in the right pane.
+
+**Details** lists the span's own attributes alongside the run's.
+
+**Logs** are available for jobs and steps. A workflow lane aggregates its jobs
+and a queue span is a wait, so neither has a log of its own. A job's log is
+sectioned by step and opens with every section collapsed except the steps that
+failed. Search here *seeks* rather than filters: it covers the whole log rather
+than the portion currently loaded, and moves you between hits. Needles shorter
+than three characters are refused. **Search across jobs** carries the selected
+line over to log search, to find every other job that printed the same thing.
+
+<Note>
+  Logs exist from the point CI Intelligence was turned on for the repository.
+  A run from before then has no logs - an empty pane there is expected.
+</Note>
+
+**Error** appears when Trunk has analyzed a failure, with the excerpt of the log
+it was drawn from. The analysis runs asynchronously and only on failures, so a
+job that has just gone red may not have one yet. Opening **Logs** from there
+lands you on the same range.
