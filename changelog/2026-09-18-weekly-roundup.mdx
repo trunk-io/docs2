@@ -28,7 +28,7 @@ Access is invite-only for now. See the [Workspaces overview](/trunk-workspaces) 
 The Merge Queue API picks up new endpoints and richer fields for building automation around the queue.
 
 - `/getSubmittedPullRequest` now accepts a head branch (`pr.branch`) as an alternative to `pr.number`, so callers that only know the branch no longer have to resolve the PR number first.
-- `/getSubmittedPullRequests` looks up up to 50 known PRs in a single request, returning readiness, submission status, and an optional state-change timeline for each.
+- `/getSubmittedPullRequests` looks up to 50 known PRs in a single request, returning readiness, submission status, and an optional state-change timeline for each.
 - `/listPullRequests` pages through a queue with a cursor and filters by state or concluded time range, for discovery when you don't already know which PRs to ask about.
 - `/getMergeQueueTestingDetails` and `/listMergeQueueTestingResults` expose in-progress and completed testing details for a time range.
 
