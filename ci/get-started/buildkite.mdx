@@ -1,5 +1,5 @@
 ---
-title: "Buildkite"
+title: "BuildKite"
 description: "Export Buildkite's OpenTelemetry traces to Trunk to collect CI data from your builds."
 og:title: "Set up Trunk CI for Buildkite"
 ---
@@ -34,14 +34,14 @@ In the Trunk app, navigate to [app.trunk.io/settings/developer/api-tokens](https
 
 #### Configure the notification service
 
-In BuildKite, navigate to **Settings** → **Notification Services**, then add an **OpenTelemetry Tracing** service. <br /><br />
+In BuildKite, navigate to **Settings** → **Notification Services**, then add an **OpenTelemetry Tracing** service. 
+
+![Buildkite Otel](/images/buildkite-otel.png "Buildkite Otel")
 
 | Field | Value |
 | --- | --- |
 | Endpoint | `https://api.trunk.io/v2/ci/buildkite` |
 | Headers | `Authorization: Bearer <your Trunk API key>` |
-
-Trigger a build. Its jobs appear in Trunk as they run.
 
 ## Troubleshooting
 
