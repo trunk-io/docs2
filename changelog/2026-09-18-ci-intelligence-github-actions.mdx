@@ -1,0 +1,14 @@
+---
+title: "Trunk CI: GitHub Actions setup for CI Intelligence"
+description: "Turn on CI Intelligence for a repository and start collecting workflow, job, step, and queue-time data from GitHub Actions with no pipeline changes."
+slug: ci-intelligence-github-actions
+date: 2026-09-18
+category: CI Autopilot
+type: new-feature
+---
+
+## 🎁 New features
+
+**CI Intelligence for GitHub Actions.** Turn on CI Intelligence for a repository and Trunk starts collecting every workflow run, job, step, and the time each job spent waiting for a runner. Setup is two toggles: install the Trunk and Trunk CI apps, then flip **CI Intelligence** on for the repository. Data appears as runs execute. See the [GitHub Actions setup guide](/ci/get-started/github-actions) and the [CI overview](/ci) for what gets collected and how it is modeled.
+
+Re-runs are tracked as separate attempts of the same run, so a flaky job's history is preserved across retries. Jobs are identified by their `jobs:` key rather than their display name, so renaming a job keeps its history intact.
