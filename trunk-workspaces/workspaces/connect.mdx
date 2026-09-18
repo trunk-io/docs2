@@ -1,41 +1,71 @@
 ---
-title: "Connect to a workspace"
-description: "Expose HTTP ports, forward them to localhost, and open a workspace in a remote editor."
+title: "Remote connection"
+description: "Expose HTTP ports, open a remote editor, and connect to a workspace over SSH."
 groups: ["firewatch"]
 ---
 
 {/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
 
-Open **Details** → **Summary** to find HTTP and remote-editor connections for the
-selected workspace.
+Open **Details** → **Summary** to find the connection options for the selected
+workspace.
 
 ## Expose an HTTP port
 
 1. In **HTTP ports**, click **New port**.
-2. Enter the port used by the service in your workspace.
+2. Enter the port that your service uses in the workspace.
 3. Click **Expose**.
 4. Open the generated public URL from the ports table.
 
-<Frame caption="Expose another HTTP service from the workspace.">
+<Frame caption="Expose an HTTP service from the workspace.">
   ![The Expose a new port dialog.](/assets/trunk-workspaces/expose-port.png)
 </Frame>
 
-The desktop app also forwards each exposed HTTP port to `127.0.0.1` on the same port.
-The **Local** column shows whether the listener is available. A red indicator means
-another local process already uses that port. Stop that process and allow up to ten
-seconds for the app to retry.
+The desktop app also forwards each exposed HTTP port to `127.0.0.1` on the same
+port. The **Local** column shows whether the listener is available. A red indicator
+means another local process already uses that port. Stop that process, and allow up
+to ten seconds for the app to retry.
 
-Turn **Forward to localhost** off for a workspace when you only need its public URLs.
-This setting is stored on the current device and does not remove the server-side
-port exposure.
+Turn **Forward to localhost** off for a workspace when you want only its public
+URLs. This setting stays on the current device. It does not remove the server-side
+port.
 
 ## Open a remote editor
 
-In **Remote connection**, click **Open in VS Code**, **Open in Cursor**, or
-**Open in Zed**. The app configures a Trunk-managed SSH host after you sign in and
-uses the template's working directory when one is set.
+In **Remote connection**, click **Open in VS Code**, **Open in Cursor**, or **Open
+in Zed**. The app writes a Trunk-managed SSH host into your SSH configuration after
+you sign in, and the editor uses that host. The app opens the template's working
+directory when one is set.
 
 <Frame caption="Open the workspace with a supported remote editor.">
   ![The Remote connection section with editor
   links.](/assets/trunk-workspaces/remote-editors.png)
 </Frame>
+
+## Connect over SSH
+
+You can connect to the workspace with your own SSH client. The workspace accepts
+your public key.
+
+<Steps>
+  <Step title="Generate an SSH key pair">
+    Create an SSH key pair on your machine if you do not have one. GitHub has a
+    clear guide:
+    [Generate a new SSH key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent).
+  </Step>
+  <Step title="Add your public key to the workspace">
+    Open the workspace **Terminal**. Add the contents of your **public** key file
+    (for example `~/.ssh/id_ed25519.pub`) to `~/.ssh/authorized_keys` in the
+    workspace. The key stays on the workspace disk across restarts.
+  </Step>
+  <Step title="Connect">
+    Use the **Copy ssh command** button in **Remote connection**, then run the
+    command. The app's managed SSH configuration supplies the port and username, so
+    `ssh <host>` connects. Without the managed configuration, use the workspace
+    host, port `2222`, and your workspace username.
+  </Step>
+</Steps>
+
+<Note>
+  The app manages your public key from the terminal. It has no separate screen
+  to register an SSH key.
+</Note>

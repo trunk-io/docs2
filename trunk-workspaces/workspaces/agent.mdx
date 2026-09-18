@@ -1,34 +1,64 @@
 ---
 title: "Work with an agent"
-description: "Start and manage coding-agent sessions in a Trunk Workspace."
+description: "The Agent tab is a frontend for a coding-agent CLI in your workspace. Log the agent in from the terminal."
 groups: ["firewatch"]
 ---
 
 {/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
 
-Open the **Agent** tab to work with a coding agent inside the selected workspace.
-The agent operates on the workspace files and keeps running when you switch tabs or
-move to another workspace.
+The **Agent** tab is a frontend for a coding-agent CLI that runs inside your
+workspace. The agent works on the workspace files. It keeps running when you switch
+tabs or move to another workspace.
+
+## Authenticate the agent
+
+The agent uses the same credentials as the CLI. You log it in the same way you
+would on your own machine.
+
+<Steps>
+  <Step title="Open the Terminal tab">
+    Select the **Terminal** tab in the workspace.
+  </Step>
+  <Step title="Run the agent CLI">
+    Start the agent CLI in the terminal, for example `claude`. Complete its
+    normal login, such as the OAuth step, exactly as you do on your own machine.
+  </Step>
+  <Step title="Use the Agent tab">
+    Open the **Agent** tab. It reuses the credential you created in the
+    terminal, so it is ready to work.
+  </Step>
+</Steps>
+
+<Note>
+  The Agent tab does not have its own account login. You log the agent in from
+  the terminal. Connecting an MCP server is separate, and you do that from the
+  Agent tab's Info drawer.
+</Note>
 
 ## Start a session
 
 1. Open the **Agent** tab.
 2. Select an available agent when the workspace has no active session.
 3. Enter your request and send it.
-4. Respond when the agent asks for permission or additional information.
+4. Respond when the agent asks for permission or more information.
 
-You can attach files or paste images into the composer. On supported desktop builds,
-use the microphone button to dictate a prompt.
+You can attach files or paste images into the composer. On supported desktop
+builds, use the microphone button to dictate a prompt.
 
-## Manage sessions
+## Use the terminal
 
-The session list appears when a workspace has multiple rooms. Owners can create,
-switch, and delete sessions. Session connections remain active while their chat view
-is closed, so attention requests can still raise a desktop notification.
+The **Terminal** tab opens a shell in the workspace. Terminal sessions live in the
+remote sandbox and reconnect after you navigate away or restart the app.
 
-## Collaborate in a shared workspace
+- Create, rename, reorder, and close terminal tabs from the tab strip.
+- Drag files into the workspace to upload them to the active terminal's working
+  directory.
+- The terminal is where you log the agent CLI in, as shown above.
 
-A person viewing a workspace shared with them can join the owner's active agent
-rooms and collaborate in the conversation. A shared viewer cannot create or delete
-rooms, start the sandbox, or originate a session. If the workspace is stopped, ask
-the owner to resume it.
+<Frame caption="A workspace with the Terminal tab selected.">
+  ![A workspace with the Terminal tab
+  selected.](/assets/trunk-workspaces/workspace-terminal.png)
+</Frame>
+
+To work with more than one person in the same agent room, see
+[Collaborate](/trunk-workspaces/workspaces/cooperation).

@@ -1,0 +1,53 @@
+---
+title: "Workspace lifecycle"
+description: "Stop, sleep, resume, and wake a workspace, and inspect its resource use."
+groups: ["firewatch"]
+---
+
+{/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
+
+A workspace keeps its disk when its compute is off. You control the compute from
+**Details** → **Summary**, in the **Sandbox** section. The sidebar action menu shows
+the same actions.
+
+## Stop and resume
+
+Stop and resume work like shutting a laptop down and starting it again.
+
+- **Stop** ends the compute. The workspace loses its in-memory state, such as
+  running processes. The disk and the exposed URLs stay.
+- **Resume** starts a stopped workspace again. It cold-boots from the disk, so the
+  in-memory state does not come back.
+
+<Warning>
+  Stop does not keep running processes or other in-memory state. Commit or save
+  work that exists only in memory before you stop the workspace.
+</Warning>
+
+## Sleep and wake
+
+Sleep and wake work like closing and opening a laptop lid.
+
+- **Sleep** takes a snapshot of the running workspace, when the workspace supports
+  it, and then ends the compute. The disk stays.
+- **Wake** restores a sleeping workspace, with its in-memory state, from the
+  snapshot.
+
+<Note>
+  Sleep keeps in-memory state only when the workspace supports it. If sleep is
+  not available, the app stops the workspace instead and does not keep in-memory
+  state. The app tells you when this happens.
+</Note>
+
+<Frame caption="Manage the compute for the selected workspace.">
+  ![The Sandbox section with Stop, Sleep, and Resume
+  controls.](/assets/trunk-workspaces/sandbox-controls.png)
+</Frame>
+
+## View workspace details
+
+**Details** → **Summary** shows the workspace template, working directory, exposed
+ports, remote connection options, sharing controls, and the sandbox actions.
+
+Open **Details** → **Activity Monitor** to inspect recent CPU and memory use. Use
+the time-range controls to change the window.

@@ -29,12 +29,6 @@
     }
   },
   "navbar": {
-    "links": [
-      {
-        "label": "Log in",
-        "href": "https://app.trunk.io/login"
-      }
-    ],
     "primary": {
       "type": "button",
       "label": "Get a demo",
@@ -97,9 +91,15 @@
                   "merge-queue/using-the-queue/stacked-pull-requests",
                   "merge-queue/using-the-queue/monitor-queue-status",
                   "merge-queue/using-the-queue/handle-failed-pull-requests",
-                  "merge-queue/using-the-queue/emergency-pull-requests",
-                  "merge-queue/using-the-queue/direct-to-queue"
+                  "merge-queue/using-the-queue/emergency-pull-requests"
                 ]
+              },
+              {
+                "group": "Direct-to-Queue",
+                "pages": [
+                  "setup-and-administration/trunk-sudo-app"
+                ],
+                "root": "merge-queue/using-the-queue/direct-to-queue"
               },
               "merge-queue/integration-for-slack",
               "merge-queue/browser-extensions",
@@ -168,7 +168,7 @@
         ]
       },
       {
-        "tab": "Flaky Tests",
+        "tab": "Tests",
         "groups": [
           {
             "group": "Flaky Tests",
@@ -394,16 +394,82 @@
         ]
       },
       {
-        "tab": "Setup & Administration",
+        "tab": "CI",
+        "pages": [
+          "ci/index",
+          {
+            "group": "Getting Started",
+            "root": "ci/get-started/index",
+            "pages": [
+              "ci/get-started/github-actions",
+              "ci/get-started/buildkite"
+            ]
+          },
+          "ci/pull-requests",
+          "ci/ci-tab"
+        ]
+      },
+      {
+        "tab": "Dynamic CI",
+        "pages": [
+          "dynamic-ci/index"
+        ]
+      },
+      {
+        "tab": "Workspaces",
         "groups": [
           {
-            "group": "Setup & Administration",
+            "group": "Overview",
+            "pages": [
+              "trunk-workspaces/index",
+              "trunk-workspaces/getting-started"
+            ]
+          },
+          {
+            "group": "Using workspaces",
+            "pages": [
+              "trunk-workspaces/workspaces/home",
+              "trunk-workspaces/workspaces/agent",
+              "trunk-workspaces/workspaces/cooperation",
+              "trunk-workspaces/workspaces/lifecycle",
+              "trunk-workspaces/workspaces/connect",
+              "trunk-workspaces/workspaces/share"
+            ]
+          },
+          {
+            "group": "Access policy",
+            "pages": [
+              "trunk-workspaces/access-policy/aws",
+              "trunk-workspaces/access-policy/tailscale",
+              "trunk-workspaces/access-policy/network-egress"
+            ]
+          },
+          {
+            "group": "Templating",
+            "pages": [
+              "trunk-workspaces/templating/lifecycle",
+              "trunk-workspaces/templating/environment-variables",
+              "trunk-workspaces/templating/tailscale",
+              "trunk-workspaces/templating/aws",
+              "trunk-workspaces/templating/composability"
+            ]
+          },
+          {
+            "group": "Reference",
+            "pages": [
+              "trunk-workspaces/desktop-reference"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Setup",
+        "groups": [
+          {
+            "group": "Setup",
             "pages": [
               "setup-and-administration/connecting-to-trunk",
-              "setup-and-administration/personal-notifications",
               "setup-and-administration/managing-your-organization",
-              "setup-and-administration/github-app-permissions",
-              "setup-and-administration/trunk-sudo-app",
               "setup-and-administration/support",
               "setup-and-administration/billing",
               "setup-and-administration/security",
@@ -417,19 +483,34 @@
                 ]
               }
             ]
-          }
-        ]
-      },
-      {
-        "tab": "Code Quality CLI",
-        "groups": [
+          },
           {
-            "group": "Code Quality CLI",
+            "group": "Integrations",
             "pages": [
               {
-                "group": "Overview",
-                "root": "code-quality/overview/index",
+                "group": "Slack",
                 "pages": [
+                  "setup/integrations/slack/personal-notifications"
+                ]
+              },
+              {
+                "group": "GitHub",
+                "pages": [
+                  "setup/integrations/github/trunk-app",
+                  "setup/integrations/github/trunk-sudo",
+                  "setup/integrations/github/trunk-ci"
+                ],
+                "root": "setup/integrations/github"
+              }
+            ]
+          },
+          {
+            "group": "Legacy",
+            "pages": [
+              {
+                "group": "Code Quality",
+                "pages": [
+                  "code-quality/overview/index",
                   "code-quality/overview/initialize-trunk",
                   "code-quality/overview/deal-with-existing-issues",
                   "code-quality/overview/prevent-new-issues/index",
@@ -637,67 +718,6 @@
                   "code-quality/overview/licensing"
                 ]
               }
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "CI",
-        "pages": [
-          "ci/index",
-          {
-            "group": "Getting Started",
-            "root": "ci/get-started/index",
-            "pages": [
-              "ci/get-started/github-actions",
-              "ci/get-started/buildkite"
-            ]
-          },
-          "ci/pull-requests",
-          "ci/ci-tab"
-        ]
-      },
-      {
-        "tab": "Dynamic CI",
-        "pages": [
-          "dynamic-ci/index"
-        ]
-      },
-      {
-        "tab": "Trunk Workspaces",
-        "groups": [
-          {
-            "group": "Overview",
-            "pages": [
-              "trunk-workspaces/index",
-              "trunk-workspaces/getting-started"
-            ]
-          },
-          {
-            "group": "Using workspaces",
-            "pages": [
-              "trunk-workspaces/workspaces/create",
-              "trunk-workspaces/workspaces/agent",
-              "trunk-workspaces/workspaces/terminal",
-              "trunk-workspaces/workspaces/connect",
-              "trunk-workspaces/workspaces/manage",
-              "trunk-workspaces/workspaces/share"
-            ]
-          },
-          {
-            "group": "Configuration",
-            "pages": [
-              "trunk-workspaces/configuration/templates",
-              "trunk-workspaces/configuration/repositories",
-              "trunk-workspaces/configuration/aws",
-              "trunk-workspaces/configuration/tailscale",
-              "trunk-workspaces/configuration/preferences"
-            ]
-          },
-          {
-            "group": "Reference",
-            "pages": [
-              "trunk-workspaces/desktop-reference"
             ]
           }
         ]
@@ -1112,11 +1132,6 @@
     "global": {
       "anchors": [
         {
-          "href": "https://app.trunk.io",
-          "icon": "/logo/trunk-mark.svg",
-          "anchor": "Open app"
-        },
-        {
           "href": "/changelog",
           "icon": "bullhorn",
           "anchor": "Changelog"
@@ -1130,12 +1145,14 @@
       "view",
       "chatgpt",
       "claude"
-    ]
+    ],
+    "display": "toc"
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/trunk_io",
-      "github": "https://github.com/trunk-io"
+      "x": "https://x.com/trunkio",
+      "github": "https://github.com/trunk-io",
+      "linkedin": "https://linkedin.com/company/trunkio"
     },
     "links": [
       {
@@ -2459,5 +2476,12 @@
       "source": "/flaky-tests/use-mcp-server/mcp-tool-reference/fix-flaky-test",
       "destination": "/flaky-tests/reference/mcp-reference/fix-flaky-test"
     }
-  ]
+  ],
+  "interaction": {
+    "drilldown": true
+  },
+  "styling": {
+    "eyebrows": "section",
+    "codeblocks": "system"
+  }
 }

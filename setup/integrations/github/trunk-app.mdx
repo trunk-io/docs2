@@ -1,0 +1,101 @@
+---
+title: "Trunk App"
+sidebarTitle: "Trunk App"
+og:title: "Trunk GitHub App permissions"
+mode: "default"
+---
+
+Core integration for the Merge Queue. Required for all Trunk products. To properly link your Trunk organization to GitHub install from [here](https://app.trunk.io/settings/organization/github)<br />
+
+#### GitHub Repository permissions
+
+<table>
+  <colgroup>
+    <col width="148" />
+    <col width="117" />
+    <col width="453" />
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Permission</th>
+      <th>Access</th>
+      <th>What Trunk uses it for</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Actions</td>
+      <td>read & write</td>
+      <td>Read workflow and job results; dispatch or cancel workflow runs triggered by Merge.</td>
+    </tr>
+    <tr>
+      <td>Administration</td>
+      <td>read</td>
+      <td>Read branch protection rules. Trunk cannot edit any org or repo settings.</td>
+    </tr>
+    <tr>
+      <td>Checks</td>
+      <td>read & write</td>
+      <td>Read commit, branch, and PR check status to decide when PRs are ready to merge; post code analysis results.</td>
+    </tr>
+    <tr>
+      <td>Commit statuses</td>
+      <td>read</td>
+      <td>Read commit, branch, and PR status posted by CI providers to decide when PRs are ready to merge.</td>
+    </tr>
+    <tr>
+      <td>Contents</td>
+      <td>read & write</td>
+      <td>Read `trunk.yaml`; create, update, and delete branches managed by Merge.</td>
+    </tr>
+    <tr>
+      <td>Issues</td>
+      <td>read & write</td>
+      <td>Read and write PR comments.</td>
+    </tr>
+    <tr>
+      <td>Metadata</td>
+      <td>read</td>
+      <td>Required by all GitHub Apps to access repository info.</td>
+    </tr>
+    <tr>
+      <td>Pull requests</td>
+      <td>read & write</td>
+      <td>View and merge PRs managed by Merge.</td>
+    </tr>
+    <tr>
+      <td>Workflows</td>
+      <td>read & write</td>
+      <td>Onboard Trunk Check on CI for GitHub Actions users.</td>
+    </tr>
+  </tbody>
+</table>
+
+#### GitHub Organization permissions
+
+<table>
+  <colgroup>
+    <col width="148" />
+    <col width="117" />
+    <col width="453" />
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Permission</th>
+      <th>Access</th>
+      <th>What Trunk uses it for</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Events</td>
+      <td>Read</td>
+      <td>Track org events to keep app install info current.</td>
+    </tr>
+    <tr>
+      <td>Members</td>
+      <td>Read</td>
+      <td>Subscribe to org rename events to keep app install info current.</td>
+    </tr>
+  </tbody>
+</table>
