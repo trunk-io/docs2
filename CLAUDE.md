@@ -47,6 +47,21 @@ Regenerates the changelog nav across the sites it appears on from each
 - **`<Columns cols={n}>` accepts 1-4.** A larger value is not an error and does
   not fail the build; it just does not render that many across.
 
+## Gated sections
+
+Dynamic CI and Workspaces are restricted per page with `groups:` frontmatter
+(`["dynamic-ci"]` / `["firewatch"]`). They live in the **Overview** tab's
+sidebar rather than in tabs of their own: Mintlify filters gated *pages* out of
+the navigation but leaves the emptied tab behind, so a tab of their own would
+show the product name to signed-out visitors. Nested under Overview the shells
+are empty groups, which do not render, and the tab still has `index` to stand
+on. Empty group names do remain in the page's JSON payload — they are not
+secret, just not displayed.
+
+A tab marked `"hidden": true` is invisible to everyone, authorized users
+included, but its pages stay reachable by URL and still render that tab's own
+sidebar. That is how Changelog works.
+
 ## Verifying a change
 
 Mintlify's checks pass on things that are visibly broken — an out-of-range prop
