@@ -419,12 +419,14 @@
       },
       {
         "tab": "Dynamic CI",
+        "hidden": true,
         "pages": [
           "dynamic-ci/index"
         ]
       },
       {
         "tab": "Workspaces",
+        "hidden": true,
         "groups": [
           {
             "group": "Overview",
