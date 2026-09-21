@@ -39,13 +39,15 @@ Trunk groups monitors into two categories based on what they do when they activa
 - **Health classification monitors** determine a test's overall health status (healthy, flaky, or broken). When one activates, the test's status changes across the dashboard, CI annotations, and notifications.
 - **Lifecycle and performance monitors** apply labels to tests based on lifecycle events or performance characteristics. They do not affect health status. These monitors appear in a separate section of the monitors page.
 
+**Default state** below is what a new [test collection](../test-collections#what-a-new-collection-starts-with) starts with.
+
 ### Health Classification Monitors
 
 | Monitor | What it detects | Available actions | Default state |
 | --- | --- | --- | --- |
 | [**Pass-on-Retry**](./pass-on-retry-monitor) | A test fails then passes on the same commit (retry after failure) | Classify (flaky) or [apply labels](../management/test-labels#automatic-labeling-from-monitors) | Enabled |
-| [**Failure Rate**](./failure-rate-monitor) | Failure rate exceeds a configured percentage over a time window | Classify (flaky or broken) or [apply labels](../management/test-labels#automatic-labeling-from-monitors) | Disabled |
-| [**Failure Count**](./failure-count-monitor) | A test accumulates a configured number of failures in a rolling window | Classify (flaky or broken) or [apply labels](../management/test-labels#automatic-labeling-from-monitors) | Disabled |
+| [**Failure Rate**](./failure-rate-monitor) | Failure rate exceeds a configured percentage over a time window | Classify (flaky or broken) or [apply labels](../management/test-labels#automatic-labeling-from-monitors) | Enabled |
+| [**Failure Count**](./failure-count-monitor) | A test accumulates a configured number of failures in a rolling window | Classify (flaky or broken) or [apply labels](../management/test-labels#automatic-labeling-from-monitors) | Enabled |
 
 ### Lifecycle and Performance Monitors
 
@@ -53,8 +55,8 @@ These monitors apply labels based on lifecycle events or performance characteris
 
 | Monitor | What it detects | Available actions | Default state |
 | --- | --- | --- | --- |
-| [**New Test**](./new-test-monitor) | A test case seen for the first time, tracked for a configurable grace period | [Apply labels](../management/test-labels#automatic-labeling-from-monitors) | Disabled |
-| [**Skipped Test**](./skipped-test-monitor) | A test is consistently skipped across runs within a time window | [Apply labels](../management/test-labels#automatic-labeling-from-monitors) | Disabled |
+| [**New Test**](./new-test-monitor) | A test case seen for the first time, tracked for a configurable grace period | [Apply labels](../management/test-labels#automatic-labeling-from-monitors) | Enabled |
+| [**Skipped Test**](./skipped-test-monitor) | A test is consistently skipped across runs within a time window | [Apply labels](../management/test-labels#automatic-labeling-from-monitors) | Enabled |
 | [**Slow Test**](./slow-test-monitor) | A test's average duration exceeds a configured threshold | [Apply labels](../management/test-labels#automatic-labeling-from-monitors) | Disabled |
 | [**Timeout Inflation**](./timeout-inflation-monitor) | A test's typical failure duration is much larger than its passing duration, exposing an inflated timeout | [Apply labels](../management/test-labels#automatic-labeling-from-monitors) | Disabled |
 

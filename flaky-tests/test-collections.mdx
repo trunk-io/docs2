@@ -34,18 +34,27 @@ The ID is what CI needs. Nothing else about a collection is used to route upload
 
 Any member of your organization can create a collection.
 
-1. In Flaky Tests, open **Collections**.
-2. Click **Create Collection**.
-3. Enter a **Collection name**, and a description if you want one.
-4. Click **Create collection**.
+Enter a **Collection name**, and a description if you want one. Your first collection is created from the form Flaky Tests opens on; later ones from **Create collection** in the actions menu on the collections list.
 
-You land on the new collection. Its **Tests** and **Uploads** tabs stay disabled until test results arrive.
+You land on the new collection. Its **Uploads** tab opens when an upload arrives; **Tests** waits until those results are ingested.
 
 ## What a new collection starts with
 
-A new collection starts with a basic set of flake-detection monitors, so detection starts working as soon as test results arrive.
+A new collection starts with five monitors, so detection works as soon as test results arrive.
 
-You can change them, and everything else about the collection, from its **Monitors** and **Settings** tabs.
+| Monitor | Configuration | Action |
+| --- | --- | --- |
+| Pass-on-retry | 1 retry, 7 day resolve, every branch | Classify as flaky |
+| Failure count | 5 failures, 7 day resolve | Classify as flaky |
+| Failure rate | 90% over 24 hours, 5 sample minimum | Classify as broken |
+| New test | 7 days | Apply the **New** label |
+| Skipped test | 24 hour window, 7 day resolve | Apply the **Skipped** label |
+
+Every monitor but pass-on-retry watches `main`, `master`, `develop`, `dev`, and `release/*`. A collection has no repository until its first upload, so check those branch names against your own.
+
+[Quarantining](./quarantining/) also starts enabled, with auto-quarantine off, so nothing is quarantined until you turn auto-quarantine on or set an override on a test. While your organization is [migrating](./get-started/migrate-to-test-collections), it starts off instead, because your repositories' settings are still governing uploads.
+
+You can change any of it from the collection's **Monitors** and **Settings** tabs.
 
 ## Upload test results to a collection
 
@@ -80,14 +89,17 @@ A CI job uploads to exactly one collection. To send results to more than one col
 
 ## Finish setting up a collection
 
-Each collection has a setup checklist, on its **Overview** tab before results arrive and on its **Settings** tab permanently. It tracks four steps:
+Each collection has a setup checklist, on its **Overview** tab before results arrive and on its **Settings** tab permanently. It tracks five steps:
 
 1. **Send your first upload**
 2. **Ingest your test results**
 3. **Review flake detection**
 4. **Review quarantining**
+5. **Review ticketing**
 
-The first two complete on their own once uploads are flowing. The rest can be configured in the app.
+The first two complete on their own once uploads are flowing. You complete the last three yourself, from the **Monitors** tab, **Settings → Quarantining**, and **Settings → Ticketing**. If you are not using ticketing, say so and that step is complete.
+
+Ticketing may already be done. Connections belong to your organization, so another collection may have set one up.
 
 ## Permissions
 
@@ -95,6 +107,10 @@ The first two complete on their own once uploads are flowing. The rest can be co
 | --- | --- | --- |
 | View collections | Yes | Yes |
 | Create a collection | Yes | Yes |
+| Create, edit, delete, or mute a monitor | Yes | Yes |
+| Connect, copy, or remove an organization ticketing integration | Yes | Yes |
+| Choose a collection's default ticketing connection | Yes | Yes |
+| Create, link, or unlink a ticket | Yes | Yes |
 | Edit a collection's name or description | Yes | No |
 | Change quarantining settings | Yes | No |
 | Delete a collection | Yes | No |

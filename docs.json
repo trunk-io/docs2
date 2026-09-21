@@ -415,7 +415,8 @@
                       "GET /v2/test-cases",
                       "GET /v2/test-cases/{testCaseId}",
                       "GET /v2/test-cases/{testCaseId}/status-history",
-                      "GET /v2/test-cases/{testCaseId}/test-runs"
+                      "GET /v2/test-cases/{testCaseId}/test-runs",
+                      "POST /v2/test-cases/{testCaseId}/ticket"
                     ]
                   },
                   {

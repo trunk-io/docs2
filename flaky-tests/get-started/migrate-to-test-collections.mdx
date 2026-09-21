@@ -32,11 +32,40 @@ Flaky Tests opens on your test collections. To reach the repository view, click 
   <img className="hidden dark:block" src="/assets/flaky-tests/migration-legacy-view-button-dark.png" alt="The Collections list header in Flaky Tests, with a Legacy view button on the right, a collections search box, and a Create Collection button." />
 </Frame>
 
-## Nothing carries over from your repositories
+## What carries over, and what doesn't
 
-Monitors, quarantine overrides, ticketing configuration, and infrastructure-failure thresholds are all per-collection. A repository's configuration does not transfer to a collection, so anything you have tuned on a repository has to be set up again on the collection you want it on.
+Configuration is per-collection. Nothing transfers on its own, but two things can be brought across deliberately while you are migrating.
 
-That is often what you want. You may wish to create different monitors for each collection, such as more sensitive flakiness detection for unit tests than for end-to-end tests.
+| | Brought across |
+| --- | --- |
+| Monitors | Yes — from the collection's **Monitors** tab, see below |
+| Ticketing connections | Yes — from **Settings → Organization → Ticketing**, see below |
+| Quarantine overrides | No |
+| Ticket automation settings | No |
+| Infrastructure-failure thresholds | No |
+
+Starting fresh is often what you want. You may wish to create different monitors for each collection, such as more sensitive flakiness detection for unit tests than for end-to-end tests.
+
+### Bring your repository monitors across
+
+While your organization has both views, the collection's **Monitors** tab offers **Migrate from a repository**. Pick a repository and every one of its monitors is sorted into three groups:
+
+- **Not in this collection** — selected by default, with the configuration the migrated monitor will have.
+- **Settings differ** — the same monitor name on both sides with different settings. Not selectable; edit the collection's monitor instead, so you don't end up with two monitors sharing a name.
+- **Already in this collection** — same name, same settings.
+
+A fourth group lists monitors only the collection has, so the comparison reads both ways. Migrating runs one way only: your repositories' monitors are never changed.
+
+<Frame caption="Every monitor on the repository, sorted by whether the collection already has it.">
+  <img className="block dark:hidden" src="/assets/flaky-tests/get-started/migrate-monitors-light.png" alt="The Migrate monitors from a repository page, with a repository chosen in the Migrate from repository dropdown and a Migrate 1 monitor button. Three sections list the comparison: Not in this collection, with a checkbox beside each monitor's name, type, and settings; Already in this collection, showing one monitor marked Already configured; and Only in this collection, listing the monitors the repository does not have." />
+  <img className="hidden dark:block" src="/assets/flaky-tests/get-started/migrate-monitors-dark.png" alt="The Migrate monitors from a repository page, with a repository chosen in the Migrate from repository dropdown and a Migrate 1 monitor button. Three sections list the comparison: Not in this collection, with a checkbox beside each monitor's name, type, and settings; Already in this collection, showing one monitor marked Already configured; and Only in this collection, listing the monitors the repository does not have." />
+</Frame>
+
+### Bring a ticketing connection across
+
+An organization ticketing integration can be copied from a repository that already has one, rather than re-entering an API token and re-picking a project. In the add-connection picker on **Settings → Organization → Ticketing**, choose **Copy from a repo**.
+
+The copy is named `<Provider> (<repo>)`, because a collection picks a connection by name. Ticket automation does not copy — repository automation stays on and the collection's stays off, so you can time the cutover yourself.
 
 ## Migrate a CI job
 
@@ -56,11 +85,11 @@ Open the collection's **Uploads** tab. An upload appears as soon as Trunk accept
 </Step>
 
 <Step title="Review the collection's monitors">
-Open the collection's **Monitors** tab and check the seeded defaults against what you run on the repository today. Adjust thresholds and branch patterns here rather than assuming the repository's carried over.
+Open the collection's **Monitors** tab and check the [seeded defaults](../test-collections#what-a-new-collection-starts-with) against what you run on the repository today. Either adjust them here, or use **Migrate from a repository** to bring the repository's monitors across.
 </Step>
 
 <Step title="Turn on quarantining, then re-apply your overrides">
-Quarantining is configured per collection, and enabling it replaces the repository's quarantining for every upload routed to that collection. Your repository's **Always Quarantine** and **Never Quarantine** overrides do not follow.
+While you are migrating, a new collection starts with quarantining off, because the repository's settings are still governing your uploads. Enabling it replaces the repository's quarantining for every upload routed to that collection, and your repository's **Always Quarantine** and **Never Quarantine** overrides do not follow.
 
 Overrides can only be set once quarantining is enabled on the collection, so re-apply the ones that matter as soon as you turn it on.
 </Step>
@@ -111,7 +140,7 @@ Collections don't backfill history — metrics start at the collection's first u
 </Accordion>
 
 <Accordion title="Why aren't tests being quarantined?">
-Quarantining has to be enabled on the collection, and a test has to have been detected by one of the collection's monitors. Check both on the collection's **Settings** tab and **Monitors** tab.
+Check **Settings → Quarantining** on the collection. While you are migrating, a collection starts with quarantining off, and auto-quarantine is off even once you turn quarantining on — so until you turn it on too, only tests you have set an **Always Quarantine** override on are quarantined. Auto-quarantine covers tests a monitor has flagged **flaky**; a **broken** test is never a candidate.
 </Accordion>
 
 <Accordion title="Can a collection contain tests from several repositories?">

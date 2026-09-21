@@ -22,7 +22,7 @@ If not, configure your test frameworks to output JUnit XML:
 
 ### Step 2: Configure CI uploads
 
-Add test result uploads to all CI jobs that run tests.
+[Create a test collection](../test-collections#create-a-collection) and copy its **Collection ID**, then add test result uploads to all CI jobs that run tests. Every upload step passes that ID, as `--test-collection-id` or the `TRUNK_TEST_COLLECTION_ID` environment variable.
 
 1. See [**CI Providers**](./ci-providers/) for integration instructions
 2. Configure uploads in jobs that run on:
@@ -51,7 +51,7 @@ Trunk automatically recognizes `main`, `master`, and `develop` as stable branche
 
 After uploads are flowing, open your [test collection](../test-collections)'s **Monitors** tab to set up detection.
 
-**Pass-on-retry** is enabled by default and is the recommended baseline for everyone. It catches the most common flakiness pattern — a test that fails and then passes on retry within the same commit — without any configuration needed.
+A collection arrives with [five monitors already seeded](../test-collections#what-a-new-collection-starts-with), including pass-on-retry, failure count, and failure rate. Your job here is to check them against how you actually run tests — the seeded branch patterns in particular are defaults, not a reading of your repository.
 
 **Failure rate monitors** let you detect flakiness based on failure rate over a rolling time window. How you configure them depends on your CI setup:
 
