@@ -48,7 +48,9 @@ With quarantining enabled, the Analytics Uploader will compare failed test cases
 
 ### Quarantining settings
 
-To enable quarantining, navigate to **Settings** → **Repositories** → **[repository]** → **Flaky Tests** → toggle **Enable Test Quarantining** on.
+Quarantining is enabled by default on a [test collection](../test-collections). To change it, navigate to **Flaky Tests** → **Collections** → **[collection]** → **Settings** → **Quarantining**.
+
+On a repository, navigate to **Settings** → **Repositories** → **[repository]** → **Flaky Tests** → toggle **Enable Test Quarantining** on. This route is unavailable once your organization has [fully migrated to collections](../get-started/migrate-to-test-collections).
 
 <Frame>
 ![](/assets/flaky-tests/quarantining/enable_test_quarantining.png)
@@ -296,7 +298,7 @@ Once quarantining is active, the **Quarantining** tab provides a central hub for
 
 ## Audit logs
 
-Trunk provides audit logs for all setting changes and overwrites for individual tests. You can access the audit log by navigating to **Settings** → **Repositories** → **[repository]** → **Flaky Tests** → **Audit logs** under the Enable Test Quarantining heading.
+Trunk provides audit logs for all setting changes and overwrites for individual tests. On a collection, the audit log is on its **Settings** → **Quarantining** page. On a repository, navigate to **Settings** → **Repositories** → **[repository]** → **Flaky Tests** → **Audit logs** under the Enable Test Quarantining heading.
 
 <Frame>
 ![](/assets/flaky-tests/quarantining/qurantine-audit-logs.png)

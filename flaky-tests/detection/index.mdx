@@ -41,6 +41,8 @@ Trunk groups monitors into two categories based on what they do when they activa
 
 ### Health Classification Monitors
 
+The **Default state** column below describes a repository. A new [test collection](../test-collections#what-a-new-collection-starts-with) is seeded with pass-on-retry, failure count, failure rate, new test, and skipped test already enabled.
+
 | Monitor | What it detects | Available actions | Default state |
 | --- | --- | --- | --- |
 | [**Pass-on-Retry**](./pass-on-retry-monitor) | A test fails then passes on the same commit (retry after failure) | Classify (flaky) or [apply labels](../management/test-labels#automatic-labeling-from-monitors) | Enabled |
