@@ -48,16 +48,6 @@ Starting fresh is often what you want. You may wish to create different monitors
 
 ### Bring your repository monitors across
 
-{/* TODO(Tyler): screenshot of the migrate page. Shoot the collection's Monitors tab, Migrate from a repository,
-    on a MIGRATION_IN_PROGRESS org, with a repository picked that yields a row in all three groups and the
-    "Settings differ" diff expanded. Save as assets/flaky-tests/get-started/migrate-monitors-light.png / -dark.png,
-    then uncomment the Frame below and write the alt text. */}
-{/*
-<Frame caption="Every monitor on the repository, sorted by whether the collection already has it.">
-  <img className="block dark:hidden" src="/assets/flaky-tests/get-started/migrate-monitors-light.png" alt="" />
-  <img className="hidden dark:block" src="/assets/flaky-tests/get-started/migrate-monitors-dark.png" alt="" />
-</Frame>
-*/}
 While your organization has both views, the collection's **Monitors** tab offers **Migrate from a repository**. Pick a repository and every one of its monitors is sorted into three groups:
 
 - **Not in this collection** — selected by default, with the configuration the migrated monitor will have.
@@ -65,6 +55,11 @@ While your organization has both views, the collection's **Monitors** tab offers
 - **Already in this collection** — same name, same settings.
 
 A fourth group lists monitors only the collection has, so the comparison reads both ways. Migrating runs one way only: your repositories' monitors are never changed.
+
+<Frame caption="Every monitor on the repository, sorted by whether the collection already has it.">
+  <img className="block dark:hidden" src="/assets/flaky-tests/get-started/migrate-monitors-light.png" alt="The Migrate monitors from a repository page, with a repository chosen in the Migrate from repository dropdown and a Migrate 1 monitor button. Three sections list the comparison: Not in this collection, with a checkbox beside each monitor's name, type, and settings; Already in this collection, showing one monitor marked Already configured; and Only in this collection, listing the monitors the repository does not have." />
+  <img className="hidden dark:block" src="/assets/flaky-tests/get-started/migrate-monitors-dark.png" alt="The Migrate monitors from a repository page, with a repository chosen in the Migrate from repository dropdown and a Migrate 1 monitor button. Three sections list the comparison: Not in this collection, with a checkbox beside each monitor's name, type, and settings; Already in this collection, showing one monitor marked Already configured; and Only in this collection, listing the monitors the repository does not have." />
+</Frame>
 
 ### Bring a ticketing connection across
 
@@ -93,8 +88,10 @@ Open the collection's **Uploads** tab. An upload appears as soon as Trunk accept
 Open the collection's **Monitors** tab and check the [seeded defaults](../test-collections#what-a-new-collection-starts-with) against what you run on the repository today. Either adjust them here, or use **Migrate from a repository** to bring the repository's monitors across.
 </Step>
 
-<Step title="Re-apply your quarantine overrides">
-A new collection starts with quarantining enabled, and it replaces the repository's quarantining for every upload routed there. Your repository's **Always Quarantine** and **Never Quarantine** overrides do not follow, so re-apply the ones that matter.
+<Step title="Turn on quarantining, then re-apply your overrides">
+While you are migrating, a new collection starts with quarantining off, because the repository's settings are still governing your uploads. Enabling it replaces the repository's quarantining for every upload routed to that collection, and your repository's **Always Quarantine** and **Never Quarantine** overrides do not follow.
+
+Overrides can only be set once quarantining is enabled on the collection, so re-apply the ones that matter as soon as you turn it on.
 </Step>
 
 <Step title="Repeat, job by job">
@@ -103,7 +100,7 @@ Move the rest of your CI jobs when you're ready. Uploads without a collection ID
 </Steps>
 
 <Warning>
-A collection you create now has quarantining enabled from the start, with no overrides in place. Between creating it and re-applying your overrides, every upload routed there is governed by the collection's settings and nothing else — a test you had pinned to **Never Quarantine** on the repository is no longer pinned.
+Enabling quarantining on a collection takes effect immediately, with no overrides in place. Between enabling it and re-applying your overrides, that collection's tests are governed by its own settings and nothing else — a test you had pinned to **Never Quarantine** on the repository is no longer pinned.
 </Warning>
 
 ## Links in CI output
@@ -143,7 +140,7 @@ Collections don't backfill history — metrics start at the collection's first u
 </Accordion>
 
 <Accordion title="Why aren't tests being quarantined?">
-Check **Settings → Quarantining** on the collection. Collections created since September 2026 start with quarantining enabled; older ones start with it off, and were not changed. Auto-quarantine is off either way, so until you turn it on only tests you have set an **Always Quarantine** override on are quarantined. Auto-quarantine covers tests a monitor has flagged **flaky** — a **broken** test is never a candidate.
+Check **Settings → Quarantining** on the collection. While you are migrating, a collection starts with quarantining off, and auto-quarantine is off even once you turn quarantining on — so until you turn it on too, only tests you have set an **Always Quarantine** override on are quarantined. Auto-quarantine covers tests a monitor has flagged **flaky**; a **broken** test is never a candidate.
 </Accordion>
 
 <Accordion title="Can a collection contain tests from several repositories?">
