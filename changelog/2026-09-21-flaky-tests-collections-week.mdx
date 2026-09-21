@@ -1,0 +1,24 @@
+---
+title: "Flaky Tests: Migration tools and a smoother onboarding for Test Collections"
+description: "Bring monitors and ticketing connections across from a repository, follow a five-step setup checklist, and start every collection with five seeded monitors."
+slug: flaky-tests-collections-week-2026-09-21
+date: 2026-09-21
+category: Flaky Tests
+type: update
+---
+
+**A week of improvements to [Test Collections](/flaky-tests/test-collections), focused on migrating from repository-based Flaky Tests.**
+
+## New features
+
+- **Migrate monitors from a repository.** A collection's **Monitors** tab now offers **Migrate from a repository**. Pick a repository and every monitor on it is sorted into what the collection is missing, what differs in configuration, and what is already there — pick the ones you want and Trunk creates them on the collection. Your repository's monitors are never changed. See [Bring your repository monitors across](/flaky-tests/get-started/migrate-to-test-collections#bring-your-repository-monitors-across).
+- **Copy a ticketing connection from a repository.** In the add-connection picker on **Settings → Organization → Ticketing**, choose **Copy from a repo** to reuse a repository's existing Linear, Jira, or Asana connection instead of re-entering an API token and re-picking a project. Ticket automation deliberately does not copy, so you can time the cutover yourself. See [Bring a ticketing connection across](/flaky-tests/get-started/migrate-to-test-collections#bring-a-ticketing-connection-across).
+- **New API endpoints on the v2 spec.** `testCases.linkTicket` links an existing ticket to a test case, and `pullRequests.queueEntryHistoryBatch` returns Merge Queue history for a batch of pull requests. See the [API reference](/flaky-tests/reference/api-reference).
+
+## Updates
+
+- **Five-step setup checklist.** The Flaky Tests setup checklist tracks a fifth step, **Ticketing reviewed**, alongside the existing upload, monitors, quarantining, and integrations steps.
+- **New collections seed with five monitors, not a placeholder set.** Every new collection now starts with a pass-on-retry monitor, a failure-count monitor, a failure-rate monitor, a new-test label monitor, and a skipped-test label monitor — with branch patterns set to `main`, `master`, `develop`, `dev`, and `release/*`. Detection begins as soon as your first upload lands. See [What a new collection starts with](/flaky-tests/test-collections#what-a-new-collection-starts-with).
+- **Uploads and Tests tabs unlock progressively.** After you create a collection, the **Uploads** tab opens as soon as an upload is accepted, and the **Tests** tab opens once results are ingested — you no longer wait for both to unlock together.
+- **Ticketing and Monitors have their own permissions.** The Flaky Tests permissions table now lists ticketing and monitor actions separately, both at the member level.
+- **Ticketing pages lead with the organization path.** The [Linear](/flaky-tests/management/ticketing/linear-integration), [Jira](/flaky-tests/management/ticketing/jira-integration), and [Asana](/flaky-tests/management/ticketing/asana-integration) integration guides now document **Settings → Organization → Ticketing** as the primary route for setup on migrated organizations, with the repository path kept as an alternative.
