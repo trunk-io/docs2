@@ -34,15 +34,13 @@ The ID is what CI needs. Nothing else about a collection is used to route upload
 
 Any member of your organization can create a collection.
 
-Your first collection is created from the form Flaky Tests opens on: enter a **Collection name**, a description if you want one, and click **Create Collection**. Once you have one, later collections are created from the actions menu on the collections list, under **Create collection**.
+Enter a **Collection name**, and a description if you want one. Your first collection is created from the form Flaky Tests opens on; later ones from **Create collection** in the actions menu on the collections list.
 
-{/* TODO(screenshot #2, TODO-SCREENSHOTS.md): the empty "Create your first Test Collection" form. */}
-You land on the new collection. Its **Uploads** tab opens as soon as an upload arrives; its **Tests** tab stays disabled until those results have been ingested.
+You land on the new collection. Its **Uploads** tab opens when an upload arrives; **Tests** waits until those results are ingested.
 
 ## What a new collection starts with
 
-{/* TODO(screenshot #6, TODO-SCREENSHOTS.md): the Monitors tab of an untouched new collection. */}
-A new collection is seeded so detection and quarantining work as soon as test results arrive.
+A new collection starts with five monitors, so detection works as soon as test results arrive.
 
 | Monitor | Configuration | Action |
 | --- | --- | --- |
@@ -52,11 +50,11 @@ A new collection is seeded so detection and quarantining work as soon as test re
 | New test | 7 days | Apply the **New** label |
 | Skipped test | 24 hour window, 7 day resolve | Apply the **Skipped** label |
 
-Every monitor but pass-on-retry watches `main`, `master`, `develop`, `dev`, and `release/*`. A collection has no repository until its first upload, so those branch names are a default rather than a reading of your repository — check them against your own.
+Every monitor but pass-on-retry watches `main`, `master`, `develop`, `dev`, and `release/*`. A collection has no repository until its first upload, so check those branch names against your own.
 
-Quarantining is seeded **on**, with auto-quarantine off. Nothing is quarantined until you set an override on a test or turn auto-quarantine on.
+[Quarantining](./quarantining/) also starts enabled, with auto-quarantine off. Nothing is quarantined until you turn auto-quarantine on or set an override on a test.
 
-You can change all of it, and everything else about the collection, from its **Monitors** and **Settings** tabs.
+You can change any of it from the collection's **Monitors** and **Settings** tabs.
 
 ## Upload test results to a collection
 
@@ -86,12 +84,11 @@ A CI job uploads to exactly one collection. To send results to more than one col
 | **Tests** | Every test in the collection, with health status, failure rates, and labels. |
 | **Uploads** | Upload history for the collection. |
 | **Quarantining** | Quarantine analytics for the collection. |
-| **Monitors** | The collection's [flake detection monitors](./detection/), and — while you are migrating — the page that [migrates a repository's monitors onto the collection](./get-started/migrate-to-test-collections#bring-your-repository-monitors-across). |
+| **Monitors** | The collection's [flake detection monitors](./detection/). |
 | **Settings** | The collection's name and description, [quarantining](./quarantining/), upload handling, and [ticketing](./management/ticketing/automatic-ticketing). |
 
 ## Finish setting up a collection
 
-{/* TODO(screenshot #5, TODO-SCREENSHOTS.md): the checklist at 4 of 5, with Review ticketing outstanding. */}
 Each collection has a setup checklist, on its **Overview** tab before results arrive and on its **Settings** tab permanently. It tracks five steps:
 
 1. **Send your first upload**
@@ -100,9 +97,9 @@ Each collection has a setup checklist, on its **Overview** tab before results ar
 4. **Review quarantining**
 5. **Review ticketing**
 
-The first two complete on their own once uploads are flowing. The last three are decisions, and each is settled from the page that configures it — the **Monitors** tab, **Settings → Quarantining**, and **Settings → Ticketing** each show the outstanding step with a control to complete it. Declining counts: a collection that is not using ticketing records that and the checklist reaches zero outstanding.
+The first two complete on their own once uploads are flowing. You complete the last three yourself, from the **Monitors** tab, **Settings → Quarantining**, and **Settings → Ticketing**. If you are not using ticketing, say so and that step is complete.
 
-Ticketing is the one step you may find already complete. A connection belongs to your organization, so another collection — or another person — may have made one already.
+Ticketing may already be done. Connections belong to your organization, so another collection may have set one up.
 
 ## Permissions
 

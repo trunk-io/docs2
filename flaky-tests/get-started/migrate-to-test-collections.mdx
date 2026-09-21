@@ -22,16 +22,14 @@ Nothing breaks while you migrate. A CI job that doesn't pass a collection ID kee
 
 Flaky Tests opens on your test collections. To reach the repository view, click **Legacy view** on the collections list; to come back, click **Test collections** on the repository overview. Trunk remembers whichever you chose and opens there next time.
 
-Once your organization is fully migrated the repository view closes: **Legacy view** disappears, repository URLs redirect to the collections list, and **Settings → Repositories** stops linking repository names and drops its **Tests Uploaded** column. Tell us when you are ready for that — it is not something you switch on yourself.
-
 <Frame caption="From the repository view, Test collections crosses over.">
   <img className="block dark:hidden" src="/assets/flaky-tests/migration-test-collections-button-light.png" alt="The Repositories header in Flaky Tests, with a Test collections button on the right." />
   <img className="hidden dark:block" src="/assets/flaky-tests/migration-test-collections-button-dark.png" alt="The Repositories header in Flaky Tests, with a Test collections button on the right." />
 </Frame>
 
 <Frame caption="From the collections view, Legacy view crosses back.">
-  <img className="block dark:hidden" src="/assets/flaky-tests/migration-legacy-view-button-light.png" alt="The Collections list header in Flaky Tests, with a Legacy view button on the right, a collections search box, and an actions menu." />
-  <img className="hidden dark:block" src="/assets/flaky-tests/migration-legacy-view-button-dark.png" alt="The Collections list header in Flaky Tests, with a Legacy view button on the right, a collections search box, and an actions menu." />
+  <img className="block dark:hidden" src="/assets/flaky-tests/migration-legacy-view-button-light.png" alt="The Collections list header in Flaky Tests, with a Legacy view button on the right, a collections search box, and a Create Collection button." />
+  <img className="hidden dark:block" src="/assets/flaky-tests/migration-legacy-view-button-dark.png" alt="The Collections list header in Flaky Tests, with a Legacy view button on the right, a collections search box, and a Create Collection button." />
 </Frame>
 
 ## What carries over, and what doesn't
@@ -50,7 +48,16 @@ Starting fresh is often what you want. You may wish to create different monitors
 
 ### Bring your repository monitors across
 
-{/* TODO(screenshot #3, TODO-SCREENSHOTS.md): the migrate page showing all three groups. Highest value of the six. */}
+{/* TODO(Tyler): screenshot of the migrate page. Shoot the collection's Monitors tab, Migrate from a repository,
+    on a MIGRATION_IN_PROGRESS org, with a repository picked that yields a row in all three groups and the
+    "Settings differ" diff expanded. Save as assets/flaky-tests/get-started/migrate-monitors-light.png / -dark.png,
+    then uncomment the Frame below and write the alt text. */}
+{/*
+<Frame caption="Every monitor on the repository, sorted by whether the collection already has it.">
+  <img className="block dark:hidden" src="/assets/flaky-tests/get-started/migrate-monitors-light.png" alt="" />
+  <img className="hidden dark:block" src="/assets/flaky-tests/get-started/migrate-monitors-dark.png" alt="" />
+</Frame>
+*/}
 While your organization has both views, the collection's **Monitors** tab offers **Migrate from a repository**. Pick a repository and every one of its monitors is sorted into three groups:
 
 - **Not in this collection** — selected by default, with the configuration the migrated monitor will have.
@@ -61,7 +68,6 @@ A fourth group lists monitors only the collection has, so the comparison reads b
 
 ### Bring a ticketing connection across
 
-{/* TODO(screenshot #4, TODO-SCREENSHOTS.md): the add-connection picker showing "Copy from a repo". */}
 An organization ticketing integration can be copied from a repository that already has one, rather than re-entering an API token and re-picking a project. In the add-connection picker on **Settings → Organization → Ticketing**, choose **Copy from a repo**.
 
 The copy is named `<Provider> (<repo>)`, because a collection picks a connection by name. Ticket automation does not copy — repository automation stays on and the collection's stays off, so you can time the cutover yourself.
@@ -88,7 +94,7 @@ Open the collection's **Monitors** tab and check the [seeded defaults](../test-c
 </Step>
 
 <Step title="Re-apply your quarantine overrides">
-Quarantining is already enabled on the collection, and it replaces the repository's quarantining for every upload routed there. Your repository's **Always Quarantine** and **Never Quarantine** overrides do not follow, so re-apply the ones that matter.
+A new collection starts with quarantining enabled, and it replaces the repository's quarantining for every upload routed there. Your repository's **Always Quarantine** and **Never Quarantine** overrides do not follow, so re-apply the ones that matter.
 </Step>
 
 <Step title="Repeat, job by job">
@@ -97,7 +103,7 @@ Move the rest of your CI jobs when you're ready. Uploads without a collection ID
 </Steps>
 
 <Warning>
-Quarantining is enabled on a collection from the moment you create it, with no overrides in place. Between creating a collection and re-applying your overrides, every upload routed there is governed by the collection's settings and nothing else — a test you had pinned to **Never Quarantine** on the repository is no longer pinned.
+A collection you create now has quarantining enabled from the start, with no overrides in place. Between creating it and re-applying your overrides, every upload routed there is governed by the collection's settings and nothing else — a test you had pinned to **Never Quarantine** on the repository is no longer pinned.
 </Warning>
 
 ## Links in CI output
@@ -137,7 +143,7 @@ Collections don't backfill history — metrics start at the collection's first u
 </Accordion>
 
 <Accordion title="Why aren't tests being quarantined?">
-Quarantining is on by default, but auto-quarantine is not. Either turn auto-quarantine on under the collection's **Settings → Quarantining**, or set an **Always Quarantine** override on the test itself. Auto-quarantine only covers tests one of the collection's monitors has flagged as **flaky** — a **broken** test is never a candidate.
+Check **Settings → Quarantining** on the collection. Collections created since September 2026 start with quarantining enabled; older ones start with it off, and were not changed. Auto-quarantine is off either way, so until you turn it on only tests you have set an **Always Quarantine** override on are quarantined. Auto-quarantine covers tests a monitor has flagged **flaky** — a **broken** test is never a candidate.
 </Accordion>
 
 <Accordion title="Can a collection contain tests from several repositories?">
