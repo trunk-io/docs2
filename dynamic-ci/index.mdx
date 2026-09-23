@@ -8,8 +8,8 @@ groups: ["dynamic-ci"]
 <Warning>
   Dynamic CI is in **private beta**. Recommendation quality is still improving,
   the signals behind a verdict still change between releases, and the action's
-  inputs and outputs are not yet stable. Pin a specific tag if you need
-  stability, and read the release notes before upgrading.
+  and plugin's inputs and outputs are not yet stable. Pin a specific tag if you
+  need stability, and read the release notes before upgrading.
 </Warning>
 
 ## What it is
@@ -21,125 +21,106 @@ matter to which job.
 
 Dynamic CI answers the same question from evidence instead. Trunk already records every
 `(file change set → job outcome)` pair in your repository, so it can tell you which jobs
-this diff has historically broken and which it never touches. The
-[`trunk-io/dynamic-ci-filter`](https://github.com/trunk-io/dynamic-ci-filter) action asks
-for a verdict per job and emits it as a job output you gate on — a near drop-in
-replacement for [`dorny/paths-filter`](https://github.com/dorny/paths-filter).
+this diff has historically broken and which it never touches. Before your jobs start,
+Trunk returns a **verdict per job** — run or skip — with the signals behind it, and your
+workflow gates on that verdict.
 
-## How a verdict is reached
+Nothing is pooled across customers. Every recommendation is derived only from your own
+organization's CI history.
 
-Each verdict combines independent signals, and every signal's contribution is printed in
-the job logs and the job summary, so a skip is always auditable.
+## Where it runs
 
-| Signal                   | What it looks at                                                 |
-| ------------------------ | ---------------------------------------------------------------- |
-| `estimated-cost`         | What the job costs to run.                                       |
-| `previous-result-on-pr`  | Whether this job already ran on this PR, and how it did.         |
-| `historical-pass-rate`   | How often this job has failed historically.                      |
-| `diff-driven-volatility` | How often changes to these files have broken this job.           |
-| `force-override`         | An explicit user override forcing the job to run.                |
-| `merge-failure`          | Whether this job failed on the PR's most recent merge-queue run. |
-| `mid-pr-stack`           | Whether another open PR is stacked on top of this one.           |
-| `required-check`         | Whether the PR's base branch requires this job to merge.         |
+<Columns cols={2}>
+  <Card title="GitHub Actions" icon="github" href="/dynamic-ci/github-actions" cta="Set it up">
+    The `trunk-io/dynamic-ci` action asks for verdicts and emits them as job
+    outputs you gate on with an `if:`.
+  </Card>
+  <Card title="Buildkite" icon="/assets/icons/buildkite.svg" href="/dynamic-ci/buildkite" cta="Set it up">
+    The Dynamic CI plugin marks steps `skip:` as your pipeline is uploaded, before
+    an agent is ever acquired.
+  </Card>
+</Columns>
 
-Signals are per-organization. Nothing is pooled across customers — your recommendations
-are derived only from your own CI history.
+Both speak the same wire contract and the same engine, so a verdict does not depend on
+which provider asked for it. What differs is where the decision lands: an `if:` you
+write per job on GitHub Actions, and a `skip:` attribute added in flight on Buildkite.
 
-Pass a comma-separated list to `ignore-signals` to drop any of them from the tally.
+## How it compares to a path filter
 
-## Set it up
+|                         | `dorny/paths-filter` and friends                        | Dynamic CI                                                                     |
+| ----------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Where the rules live    | Globs you write and maintain                            | Signals measured on your repository, plus optional globs where you want them   |
+| What it knows           | Which files changed                                     | Which files changed, what those files have historically broken, what the job costs, what already ran on this PR |
+| When it goes stale      | Whenever the codebase moves and nobody updates the globs | It does not — the history moves with the repository                            |
+| Why a job was skipped   | Because a glob did not match                            | A per-signal breakdown printed in the logs and recorded on the pull request     |
+| Blast radius of a miss  | A silently untested job                                 | A false skip that is recorded, counted, and reported back to you               |
+
+You do not have to choose. Dynamic CI has a `paths-filter` signal at parity with
+`dorny/paths-filter`, so an existing glob rule can be kept as an explicit, deterministic
+input to the verdict — see [Configuration](/dynamic-ci/configuration#paths-filters).
+
+## What it needs
 
 <Steps>
-  <Step title="Get your organization API token">
-    In the Trunk app, go to **Settings → Manage Organization → Organization API
-    Token**, and store it as a repository secret (for example `TRUNK_API_TOKEN`).
+  <Step title="CI data flowing into Trunk">
+    Dynamic CI reasons over the CI history Trunk already collects, so the repository
+    needs **CI Intelligence** turned on and reporting. See
+    [Trunk CI → Getting Started](/ci/get-started) for GitHub Actions and Buildkite
+    ingestion.
   </Step>
 
-  <Step title="Add the filter job">
-    One upstream job asks for verdicts for the whole workflow. Per-job outputs are set
-    at runtime, so re-export each one you intend to gate on by name.
-
-    ```yaml
-    jobs:
-      dynamic-ci-filter:
-        name: Dynamic CI Filter
-        runs-on: ubuntu-latest
-        timeout-minutes: 5
-        if: github.event_name == 'pull_request'
-        outputs:
-          unit-tests: ${{ steps.ci-filter.outputs.unit-tests }}
-          integration-tests: ${{ steps.ci-filter.outputs.integration-tests }}
-        steps:
-          - name: Run Dynamic CI Filter
-            id: ci-filter
-            uses: trunk-io/dynamic-ci-filter@v1
-            with:
-              token: ${{ secrets.TRUNK_API_TOKEN }}
-    ```
+  <Step title="Enough history to reason about">
+    A job Trunk has not seen enough of gets no verdict and runs. Repositories arrive in
+    **learning mode**, where Trunk records what it *would* have skipped without anything
+    actually being withheld — which is both the trust on-ramp and how the history
+    accumulates.
   </Step>
 
-  <Step title="Gate your jobs on the output">
-    ```yaml
-      unit-tests:
-        name: Unit Tests
-        runs-on: ubuntu-latest
-        needs: [dynamic-ci-filter]
-        if: >-
-          !cancelled() &&
-          needs.dynamic-ci-filter.outputs.unit-tests != 'false'
-        steps:
-          - run: make test
-    ```
+  <Step title="Something that gates your merges">
+    A recommendation can be wrong. The safety argument is that the jobs which gate a
+    merge still run somewhere — a [merge queue](/merge-queue/merge-queue), or required
+    checks on the base branch. Trunk enforces this: on a branch whose merges are gated,
+    required jobs are forced to run. See
+    [How it works](/dynamic-ci/how-it-works#the-merge-queue-backstop).
+  </Step>
+
+  <Step title="Trunk to turn it on">
+    Dynamic CI is enabled per organization during the private beta. Until it is, every
+    request answers with a notice and every job runs. Reach out on
+    [Slack](https://slack.trunk.io).
   </Step>
 </Steps>
 
-Jobs are addressed by their **key** — what the job is written as under `jobs:`, and what
-`github.job` reports — not the `name:` it displays under. A display name changes with a
-job's matrix values; the key does not.
+## What you get back
 
-This is *pre-job* mode, and it captures the most savings because a skipped job never boots
-a runner. There is also a *pre-step* mode, where a job asks only about itself using the
-`job-keys` input; it is simpler to adopt but the runner has already started by the time
-the verdict arrives.
+- **A verdict per job**, with the contribution of every signal that voted, printed in
+  the job log and optionally posted as a run annotation.
+- **A decision matrix per pull request** — the Dynamic CI tab on a PR shows every
+  run/skip decision by job and commit, the signals behind the selected one, and any
+  false skips.
+- **Savings by repository and workflow** — compute saved, wall-clock saved (a separate
+  number, because skipping ten parallel jobs saves ten jobs of compute and one job of
+  waiting), runs skipped, and false skips. See [In the Trunk app](/dynamic-ci/in-the-app).
 
-## Always write `!= 'false'`
+## Next steps
 
-<Warning>
-  Gate on `!= 'false'`, never on `== 'true'`.
-</Warning>
-
-A job with no verdict — a service outage, a job Trunk has not seen before, a job whose key
-it has not resolved yet — emits no output at all. `!= 'false'` correctly runs that job.
-`== 'true'` would silently skip your entire test suite the first time anything went wrong.
-
-That convention is what makes the action's fail-open behavior work. A transport error, a
-non-2xx response, a malformed response, or a request past the latency budget (30s by
-default) all resolve to "run", the step itself never fails, and every fail-open is logged
-as a warning annotation and written to the job summary — so a real skip is always
-distinguishable from a degraded one.
-
-## Merge queues
-
-A merge queue validates the exact commit about to land, so a skip there could merge
-untested code. Trunk therefore **never skips a job on a Trunk Merge Queue branch**: a
-request on a `trunk-merge/` branch short-circuits to run-everything before any
-recommendation work happens.
-
-You do not need to gate the queue yourself, and in particular you should not add
-`github.event_name != 'pull_request'` — with draft merge-queue pull requests enabled,
-queue batches arrive as `pull_request` events on `trunk-merge/*` branches, so the event
-name cannot tell them apart from real PRs.
-
-Other merge queues are not covered. GitHub's native merge queue validates on
-`gh-readonly-queue/*` branches via `merge_group` events, which are treated like any other
-request, so gate those yourself:
-
-```yaml
-if: >-
-  !cancelled() &&
-  (github.event_name == 'merge_group' ||
-  needs.dynamic-ci-filter.outputs.unit-tests != 'false')
-```
+<Columns cols={2}>
+  <Card title="How it works" icon="binoculars" href="/dynamic-ci/how-it-works">
+    Signals, verdicts, lanes, and what happens when something goes wrong.
+  </Card>
+  <Card title="Use cases" icon="list-checks" href="/dynamic-ci/use-cases">
+    The situations Dynamic CI is for, and how to configure each one.
+  </Card>
+  <Card title="Configuration" icon="sliders-horizontal" href="/dynamic-ci/configuration">
+    Modes, per-job policies, paths filters, and force overrides.
+  </Card>
+  <Card title="In the Trunk app" icon="gauge" href="/dynamic-ci/in-the-app">
+    Where savings, decisions and false skips are reported.
+  </Card>
+  <Card title="Troubleshooting" icon="wrench" href="/dynamic-ci/troubleshooting">
+    Nothing is skipping, a check never reports, a notice you do not recognize.
+  </Card>
+</Columns>
 
 ## Feedback
 

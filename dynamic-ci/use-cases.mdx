@@ -1,0 +1,146 @@
+---
+title: "Use cases"
+description: "The situations Dynamic CI is built for, what it does in each, and what to configure."
+og:title: "Trunk Dynamic CI use cases"
+groups: ["dynamic-ci"]
+---
+
+Dynamic CI is worth adopting where CI is expensive and most of it is beside the point for
+most changes. These are the shapes that show up most often.
+
+## A monorepo where most changes touch one corner
+
+**The situation.** One repository holds the frontend, the backend, the infrastructure and
+the docs. Every pull request runs everything, because the alternative — a path filter per
+job — is a maintenance burden nobody wants to own, and it goes stale the first time a
+shared package moves.
+
+**What Dynamic CI does.** `diff-driven-volatility` is measured, not declared: it knows
+which files have historically broken which job, including through indirection a glob
+cannot express. A change confined to `docs/` skips the integration suite because nothing
+in `docs/` has ever broken it — not because someone wrote `docs/**` in a YAML file.
+
+**Where to start.** Turn it on in [learning mode](/dynamic-ci/configuration#repository-mode)
+and read the would-have-saved numbers per workflow on the repository's Dynamic CI page
+before gating anything.
+
+## A long end-to-end suite that rarely catches anything
+
+**The situation.** A 40-minute browser suite runs on every push. It fails a few times a
+quarter, and every one of those is real — so nobody is willing to delete it, and everyone
+pays for it on every pull request.
+
+**What Dynamic CI does.** This is the case `estimated-cost` exists for. A long job is a
+strong skip candidate because the saving is large, and `historical-pass-rate` plus
+`diff-driven-volatility` decide whether this particular diff is one of the few that could
+break it. Short jobs are rarely skipped even at high confidence — the saving does not pay
+for the risk.
+
+**Where to start.** Trial it on exactly this job:
+[`only-keys`](/dynamic-ci/buildkite#trialling-it-on-one-step) on Buildkite, or gate a
+single job's `if:` on GitHub Actions and leave the rest of the workflow alone.
+
+## Pushing again to the same pull request
+
+**The situation.** A pull request gets a review comment, a typo fix, a rebase. Each push
+re-runs the full suite, including the jobs that passed on the previous commit and have
+nothing to do with what changed.
+
+**What Dynamic CI does.** `previous-result-on-pr` looks at what has already run on this
+pull request and how it concluded. A job that passed, on code the new push did not touch,
+is a strong skip candidate. A job that *failed* is the opposite — it argues to run.
+
+**Where to start.** Nothing to configure. This signal is on by default in the pull-request
+lane.
+
+## Replacing hand-written path filters
+
+**The situation.** You already have `dorny/paths-filter` (or a homegrown equivalent) wired
+into your workflows. It works, but nobody trusts it after the last refactor, and adding a
+package means editing globs in six places.
+
+**What Dynamic CI does.** It is a near drop-in replacement: one upstream job emits a
+verdict per job and your existing `if:` conditions move from a filter output to a Trunk
+output. Rules you genuinely want to keep — "never run the mobile job for a change under
+`terraform/`" — can stay, as a `paths-filter` signal configured per job and per lane, at
+parity with `dorny/paths-filter`'s matching semantics.
+
+**Where to start.** [GitHub Actions setup](/dynamic-ci/github-actions), then
+[paths filters](/dynamic-ci/configuration#paths-filters) for the rules you want to keep
+deterministic.
+
+## Cutting wait time, not just compute
+
+**The situation.** A workflow fans out into thirty parallel jobs. The compute bill matters,
+but what developers feel is the ten minutes before the pull request goes green.
+
+**What Dynamic CI does.** Skipping jobs at the *pre-job* stage means a skipped job never
+boots a runner, so the run finishes when its longest surviving job does. Trunk reports the
+two separately — compute saved and wait time saved — because skipping ten parallel jobs
+saves ten jobs of compute and one job of waiting, and conflating them overstates the
+second.
+
+**Where to start.** Use pre-job mode on GitHub Actions, or filter mode on Buildkite. Both
+decide before the work is dispatched; the per-step variants are easier to adopt but the
+runner has already booted by the time the verdict arrives.
+
+## A merge queue you can lean on
+
+**The situation.** You run [Trunk Merge Queue](/merge-queue/merge-queue) or GitHub's native
+queue, so nothing reaches `main` without a full validation of the exact commit that lands.
+
+**What Dynamic CI does.** This is the configuration it is designed for. You can skip
+aggressively on pull requests precisely because the queue is the backstop: the worst case
+is that a wrongly skipped job fails in the queue and the pull request is evicted — annoying
+locally, but nothing broken reaches `main`. The merge-queue lane itself skips nothing
+unless you deliberately configure a paths filter for it.
+
+**Where to start.** Nothing to configure — the lane is derived from the branch, and
+required jobs are forced to run on a gated branch that has no queue. See
+[the merge-queue backstop](/dynamic-ci/how-it-works#the-merge-queue-backstop).
+
+## Stacked pull requests
+
+**The situation.** Your team stacks. A pull request low in a stack is being iterated on
+while three more sit on top of it.
+
+**What Dynamic CI does.** `mid-pr-stack` knows when another open pull request is stacked on
+top of this one, which changes the calculus — the code under it is about to be exercised
+again. The merge-queue backstop follows the stack too, to the nearest ancestor branch that
+actually gates the merge, rather than crediting a queue three branches up that validates
+something else entirely.
+
+## Jobs that must never be skipped
+
+**The situation.** A deploy step, a release gate, a compliance check. Their cost of being
+wrongly skipped is high enough that no confidence level justifies it.
+
+**What Dynamic CI does.** Take them off the engine entirely, in whichever way fits where
+the decision belongs:
+
+- A standing per-job policy of **Always run**, kept with the rest of your Dynamic CI
+  configuration and surviving anyone editing the YAML.
+- [`exclude-keys`](/dynamic-ci/buildkite#every-keyed-step-is-a-candidate) on the Buildkite
+  plugin, if you would rather say it in the pipeline.
+- On GitHub Actions, simply leave the job out of the filter's `outputs:` and give it no
+  `if:` — an ungated job is never Trunk's to decide.
+
+<Note>
+  On GitHub Actions every gated job is one you opted in by writing an `if:`. On Buildkite
+  the default is the other way round: once the plugin is on your upload step, **every step
+  with a `key:` is a candidate**, so a step that must never skip needs saying so.
+</Note>
+
+## Finding out what your CI is actually worth
+
+**The situation.** You are not ready to skip anything. You want to know how much of your CI
+is load-bearing before you touch it.
+
+**What Dynamic CI does.** Learning mode is a measurement instrument: real verdicts computed
+and recorded, nothing withheld. The org-level Dynamic CI page reports, per repository and
+per workflow, what would have been skipped, what that is worth in compute and wait time,
+and how often the recommendation would have been wrong — against your own history, on your
+own repositories.
+
+**Where to start.** [Turn on ingestion](/ci/get-started), add the action or plugin, and
+leave the repository in learning mode for a couple of weeks.

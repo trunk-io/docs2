@@ -1,0 +1,203 @@
+---
+title: "How it works"
+description: "What Dynamic CI asks, what it answers with, and why a job was skipped."
+og:title: "How Trunk Dynamic CI works"
+groups: ["dynamic-ci"]
+---
+
+Every Dynamic CI decision is one request and one answer, made before your jobs start.
+
+## The request
+
+The [action](/dynamic-ci/github-actions) or the [plugin](/dynamic-ci/buildkite) sends
+Trunk what it already knows from the environment it is running in:
+
+| What                        | Why Trunk needs it                                                             |
+| --------------------------- | ------------------------------------------------------------------------------ |
+| Repository `(host, owner, name)` | Identifies which history to reason over. Parsed from the workflow context or the git remote. |
+| Commit and base commit      | The diff. Without a base — a non-pull-request build — the diff-derived signals have no evidence and abstain. |
+| Branch                      | Decides the **lane** (pull request or merge queue) and which branch's gating rules apply. |
+| Pull request number         | Lets Trunk see what already ran on this PR, and what is stacked on top of it.   |
+| Run id and attempt          | Recorded so the plan can be scored later against what the run actually did.     |
+| Job keys                    | Which jobs to decide about. Empty means every job Trunk knows in this workflow or pipeline. |
+
+The token authenticates the organization; it travels in a header and is never logged or
+put in the request body.
+
+## The answer
+
+A **plan**: one verdict per job, and optionally a notice explaining the plan's shape.
+
+```json
+{
+  "jobs": [
+    {
+      "jobKey": "integration-tests",
+      "run": false,
+      "summary": "Skipping: no changed file has ever broken this job.",
+      "signals": [
+        { "type": "historical-pass-rate", "recommendation": "VOTE_NO_RUN", "message": "Passed 98% of 240 runs in the last 14 days.", "ignored": false },
+        { "type": "diff-driven-volatility", "recommendation": "VOTE_NO_RUN", "message": "No changed path correlates with a failure of this job.", "ignored": false },
+        { "type": "required-check", "recommendation": "ABSTAIN", "message": "Not required by the base branch.", "ignored": false }
+      ]
+    }
+  ]
+}
+```
+
+<Warning>
+  **A job absent from the plan must run.** That is the documented fail-safe, and it is
+  how an unrecognized job, an organization that is not enabled, and an engine outage are
+  all reported. It is also why every conditional you write must test `!= 'false'` rather
+  than `== 'true'`.
+</Warning>
+
+## The signals
+
+A verdict is a combination of independent signals. Each one is computed separately,
+reported separately, and can be dropped from the tally by name with `ignore-signals`.
+
+| Signal                    | What it looks at                                                                 |
+| ------------------------- | -------------------------------------------------------------------------------- |
+| `diff-driven-volatility`  | How often changes to these files have broken this job. The core signal, and the one a path filter is a crude approximation of. |
+| `historical-pass-rate`    | How often this job has failed historically. A job that virtually always passes is a stronger skip candidate. |
+| `previous-result-on-pr`   | Whether this job already ran on this pull request, and how it did.                |
+| `estimated-cost`          | What the job costs to run. Long jobs are worth skipping; short ones rarely are, even at high confidence. |
+| `paths-filter`            | Glob rules you configured, at parity with `dorny/paths-filter`. See [Configuration](/dynamic-ci/configuration#paths-filters). |
+| `required-check`          | Whether the pull request's base branch requires this job to merge.                |
+| `merge-queue-is-required` | Whether the branch that gates this merge runs a merge queue. See [the backstop](#the-merge-queue-backstop). |
+| `merge-failure`           | Whether this job failed on the pull request's most recent merge-queue run.        |
+| `mid-pr-stack`            | Whether another open pull request is stacked on top of this one.                  |
+| `force-override`          | An explicit override forcing the job to run. See [Force overrides](/dynamic-ci/configuration#force-overrides). |
+
+Signals are added and retired during the beta, and the service ships them before the
+action's and plugin's vendored lists catch up. Neither side treats an unfamiliar
+identifier as an error: an unknown signal in a response is reported like any other and
+its verdict is honored, and an unknown identifier in `ignore-signals` is warned about
+rather than taking your gate down. **Read the step's log for what actually voted.**
+
+## How the signals combine
+
+Each signal contributes one of five things:
+
+| Contribution               | Meaning                                                                                   |
+| -------------------------- | ----------------------------------------------------------------------------------------- |
+| `MUST_RUN` / `NEVER_RUN`   | A hard verdict. One of these decides the job on its own, and `MUST_RUN` wins a tie.        |
+| `VOTE_RUN` / `VOTE_NO_RUN` | A weighted vote. The weighted tally decides when no hard verdict fired.                    |
+| `INCOMPLETE`               | The signal applies here but has no evidence — a job with too little history, a diff Trunk could not resolve. Enough of these fail the job safe, to running. |
+| `ABSTAIN`                  | The signal does not apply at all, and is excluded from the tally entirely. This is what makes it different from `INCOMPLETE`. |
+
+The result is deterministic: the same inputs produce the same verdict, and the `summary`
+on each job is a one-line rendering of why. The full per-signal breakdown is in the job
+log, on the pull request's Dynamic CI tab, and — with annotations enabled — on the
+workflow run itself.
+
+## Job identity
+
+Trunk decides about a job by its **key**, never its display name.
+
+- **GitHub Actions** — what the job is written as under `jobs:`, which is what
+  `github.job` reports and what your `if:` names.
+- **Buildkite** — the step's `key:`. A step without one has no stable identity, so it
+  has no history to reason about and always runs.
+
+A display name carries matrix values and changes with them; a key does not. That is what
+makes a key safe to put in a conditional.
+
+<Note>
+  **A matrix is one job identity.** A matrix expands into many legs beneath one key, and
+  Trunk issues one verdict for the whole job — every leg runs, or every leg skips. There
+  is no per-leg verdict. This has a consequence for branch protection if your required
+  checks name individual legs; see
+  [Troubleshooting](/dynamic-ci/troubleshooting#a-required-check-never-reports).
+</Note>
+
+## Lanes: pull requests and the merge queue
+
+Every request is served in one of two **lanes**, derived server-side from the branch and
+event rather than from anything you configure:
+
+| Lane              | When                                                                | Which signals run by default                          |
+| ----------------- | ------------------------------------------------------------------- | ----------------------------------------------------- |
+| **Pull request**  | Ordinary pull request and branch builds                             | All of them. A new signal is on as soon as it ships.  |
+| **Merge queue**   | `trunk-merge/*` (Trunk Merge Queue) and `gh-readonly-queue/*` (GitHub's native queue) | **`paths-filter` only** — and with no rules configured it has nothing to conclude, so every job runs. |
+
+The practical consequence: **with nothing configured, nothing is ever skipped in the
+merge queue.** That is the default by construction rather than by a switch — the queue
+validates the exact commit about to land, so the only thing allowed to skip there is a
+deterministic glob rule somebody deliberately wrote.
+
+You therefore do not need to special-case the queue in your workflow, and in particular
+you should not add `github.event_name != 'pull_request'`: with draft merge-queue pull
+requests enabled, Trunk queue batches arrive as `pull_request` events on `trunk-merge/*`
+branches, so the event name cannot tell them apart from real pull requests. The lane is
+decided from the branch.
+
+A queue that validates on some other branch prefix is not recognized, and is served as
+an ordinary pull-request request — gate that one yourself.
+
+### The merge-queue backstop
+
+Skipping a job on a pull request is safe when the jobs that gate the merge still run
+somewhere. Trunk checks that at serve time rather than trusting how a repository looked
+at enrollment, because a queue can be turned off long after:
+
+- On a branch whose merges are gated, **required jobs are forced to run** unless that
+  branch runs a merge queue. Non-required jobs keep skipping.
+- The check follows a stack to the nearest ancestor branch that actually gates. A
+  stacked pull request's immediate base is usually a feature branch that gates nothing;
+  a queue further up validates a different merge of a different commit, so it does not
+  count as cover for this one.
+- A repository with no branch protection and no merge queue has nothing to bypass. Every
+  signal abstains rather than forcing, because an absent required-list is not evidence
+  that a job is required.
+
+## Modes: learning and enforced
+
+A repository's mode decides whether a verdict is allowed to withhold anything.
+
+| Mode          | What the engine does            | What your CI does                                                   |
+| ------------- | ------------------------------- | -------------------------------------------------------------------- |
+| **Learning**  | Computes and records real verdicts | Runs everything. The plan comes back fully populated and each summary says what the job *would* have received. |
+| **Enforced**  | Computes and records real verdicts | Honors them — a skip verdict withholds the job.                     |
+
+Repositories start in learning mode. It is the trust on-ramp: you get the would-have-saved
+numbers and the false-skip count for your own repository before anything is withheld, and
+you move to enforced from the repository's Dynamic CI page when you believe them. See
+[Configuration](/dynamic-ci/configuration#repository-mode).
+
+## When something goes wrong
+
+The action and the plugin are built so that they can never block your CI:
+
+- A transport error, a non-2xx response, a malformed response, or a request past the
+  latency budget (30 seconds per attempt) all resolve to **run everything**.
+- The action never fails its own step; the plugin uploads your pipeline byte-for-byte
+  unmodified.
+- Every fail-open is logged with its reason, so a real skip is always distinguishable
+  from a degraded one.
+
+Trunk can also answer successfully and still have nothing to recommend. That arrives as a
+**notice** alongside an empty plan, and the notice is rendered in your logs:
+
+| Code                      | Meaning                                                             |
+| ------------------------- | -------------------------------------------------------------------- |
+| `ORG_NOT_ENABLED`         | Dynamic CI is not turned on for your organization yet.               |
+| `REPO_NOT_ENABLED`        | The organization is enabled; this repository is not.                 |
+| `REPO_IN_SHADOW_MODE`     | Learning mode. The plan is fully populated, but nothing may skip.    |
+| `WORKFLOW_NOT_RECOGNIZED` | Trunk has not enumerated the jobs in this workflow or pipeline yet.  |
+| `ENGINE_UNAVAILABLE`      | The recommendation engine could not answer.                          |
+
+The set is open — a code you do not recognize still carries a human-readable `message`.
+An empty plan arriving with **no** notice means something went wrong that Trunk could not
+name; that is worth reporting on [Slack](https://slack.trunk.io).
+
+## False skips
+
+A **false skip** is the one error class that matters: Trunk voted to skip a job, and that
+job would have failed. They are recorded as first-class rows when the queue — or a later
+run — catches what the pull-request lane let through, counted per repository, and shown
+beside the savings so the number you are trading against is never implied.
+
+That is also the feedback loop: a recorded false skip is what tunes the configuration for
+that job.
