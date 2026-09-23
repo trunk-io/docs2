@@ -44,7 +44,8 @@
           {
             "group": "Dynamic CI (beta)",
             "pages": [
-              "dynamic-ci/index"
+              "dynamic-ci/index",
+              "dynamic-ci/buildkite"
             ]
           },
           {
