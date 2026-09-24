@@ -1,0 +1,50 @@
+---
+title: "Merge Queue: Browser extension 1.2, richer webhooks, API, and metrics"
+description: "The browser extension says why a PR can't enter the queue and shows queue state across GitHub, while webhooks, the API, and Prometheus metrics now explain where each PR is and why."
+slug: merge-queue-september-updates
+date: 2026-09-23
+category: Merge Queue
+type: update
+---
+
+**Merge Queue now shows much more about where each PR is and why, in GitHub, in webhooks, in the API, and in Prometheus metrics.**
+
+### Browser extension 1.2
+
+Versions 1.1 and 1.2 of the Trunk browser extension bring Merge Queue status to more of GitHub.
+
+- **Why a PR isn't ready.** When a PR can't enter the queue yet, the merge queue card on the PR page now says **Can't enter the queue yet** and lists the blockers, such as "Needs 1 more approving review (0 of 1)." or "Checks must pass: build, test, lint +5 more." For a stack, each blocker names the PR it belongs to. While Trunk is still evaluating, the card reads **Checking whether it can enter the queue**.
+- **A Trunk tab on every PR page.** A Trunk tab now appears at the end of GitHub's PR tab row, on **Conversation**, **Commits**, **Checks**, and **Files changed**. It shows the PR's queue state (for example, `Testing` or `Not in queue`) and links to the PR in Trunk.
+- **Badges on your pull request dashboard.** Merge queue badges now also appear on GitHub's global pull request dashboard (`github.com/pulls`, **Assigned**, and so on), not just on a repository's pull request list.
+- **Jump to Trunk from any PR list.** Click the queue state icon in a PR list to open that PR's page in Trunk.
+
+These releases also show a spinner, not a failure icon, for checks that are still running, and clear blockers once a PR is ready. Chrome and Firefox update the extension automatically. See the [browser extension docs](/merge-queue/browser-extensions) to install it.
+
+### Webhooks
+
+- **`pull_request.queued`** now includes `related_prs`, which lists the PRs whose failure, cancellation, manual merge, or skip-the-line sent this PR back to the queue. It also includes `full_queue` and `waiting_to_be_batched`.
+- **`waiting_for_prs`** on `submitted`, `queued`, and `pending_failure` lists the stacked PRs that must merge first.
+- **`failure_causing_statuses`** on `failed` and `pending_failure` lists the failed required checks, with links to each.
+
+New fields are left out of the payload when they are empty. See [Webhooks](/merge-queue/webhooks).
+
+### API
+
+- **Queue timeline.** Pass `includeTimeline` to `getSubmittedPullRequest` to get every state change the PR went through, newest first, with timestamps and details. The response also includes the test run ID, which you can pass to `getMergeQueueTestingDetails`.
+- **Batch lookup.** `getSubmittedPullRequests` looks up to 50 PRs in one call and lists any that were never submitted under `notFound`.
+- **Testing results.** `listMergeQueueTestingResults` returns the data behind the **Test Runs** table on the Health dashboard, which was previously available only as a CSV, for windows of up to 45 days.
+
+See the [Merge Queue API reference](/merge-queue/reference/merge).
+
+### Metrics
+
+A new `mq_pr_state_duration_1h_seconds` metric reports how long PRs spend in each queue state, labeled by `repo`, `branch`, `queue_type`, and `state`. It is available as a histogram and as p50, p75, p90, p95, and p99 gauges. For terminal states (cancelled, failed, and merged), it measures the time until the PR is resubmitted. See [Metrics](/merge-queue/administration/metrics).
+
+### Other improvements
+
+- **Resubmit with your last options.** In the Trunk app, the submit and resubmit menus now preselect the PR's previous priority, Direct to Queue, and batching options, limited to what you're allowed to use.
+- **Clearer refusals.** Merge Queue now refuses a PR with a clear reason when its base branch doesn't lead to the queue's branch, or when a Direct to Queue PR joins a stack while it's in the queue. Previously these PRs waited forever or hit an unexplained GitHub merge failure.
+
+<Tip>
+  **Merge commit titles now follow your repository setting.** When a queue uses the **Merge Commit** method, Trunk no longer forces the title to `<PR title> (#N)`. GitHub now builds the title from your repository's merge commit title setting. Squash and rebase merges are unchanged, and the `merge-commit-title:` directive in a PR body still overrides both. See [Custom merge commit titles](/merge-queue/administration/advanced-settings#custom-merge-commit-titles).
+</Tip>

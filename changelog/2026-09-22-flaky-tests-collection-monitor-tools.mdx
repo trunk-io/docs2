@@ -1,0 +1,18 @@
+---
+title: "Flaky Tests: Copy monitors between collections"
+description: "Copy flake detection monitors from one test collection to another, skip the default monitors on a new collection, and load the Tests table without waiting on ticket data."
+slug: flaky-tests-collection-monitor-tools
+date: 2026-09-22
+category: Flaky Tests
+type: update
+---
+
+**Setting up a new test collection with the monitors you already trust is now a couple of clicks.**
+
+- **Copy monitors from another collection.** On a collection's **Monitors** tab, open the **Add** menu and choose **Copy from another collection**. Pick a source collection and Trunk compares its monitors against this one's, so you can create the ones that are missing. The source collection is never modified. This option appears when your organization has more than one collection.
+- **Skip default monitors.** When you create a collection, the new **Advanced** section has a **Skip default monitors** checkbox. Check it to start without the baseline monitors (and the **New** and **Skipped** labels they apply). This is useful when you plan to copy monitors in from a repository or another collection. Quarantine settings are still created as usual.
+- **Tests table no longer waits on tickets.** The **Tests** table on both collections and repositories now renders right away, and ticket details fill in as they load. If Jira, Linear, or Asana is slow to respond, a notice tells you that some ticket information may be out of date. **Create ticket** stays disabled until ticket data has loaded, so you won't file a duplicate.
+- **Quarantine attribution on collections.** The **Manually quarantined** popover on a collection test now shows who quarantined the test, when, and their comment, just like the repository view.
+- **Link tickets through the v2 API.** Use [`POST /v2/test-cases/{testCaseId}/ticket`](/flaky-tests/reference/api-reference/v2/testcases/link-a-ticket-to-a-test-case) to link an existing Jira, Linear, or Asana ticket to a test case in a collection. v2 test case responses now also say who applied each label and when, and include how long the test has been in its current status.
+
+See the [Test Collections docs](/flaky-tests/test-collections#what-a-new-collection-starts-with) for more on how new collections are set up.
