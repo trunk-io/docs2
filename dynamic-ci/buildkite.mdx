@@ -190,6 +190,10 @@ Only an organization admin can change it. The mode is per repository, not per
 CI provider: enforcing a repository enforces its GitHub Actions workflows and its
 Buildkite pipelines alike.
 
+There is no off switch in the app. To stop using Dynamic CI on a pipeline,
+remove the plugin from its upload step, or set the repository back to
+**Learning** to keep recording verdicts without skipping anything.
+
 <Warning>
   **Map your step policies before you enforce a Buildkite pipeline.** Two
   signals recognize a job that must pass to merge — `required-check` and
