@@ -26,6 +26,9 @@ this diff has historically broken and which it never touches. The
 for a verdict per job and emits it as a job output you gate on — a near drop-in
 replacement for [`dorny/paths-filter`](https://github.com/dorny/paths-filter).
 
+On Buildkite it is a plugin instead, which decides at pipeline-upload time so a skipped
+step never acquires an agent. See [Dynamic CI for Buildkite](/dynamic-ci/buildkite).
+
 ## How a verdict is reached
 
 Each verdict combines independent signals, and every signal's contribution is printed in
@@ -47,7 +50,12 @@ are derived only from your own CI history.
 
 Pass a comma-separated list to `ignore-signals` to drop any of them from the tally.
 
-## Set it up
+## Set it up on GitHub Actions
+
+<Note>
+  Running Buildkite? Follow [Dynamic CI for Buildkite](/dynamic-ci/buildkite)
+  instead — the setup, the step identity and the rollout all differ.
+</Note>
 
 <Steps>
   <Step title="Get your organization API token">
