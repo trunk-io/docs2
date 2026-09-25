@@ -30,6 +30,10 @@ You can upload `.xcresult` directories directly to Trunk Flaky Tests.
 Only XCode versions 16 or higher are supported.
 </Info>
 
+<Tip>
+If you run your tests through SwiftPM (`swift test`) rather than `xcodebuild`, there is no `.xcresult` to upload. Use `swift test --xunit-output` instead — it reports XCTest cases alongside Swift Testing ones. See [Swift Testing](./swift-testing) for that setup.
+</Tip>
+
 ### Report File Path
 
 The test reports will be written to the `./test-results.xcresult` directory when running tests with the `-resultBundlePath ./test-results.xcresult`option. You will need this path when uploading results to Trunk in CI.
@@ -97,6 +101,83 @@ You can find your Trunk organization slug and token in the settings or by follow
 <img className="block dark:hidden" src="/assets/_shared/data-uploads-light.png" alt="" />
 <img className="hidden dark:block" src="/assets/_shared/data-uploads-dark.png" alt="" />
 </Frame>
+
+## Attributing Tests to Their Declaring File
+
+<Info>
+This is an opt-in beta. It requires `trunk-analytics-cli` 0.15.5 or newer, macOS with Xcode or the Command Line Tools installed, and that you run the upload from the checkout that produced the bundle.
+</Info>
+
+An `.xcresult` bundle records where a *failure* was raised, which is not always where the test is written: a failure raised inside a shared helper points at the helper, and a test that passed carries no path at all.
+
+Pass `--use-experimental-xcresult-test-locations` to take each test's file from where it is **declared** instead. Trunk resolves declarations by asking a language server — `sourcekit-lsp` for Swift and `clangd` for Objective-C, both shipped with the Xcode Command Line Tools — for the symbols in your checkout:
+
+```sh
+./trunk-analytics-cli upload --xcresult-path "./test-results.xcresult" \
+    --use-experimental-xcresult-test-locations \
+    --org-url-slug <TRUNK_ORG_URL_SLUG> \
+    --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
+    --token <TRUNK_ORG_TOKEN>
+```
+
+With the flag set:
+
+* Passing tests get a file for the first time, so CODEOWNERS attribution covers your whole suite rather than only the tests that failed.
+* A failure raised in a helper or a dependency is attributed to the test's own file.
+* The bundle is read without the legacy `xcresulttool get object` calls, which are the expensive part of parsing a large `.xcresult`.
+
+Tests registered at runtime rather than declared in source — Quick specs, or a custom `+testInvocations` — have no declaration to find, and may end up with no file at all.
+
+You can also enable it with `TRUNK_USE_EXPERIMENTAL_XCRESULT_TEST_LOCATIONS=true`, which is the easier form in CI. To turn it back off, **unset** that variable rather than setting it to `false`. If you pass a value on the command line it needs an `=` and not a space: `--use-experimental-xcresult-test-locations=false`.
+
+### Trying It on a Bundle You Already Have
+
+You can see exactly what the flag changes before sending anything to Trunk. Run it from the root of the repository the tests were built from, against an existing `.xcresult` bundle or a freshly generated one:
+
+```sh
+./trunk-analytics-cli upload \
+    --xcresult-path path/to/Bundle.xcresult \
+    --use-experimental-xcresult-test-locations \
+    --org-url-slug <TRUNK_ORG_URL_SLUG> \
+    --token <TRUNK_ORG_TOKEN> \
+    --dry-run --disable-quarantining
+```
+
+`--dry-run` writes the bundle to `./bundle_upload` instead of uploading it. Adding `--disable-quarantining` keeps the run fully offline, since the quarantine lookup is the one call `--dry-run` does not skip.
+
+Count how many test cases came out with a file:
+
+```sh
+grep -c 'file="' bundle_upload/junit/0
+```
+
+That should equal your test count. Run the same command *without* the flag and, for an all-passing bundle, the count drops to zero — that is the difference the flag makes.
+
+Every run prints a resolution summary:
+
+```
+xcresult test files: 13 from a declaration, 0 with no declaration found
+```
+
+If that second number isn't zero, the checkout doesn't match the bundle. The run still succeeds and simply leaves those tests without a file rather than failing. Add `-v` to see which file each test resolved to:
+
+```
+AlphaSuite/shared() is declared at .../Tests/MyCLITests/Suites.swift:12
+```
+
+### Tuning for Objective-C
+
+`clangd` answers roughly an order of magnitude more slowly per file than `sourcekit-lsp`, so an Objective-C heavy repository can exhaust the time budget before every test resolves. If tests come back unresolved despite a checkout that matches the bundle, the budget is the knob to reach for first.
+
+| Flag | Environment variable | Default | Controls |
+| --- | --- | --- | --- |
+| `--xcresult-test-locations-budget-secs` | `TRUNK_XCRESULT_TEST_LOCATIONS_BUDGET_SECS` | `60` | Seconds spent per language server. |
+| `--xcresult-test-locations-max-files` | `TRUNK_XCRESULT_TEST_LOCATIONS_MAX_FILES` | `2000` | Most source files parsed while resolving declarations. |
+| `--xcresult-test-locations-request-timeout-secs` | `TRUNK_XCRESULT_TEST_LOCATIONS_REQUEST_TIMEOUT_SECS` | `30` | Seconds to wait for a single language server reply. |
+| `--xcresult-test-locations-retries` | `TRUNK_XCRESULT_TEST_LOCATIONS_RETRIES` | `1` | Times a server that stops answering is replaced with a fresh one. |
+| `--xcresult-test-locations-max-file-bytes` | `TRUNK_XCRESULT_TEST_LOCATIONS_MAX_FILE_BYTES` | `2097152` | Largest source file parsed. Oversized generated files are skipped unread. |
+
+The scan is ranked so that files named after a test suite are parsed first, and stops as soon as every test resolves — so most repositories never reach these limits.
 
 ## Next Step
 
