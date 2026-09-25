@@ -31,37 +31,45 @@ rendered copy in flight.
 ## Before you start
 
 Dynamic CI reasons from your repository's own CI history, so the history has to
-be arriving before the plugin has anything to decide with. Four things need to
-be true:
+be arriving before the plugin has anything to decide with.
 
 <Steps>
-  <Step title="The repository exists in Trunk and has CI Intelligence on">
+  <Step title="Set up Trunk CI for the repository">
+    Follow [Set up Trunk CI](/ci/get-started) and then
+    [Set up Trunk CI for Buildkite](/ci/get-started/buildkite). By the end the
+    repository exists in Trunk, has **CI Intelligence** on, and Buildkite is
+    exporting OpenTelemetry traces to Trunk. The notification service export is
+    enough on its own; agent tracing adds detail.
+
     Buildkite tells Trunk nothing about which repository a build belongs to
     except its **git remote**, which Trunk parses into `owner/name` and matches
-    against a repository in your organization. A pipeline whose remote does not
-    resolve to a repository Trunk knows about is skipped silently.
+    against a repository in your organization. Dynamic CI supports remotes on
+    **github.com** only; a GitLab, Bitbucket or GitHub Enterprise remote is
+    refused and the pipeline uploads unchanged.
+
+    Give the history time to accumulate. A step needs a couple of weeks of
+    regular builds before Trunk will recommend skipping it, and a step Trunk has
+    never seen always runs.
   </Step>
 
-  <Step title="Buildkite is exporting OpenTelemetry traces to Trunk">
-    This is what produces the history. Follow
-    [Set up Trunk CI for Buildkite](/ci/get-started/buildkite) — the notification
-    service export is enough on its own, and agent tracing adds detail.
-
-    Give it time to accumulate before you expect much. A step Trunk has never
-    seen has no history to reason about, so it runs.
-  </Step>
-
-  <Step title="Trunk's GitHub App is installed on the repository">
+  <Step title="Install the Trunk CI GitHub App on the repository">
     The plugin does **not** send your changed file set. Trunk fetches the diff
-    between the base commit and the build's commit through your connected GitHub
-    App installation. Without it, the diff-derived signals have nothing to read.
+    between the base commit and the build's commit through the
+    [Trunk CI](/setup/integrations/github/trunk-ci) GitHub App. Without it, the
+    diff-derived signals have nothing to read.
   </Step>
 
-  <Step title="You have an organization API token">
-    In the Trunk app, navigate to
-    [app.trunk.io/settings/developer/api-tokens](https://app.trunk.io/settings/developer/api-tokens)
-    and create one. The same token your Buildkite OTel export already uses works
-    here.
+  <Step title="Get your organization API token">
+    In the Trunk app, navigate to **Settings** → **Organization** → **General**
+    and copy the **API Token**. The same token your Buildkite OpenTelemetry
+    export already uses works here.
+  </Step>
+
+  <Step title="Check the agent can run the plugin">
+    The upload step's agent needs `bash`, `curl`, `git`, `awk` and either
+    `sha256sum` or `shasum`. The plugin ships its own checksum-verified static
+    `jq` for linux-amd64, linux-arm64 and macos-arm64 and installs nothing; on
+    any other platform it says so and uploads your pipeline unchanged.
   </Step>
 </Steps>
 
@@ -100,16 +108,14 @@ steps:
 </CodeGroup>
 
 <Note>
-  **Pin an exact tag.** Buildkite agents cache a plugin checkout by the ref you
-  name, and `BUILDKITE_PLUGINS_ALWAYS_CLONE_FRESH` is off by default — so moving
-  a tag does not reach an agent that already has it. Use one exact release from
+  **Pin an exact tag, v0.1.1 or later.** Buildkite agents cache a plugin
+  checkout by the ref you name, and `BUILDKITE_PLUGINS_ALWAYS_CLONE_FRESH` is off
+  by default — so moving a tag does not reach an agent that already has it. Use
+  one exact release from
   [Releases](https://github.com/trunk-io/dynamic-ci-buildkite-plugin/releases),
-  or a full commit SHA. Not a major alias, and not `#main`.
+  or a full commit SHA. Not a major alias, and not `#main`. v0.1.0 does not
+  report builds in the form Trunk needs to detect false skips.
 </Note>
-
-The plugin installs nothing: it ships checksum-verified static `jq` binaries for
-linux-amd64, linux-arm64 and macos-arm64. On a platform it does not ship for, it
-says so and uploads your pipeline unchanged.
 
 ### Keep the token out of the pipeline
 
@@ -147,6 +153,14 @@ Buildkite's OpenTelemetry export reports as the step's declaration — so the
 A step without a key has no history to reason about, so it always runs. The
 plugin names those steps in the build log rather than leaving you to guess.
 
+Steps inside a `group:` are considered like any other. Two kinds of step behave
+differently:
+
+- **`trigger:` steps are never skipped.** Their outcome lives in the build they
+  launch, so the plugin neither asks about them nor marks them.
+- **Matrix and `parallelism:` steps share one key**, so a verdict covers every
+  leg: the step runs in full or is skipped in full.
+
 <Warning>
   **Every keyed step is a candidate.** This differs from how the GitHub Action
   works: once the plugin is on your upload step, every step with a `key:` is
@@ -159,9 +173,10 @@ plugin names those steps in the build log rather than leaving you to guess.
 This is the one to check first when the plugin looks like it is doing nothing.
 
 A repository in **Learning** mode is scored but never gated: the engine records
-what it would have recommended and then flattens every verdict to "run", so the
+what it would have recommended and then serves every verdict as "run", so the
 plugin marks nothing and your pipeline uploads unchanged. That is deliberate —
-it is how you see what Dynamic CI would have done before it does it.
+it is how you see what Dynamic CI would have done before it does it. Per-step
+policies are not applied in Learning either, including **Always skip**.
 
 In the Trunk app, navigate to **Dynamic CI** → **[your repository]**, then select
 the mode from the **Dynamic CI mode** dropdown:
@@ -171,21 +186,41 @@ the mode from the **Dynamic CI mode** dropdown:
 | **Learning** | Trunk scores every step and records the verdict. Nothing is ever skipped.             |
 | **Enforced** | Trunk's verdicts are acted on — steps it votes to skip are marked and do not run.     |
 
-Only an organization admin can change it, and switching to Enforced also turns
-on CI Intelligence for the repository, which is what gives Dynamic CI the run
-history to score. Switching back to Learning leaves ingestion on.
+Only an organization admin can change it. The mode is per repository, not per
+CI provider: enforcing a repository enforces its GitHub Actions workflows and its
+Buildkite pipelines alike.
 
 <Warning>
-  **Map your step policies before you enforce a Buildkite pipeline.** One signal
-  — `required-check` — reads GitHub branch-protection contexts to recognize a
-  job that must pass to merge. It matches GitHub's `{workflow} / {job}` check-run
-  shape, which a Buildkite pipeline never produces, so on Buildkite it abstains.
+  **Map your step policies before you enforce a Buildkite pipeline.** Two
+  signals recognize a job that must pass to merge — `required-check` and
+  `merge-queue-is-required` — and both read GitHub's `{workflow} / {job}`
+  check-run shape, which a Buildkite pipeline never produces. On Buildkite they
+  abstain.
 
   That is the safe reading, but it means the merge-gate backstop that would
   otherwise vote to run a required step does not fire here. Decide explicitly
   which steps must never be skipped, using the two mechanisms below, before
   turning enforcement on.
 </Warning>
+
+## Pull requests, the merge queue and other builds
+
+Trunk puts each build in one of two lanes, and each lane has its own policies:
+
+- **Merge queue** — a build on a `trunk-merge/` or `gh-readonly-queue/` branch.
+  Nothing is skipped here unless you have configured a paths filter or set a
+  step's merge-queue policy to **Always skip**.
+- **Pull request** — every other build. That includes builds of your default
+  branch and other branches with no pull request, which can be skipped too.
+  If you never want a branch build skipped, keep the plugin off that pipeline's
+  upload step for those branches.
+
+Some things available on GitHub Actions do not reach Buildkite yet:
+
+- Signals that read a pull request's own run history, such as
+  `previous-result-on-pr`, have no data on Buildkite and abstain.
+- **Force overrides** — forcing a job to run for one pull request from the Trunk
+  app — list GitHub Actions workflows only.
 
 ## Trialling it on one step
 
@@ -231,7 +266,8 @@ Two ways to say so:
     **Configuration**, click your pipeline, and select **Always run** for the
     step. The default is **Automatic**, which leaves the decision with Dynamic
     CI; **Always run** and **Always skip** take the step off the engine, pinned
-    on or off.
+    on or off. Your pipeline appears there once Trunk has scored at least one of
+    its builds.
 
     Policies are set per lane — pull requests and merge queue separately — since
     the same step can be worth skipping on a PR and mandatory in the queue.
@@ -290,18 +326,43 @@ on the step.
 
 ## It fails open
 
-Any failure — an unreachable API, a timeout, a plan this version cannot read, a
-missing `jq` — uploads your pipeline unmodified and logs why. This step is on the
-critical path of every build; the plugin will not be what breaks one.
+Any failure — an unreachable API, a timeout, an error response, a plan this
+version cannot read, a missing `jq` — uploads your pipeline unmodified and logs
+why. This step is on the critical path of every build; the plugin will not be
+what breaks one.
 
 That is also why a step with no verdict runs. Fail-open is the default in every
 direction: the cost of a failure is a full CI run, never a skipped test.
+
+The one exception is a configuration mistake: an unrecognized `mode` fails the
+step on its first build, rather than leaving a plugin that looks installed and
+never decides anything.
 
 ## Troubleshooting
 
 **Nothing is being skipped.** Check the repository's mode first — in Learning,
 nothing ever is. Then check that your steps have `key:` attributes, and that
 Trunk has history for them.
+
+**The log shows a notice.** When Trunk returns a plan but has a reason to skip
+nothing, the plugin prints the reason as a `--- :trunk:` line:
+
+| Notice                    | Meaning                                                                                              |
+| ------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `ORG_NOT_ENABLED`         | Dynamic CI is not enabled for your organization yet.                                                 |
+| `REPO_NOT_ENABLED`        | Trunk has switched Dynamic CI off for this repository. Reach out on Slack.                          |
+| `REPO_IN_SHADOW_MODE`     | The repository is in Learning mode (the message says "shadow mode"). Verdicts are recorded, nothing is skipped. |
+| `WORKFLOW_NOT_RECOGNIZED` | Trunk has not yet seen a completed build of this pipeline with these step keys.                      |
+| `ENGINE_UNAVAILABLE`      | Trunk could not produce a plan this time. Temporary; every step runs.                                |
+
+**The log shows an HTTP error.** The plugin prints the status and the start of
+the response body before uploading your pipeline unchanged:
+
+- `401` — the token is missing or not recognized. Check `token-env`.
+- `404 REPOSITORY_NOT_FOUND` — the remote did not match a repository with CI data
+  in your organization. See below.
+- `400 CI_HOST_UNSUPPORTED` — the remote is not on github.com.
+- `400 VALIDATION_FAILED` — often an unknown identifier in `ignore-signals`.
 
 **Turn on debug output.** Set `debug: true` and the plugin prints three collapsed
 groups to the build log: the step keys it asked about, the request body it sent,
@@ -320,9 +381,10 @@ in filter mode, where stdout carries the pipeline being uploaded.
 
 **The request body shows the wrong repository.** The `repo` in the body is parsed
 from `BUILDKITE_REPO`, using the same rule CI ingestion used when it created the
-repository row this request resolves against. If the two disagree, the request
-finds no repository and fails open silently. Confirm the pipeline's remote
-matches the repository in your Trunk organization.
+repository this request resolves against. If the two disagree, the request
+answers `404 REPOSITORY_NOT_FOUND`. Confirm the pipeline's remote matches the
+repository in your Trunk organization, and that
+[Trunk CI is receiving its builds](/ci/get-started/buildkite).
 
 **A step you did not expect was skipped.** Set its policy to **Always run**, or
 add its key to `exclude-keys`, and tell us — during the beta that feedback is how
@@ -357,6 +419,9 @@ Trunk is asked:
 A step in this mode must have a `key:` — it is the whole request — and the plugin
 fails the step rather than running it if one is missing, so you never get a step
 that looks filtered but is not.
+
+`only-keys` and `exclude-keys` work in step mode too, so one shared plugin block
+(a YAML anchor, say) can sit on many steps while the lists control which are live.
 
 ## Options
 
