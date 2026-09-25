@@ -73,6 +73,46 @@ be arriving before the plugin has anything to decide with.
   </Step>
 </Steps>
 
+## Start with a dry run
+
+The safest first step asks Trunk for a plan on every build and throws the answer
+away. Your pipeline uploads exactly as it does today, while Trunk records a
+verdict for every keyed step, which is the baseline it scores against.
+
+<Steps>
+  <Step title="Give the steps you might want skipped a key">
+    See [Every step needs a `key:`](#every-step-needs-a-key).
+  </Step>
+
+  <Step title="Expose your API token as a secret">
+    Add the token from [Before you start](#before-you-start) as a Buildkite
+    secret. This example calls it `TRUNK_API_TOKEN`.
+  </Step>
+
+  <Step title="Add a dry-run step to each pull request pipeline">
+    Add it to every pipeline that runs your tests and checks:
+
+    ```yaml
+    - label: ":trunk: Dynamic CI (learning, no-op)"
+      timeout_in_minutes: 5
+      secrets:
+        - TRUNK_API_TOKEN
+      # Replace .buildkite/pr-checks.yml with your pipeline file, or pipe your
+      # pipeline generator's output into trunk-dynamic-ci-filter instead.
+      command: trunk-dynamic-ci-filter < .buildkite/pr-checks.yml > /dev/null
+      plugins:
+        - trunk-io/dynamic-ci#v0.1.1:
+            token-env: TRUNK_API_TOKEN
+    ```
+
+    Add the same `if:` and `agents:` your other pull request steps use.
+  </Step>
+</Steps>
+
+The filtered pipeline goes to `/dev/null`, so nothing is skipped however the
+repository's mode is set. Leave it running while history builds up, then replace
+it with the upload-step setup below.
+
 ## Add the plugin
 
 Pipe your pipeline through the filter. This works whether your pipeline is a
