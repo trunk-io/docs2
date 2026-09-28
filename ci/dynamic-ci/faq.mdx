@@ -1,0 +1,37 @@
+---
+title: "FAQ"
+description: "Reliability, forks, and other common questions about Dynamic CI."
+og:title: "Trunk Dynamic CI FAQ"
+---
+
+## Reliability
+
+<AccordionGroup>
+  <Accordion title="What happens if Trunk is slow or down?">
+    Every job runs. The action is built to retry for resiliency, but if Trunk is
+    down, the action will fail open and all your jobs will run.
+  </Accordion>
+
+  <Accordion title="What does the Buildkite plugin do if Trunk is unavailable?">
+    It uploads your pipeline unchanged, so every step runs.
+  </Accordion>
+
+  <Accordion title="What happens to a job Trunk has never seen?">
+    It runs. A job needs a couple of days of history before Trunk will
+    recommend skipping it.
+  </Accordion>
+
+  <Accordion title="Can Dynamic CI skip a job in my merge queue?">
+    Only when a paths filter you configured excludes it. See
+    [Merge queues](/ci/dynamic-ci/merge-queue).
+  </Accordion>
+</AccordionGroup>
+
+## Forks
+
+<AccordionGroup>
+  <Accordion title="What happens on pull requests from forks?">
+    A pull request from a fork has no access to your repository's secrets, so
+    the filter job has no token and every job runs.
+  </Accordion>
+</AccordionGroup>

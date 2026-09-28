@@ -1,0 +1,97 @@
+---
+title: "Dynamic CI"
+description: "Run only the CI jobs a pull request needs, decided from your own CI history."
+og:title: "Trunk Dynamic CI"
+---
+
+<Warning>
+  Dynamic CI is in **private beta**. Recommendation quality is still improving,
+  and setup details may change between releases. Reach out on
+  [Slack](https://slack.trunk.io) to have it enabled for your organization.
+</Warning>
+
+Dynamic CI decides which CI jobs a pull request actually needs to run. For each
+job, it weighs that job's history, what the pull request changed, and where the
+pull request sits in a stack. Anything it can safely skip, it skips, so you
+spend less on CI and wait less on each push. Every call comes with a
+plain-language reason, and your merge queue backs the whole thing up.
+
+## What it helps with
+
+| If you're having problems with…                                   | Dynamic CI helps by…                                                                                                                                             |
+| ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Paying to run jobs that were never going to fail                  | Scoring every job against this diff and this pull request's history, and skipping the ones with nothing left to check. Savings are reported per repository, workflow and job. |
+| Every push to a PR restarting all your jobs                       | Only running what hasn't been validated, or what is likely to fail, with special handling for stacked PRs.                                                        |
+| Path filters and CI rules that get written once and quietly decay | Working out which jobs matter from your own CI history on every push, while still letting you pin any job where you want to be explicit.                        |
+| More concurrent jobs than runners to run them                     | Taking jobs with nothing to check out of the queue entirely, so your runners go to the work that matters.                                                         |
+
+## Backed by the merge queue
+
+A skip on a pull request is only safe if something stronger stands behind it.
+With a Trunk [merge queue](/merge-queue/merge-queue), your `main` is protected: the queue
+tests the exact commit about to land, and it holds a higher bar than the pull
+request.
+
+- **The merge queue skips nothing by default.** On a merge-queue run, Dynamic CI
+  skips a job only when a paths filter you configured says the change does not
+  touch it. With no paths filter, every job runs.
+- **The engine learns from the queue.** When a job the pull request skipped
+  fails in the merge queue, Trunk records it as a false skip. The engine learns
+  from those outcomes, so its skip recommendations get more accurate over time.
+  A job that rejected a pull request from the queue always runs on that pull
+  request's next push. See [Merge queues](/ci/dynamic-ci/merge-queue).
+
+## Force a job to run
+
+Sometimes you know something the history does not. The
+[Trunk browser extension](/merge-queue/browser-extensions) adds a **Force CI
+runs** panel to the GitHub pull request page. Check a job, or a whole workflow,
+to force it to run on that pull request regardless of Trunk's recommendation.
+
+<Frame>
+  <img className="block dark:hidden" src="/assets/ci/dynamic-ci/force-ci-runs-light.png" alt="The Force CI runs panel on a GitHub pull request, listing each workflow and its jobs with checkboxes, the last run of each job, and Save and Save and rerun buttons." />
+  <img className="hidden dark:block" src="/assets/ci/dynamic-ci/force-ci-runs-dark.png" alt="The Force CI runs panel on a GitHub pull request, listing each workflow and its jobs with checkboxes, the last run of each job, and Save and Save and rerun buttons." />
+</Frame>
+
+**Save** applies the overrides on the next push or rerun. **Save and rerun**
+applies them now: it cancels the pull request's in-progress runs and starts them
+again. Overrides are available for GitHub Actions workflows; Buildkite is not supported yet.
+
+## How it decides
+
+For every job, Dynamic CI combines several independent kinds of evidence into
+one verdict, **run** or **skip**:
+
+- **The job's own track record**: how often it fails, and how much it costs to run.
+- **What the change touches**: how often changes to these files have broken this
+  job before.
+- **This pull request so far**: whether the job has already run on it, and how it
+  went.
+- **Where the pull request sits**: whether other pull requests are stacked on top
+  of it, and whether the job gates the merge.
+- **What the merge queue found**: recent merge-queue failures for this pull
+  request, and skips the queue later caught.
+- **What you told it**: your paths filters, per-job policies and overrides always
+  take precedence.
+
+Everything it learns comes from your organization's own CI history. Nothing is
+pooled across customers.
+
+It is also built to fail safe:
+
+- **A job with no history always runs.**
+- **If Trunk is slow or unreachable, everything runs.**
+- **Learning mode comes first.** A repository starts in **Learning** mode, where
+  Trunk records a verdict for every job but skips nothing. Switch it to
+  **Enforced** once the recommendations look right.
+
+## Get started
+
+Set up Trunk CI, add Dynamic CI to your CI provider, then turn on enforcement.
+See [Getting started](/ci/dynamic-ci/getting-started).
+
+## Feedback
+
+Dynamic CI is being tuned against real repositories during the beta, and the
+fastest way to change it is to tell us what it got wrong. Reach out on
+[Slack](https://slack.trunk.io).

@@ -49,13 +49,12 @@ Regenerates the changelog nav across the sites it appears on from each
 
 ## Gated sections
 
-Dynamic CI and Workspaces are restricted per page with `groups:` frontmatter
-(`["dynamic-ci"]` / `["firewatch"]`). They live in the **Overview** tab's
-sidebar rather than in tabs of their own: Mintlify filters gated *pages* out of
-the navigation but leaves the emptied tab behind, so a tab of their own would
-show the product name to signed-out visitors. Nested under Overview the shells
-are empty groups, which do not render, and the tab still has `index` to stand
-on. Empty group names do remain in the page's JSON payload — they are not
+Workspaces is restricted per page with `groups:` frontmatter (`["firewatch"]`).
+It lives in the **Overview** tab's sidebar rather than in a tab of its own:
+Mintlify filters gated *pages* out of the navigation but leaves the emptied tab
+behind, so a tab of its own would show the product name to signed-out visitors.
+Nested under Overview the shell is an empty group, which does not render, and
+the tab still has `index` to stand on. Empty group names do remain in the page's JSON payload — they are not
 secret, just not displayed.
 
 A tab marked `"hidden": true` is invisible to everyone, authorized users

@@ -1,0 +1,40 @@
+---
+title: "Getting started"
+description: "Set up Trunk, add Dynamic CI to your CI provider, then turn on enforcement."
+og:title: "Get started with Trunk Dynamic CI"
+---
+
+<Warning>
+  Dynamic CI is in **private beta**, and your organization has to be enabled for
+  it first. Reach out on [Slack](https://slack.trunk.io).
+</Warning>
+
+<Steps>
+  <Step title="Set up Trunk CI">
+    Dynamic CI decides from your CI history, so Trunk has to be collecting it.
+    Follow [Set up Trunk CI](/ci/get-started) for your provider, then copy your
+    organization's **API Token** from
+    [Settings → Organization → General](https://app.trunk.io/settings/organization/general).
+  </Step>
+
+  <Step title="Add Dynamic CI to your CI">
+    <Columns cols={2}>
+      <Card title="GitHub Actions" icon="github" href="/ci/dynamic-ci/getting-started/github-actions" cta="Set up">
+        Add a filter job to your workflow.
+      </Card>
+      <Card title="Buildkite" icon="/assets/icons/buildkite.svg" href="/ci/dynamic-ci/getting-started/buildkite" cta="Set up">
+        Add the plugin to your pipeline upload.
+      </Card>
+    </Columns>
+
+    Your repository starts in **Learning** mode: Trunk records a verdict for
+    every job and skips nothing.
+  </Step>
+
+  <Step title="Turn on enforcement">
+    When the recommendations look right, open
+    [Dynamic CI](https://app.trunk.io/dynamic-ci) in the Trunk app, select your
+    repository, and set the **Dynamic CI mode** to **Enforced**. Only an
+    organization admin can change it.
+  </Step>
+</Steps>

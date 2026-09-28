@@ -1,0 +1,117 @@
+---
+title: "Buildkite"
+description: "Add the Dynamic CI plugin to a Buildkite pipeline."
+og:title: "Set up Trunk Dynamic CI for Buildkite"
+---
+
+<Note>
+  Before you start, [set up Trunk CI for Buildkite](/ci/get-started/buildkite),
+  install the [Trunk CI](/setup/integrations/github/trunk-ci) GitHub App, and
+  store your organization's API token from
+  [Settings → Organization → General](https://app.trunk.io/settings/organization/general)
+  as a Buildkite secret named `TRUNK_API_TOKEN`. The pipeline's remote must be
+  on github.com.
+</Note>
+
+## Give your steps keys
+
+Add a `key:` to every step you might want skipped. A step without one always
+runs.
+
+## Start with a dry run
+
+Add this step to each pull request pipeline that runs your tests and checks.
+Trunk records verdicts, and your pipeline is unchanged.
+
+```yaml
+- label: ":trunk: Dynamic CI (learning, no-op)"
+  timeout_in_minutes: 5
+  secrets:
+    - TRUNK_API_TOKEN
+  # Replace .buildkite/pr-checks.yml with your pipeline file, or pipe your
+  # pipeline generator's output into trunk-dynamic-ci-filter instead.
+  command: trunk-dynamic-ci-filter < .buildkite/pr-checks.yml > /dev/null
+  plugins:
+    - trunk-io/dynamic-ci#v0.1.1:
+        token-env: TRUNK_API_TOKEN
+```
+
+Use the same `if:` and `agents:` as your other pull request steps.
+
+## Add the plugin to your upload step
+
+When you are ready to skip steps, pipe your pipeline through the filter on its
+way to upload:
+
+```yaml
+steps:
+  - label: ":pipeline: upload"
+    secrets:
+      - TRUNK_API_TOKEN
+    command: |
+      cat .buildkite/pipeline.yml \
+        | trunk-dynamic-ci-filter \
+        | buildkite-agent pipeline upload
+    plugins:
+      - trunk-io/dynamic-ci#v0.1.1:
+          token-env: TRUNK_API_TOKEN
+```
+
+- Pin an exact [release](https://github.com/trunk-io/dynamic-ci-buildkite-plugin/releases), v0.1.1 or later.
+- Don't pass `--no-interpolation` to `buildkite-agent pipeline upload`.
+- `trigger:` steps are never skipped. Matrix and `parallelism:` legs skip together.
+
+## Mark steps that must never be skipped
+
+Trunk can't tell which Buildkite steps are required to merge. Before you turn on
+enforcement, list them in `exclude-keys`:
+
+```yaml
+plugins:
+  - trunk-io/dynamic-ci#v0.1.1:
+      token-env: TRUNK_API_TOKEN
+      exclude-keys: deploy-master,publish-release
+```
+
+Or set them to **Always run** in [Dynamic CI](https://app.trunk.io/dynamic-ci) →
+your repository → **Configuration**.
+
+<AccordionGroup>
+  <Accordion title="Pipelines with no upload step (step mode)">
+    If your pipeline lives in Buildkite's settings editor, put the plugin on the
+    step itself with `mode: step`. The step needs a `key:`. It saves less,
+    because the agent has already started, and a skipped step reports as passed.
+  </Accordion>
+
+  <Accordion title="All options">
+    | Option           | Default       | Description                                                          |
+    | ---------------- | ------------- | -------------------------------------------------------------------- |
+    | `mode`           | `filter`      | `filter` for your upload pipe, `step` for the step the plugin is on. |
+    | `token-env`      | `TRUNK_TOKEN` | The environment variable holding your Trunk API token.               |
+    | `only-keys`      | unset         | Comma-separated step keys to consider. Every other step runs.        |
+    | `exclude-keys`   | unset         | Comma-separated step keys to never skip. Wins over `only-keys`.      |
+    | `debug`          | `false`       | Print the requested keys, the request and the plan to the build log. |
+    | `ignore-signals` | unset         | Comma-separated signal identifiers to leave out. Ask us for the list. |
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+Set `debug: true` to print what the plugin asked for and the plan it got back.
+
+- **Nothing is skipped.** Check the repository is **Enforced**, the steps have a
+  `key:`, and Trunk has a couple of days of builds for them.
+- **The plan request returns 404.** The pipeline's remote doesn't match a
+  repository in your Trunk organization with CI data.
+- **`baseSha` is null on a pull request build.** Fetch the target branch before
+  the upload step.
+
+Builds without a pull request, such as pushes to your default branch, can be
+skipped. Force overrides from the browser extension are not available for
+Buildkite yet.
+
+## Next
+
+[Turn on enforcement](/ci/dynamic-ci/getting-started). To stop using Dynamic CI,
+remove the plugin or set the repository back to **Learning**. For merge-queue
+behaviour, see [Merge queues](/ci/dynamic-ci/merge-queue).

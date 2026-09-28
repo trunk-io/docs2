@@ -1,0 +1,34 @@
+---
+title: "Merge queues"
+description: "How Dynamic CI behaves when your merge queue tests a pull request."
+og:title: "Trunk Dynamic CI and merge queues"
+---
+
+A merge queue tests the exact commit about to land, so Dynamic CI holds it to a
+higher bar than a pull request.
+
+- **Nothing is skipped by default.** On a merge-queue run, a job is skipped only
+  when a paths filter you configured says the change does not touch it. With no
+  paths filter, every job runs.
+- **A queue failure forces the job to run.** A job that rejected a pull request
+  from the queue always runs on that pull request's next push.
+- **The queue teaches the engine.** A job the pull request skipped that then
+  fails in the queue is recorded as a false skip, and future recommendations
+  learn from it.
+
+## Trunk Merge Queue
+
+When the queue tests through draft pull requests on `trunk-merge/` branches, the
+filter job runs on those too and applies the rules above. You don't need to keep
+the queue out of the filter.
+
+## Buildkite
+
+A Buildkite build on a `trunk-merge/` or `gh-readonly-queue/` branch is treated
+as a merge-queue run and follows the rules above.
+
+## GitHub merge queue
+
+GitHub's merge queue sends `merge_group` events. With the filter job's
+`if: github.event_name == 'pull_request'`, the filter does not run there, so
+every job runs.
