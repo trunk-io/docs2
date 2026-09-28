@@ -251,8 +251,8 @@ remove the plugin from its upload step, or set the repository back to
 Trunk puts each build in one of two lanes, and each lane has its own policies:
 
 - **Merge queue** — a build on a `trunk-merge/` or `gh-readonly-queue/` branch.
-  Nothing is skipped here unless you have configured a paths filter or set a
-  step's merge-queue policy to **Always skip**.
+  Nothing is skipped here unless a paths filter you configured says the change
+  does not touch the step.
 - **Pull request** — every other build. That includes builds of your default
   branch and other branches with no pull request, which can be skipped too.
   If you never want a branch build skipped, keep the plugin off that pipeline's
