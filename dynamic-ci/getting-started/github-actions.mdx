@@ -1,0 +1,121 @@
+---
+title: "GitHub Actions"
+description: "Skip the GitHub Actions jobs a pull request doesn't need with the Dynamic CI action."
+og:title: "Set up Trunk Dynamic CI for GitHub Actions"
+groups: ["dynamic-ci"]
+---
+
+<Warning>
+  Dynamic CI is in **private beta**, and your organization has to be enabled for
+  it first. Reach out on [Slack](https://slack.trunk.io). The action's inputs
+  and outputs may change between releases, so pin a tag and read the release
+  notes before upgrading.
+</Warning>
+
+On GitHub Actions, Dynamic CI is the
+[`trunk-io/dynamic-ci`](https://github.com/trunk-io/dynamic-ci) action. One job
+at the start of your workflow asks Trunk for a verdict per job, and your other
+jobs gate on its outputs. It is a near drop-in replacement for
+[`dorny/paths-filter`](https://github.com/dorny/paths-filter).
+
+## Before you start
+
+<Steps>
+  <Step title="Set up Trunk CI for the repository">
+    Dynamic CI decides from your CI history, so that history has to be arriving
+    first. Follow [Set up Trunk CI for GitHub Actions](/ci/get-started/github-actions):
+    install the Trunk app and the Trunk CI app, and turn on **CI Intelligence**
+    for the repository.
+  </Step>
+
+  <Step title="Store your organization API token">
+    In the Trunk app, navigate to **Settings** → **Organization** → **General**
+    and copy the **API Token**. Store it as a repository secret named
+    `TRUNK_API_TOKEN`.
+  </Step>
+</Steps>
+
+## Add the filter job
+
+One upstream job asks for verdicts for the whole workflow. Per-job outputs are
+set at runtime, so re-export each one you intend to gate on by name.
+
+```yaml
+jobs:
+  dynamic-ci-filter:
+    name: Dynamic CI Filter
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: github.event_name == 'pull_request'
+    outputs:
+      unit-tests: ${{ steps.ci-filter.outputs.unit-tests }}
+      integration-tests: ${{ steps.ci-filter.outputs.integration-tests }}
+    steps:
+      - name: Run Dynamic CI Filter
+        id: ci-filter
+        uses: trunk-io/dynamic-ci@v1
+        with:
+          token: ${{ secrets.TRUNK_API_TOKEN }}
+```
+
+## Gate your jobs on the output
+
+```yaml
+unit-tests:
+  name: Unit Tests
+  runs-on: ubuntu-latest
+  needs: [dynamic-ci-filter]
+  if: >-
+    !cancelled() &&
+    needs.dynamic-ci-filter.outputs.unit-tests != 'false'
+  steps:
+    - run: make test
+```
+
+<Warning>
+  Gate on `!= 'false'`, never on `== 'true'`. A job with no verdict emits no
+  output at all, and `!= 'false'` is what makes it run. With `== 'true'`, the
+  first outage would skip your whole test suite.
+</Warning>
+
+Jobs are addressed by their **key**, the name they are written under in `jobs:`,
+not their display `name:`. A display name changes with a job's matrix values; the
+key does not.
+
+This is **pre-job** mode, and it saves the most, because a skipped job never
+boots a runner. In **pre-step** mode a job asks only about itself, by passing its
+own key in `job-keys`. It is simpler to adopt, but the runner has already started
+by the time the verdict arrives.
+
+## Turn on skipping
+
+A repository starts in **Learning** mode: Trunk records a verdict for every job
+and skips nothing, so you can see what it would have done. When the
+recommendations look right, navigate to **Dynamic CI** → **[your repository]**
+in the Trunk app and set the **Dynamic CI mode** to **Enforced**. Only an
+organization admin can change it.
+
+## Merge queues
+
+When a Trunk Merge Queue tests through draft pull requests on `trunk-merge/`
+branches, the filter job asks about those too. There, a job is skipped only when
+a paths filter you configured says the change does not touch it, or its
+merge-queue policy is **Always skip**. You do not need to keep the queue out of
+the filter yourself.
+
+GitHub's native merge queue sends `merge_group` events, so with the `if:` above
+the filter job does not run and every job runs.
+
+## It fails open
+
+The action tries up to three times, 30 seconds each. If it still has no answer,
+or gets an error, every job resolves to **run**. The step itself never fails,
+and every fail-open is logged as a warning and written to the job summary, so a
+real skip is always distinguishable from a degraded one. Pull requests from forks have no access to
+the secret, so every job runs on them.
+
+## Feedback
+
+Dynamic CI is being tuned against real repositories during the beta, and the
+fastest way to change it is to tell us what it got wrong. Reach out on
+[Slack](https://slack.trunk.io).

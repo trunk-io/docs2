@@ -44,7 +44,13 @@
           {
             "group": "Dynamic CI (beta)",
             "pages": [
-              "dynamic-ci/index"
+              "dynamic-ci/index",
+              {
+                "group": "Getting Started",
+                "pages": [
+                  "dynamic-ci/getting-started/github-actions"
+                ]
+              }
             ]
           },
           {
