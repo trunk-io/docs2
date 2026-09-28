@@ -12,6 +12,10 @@ og:title: "Trunk Dynamic CI FAQ"
     down, the action will fail open and all your jobs will run.
   </Accordion>
 
+  <Accordion title="What does the Buildkite plugin do if Trunk is unavailable?">
+    It uploads your pipeline unchanged, so every step runs.
+  </Accordion>
+
   <Accordion title="What happens to a job Trunk has never seen?">
     It runs. A job needs a couple of days of history before Trunk will
     recommend skipping it.

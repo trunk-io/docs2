@@ -22,6 +22,11 @@ When the queue tests through draft pull requests on `trunk-merge/` branches, the
 filter job runs on those too and applies the rules above. You don't need to keep
 the queue out of the filter.
 
+## Buildkite
+
+A Buildkite build on a `trunk-merge/` or `gh-readonly-queue/` branch is treated
+as a merge-queue run and follows the rules above.
+
 ## GitHub merge queue
 
 GitHub's merge queue sends `merge_group` events. With the filter job's
