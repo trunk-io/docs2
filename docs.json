@@ -841,6 +841,7 @@
               {
                 "group": "September",
                 "pages": [
+                  "changelog/2026-09-28-dynamic-ci-buildkite",
                   "changelog/2026-09-15-flaky-tests-test-collections"
                 ]
               },

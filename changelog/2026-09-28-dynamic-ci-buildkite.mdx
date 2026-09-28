@@ -1,0 +1,30 @@
+---
+title: "Dynamic CI: Buildkite support"
+description: "Dynamic CI now works with Buildkite pipelines. Add the plugin to your pipeline upload and Trunk skips the steps a pull request doesn't need."
+slug: dynamic-ci-buildkite
+date: 2026-09-28
+category: Dynamic CI
+type: new-feature
+---
+
+**Dynamic CI (private beta) now supports Buildkite.**
+
+Add the `trunk-io/dynamic-ci` plugin to your pipeline upload step. Trunk then drops the steps a pull request doesn't need before they reach an agent.
+
+## New features
+
+- **Buildkite plugin.** Pipe your pipeline through `trunk-dynamic-ci-filter` on its way to `buildkite-agent pipeline upload`. Any step with a `key:` can be skipped. Steps without a key always run.
+- **Dry run first.** Add a no-op step to record verdicts without changing your pipeline. Turn on enforcement when you're confident in the results.
+- **Protect required steps.** List steps that must never be skipped in `exclude-keys`, or set them to **Always run** in Dynamic CI → your repository → **Configuration**.
+- **Step mode.** If your pipeline lives in Buildkite's settings editor, set `mode: step` to put the plugin on the step itself.
+
+## Updates
+
+- **Merge queue aware.** Buildkite builds on `trunk-merge/` or `gh-readonly-queue/` branches follow the same [merge queue rules](/ci/dynamic-ci/merge-queue) as GitHub Actions.
+- **Fails open.** If Trunk is unavailable, the plugin uploads your pipeline unchanged and every step runs.
+
+<Note>
+  Job overrides and force overrides from the browser extension aren't available for Buildkite yet.
+</Note>
+
+See the [Buildkite setup guide](/ci/dynamic-ci/getting-started/buildkite) to get started, or read the [Dynamic CI overview](/ci/dynamic-ci).
