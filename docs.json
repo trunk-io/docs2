@@ -471,7 +471,8 @@
                 "group": "Getting Started",
                 "root": "ci/dynamic-ci/getting-started/index",
                 "pages": [
-                  "ci/dynamic-ci/getting-started/github-actions"
+                  "ci/dynamic-ci/getting-started/github-actions",
+                  "ci/dynamic-ci/getting-started/buildkite"
                 ]
               },
               "ci/dynamic-ci/merge-queue",
