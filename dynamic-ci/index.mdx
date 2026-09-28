@@ -22,20 +22,20 @@ plain-language reason, and your merge queue backs the whole thing up.
 | If you're having problems with…                                   | Dynamic CI helps by…                                                                                                                                             |
 | ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Paying to run jobs that were never going to fail                  | Scoring every job against this diff and this pull request's history, and skipping the ones with nothing left to check. Savings are reported per repository, workflow and job. |
-| Every push restarting the wait for the whole workflow             | Shrinking what a push has to finish, so the run completes as soon as the jobs that could tell you something are done.                                            |
+| Every push to a PR restarting all your jobs                       | Only running what hasn't been validated, or what is likely to fail, with special handling for stacked PRs.                                                        |
 | Path filters and CI rules that get written once and quietly decay | Working out which jobs matter from your own CI history on every push, while still letting you pin any job where you want to be explicit.                        |
 | More concurrent jobs than runners to run them                     | Taking jobs with nothing to check out of the queue entirely, so your runners go to the work that matters.                                                         |
 
 ## Backed by the merge queue
 
 A skip on a pull request is only safe if something stronger stands behind it.
-With a Trunk [merge queue](/merge-queue/merge-queue), that is the queue: it tests the exact
-commit about to land, and it holds a higher bar than the pull request.
+With a Trunk [merge queue](/merge-queue/merge-queue), your `main` is protected: the queue
+tests the exact commit about to land, and it holds a higher bar than the pull
+request.
 
 - **The merge queue skips nothing by default.** On a merge-queue run, Dynamic CI
   skips a job only when a paths filter you configured says the change does not
-  touch it, or you set that job's merge-queue policy to **Always skip**. With
-  neither, every job runs.
+  touch it. With no paths filter, every job runs.
 - **The engine learns from the queue.** When a job the pull request skipped
   fails in the merge queue, Trunk records it as a false skip. The engine learns
   from those outcomes, so its skip recommendations get more accurate over time.

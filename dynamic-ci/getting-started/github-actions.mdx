@@ -99,9 +99,9 @@ organization admin can change it.
 
 When a Trunk Merge Queue tests through draft pull requests on `trunk-merge/`
 branches, the filter job asks about those too. There, a job is skipped only when
-a paths filter you configured says the change does not touch it, or its
-merge-queue policy is **Always skip**. You do not need to keep the queue out of
-the filter yourself.
+a paths filter you configured says the change does not touch it; with no paths
+filter, every job runs. You do not need to keep the queue out of the filter
+yourself.
 
 GitHub's native merge queue sends `merge_group` events, so with the `if:` above
 the filter job does not run and every job runs.
