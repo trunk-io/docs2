@@ -2,7 +2,6 @@
 title: "Dynamic CI"
 description: "Run only the CI jobs a pull request needs, decided from your own CI history."
 og:title: "Trunk Dynamic CI"
-groups: ["dynamic-ci"]
 ---
 
 <Warning>
@@ -40,7 +39,7 @@ request.
   fails in the merge queue, Trunk records it as a false skip. The engine learns
   from those outcomes, so its skip recommendations get more accurate over time.
   A job that rejected a pull request from the queue always runs on that pull
-  request's next push. See [Merge queues](/dynamic-ci/merge-queue).
+  request's next push. See [Merge queues](/ci/dynamic-ci/merge-queue).
 
 ## Force a job to run
 
@@ -89,7 +88,7 @@ It is also built to fail safe:
 ## Get started
 
 Set up Trunk CI, add Dynamic CI to your CI provider, then turn on enforcement.
-See [Getting started](/dynamic-ci/getting-started).
+See [Getting started](/ci/dynamic-ci/getting-started).
 
 ## Feedback
 
