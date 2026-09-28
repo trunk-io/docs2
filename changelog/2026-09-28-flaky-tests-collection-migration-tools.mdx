@@ -1,0 +1,23 @@
+---
+title: "Flaky Tests: Collection migration tools and new defaults"
+description: "Bring repository monitors and ticketing connections into a test collection, and start new collections with five monitors and quarantining enabled."
+date: 2026-09-28
+category: Flaky Tests
+type: new-feature
+---
+
+**Moving to Test Collections is now faster, and new collections start closer to ready.**
+
+**New features**
+
+- **Migrate monitors from a repository.** On a collection's **Monitors** tab, choose **Migrate from a repository** to compare a repository's monitors with the collection's and copy over the ones it's missing. Your repository's monitors are never changed. See [Bring your repository monitors across](/flaky-tests/get-started/migrate-to-test-collections#bring-your-repository-monitors-across).
+- **Copy a ticketing connection from a repository.** Under **Settings → Organization → Ticketing**, choose **Copy from a repo** to reuse an existing Linear, Jira, or Asana connection instead of entering a new API token. Ticket automation isn't copied, so you decide when to switch over. See [Bring a ticketing connection across](/flaky-tests/get-started/migrate-to-test-collections#bring-a-ticketing-connection-across).
+- **Organization-level ticketing.** Ticketing connections now belong to your organization and can be shared across collections. Each collection picks its own default connection. See the [Jira](/flaky-tests/management/ticketing/jira-integration), [Linear](/flaky-tests/management/ticketing/linear-integration), and [Asana](/flaky-tests/management/ticketing/asana-integration) guides.
+- **Link tickets with the v2 API.** You can now link an existing ticket to a test case with `POST /v2/test-cases/{testCaseId}/ticket`.
+
+**Updates**
+
+- **Five monitors out of the box.** New collections start with pass-on-retry, failure count, failure rate, new test, and skipped test monitors enabled. See [What a new collection starts with](/flaky-tests/test-collections#what-a-new-collection-starts-with).
+- **Quarantining starts enabled.** New collections turn quarantining on, with auto-quarantine off, so nothing is quarantined until you choose to. If your organization is still migrating, quarantining starts off. See [Quarantining](/flaky-tests/quarantining).
+- **Ticketing in the setup checklist.** The collection setup checklist now includes a **Review ticketing** step. See [Finish setting up a collection](/flaky-tests/test-collections#finish-setting-up-a-collection).
+- **Uploads tab opens sooner.** A collection's **Uploads** tab now opens as soon as the first upload arrives.
