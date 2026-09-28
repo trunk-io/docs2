@@ -831,6 +831,8 @@
               {
                 "group": "September",
                 "pages": [
+                  "changelog/2026-09-28-flaky-tests-collection-migration-tools",
+                  "changelog/2026-09-28-merge-queue-per-state-duration-metric",
                   "changelog/2026-09-15-flaky-tests-test-collections"
                 ]
               },

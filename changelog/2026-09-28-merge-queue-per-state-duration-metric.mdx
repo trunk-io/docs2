@@ -1,0 +1,18 @@
+---
+title: "Merge Queue: Per-state duration metric and percentile gauges"
+description: "See how long pull requests spend in each queue state, and read accurate percentiles straight from the Prometheus endpoint."
+date: 2026-09-28
+category: Merge Queue
+type: new-feature
+---
+
+**Find out exactly where your queue time goes.**
+
+**New features**
+
+- **Per-state durations.** The new `mq_pr_state_duration_1h_seconds` metric breaks down time spent in each queue state, such as waiting for a testing slot, testing, or waiting behind a failure. It also reports time spent waiting to enter the queue. See [Per-state durations](/merge-queue/administration/metrics#per-state-durations).
+- **Percentile gauges.** Every duration histogram now has `_p50`, `_p75`, `_p90`, `_p95`, and `_p99` gauges. Trunk computes them from raw observations, so they stay accurate beyond the histogram's top bucket. See [Available metrics](/merge-queue/administration/metrics#available-metrics).
+
+**Updates**
+
+- **Existing metrics are unchanged.** `mq_pr_wait_duration_1h_seconds` and `mq_pr_test_duration_1h_seconds` keep working, so your current dashboards and alerts don't need changes.
