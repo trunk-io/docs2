@@ -1,9 +1,9 @@
 ---
 title: "Getting Started"
-description: "Set up Trunk Flaky Tests by configuring test result output, uploading from CI, and enabling flake detection monitors."
+description: "Set up Trunk Flaky Tests by creating a test collection, configuring test result output, uploading from CI, and enabling flake detection monitors."
 og:title: "Getting started with Trunk Flaky Tests"
 ---
-Trunk Flaky Tests detects flaky tests by analyzing test results from your CI runs. Setup requires configuring test result output and CI upload integration.
+Trunk Flaky Tests detects flaky tests by analyzing test results from your CI runs. Setup requires a test collection, test result output, and CI upload integration.
 
 ## Prerequisites
 
@@ -11,18 +11,28 @@ Trunk Flaky Tests detects flaky tests by analyzing test results from your CI run
 * Ability to modify repository CI configuration and add secrets
 * Tests running in CI on both PRs and stable branches (e.g., main, master, or develop)
 
-### Step 1: Ensure JUnit XML output
+### Step 1: Create a test collection
 
-Trunk ingests test results in JUnit XML format. If your CI already generates JUnit XML, note the file paths and skip to Step 2.
+A [test collection](../test-collections) is a named group of tests with its own flake detection, quarantining, and ticketing settings. CI uploads go to a collection, so create one first.
+
+1. Open Flaky Tests at [app.trunk.io](https://app.trunk.io). Your first collection is created from the form Flaky Tests opens on; later ones from **Create collection** in the actions menu on the collections list.
+2. Enter a **Collection name**, and a description if you want one.
+3. Copy the new collection's **Collection ID**, from its page header or URL. You pass it to every upload step in Step 3.
+
+Create more than one collection to hold different test suites to different standards, such as unit and end-to-end tests. See [Collections and repositories](../test-collections#collections-and-repositories).
+
+### Step 2: Ensure JUnit XML output
+
+Trunk ingests test results in JUnit XML format. If your CI already generates JUnit XML, note the file paths and skip to Step 3.
 
 If not, configure your test frameworks to output JUnit XML:
 
 * See [**Test Frameworks**](./frameworks/) for framework-specific configuration
 * Supports multiple frameworks simultaneously
 
-### Step 2: Configure CI uploads
+### Step 3: Configure CI uploads
 
-[Create a test collection](../test-collections#create-a-collection) and copy its **Collection ID**, then add test result uploads to all CI jobs that run tests. Every upload step passes that ID, as `--test-collection-id` or the `TRUNK_TEST_COLLECTION_ID` environment variable.
+Add test result uploads to all CI jobs that run tests. Every upload step passes the **Collection ID** from Step 1, as `--test-collection-id` or the `TRUNK_TEST_COLLECTION_ID` environment variable.
 
 1. See [**CI Providers**](./ci-providers/) for integration instructions
 2. Configure uploads in jobs that run on:
@@ -36,7 +46,7 @@ Uploads from both PRs and stable branches are required for Trunk Flaky Tests to 
 Trunk automatically recognizes `main`, `master`, and `develop` as stable branches. If your primary branch uses a different name, configure uploads from that branch the same way and Trunk will classify it correctly.
 </Info>
 
-### Step 3: Verify integration
+### Step 4: Verify integration
 
 1. Push your changes and trigger a CI run
 2. Check CI logs for successful upload confirmation
@@ -47,7 +57,7 @@ Trunk automatically recognizes `main`, `master`, and `develop` as stable branche
 <img className="hidden dark:block" src="/assets/flaky-tests/get-started/Screenshot_2025-11-11_at_3.57.57_PM.png" alt="" />
 </Frame>
 
-### Step 4: Configure flake detection
+### Step 5: Configure flake detection
 
 After uploads are flowing, open your [test collection](../test-collections)'s **Monitors** tab to set up detection.
 
