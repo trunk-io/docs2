@@ -48,9 +48,12 @@
               {
                 "group": "Getting Started",
                 "pages": [
+                  "dynamic-ci/getting-started/index",
                   "dynamic-ci/getting-started/github-actions"
                 ]
-              }
+              },
+              "dynamic-ci/merge-queue",
+              "dynamic-ci/faq"
             ]
           },
           {

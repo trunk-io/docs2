@@ -1,0 +1,35 @@
+---
+title: "FAQ"
+description: "Reliability, forks, and other common questions about Dynamic CI."
+og:title: "Trunk Dynamic CI FAQ"
+groups: ["dynamic-ci"]
+---
+
+## Reliability
+
+<AccordionGroup>
+  <Accordion title="What happens if Trunk is slow or down?">
+    Every job runs. The action tries up to three times, 30 seconds each, and on
+    a timeout or an error it returns no verdicts. The step itself never fails,
+    and the fail-open is logged as a warning and written to the job summary.
+  </Accordion>
+
+  <Accordion title="What happens to a job Trunk has never seen?">
+    It runs. A job needs a couple of weeks of history before Trunk will
+    recommend skipping it.
+  </Accordion>
+
+  <Accordion title="Can Dynamic CI skip a job in my merge queue?">
+    Only when a paths filter you configured excludes it. See
+    [Merge queues](/dynamic-ci/merge-queue).
+  </Accordion>
+</AccordionGroup>
+
+## Forks
+
+<AccordionGroup>
+  <Accordion title="What happens on pull requests from forks?">
+    A pull request from a fork has no access to your repository's secrets, so
+    the filter job has no token and every job runs.
+  </Accordion>
+</AccordionGroup>

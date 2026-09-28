@@ -40,7 +40,7 @@ request.
   fails in the merge queue, Trunk records it as a false skip. The engine learns
   from those outcomes, so its skip recommendations get more accurate over time.
   A job that rejected a pull request from the queue always runs on that pull
-  request's next push.
+  request's next push. See [Merge queues](/dynamic-ci/merge-queue).
 
 ## Force a job to run
 
@@ -88,11 +88,8 @@ It is also built to fail safe:
 
 ## Get started
 
-<Columns cols={2}>
-  <Card title="GitHub Actions" icon="github" href="/dynamic-ci/getting-started/github-actions" cta="Set up">
-    Add a filter job to your workflow and gate jobs on its output.
-  </Card>
-</Columns>
+Set up Trunk CI, add Dynamic CI to your CI provider, then turn on enforcement.
+See [Getting started](/dynamic-ci/getting-started).
 
 ## Feedback
 
