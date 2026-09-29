@@ -13,7 +13,8 @@ og:title: "Set up Trunk Dynamic CI for GitHub Actions"
 
 ## Add the filter job to the top of your workflow
 
-List every job you want to gate under `outputs`.
+List every job you want to gate under `outputs`. Check out first, with full
+history, so the action can read the changed files.
 
 ```yaml
 jobs:
@@ -25,6 +26,10 @@ jobs:
       unit-tests: ${{ steps.ci-filter.outputs.unit-tests }}
       integration-tests: ${{ steps.ci-filter.outputs.integration-tests }}
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          filter: blob:none
       - name: Dynamic CI
         id: ci-filter
         uses: trunk-io/dynamic-ci@v1
@@ -59,6 +64,10 @@ Use each job's key from `jobs:`, not its display `name:`.
 
   ```yaml
   steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        filter: blob:none
     - name: Dynamic CI
       id: ci-filter
       uses: trunk-io/dynamic-ci@v1
