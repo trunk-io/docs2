@@ -9,20 +9,42 @@ v2 addresses everything by ID rather than by repository and branch coordinates, 
 
 ## Authentication
 
-Send **either** your organization API key as `Authorization: Bearer <key>`, **or** a short-lived first-party token in the `x-trunk-token` header. Your existing v1 API token works unchanged as an organization API key — see [finding your API token](/setup-and-administration/apis#finding-your-api-token).
+Authenticate automation with an API key, sent as `Authorization: Bearer <key>`:
 
 ```bash
 curl https://api.trunk.io/v2/merge-queues \
-  -H "Authorization: Bearer $TRUNK_API_TOKEN"
+  -H "Authorization: Bearer $TRUNK_API_KEY"
 ```
 
-<Warning>
-**Automation that changes merge queues should send the organization API key directly on every request.** A first-party token obtained by exchanging an API key can read merge queues but not change them — those requests return `403 INSUFFICIENT_PERMISSIONS`.
-</Warning>
+To upload impacted targets from CI, you don't need an API key at all: a GitHub Actions job can [log in with the run's own GitHub credential](/merge-queue/reference/api-v2/github-actions), pull requests from forks included.
 
-Merge-queue write access is broad: there is no enqueue-only scope. A credential that can submit pull requests can also change queue configuration — including `requiredStatuses` — and pause, drain, or delete queues. Treat it as an operator credential, not a narrowly scoped CI token.
+### Create an API key
 
-To upload impacted targets from CI, you don't need an API key at all: a GitHub Actions job can [log in with the run's own GitHub credential](/merge-queue/reference/api-v2/github-actions), pull requests from forks included. That login can only upload impacted targets for its own repository.
+An organization admin creates API keys in the [Trunk app](https://app.trunk.io):
+
+1. Go to **Settings** → **Developer** → **API Keys** and click **Create Key**.
+2. Name the key after what will use it, and choose the permissions it holds.
+3. Copy the key. It is shown only once — if you lose it, revoke it and create another.
+
+You can change a key's permissions later, and the change applies to the next request that uses it.
+
+### Permissions
+
+A key with no permissions can read merge queues but change nothing. Grant only what the automation needs:
+
+| Permission | Allows |
+| --- | --- |
+| **Merge and cancel PRs** | Submit pull requests to the queue, restart their tests, remove any entry from it, and upload impacted targets from CI. |
+| **Set priority on PRs** | Move a pull request ahead of others in the queue. |
+| **Skip batching** | Opt a pull request out of batching so it gets a test run of its own. |
+| **Merge PRs with direct to queue** | Send a pull request to the queue before branch protection is satisfied. The queue's own tests still run and still gate the merge. |
+| **Update Merge Queue settings** | Change queue settings; pause, resume, or drain a queue; and create or delete queues. |
+
+A request the key isn't permitted returns `403 INSUFFICIENT_PERMISSIONS`.
+
+<Note>
+These permissions apply to merge queues only. Every API key can use the Flaky Tests and Dynamic CI endpoints, including the ones that make changes, whatever permissions it holds.
+</Note>
 
 ## Finding IDs
 
@@ -33,14 +55,14 @@ Every merge queue, pull request, repository, and verification run has an `id`, a
 
 ```bash
 curl "https://api.trunk.io/v2/pull-requests?repositoryId=7c9e6679-7425-40de-944b-e07fc1f90ae7&number=4901" \
-  -H "Authorization: Bearer $TRUNK_API_TOKEN"
+  -H "Authorization: Bearer $TRUNK_API_KEY"
 ```
 
 Submitting a pull request is the exception: it takes the pull request's `number` in the body, so you only need the queue's ID.
 
 ```bash
 curl -X POST https://api.trunk.io/v2/merge-queues/xK9mP2nQ/pull-requests \
-  -H "Authorization: Bearer $TRUNK_API_TOKEN" \
+  -H "Authorization: Bearer $TRUNK_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{ "number": 4901 }'
 ```
