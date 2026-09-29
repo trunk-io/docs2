@@ -1,0 +1,18 @@
+---
+title: "Dynamic CI: Simpler setup and clearer merge queue behavior"
+description: "The GitHub Actions filter no longer needs a pull request guard, Buildkite requires plugin v0.1.3 or later, and merge queue runs follow your paths filters only."
+date: 2026-09-29
+category: Dynamic CI
+type: update
+---
+
+**Dynamic CI setup is simpler, and merge queue runs behave predictably.**
+
+Dynamic CI is in private beta. [Reach out to Trunk](https://slack.trunk.io) for access.
+
+## Updates
+
+- **No pull request guard in GitHub Actions.** The filter job no longer needs `if: github.event_name == 'pull_request'`. Dynamic CI tells pull requests and merge queue runs apart on its own. The example filter job and step are now named `Dynamic CI`. The job key stays `dynamic-ci-filter`, so your existing `needs.` references keep working. See [GitHub Actions setup](/ci/dynamic-ci/getting-started/github-actions).
+- **Check out before the filter step.** Add `actions/checkout` with `fetch-depth: 0` ahead of the filter step so Dynamic CI can read the changed files.
+- **Merge queue runs use paths filters only.** On pull requests, the Dynamic CI engine skips jobs with nothing left to check. On Trunk Merge Queue `trunk-merge/` branches, Dynamic CI skips a job only when a paths filter excludes it. With no paths filter, every job runs. To add your own run conditions, extend the job's `if`. See [Merge queues](/ci/dynamic-ci/merge-queue).
+- **Buildkite plugin v0.1.3 or later.** Pin `trunk-io/dynamic-ci#v0.1.3` or a newer release. See [Buildkite setup](/ci/dynamic-ci/getting-started/buildkite).
