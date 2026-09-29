@@ -13,20 +13,24 @@ og:title: "Set up Trunk Dynamic CI for GitHub Actions"
 
 ## Add the filter job to the top of your workflow
 
-List every job you want to gate under `outputs`.
+List every job you want to gate under `outputs`. Check out first, with full
+history, so the action can read the changed files.
 
 ```yaml
 jobs:
   dynamic-ci-filter:
-    name: Dynamic CI Filter
+    name: Dynamic CI
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    if: github.event_name == 'pull_request'
     outputs:
       unit-tests: ${{ steps.ci-filter.outputs.unit-tests }}
       integration-tests: ${{ steps.ci-filter.outputs.integration-tests }}
     steps:
-      - name: Run Dynamic CI Filter
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          filter: blob:none
+      - name: Dynamic CI
         id: ci-filter
         uses: trunk-io/dynamic-ci@v1
         with:
@@ -59,15 +63,22 @@ Use each job's key from `jobs:`, not its display `name:`.
   own steps. It saves less, because the runner has already started.
 
   ```yaml
-  steps:
-    - name: Run Dynamic CI Filter
-      id: ci-filter
-      uses: trunk-io/dynamic-ci@v1
-      with:
-        token: ${{ secrets.TRUNK_API_TOKEN }}
-        job-keys: unit-tests
-    - if: steps.ci-filter.outputs.unit-tests != 'false'
-      run: make test
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          filter: blob:none
+      - name: Dynamic CI
+        id: ci-filter
+        uses: trunk-io/dynamic-ci@v1
+        with:
+          token: ${{ secrets.TRUNK_API_TOKEN }}
+          job-keys: unit-tests
+      - if: steps.ci-filter.outputs.unit-tests != 'false'
+        run: make test
   ```
 </Accordion>
 
