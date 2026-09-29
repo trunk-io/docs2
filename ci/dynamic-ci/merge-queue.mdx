@@ -4,11 +4,20 @@ description: "How Dynamic CI behaves when your merge queue tests a pull request.
 og:title: "Trunk Dynamic CI and merge queues"
 ---
 
-Dynamic CI runs a little differently on a merge queue than on a pull request.
-On a merge-queue run, it skips a job only when a paths filter you configured
-excludes it. With no paths filter, every job runs.
+Dynamic CI uses the branch to tell whether a run is for a pull request or a
+merge queue, and runs the two differently:
 
-Dynamic CI recognizes merge-queue runs on its own: Trunk Merge Queue
-(`trunk-merge/` branches), GitHub merge queue (`merge_group` events and
-`gh-readonly-queue/` branches), and Buildkite builds on either branch. You don't
-need to filter on the event or the branch in your workflow.
+- **Pull requests** are scored by the Dynamic CI engine, which skips jobs with
+  nothing left to check.
+- **Merge queues** (Trunk Merge Queue's `trunk-merge/` branches) use your paths
+  filters only. A job is skipped only when a paths filter excludes it. With no
+  paths filter, every job runs.
+
+If you want other conditions on when a job runs, add them to the job's `if`:
+
+```yaml
+if: >-
+  !cancelled() &&
+  needs.dynamic-ci-filter.outputs.unit-tests != 'false' &&
+  github.ref != 'refs/heads/release'
+```
