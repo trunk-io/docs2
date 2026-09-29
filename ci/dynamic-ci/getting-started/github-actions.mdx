@@ -18,15 +18,14 @@ List every job you want to gate under `outputs`.
 ```yaml
 jobs:
   dynamic-ci-filter:
-    name: Dynamic CI Filter
+    name: Dynamic CI
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    if: github.event_name == 'pull_request'
     outputs:
       unit-tests: ${{ steps.ci-filter.outputs.unit-tests }}
       integration-tests: ${{ steps.ci-filter.outputs.integration-tests }}
     steps:
-      - name: Run Dynamic CI Filter
+      - name: Dynamic CI
         id: ci-filter
         uses: trunk-io/dynamic-ci@v1
         with:
@@ -60,7 +59,7 @@ Use each job's key from `jobs:`, not its display `name:`.
 
   ```yaml
   steps:
-    - name: Run Dynamic CI Filter
+    - name: Dynamic CI
       id: ci-filter
       uses: trunk-io/dynamic-ci@v1
       with:
