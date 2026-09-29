@@ -1,0 +1,25 @@
+---
+title: "Merge Queue: API v2"
+description: "A new REST API for Merge Queue with ID-based endpoints, scoped API keys, consistent pagination, and secretless impacted target uploads from GitHub Actions."
+slug: merge-queue-api-v2
+date: 2026-09-29
+category: Merge Queue
+type: new-feature
+---
+
+**The v2 Merge Queue API is here.**
+
+v2 lets you manage merge queues and the pull requests in them, read the order the queue will test them in, and inspect every verification run. It's hosted at `https://api.trunk.io/v2`.
+
+## New features
+
+- **ID-based endpoints.** Address queues and pull requests by ID instead of repository and branch in every request body. Reads use `GET`, and changes use `POST`, `PATCH`, `PUT`, or `DELETE`.
+- **Scoped API keys.** Admins create keys under **Settings → Developer → API Keys** and grant only the permissions each integration needs, such as merging, setting priority, or skipping batching. A key with no permissions can still read queues, which is all a dashboard needs. See [Authentication](/merge-queue/reference/api-v2#authentication).
+- **Secretless uploads from GitHub Actions.** The `trunk-io/login` action lets a job upload impacted targets with the run's own GitHub credential, with no Trunk secret to store or rotate. It also works on pull requests from forks. See [Upload impacted targets from GitHub Actions](/merge-queue/reference/api-v2/github-actions).
+
+## Updates
+
+- **Consistent pagination and errors.** Every list returns the same `data`, `nextCursor`, and `hasMore` envelope. Every error uses one shape.
+- **Direct to queue from the API.** You can now send a pull request to the queue before branch protection is satisfied, using a key with the **Merge PRs with direct to queue** permission.
+
+The [v1 API](/merge-queue/reference/merge) keeps working unchanged. When you're ready to move, the [migration guide](/merge-queue/reference/api-v2/migrate-from-v1) maps every v1 endpoint to v2 and includes a prompt you can hand to a coding agent. Browse the full [v2 reference](/merge-queue/reference/api-v2) for every endpoint.

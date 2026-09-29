@@ -924,6 +924,7 @@
               {
                 "group": "September",
                 "pages": [
+                  "changelog/2026-09-29-merge-queue-api-v2",
                   "changelog/2026-09-15-flaky-tests-test-collections"
                 ]
               },
