@@ -3,7 +3,7 @@
   "info": {
     "title": "Trunk API",
     "version": "2.0.0",
-    "description": "The Trunk public API. Every endpoint is scoped to a single organization and requires a credential.\n\n## Authentication\n\nFor automation, send an API key as `Authorization: Bearer <key>`. An organization admin creates one in the Trunk app under **Settings → Developer → API Keys**, and chooses the merge-queue permissions it holds. A key with no permissions can read merge queues but change nothing. Those permissions scope merge queue only: every key can use the Flaky Tests and Dynamic CI endpoints, including their writes, whatever permissions it holds.\n\nA short-lived first-party token in the `x-trunk-token` header is what the `trunk` CLI sends after `trunk auth login`.\n\nA GitHub Actions job can upload impacted targets with no Trunk secret: the `trunk-io/login` action exchanges the run's own GitHub credential (its OIDC token, or on a pull request from a fork its `GITHUB_TOKEN`) for a short-lived first-party token. That token is accepted only by `PUT /v2/impacted-targets`, for the run's own repository — and on a fork pull request, only for that pull request and its head sha.\n\n## Errors\n\nEvery 4xx and 5xx response is a `ErrorResponse`: `{ \"error\": { \"code\", \"message\" } }`. Switch on `code`, which is stable; `message` is prose and may change at any time.\n\n**An authorization denial on a read is reported as `404`, not `403`** — whether a resource exists must not leak across organizations, so a resource in another organization is indistinguishable from one that does not exist. `403 INSUFFICIENT_PERMISSIONS` means the credential is valid but is not permitted the action (or carries no organization).\n\nEvery response carries an `X-Request-Id` header. Quote it in support requests.\n\n## Rate limiting\n\nRequests are limited per organization (currently 100 requests/second). Exceeding it returns `429` with `RATE_LIMIT_EXCEEDED`; retry with backoff. Note that the limit is enforced at the edge, which does not yet wrap its `429` in the `ErrorResponse` envelope described above — treat any `429` as rate limiting regardless of body.\n\n## Compatibility\n\nWithin v2, Trunk may add: new endpoints, new **optional** response fields, new members to any enum (including new `code` values, new queue-entry states, and new providers), and new optional request parameters. **Clients must tolerate values and fields they do not recognize** rather than failing closed — a client that switches exhaustively over an enum will break when a member is added. Removals and semantic changes require a new major version.\n\n## Provider support\n\nMerge queues, verification runs and checks are **GitHub-only** today; `Check.provider` has a single member for that reason. Impacted-target uploads additionally require a `github.com` repository named `owner/repo`. The `Provider` enum lists values the repository index can store, not surfaces that are fully supported.\n\n## Not yet available\n\nList responses are not ordered by queue position; read the order the engine will consider pull requests in from `GET /v2/merge-queues/{id}/order`. This API delivers no events of its own — poll it, or subscribe to Merge Queue's webhooks (https://docs.trunk.io/merge-queue/webhooks). `Idempotency-Key` is not yet honored, so a mutation that times out must be reconciled by reading the resource back rather than blindly retried.",
+    "description": "The Trunk public API. Every endpoint is scoped to a single organization and requires a credential.\n\n## Authentication\n\nSend **either** an org API key as `Authorization: Bearer <key>`, **or** a short-lived first-party token in the `x-trunk-token` header. Existing v1 API tokens work unchanged as org API keys.\n\nThe two are not interchangeable for writes. A first-party token obtained by **exchanging an org API key** reads merge queues but cannot mutate them — a merge-queue mutation forwards the key itself to the merge service, and an exchanged token carries no copy of it, so those requests answer `403 INSUFFICIENT_PERMISSIONS`. A machine caller that mutates merge queues should send its org API key directly on `Authorization` for every request. Tokens obtained through the CLI device flow are unaffected.\n\nA GitHub Actions job can upload impacted targets with no Trunk secret: the `trunk-io/login` action exchanges the run's own GitHub credential (its OIDC token, or on a pull request from a fork its `GITHUB_TOKEN`) for a short-lived first-party token. That token is accepted only by `PUT /v2/impacted-targets`, for the run's own repository — and on a fork pull request, only for that pull request and its head sha.\n\n**Merge-queue authorization is broad today.** The API does not offer an enqueue-only capability: organization members and org API keys authorized for merge-queue writes can also change configuration (including `requiredStatuses`), pause, drain and delete queues. Use such credentials as privileged operators, not narrowly scoped CI submission tokens.\n\n## Errors\n\nEvery 4xx and 5xx response is a `ErrorResponse`: `{ \"error\": { \"code\", \"message\" } }`. Switch on `code`, which is stable; `message` is prose and may change at any time.\n\n**An authorization denial on a read is reported as `404`, not `403`** — whether a resource exists must not leak across organizations, so a resource in another organization is indistinguishable from one that does not exist. `403 INSUFFICIENT_PERMISSIONS` means the credential is valid but is not permitted the action (or carries no organization).\n\nEvery response carries an `X-Request-Id` header. Quote it in support requests.\n\n## Rate limiting\n\nRequests are limited per organization (currently 100 requests/second). Exceeding it returns `429` with `RATE_LIMIT_EXCEEDED`; retry with backoff. Note that the limit is enforced at the edge, which does not yet wrap its `429` in the `ErrorResponse` envelope described above — treat any `429` as rate limiting regardless of body.\n\n## Compatibility\n\nWithin v2, Trunk may add: new endpoints, new **optional** response fields, new members to any enum (including new `code` values, new queue-entry states, and new providers), and new optional request parameters. **Clients must tolerate values and fields they do not recognize** rather than failing closed — a client that switches exhaustively over an enum will break when a member is added. Removals and semantic changes require a new major version.\n\n## Provider support\n\nMerge queues, verification runs and checks are **GitHub-only** today; `Check.provider` has a single member for that reason. Impacted-target uploads additionally require a `github.com` repository named `owner/repo`. The `Provider` enum lists values the repository index can store, not surfaces that are fully supported.\n\n## Not yet available\n\nA pull request's numeric **position** in its queue, and any wait estimate, are not exposed, and list responses are not ordered by queue position. `GET /v2/merge-queues/{id}/order` returns the order the engine will consider pull requests in, but an array index there is not a wait: use a pending entry's `directlyAhead` rather than counting. This API delivers no events of its own — poll it, or subscribe to [Merge Queue's webhooks](https://docs.trunk.io/merge-queue/webhooks). `Idempotency-Key` is not yet honored, so a mutation that times out must be reconciled by reading the resource back rather than blindly retried.",
     "contact": {
       "name": "Trunk Support",
       "url": "https://docs.trunk.io"
@@ -17,7 +17,7 @@
   ],
   "security": [
     {
-      "apiKey": []
+      "orgKey": []
     },
     {
       "trunkToken": []
@@ -59,16 +59,16 @@
   ],
   "components": {
     "securitySchemes": {
-      "apiKey": {
+      "orgKey": {
         "type": "http",
         "scheme": "bearer",
-        "description": "An API key, sent as `Authorization: Bearer <key>`. An organization admin creates one in the Trunk app under **Settings → Developer → API Keys** and chooses the merge-queue permissions it holds; a key with none can read merge queues but change nothing. Those permissions scope merge queue only: every key can use the Flaky Tests and Dynamic CI endpoints, including their writes, whatever permissions it holds."
+        "description": "An org-scoped API key, sent as `Authorization: Bearer <key>`. Existing v1 tokens work here unchanged. There is no enqueue-only or read/write scope: an org key authorized for merge-queue writes can invoke every merge-queue mutation, including changing merge-protection configuration and pausing, draining or deleting a queue."
       },
       "trunkToken": {
         "type": "apiKey",
         "in": "header",
         "name": "x-trunk-token",
-        "description": "A short-lived first-party token, sent in the `x-trunk-token` header. The `trunk` CLI sends one after `trunk auth login`, and the `trunk-io/login` action obtains one for a GitHub Actions run.\n\n**A token from a GitHub Actions run can only upload impacted targets** (`PUT /v2/impacted-targets`), for the repository the run belongs to; every other endpoint refuses it."
+        "description": "A short-lived first-party token, sent in the `x-trunk-token` header. Obtain one through the CLI device-authentication flow, by exchanging an org API key (`POST /v2/auth/api-key/login`), or from a GitHub Actions run with the `trunk-io/login` action.\n\n**A token exchanged from an org API key reads merge queues but cannot mutate them.** A merge-queue mutation forwards the org API key itself to the merge service, and an exchanged token carries no copy of it, so those requests answer `403 INSUFFICIENT_PERMISSIONS`. A machine caller that mutates merge queues should send the org API key directly as `Authorization: Bearer <key>` rather than exchanging it. Tokens from the device flow are unaffected.\n\n**A token from a GitHub Actions run can only upload impacted targets** (`PUT /v2/impacted-targets`), for the repository the run belongs to; every other endpoint refuses it."
       }
     },
     "schemas": {
@@ -985,7 +985,7 @@
           },
           "viewerIsAuthor": {
             "type": "boolean",
-            "description": "Whether the authenticated user authored this pull request. Provided on the queue pull-request list (`GET /merge-queues/{id}/pull-requests`); absent elsewhere and when the caller is not a signed-in user.",
+            "description": "Whether the authenticated user authored this pull request. Provided on the queue pull-request list (`GET /merge-queues/{id}/pull-requests`); absent elsewhere and for machine (org-token) principals.",
             "example": true
           }
         },
@@ -1243,7 +1243,7 @@
         },
         "required": ["number"],
         "additionalProperties": false,
-        "description": "Omitting `allowBatching` allows batching. `priorityValue` and `priorityName` are mutually exclusive; `priorityValue: 0` skips the line. `direct` sends the pull request directly to the queue past unmet branch protection / failing required checks, merging via Trunk's bypass app (it does not skip the queue's own tests); it needs the **Merge PRs with direct to queue** permission, and a signed-in user also needs repository-admin permission.",
+        "description": "Omitting `allowBatching` allows batching. `priorityValue` and `priorityName` are mutually exclusive; `priorityValue: 0` skips the line. `direct` sends the pull request directly to the queue past unmet branch protection / failing required checks, merging via Trunk's bypass app (it does not skip the queue's own tests); an org API key is trusted, while a user token requires repository-admin permission.",
         "not": {
           "required": ["priorityValue", "priorityName"]
         }
@@ -2282,12 +2282,12 @@
           },
           "direct": {
             "type": "boolean",
-            "description": "Send the pull request directly to the queue past unmet readiness (branch protection, failing required checks), merging via Trunk's bypass app. It does not skip the queue's own tests. It needs the **Merge PRs with direct to queue** permission, and a signed-in user also needs repository-admin permission. `false` clears it. Reflected as `QueueEntry.direct`.",
+            "description": "Send the pull request directly to the queue past unmet readiness (branch protection, failing required checks), merging via Trunk's bypass app. It does not skip the queue's own tests. An org API key is trusted; a user token requires repository-admin permission. `false` clears it. Reflected as `QueueEntry.direct`.",
             "example": false
           },
           "allowBatching": {
             "type": "boolean",
-            "description": "Whether this entry may be tested in a batch with others. `false` gives it a test run of its own. Sending this field at all needs the **Skip batching** permission. Omit to leave the entry's current setting alone.",
+            "description": "Whether this entry may be tested in a batch with others. `false` gives it a test run of its own, which is why it costs the same permission as changing priority. Omit to leave the entry's current setting alone.",
             "example": false
           }
         },
@@ -6780,7 +6780,7 @@
         "operationId": "pullRequests.updateQueueEntry",
         "tags": ["pullRequests"],
         "summary": "Update a queued pull request's entry",
-        "description": "Patches a live queue entry; an omitted field leaves that attribute unchanged. `priorityValue` and `priorityName` are mutually exclusive. `skipsTheLine` is not settable — it is derived from `priorityValue === 0`, so send that instead. `direct` sends the entry directly to the queue past unmet readiness (it needs the **Merge PRs with direct to queue** permission, and a signed-in user also needs repository-admin permission). `allowBatching: false` gives the entry a test run of its own.",
+        "description": "Patches a live queue entry; an omitted field leaves that attribute unchanged. `priorityValue` and `priorityName` are mutually exclusive. `skipsTheLine` is not settable — it is derived from `priorityValue === 0`, so send that instead. `direct` sends the entry directly to the queue past unmet readiness (an org API key is trusted; a user token requires repository-admin permission). `allowBatching: false` gives the entry a test run of its own.",
         "parameters": [
           {
             "schema": {
