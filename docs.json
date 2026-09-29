@@ -831,6 +831,89 @@
         ]
       },
       {
+        "tab": "Merge Queue API v2",
+        "hidden": true,
+        "groups": [
+          {
+            "group": "Merge Queue API (v2)",
+            "root": "merge-queue/reference/api-v2",
+            "openapi": {
+              "source": "/openapi-v2.json",
+              "directory": "/merge-queue/reference/api-v2"
+            },
+            "pages": [
+              "merge-queue/reference/api-v2/migrate-from-v1",
+              {
+                "group": "Merge queues",
+                "pages": [
+                  "GET /v2/merge-queues",
+                  "POST /v2/merge-queues",
+                  "GET /v2/merge-queues/{id}",
+                  "PATCH /v2/merge-queues/{id}/config",
+                  "POST /v2/merge-queues/{id}/switch-modes",
+                  "POST /v2/merge-queues/{id}/pause",
+                  "POST /v2/merge-queues/{id}/resume",
+                  "POST /v2/merge-queues/{id}/drain",
+                  "DELETE /v2/merge-queues/{id}"
+                ]
+              },
+              {
+                "group": "Queue order",
+                "pages": [
+                  "GET /v2/merge-queues/{id}/order",
+                  "GET /v2/merge-queues/{id}/graph"
+                ]
+              },
+              {
+                "group": "Pull requests",
+                "pages": [
+                  "POST /v2/merge-queues/{id}/pull-requests",
+                  "GET /v2/merge-queues/{id}/pull-requests",
+                  "GET /v2/pull-requests",
+                  "GET /v2/pull-requests/{id}",
+                  "POST /v2/pull-requests/{id}/reprioritize",
+                  "PATCH /v2/pull-requests/{id}/queue-entry",
+                  "POST /v2/pull-requests/{id}/restart-tests",
+                  "POST /v2/pull-requests/{id}/dequeue",
+                  "GET /v2/pull-requests/{id}/queue-entry-history",
+                  "GET /v2/queue-entry-history"
+                ]
+              },
+              {
+                "group": "Testing",
+                "pages": [
+                  "GET /v2/merge-queues/{id}/verification-runs",
+                  "GET /v2/pull-requests/{id}/verification-runs",
+                  "GET /v2/merge-queue-verification-runs/{id}",
+                  "GET /v2/merge-queues/{id}/testing-results"
+                ]
+              },
+              {
+                "group": "Impacted targets",
+                "pages": [
+                  "PUT /v2/impacted-targets",
+                  "merge-queue/reference/api-v2/github-actions"
+                ]
+              },
+              {
+                "group": "Metrics",
+                "pages": [
+                  "GET /v2/merge-queues/metrics",
+                  "GET /v2/merge-queues/{id}/metrics"
+                ]
+              },
+              {
+                "group": "Repositories",
+                "pages": [
+                  "GET /v2/repositories",
+                  "GET /v2/repositories/{id}"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
         "tab": "Changelog",
         "hidden": true,
         "pages": [
