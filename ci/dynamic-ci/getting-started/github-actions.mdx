@@ -63,19 +63,22 @@ Use each job's key from `jobs:`, not its display `name:`.
   own steps. It saves less, because the runner has already started.
 
   ```yaml
-  steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-        filter: blob:none
-    - name: Dynamic CI
-      id: ci-filter
-      uses: trunk-io/dynamic-ci@v1
-      with:
-        token: ${{ secrets.TRUNK_API_TOKEN }}
-        job-keys: unit-tests
-    - if: steps.ci-filter.outputs.unit-tests != 'false'
-      run: make test
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          filter: blob:none
+      - name: Dynamic CI
+        id: ci-filter
+        uses: trunk-io/dynamic-ci@v1
+        with:
+          token: ${{ secrets.TRUNK_API_TOKEN }}
+          job-keys: unit-tests
+      - if: steps.ci-filter.outputs.unit-tests != 'false'
+        run: make test
   ```
 </Accordion>
 
