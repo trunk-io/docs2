@@ -2287,7 +2287,7 @@
           },
           "allowBatching": {
             "type": "boolean",
-            "description": "Whether this entry may be tested in a batch with others. `false` gives it a test run of its own, which is why it costs the same permission as changing priority. Omit to leave the entry's current setting alone.",
+            "description": "Whether this entry may be tested in a batch with others. `false` gives it a test run of its own. Sending this field at all needs the **Skip batching** permission. Omit to leave the entry's current setting alone.",
             "example": false
           }
         },

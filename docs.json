@@ -842,6 +842,7 @@
               "directory": "/merge-queue/reference/api-v2"
             },
             "pages": [
+              "merge-queue/reference/api-v2/migrate-from-v1",
               {
                 "group": "Merge queues",
                 "pages": [
