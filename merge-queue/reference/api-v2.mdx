@@ -1,0 +1,174 @@
+---
+title: "Merge Queue API (v2)"
+description: "REST API for merge queues, the pull requests in them, and the testing they run."
+og:title: "Trunk Merge Queue API v2 reference"
+---
+The v2 Merge Queue API lets you manage merge queues and the pull requests in them, read the order the queue will test them in, and inspect every verification run. It is an HTTP REST API hosted at `https://api.trunk.io/v2` that returns JSON and uses standard HTTP status codes.
+
+v2 addresses everything by ID rather than by repository and branch coordinates, pages every list the same way, and returns one error shape. It sits alongside the [v1 API](/merge-queue/reference/merge), which keeps working unchanged.
+
+## Authentication
+
+Send **either** your organization API key as `Authorization: Bearer <key>`, **or** a short-lived first-party token in the `x-trunk-token` header. Your existing v1 API token works unchanged as an organization API key — see [finding your API token](/setup-and-administration/apis#finding-your-api-token).
+
+```bash
+curl https://api.trunk.io/v2/merge-queues \
+  -H "Authorization: Bearer $TRUNK_API_TOKEN"
+```
+
+<Warning>
+**Automation that changes merge queues should send the organization API key directly on every request.** A first-party token obtained by exchanging an API key can read merge queues but not change them — those requests return `403 INSUFFICIENT_PERMISSIONS`.
+</Warning>
+
+Merge-queue write access is broad: there is no enqueue-only scope. A credential that can submit pull requests can also change queue configuration — including `requiredStatuses` — and pause, drain, or delete queues. Treat it as an operator credential, not a narrowly scoped CI token.
+
+To upload impacted targets from CI, you don't need an API key at all: a GitHub Actions job can [log in with the run's own GitHub credential](/merge-queue/reference/api-v2/github-actions), pull requests from forks included. That login can only upload impacted targets for its own repository.
+
+## Finding IDs
+
+Every merge queue, pull request, repository, and verification run has an `id`, and endpoints address resources by it. Resolve IDs once and reuse them:
+
+1. **Queue:** [`GET /v2/merge-queues`](/merge-queue/reference/api-v2/mergequeues/list-merge-queues) needs no arguments and returns every queue in your organization, each with its `id`, `repositoryId`, `repositoryUrl`, and `targetBranch`. To find one repository's queues, first resolve the repository with [`GET /v2/repositories?providerUrl=…`](/merge-queue/reference/api-v2/repositories/resolve-a-repository-by-its-provider-url).
+2. **Pull request:** [`GET /v2/pull-requests?repositoryId=…&number=…`](/merge-queue/reference/api-v2/pullrequests/resolve-pull-requests-by-repository-coordinates) resolves up to 50 pull request numbers at once, or a head `branch`.
+
+```bash
+curl "https://api.trunk.io/v2/pull-requests?repositoryId=7c9e6679-7425-40de-944b-e07fc1f90ae7&number=4901" \
+  -H "Authorization: Bearer $TRUNK_API_TOKEN"
+```
+
+Submitting a pull request is the exception: it takes the pull request's `number` in the body, so you only need the queue's ID.
+
+```bash
+curl -X POST https://api.trunk.io/v2/merge-queues/xK9mP2nQ/pull-requests \
+  -H "Authorization: Bearer $TRUNK_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{ "number": 4901 }'
+```
+
+## Pagination
+
+Every list endpoint returns the same envelope:
+
+```json
+{
+  "data": [],
+  "nextCursor": "AQEKZm9vYmFy",
+  "hasMore": true
+}
+```
+
+Pass `nextCursor` back verbatim as `cursor` to get the next page, until `hasMore` is `false`. Cursors are opaque, forward-only, and bound to the endpoint and filters they came from. `limit` sets the page size (1–100). Set `includeTotal=true` to add a `total` count, which costs an extra query and is off by default.
+
+**List order is not queue order.** A queue's pull request list is most recently enqueued first. For the order the queue will test pull requests in, use [`GET /v2/merge-queues/{id}/order`](/merge-queue/reference/api-v2/mergequeues/get-a-merge-queues-dispatch-order).
+
+## Errors
+
+Every 4xx and 5xx response has the same shape:
+
+```json
+{
+  "error": {
+    "code": "MERGE_QUEUE_NOT_FOUND",
+    "message": "No merge queue found with ID xK9mP2nQ"
+  }
+}
+```
+
+Switch on `code`, which is stable. `message` is for people and may change at any time.
+
+- **`404` also means "not yours".** A read of a resource in another organization returns `404`, not `403`, so the API never reveals whether it exists.
+- **`403 INSUFFICIENT_PERMISSIONS`** means your credential is valid but not permitted to take that action.
+- **`429`** means you exceeded the rate limit of 100 requests per second per organization. Retry with backoff. A `429` may not carry the error envelope, so treat any `429` as rate limiting.
+
+Every response carries an `X-Request-Id` header. Include it when you contact support.
+
+## Retrying writes
+
+`Idempotency-Key` is not honored yet. If a write times out or its outcome is unknown, read the resource back before retrying — a blind retry can, for example, restart a pull request's tests twice. Each write's reference page describes how to reconcile it.
+
+## Compatibility
+
+Within v2, Trunk may add endpoints, optional request parameters, optional response fields, and new enum values — including new error codes and queue-entry states. **Tolerate values and fields you don't recognize.** A client that switches exhaustively over an enum will break when a member is added. Removals and changes in meaning require a new major version.
+
+## Limitations
+
+- Merge queues, verification runs, and checks are **GitHub-only**. Impacted-target uploads also require a `github.com` repository named `owner/repo`.
+- The API has no webhooks of its own: monitor it by polling, or use [Merge Queue webhooks](/merge-queue/webhooks).
+
+## Endpoints
+
+### Merge queues
+
+<Columns cols={2}>
+  <Card title="List merge queues" href="/merge-queue/reference/api-v2/mergequeues/list-merge-queues" />
+  <Card title="Create a merge queue" href="/merge-queue/reference/api-v2/mergequeues/create-a-merge-queue" />
+  <Card title="Get a merge queue" href="/merge-queue/reference/api-v2/mergequeues/get-a-merge-queue" />
+  <Card title="Update a merge queue's configuration" href="/merge-queue/reference/api-v2/mergequeues/update-a-merge-queues-configuration" />
+  <Card title="Switch a merge queue's mode" href="/merge-queue/reference/api-v2/mergequeues/switch-a-merge-queues-mode" />
+  <Card title="Pause a merge queue" href="/merge-queue/reference/api-v2/mergequeues/pause-a-merge-queue" />
+  <Card title="Resume a merge queue" href="/merge-queue/reference/api-v2/mergequeues/resume-a-merge-queue" />
+  <Card title="Drain a merge queue" href="/merge-queue/reference/api-v2/mergequeues/drain-a-merge-queue" />
+  <Card title="Delete a merge queue" href="/merge-queue/reference/api-v2/mergequeues/delete-a-merge-queue" />
+</Columns>
+
+### Queue order
+
+Which pull requests the queue will test next, and which ones it considers related. Use the order to answer "what runs next"; the graph explains why pull requests depend on each other, but not when they run.
+
+<Columns cols={2}>
+  <Card title="Get a merge queue's dispatch order" href="/merge-queue/reference/api-v2/mergequeues/get-a-merge-queues-dispatch-order" />
+  <Card title="Get a merge queue's dependency graph" href="/merge-queue/reference/api-v2/mergequeues/get-a-merge-queues-dependency-graph" />
+</Columns>
+
+### Pull requests
+
+<Columns cols={2}>
+  <Card title="Submit a pull request to a merge queue" href="/merge-queue/reference/api-v2/mergequeues/submit-a-pull-request-to-a-merge-queue" />
+  <Card title="List a merge queue's pull requests" href="/merge-queue/reference/api-v2/mergequeues/list-a-merge-queues-pull-requests" />
+  <Card title="Resolve pull requests by repository coordinates" href="/merge-queue/reference/api-v2/pullrequests/resolve-pull-requests-by-repository-coordinates" />
+  <Card title="Get a pull request" href="/merge-queue/reference/api-v2/pullrequests/get-a-pull-request" />
+  <Card title="Reprioritize a queued pull request" href="/merge-queue/reference/api-v2/pullrequests/reprioritize-a-queued-pull-request" />
+  <Card title="Update a queued pull request's entry" href="/merge-queue/reference/api-v2/pullrequests/update-a-queued-pull-requests-entry" />
+  <Card title="Restart a queued pull request's tests" href="/merge-queue/reference/api-v2/pullrequests/restart-a-queued-pull-requests-tests" />
+  <Card title="Dequeue a pull request" href="/merge-queue/reference/api-v2/pullrequests/dequeue-a-pull-request" />
+  <Card title="List a pull request's queue-entry state history" href="/merge-queue/reference/api-v2/pullrequests/list-a-pull-requests-queue-entry-state-history" />
+  <Card title="List queue-entry state history for several pull requests" href="/merge-queue/reference/api-v2/pullrequests/list-queue-entry-state-history-for-several-pull-requests" />
+</Columns>
+
+A pull request's queue entry moves through the states `notReady`, `pending`, `testing`, `testsPassed`, `pendingFailure`, and ends in `merged`, `failed`, or `cancelled`. To see why an entry changed state — for example, why it keeps being re-tested — read its queue-entry history and inspect each transition's `reason`.
+
+### Testing
+
+A verification run is one CI run the queue started to test one pull request or a batch of them.
+
+<Columns cols={2}>
+  <Card title="List a merge queue's verification runs" href="/merge-queue/reference/api-v2/mergequeues/list-a-merge-queues-verification-runs" />
+  <Card title="List a pull request's verification runs" href="/merge-queue/reference/api-v2/pullrequests/list-a-pull-requests-verification-runs" />
+  <Card title="Get a verification run" href="/merge-queue/reference/api-v2/mergequeueverificationruns/get-a-verification-run" />
+  <Card title="List a merge queue's completed testing" href="/merge-queue/reference/api-v2/mergequeues/list-a-merge-queues-completed-testing" />
+</Columns>
+
+### Impacted targets
+
+For queues running [parallel queues](/merge-queue/optimizations/parallel-queues), CI uploads the build targets each pull request impacts.
+
+<Columns cols={2}>
+  <Card title="Upload a pull request's impacted targets" href="/merge-queue/reference/api-v2/impactedtargets/upload-a-pull-requests-impacted-targets" />
+  <Card title="Upload impacted targets from GitHub Actions" href="/merge-queue/reference/api-v2/github-actions" />
+</Columns>
+
+### Metrics
+
+Prometheus text exposition, with the same metric names and labels as v1's [`getMergeQueueMetrics`](/merge-queue/reference/merge/get-prometheus-format-metrics-for-a-merge-queue) — an existing scrape config or dashboard needs only its URL and credential changed. See [Prometheus metrics](/merge-queue/administration/metrics#prometheus-metrics-endpoint) for the metrics and example queries.
+
+<Columns cols={2}>
+  <Card title="Get Prometheus metrics for every merge queue" href="/merge-queue/reference/api-v2/mergequeues/get-prometheus-metrics-for-every-merge-queue" />
+  <Card title="Get Prometheus metrics for a merge queue" href="/merge-queue/reference/api-v2/mergequeues/get-prometheus-metrics-for-a-merge-queue" />
+</Columns>
+
+### Repositories
+
+<Columns cols={2}>
+  <Card title="Resolve a repository by its provider URL" href="/merge-queue/reference/api-v2/repositories/resolve-a-repository-by-its-provider-url" />
+  <Card title="Get a repository" href="/merge-queue/reference/api-v2/repositories/get-a-repository" />
+</Columns>

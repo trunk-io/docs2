@@ -3,7 +3,7 @@
   "info": {
     "title": "Trunk API",
     "version": "2.0.0",
-    "description": "The Trunk public API. Every endpoint is scoped to a single organization and requires a credential.\n\n## Authentication\n\nSend **either** an org API key as `Authorization: Bearer <key>`, **or** a short-lived first-party token in the `x-trunk-token` header. Existing v1 API tokens work unchanged as org API keys.\n\nThe two are not interchangeable for writes. A first-party token obtained by **exchanging an org API key** reads merge queues but cannot mutate them — a merge-queue mutation forwards the key itself to the merge service, and an exchanged token carries no copy of it, so those requests answer `403 INSUFFICIENT_PERMISSIONS`. A machine caller that mutates merge queues should send its org API key directly on `Authorization` for every request. Tokens obtained through the CLI device flow are unaffected.\n\n**Merge-queue authorization is broad today.** The API does not offer an enqueue-only capability: organization members and org API keys authorized for merge-queue writes can also change configuration (including `requiredStatuses`), pause, drain and delete queues. Use such credentials as privileged operators, not narrowly scoped CI submission tokens.\n\n## Errors\n\nEvery 4xx and 5xx response is a `ErrorResponse`: `{ \"error\": { \"code\", \"message\" } }`. Switch on `code`, which is stable; `message` is prose and may change at any time.\n\n**An authorization denial on a read is reported as `404`, not `403`** — whether a resource exists must not leak across organizations, so a resource in another organization is indistinguishable from one that does not exist. `403 INSUFFICIENT_PERMISSIONS` means the credential is valid but is not permitted the action (or carries no organization).\n\nEvery response carries an `X-Request-Id` header. Quote it in support requests.\n\n## Rate limiting\n\nRequests are limited per organization (currently 100 requests/second). Exceeding it returns `429` with `RATE_LIMIT_EXCEEDED`; retry with backoff. Note that the limit is enforced at the edge, which does not yet wrap its `429` in the `ErrorResponse` envelope described above — treat any `429` as rate limiting regardless of body.\n\n## Compatibility\n\nWithin v2, Trunk may add: new endpoints, new **optional** response fields, new members to any enum (including new `code` values, new queue-entry states, and new providers), and new optional request parameters. **Clients must tolerate values and fields they do not recognize** rather than failing closed — a client that switches exhaustively over an enum will break when a member is added. Removals and semantic changes require a new major version.\n\n## Provider support\n\nMerge queues, verification runs and checks are **GitHub-only** today; `Check.provider` has a single member for that reason. Impacted-target uploads additionally require a `github.com` repository named `owner/repo`. The `Provider` enum lists values the repository index can store, not surfaces that are fully supported.\n\n## Not yet available\n\nA pull request's **position** in its queue is not exposed, and list responses are not ordered by queue position. There are no webhooks — monitoring is by polling. `Idempotency-Key` is not yet honored, so a mutation that times out must be reconciled by reading the resource back rather than blindly retried.",
+    "description": "The Trunk public API. Every endpoint is scoped to a single organization and requires a credential.\n\n## Authentication\n\nSend **either** an org API key as `Authorization: Bearer <key>`, **or** a short-lived first-party token in the `x-trunk-token` header. Existing v1 API tokens work unchanged as org API keys.\n\nThe two are not interchangeable for writes. A first-party token obtained by **exchanging an org API key** reads merge queues but cannot mutate them — a merge-queue mutation forwards the key itself to the merge service, and an exchanged token carries no copy of it, so those requests answer `403 INSUFFICIENT_PERMISSIONS`. A machine caller that mutates merge queues should send its org API key directly on `Authorization` for every request. Tokens obtained through the CLI device flow are unaffected.\n\nA GitHub Actions job can upload impacted targets with no Trunk secret: the `trunk-io/login` action exchanges the run's own GitHub credential (its OIDC token, or on a pull request from a fork its `GITHUB_TOKEN`) for a short-lived first-party token. That token is accepted only by `PUT /v2/impacted-targets`, for the run's own repository — and on a fork pull request, only for that pull request and its head sha.\n\n**Merge-queue authorization is broad today.** The API does not offer an enqueue-only capability: organization members and org API keys authorized for merge-queue writes can also change configuration (including `requiredStatuses`), pause, drain and delete queues. Use such credentials as privileged operators, not narrowly scoped CI submission tokens.\n\n## Errors\n\nEvery 4xx and 5xx response is a `ErrorResponse`: `{ \"error\": { \"code\", \"message\" } }`. Switch on `code`, which is stable; `message` is prose and may change at any time.\n\n**An authorization denial on a read is reported as `404`, not `403`** — whether a resource exists must not leak across organizations, so a resource in another organization is indistinguishable from one that does not exist. `403 INSUFFICIENT_PERMISSIONS` means the credential is valid but is not permitted the action (or carries no organization).\n\nEvery response carries an `X-Request-Id` header. Quote it in support requests.\n\n## Rate limiting\n\nRequests are limited per organization (currently 100 requests/second). Exceeding it returns `429` with `RATE_LIMIT_EXCEEDED`; retry with backoff. Note that the limit is enforced at the edge, which does not yet wrap its `429` in the `ErrorResponse` envelope described above — treat any `429` as rate limiting regardless of body.\n\n## Compatibility\n\nWithin v2, Trunk may add: new endpoints, new **optional** response fields, new members to any enum (including new `code` values, new queue-entry states, and new providers), and new optional request parameters. **Clients must tolerate values and fields they do not recognize** rather than failing closed — a client that switches exhaustively over an enum will break when a member is added. Removals and semantic changes require a new major version.\n\n## Provider support\n\nMerge queues, verification runs and checks are **GitHub-only** today; `Check.provider` has a single member for that reason. Impacted-target uploads additionally require a `github.com` repository named `owner/repo`. The `Provider` enum lists values the repository index can store, not surfaces that are fully supported.\n\n## Not yet available\n\nList responses are not ordered by queue position; read the order the engine will consider pull requests in from `GET /v2/merge-queues/{id}/order`. This API delivers no events of its own — poll it, or subscribe to Merge Queue's webhooks (https://docs.trunk.io/merge-queue/webhooks). `Idempotency-Key` is not yet honored, so a mutation that times out must be reconciled by reading the resource back rather than blindly retried.",
     "contact": {
       "name": "Trunk Support",
       "url": "https://docs.trunk.io"
@@ -68,7 +68,7 @@
         "type": "apiKey",
         "in": "header",
         "name": "x-trunk-token",
-        "description": "A short-lived first-party token, sent in the `x-trunk-token` header. Obtain one through the CLI device-authentication flow, or by exchanging an org API key (`POST /v2/auth/api-key/login`).\n\n**A token exchanged from an org API key reads merge queues but cannot mutate them.** A merge-queue mutation forwards the org API key itself to the merge service, and an exchanged token carries no copy of it, so those requests answer `403 INSUFFICIENT_PERMISSIONS`. A machine caller that mutates merge queues should send the org API key directly as `Authorization: Bearer <key>` rather than exchanging it. Tokens from the device flow are unaffected."
+        "description": "A short-lived first-party token, sent in the `x-trunk-token` header. Obtain one through the CLI device-authentication flow, by exchanging an org API key (`POST /v2/auth/api-key/login`), or from a GitHub Actions run with the `trunk-io/login` action.\n\n**A token exchanged from an org API key reads merge queues but cannot mutate them.** A merge-queue mutation forwards the org API key itself to the merge service, and an exchanged token carries no copy of it, so those requests answer `403 INSUFFICIENT_PERMISSIONS`. A machine caller that mutates merge queues should send the org API key directly as `Authorization: Bearer <key>` rather than exchanging it. Tokens from the device flow are unaffected.\n\n**A token from a GitHub Actions run can only upload impacted targets** (`PUT /v2/impacted-targets`), for the repository the run belongs to; every other endpoint refuses it."
       }
     },
     "schemas": {
@@ -212,7 +212,7 @@
       "ManagedState": {
         "type": "string",
         "enum": ["manual", "terraform", "terraformWithDrift"],
-        "description": "Who owns the queue's configuration. `terraform` — the last write came from Terraform, which only the v1 API detects today (a `terraform`/`opentofu` user agent or `x-source` header on `/createQueue` and `/updateQueue`). `terraformWithDrift` — Terraform owned it and a later write was not identified as Terraform's, so the live configuration may differ from the plan. Any such write counts, including pause/resume and, until this API forwards the Terraform signal, every write made through v2 — so v2 automation on a Terraform-owned queue reads as drift. `manual` — never written by Terraform."
+        "description": "Who owns the queue's configuration. `terraform` — the last write came from Terraform, identified on any queue write (create, config, pause/resume/drain, mode switch) by a `User-Agent` or `X-Source` header containing `terraform` or `opentofu`, case-insensitively — the same rule as v1. `terraformWithDrift` — Terraform owned it and a later write was not identified as Terraform's, so the live configuration may differ from the plan. Any such write counts, including pause/resume from other automation. `manual` — never written by Terraform."
       },
       "MergeQueueConfig": {
         "type": "object",
@@ -466,6 +466,7 @@
           "PR_NOT_IN_ACTIVE_STATE",
           "MERGE_QUEUE_NOT_CREATABLE",
           "PR_TESTS_NOT_RESTARTABLE",
+          "ALLOWED_BOT_SUBMITTERS_FROZEN",
           "PROVIDER_URL_NOT_FOUND",
           "CI_HOST_UNSUPPORTED",
           "CI_SCOPE_NOT_FOUND",
@@ -513,6 +514,411 @@
         "required": ["repositoryId", "targetBranch"],
         "additionalProperties": false,
         "description": "Omitting `mode` or `concurrency` applies the merge service's own defaults rather than a schema default, because what an omission means belongs to that service."
+      },
+      "PrometheusExposition": {
+        "type": "string",
+        "description": "Prometheus text exposition format 0.0.4. The metric names, help text and labels are v1's `getMergeQueueMetrics`, so an existing scrape config or dashboard needs only its URL and credential changed. Every series carries `repo` (the repository's name), `branch` and `queue_type` (`main` or `bisection`); `mq_pr_conclusions_1h_total` and `mq_pr_time_in_queue_1h_seconds*` add `conclusion`, and `mq_pr_state_duration_1h_seconds*` adds `state`. Gauges report the queue now; `_1h` series cover the last hour.",
+        "example": "# HELP mq_depth_current Number of PRs currently in the queue (in any non-terminal state).\n# TYPE mq_depth_current gauge\nmq_depth_current{repo=\"acme/widgets\",branch=\"main\",queue_type=\"main\"} 4\n"
+      },
+      "MergeQueueOrder": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "$ref": "#/components/schemas/MergeQueueMode"
+          },
+          "queueState": {
+            "$ref": "#/components/schemas/MergeQueueState"
+          },
+          "batchingEnabled": {
+            "type": "boolean",
+            "description": "Batching is configured. When false every pull request forms its own predicted batch, and `directlyAhead` is empty throughout.",
+            "example": true
+          },
+          "isolationResolved": {
+            "type": "boolean",
+            "description": "False when an `ISOLATE` batching rule could apply to this queue. Resolving those costs one impacted-target lookup per pull request, so this read skips it — which can move an isolated pull request into an earlier predicted batch, and so earlier in `pending`, than the engine will actually consider it.",
+            "example": true
+          },
+          "hasCycle": {
+            "type": "boolean",
+            "description": "The queue's graph has a cycle and the engine fell back to a degraded ordering. `directlyAhead` and `heldBy` are empty, and a held pull request reports as `schedulable`.",
+            "example": false
+          },
+          "batches": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderedBatch"
+            },
+            "maxItems": 10000,
+            "description": "Batches that have a verification run, in dependency order — a batch appears after the batches it builds on, with bisections last. **Not start order**, and not all of them are still testing: read each batch's `state`."
+          },
+          "pending": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderedPendingItem"
+            },
+            "maxItems": 10000,
+            "description": "Admitted pull requests, in the order the engine will consider them; held ones come after schedulable ones. A `schedulable` entry's index **is** the number of admitted, schedulable pull requests the engine will consider before it — with batching off that is exactly the index — but that is not a wait: see `predictedBatch`."
+          },
+          "awaitingAdmission": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QueuedPullRequest"
+            },
+            "maxItems": 10000,
+            "description": "Pull requests past the engine's graph soft cap, which hold no position yet. Ordered by a DIFFERENT comparator than `pending`, so the two lists are not one sequence, and truncated — see `awaitingAdmissionTotal`."
+          },
+          "awaitingAdmissionTotal": {
+            "type": "integer",
+            "description": "How many are awaiting admission in total. The engine truncates the list, so compare this with `awaitingAdmission.length` to detect it; read a specific pull request through `GET /v2/pull-requests/{id}` rather than scanning.",
+            "example": 0
+          }
+        },
+        "required": [
+          "mode",
+          "queueState",
+          "batchingEnabled",
+          "isolationResolved",
+          "hasCycle",
+          "batches",
+          "pending",
+          "awaitingAdmission",
+          "awaitingAdmissionTotal"
+        ],
+        "description": "The queue's dispatch order: what is testing, what is admitted and waiting, and what has not been admitted. Pull requests that are not ready are deliberately absent — they hold no position — and are readable through `GET /v2/pull-requests/{id}`."
+      },
+      "OrderedBatch": {
+        "type": "object",
+        "properties": {
+          "verificationRunId": {
+            "type": "string",
+            "description": "The run testing this batch — pass it to `GET /v2/merge-queue-verification-runs/{id}`.",
+            "example": "4f3e2d1c-0b9a-4876-9543-210fedcba987"
+          },
+          "state": {
+            "$ref": "#/components/schemas/QueueEntryState"
+          },
+          "isBisection": {
+            "type": "boolean",
+            "description": "This batch is a bisection, splitting a failed batch to find the culprit. Bisections dispatch on their own concurrency budget, so one can start ahead of a lower-numbered `predictedBatch`.",
+            "example": false
+          },
+          "pullRequests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QueuedPullRequest"
+            },
+            "maxItems": 10000,
+            "description": "The pull requests this run is testing together."
+          }
+        },
+        "required": [
+          "verificationRunId",
+          "state",
+          "isBisection",
+          "pullRequests"
+        ],
+        "description": "A batch with a verification run — testing, passed, merging, or holding others back after a failure. `state` says which."
+      },
+      "QueueEntryState": {
+        "type": "string",
+        "enum": [
+          "notReady",
+          "pending",
+          "testing",
+          "testsPassed",
+          "merged",
+          "failed",
+          "cancelled",
+          "pendingFailure"
+        ],
+        "description": "Where a pull request sits in its queue's lifecycle.\n\n| Value | Meaning |\n| --- | --- |\n| `notReady` | Enqueued but not yet eligible to test — a readiness condition is unmet (see `QueueEntry.readiness`). |\n| `pending` | Ready and waiting for a test slot, or waiting on an earlier entry. |\n| `testing` | A verification run is in flight for this entry. |\n| `testsPassed` | Verification succeeded; waiting to merge. |\n| `merged` | Terminal — merged into the target branch. |\n| `failed` | Terminal — verification or the merge itself failed. |\n| `cancelled` | Terminal — removed from the queue (dequeued, or cancelled by the engine). |\n| `pendingFailure` | A failure is expected because an entry ahead failed, but this entry has not been re-tested yet. Not terminal: it usually returns to `pending` or `testing`. |\n\nNew members may be added within v2.",
+        "example": "testing"
+      },
+      "QueuedPullRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The pull request's id in this API — pass it to `GET /v2/pull-requests/{id}`.",
+            "example": "6f1d2c3b-4a59-4e6f-8a7b-9c0d1e2f3a4b"
+          },
+          "number": {
+            "type": "integer",
+            "example": 4901
+          },
+          "sha": {
+            "type": "string",
+            "description": "The head commit that was included in this run. Compare with the pull request's current `sha` to detect that its branch moved since.",
+            "example": "9c58bf40e5c1a2b3d4e5f60718293a4b5c6d7e8f"
+          },
+          "title": {
+            "type": "string",
+            "example": "Add the widget endpoint"
+          },
+          "url": {
+            "type": "string",
+            "description": "The pull request on its provider. Absent until Trunk's sync has populated it.",
+            "example": "https://github.com/acme/widgets/pull/4901"
+          }
+        },
+        "required": ["id", "number", "sha", "title"],
+        "description": "A pull request in the queue's dispatch order."
+      },
+      "OrderedPendingItem": {
+        "type": "object",
+        "properties": {
+          "pullRequest": {
+            "$ref": "#/components/schemas/QueuedPullRequest"
+          },
+          "schedulability": {
+            "$ref": "#/components/schemas/PendingSchedulability"
+          },
+          "predictedBatch": {
+            "type": "integer",
+            "description": "1-based, and REPEATS across every pull request predicted to start testing together. Absent for a held item, which is excluded from the prediction. This is an order of CONSIDERATION, not of execution: several predicted batches commonly start at once, so a lower number is not a shorter wait.",
+            "example": 1
+          },
+          "directlyAhead": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QueuedPullRequest"
+            },
+            "maxItems": 10000,
+            "description": "The pull requests immediately in front of this one in the queue's graph. Reduced-DAG adjacency, not a conflict set: edges encode impacted-target overlap, so an indirect overlap is represented through the item between them. Empty when `batchingEnabled` is false or `hasCycle` is true."
+          },
+          "heldBy": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QueuedPullRequest"
+            },
+            "maxItems": 10000,
+            "description": "The failing pull requests holding this one back, when `schedulability` is `heldBehindFailure`."
+          }
+        },
+        "required": [
+          "pullRequest",
+          "schedulability",
+          "directlyAhead",
+          "heldBy"
+        ],
+        "description": "A pull request admitted to the queue but not yet testing."
+      },
+      "PendingSchedulability": {
+        "type": "string",
+        "enum": ["schedulable", "heldBehindFailure"],
+        "description": "`schedulable` means eligible for the next scheduling pass, NOT that it will run next — the pass is still gated by `queueState`, the queue's testing-concurrency cap, and predecessors lacking a usable test branch. `heldBehindFailure` means a `PENDING_FAILURE` ancestor is holding it; `heldBy` names which."
+      },
+      "MergeGraph": {
+        "type": "object",
+        "properties": {
+          "nodes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MergeGraphNode"
+            },
+            "maxItems": 10000
+          },
+          "edges": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MergeGraphEdge"
+            },
+            "maxItems": 10000,
+            "description": "Transitively reduced, so an indirect dependency is represented through the node between its endpoints rather than as its own edge."
+          }
+        },
+        "required": ["nodes", "edges"],
+        "description": "The queue's dependency graph. **The dispatch order is NOT derivable from this** — the engine schedules on a cascaded priority and a pending-failure gate, neither of which is in this payload; use `GET /v2/merge-queues/{id}/order`. It also contains only pull requests the engine has admitted to its graph, so anything awaiting admission, or not yet ready, is absent."
+      },
+      "MergeGraphNode": {
+        "type": "object",
+        "properties": {
+          "pullRequestNumber": {
+            "type": "integer",
+            "description": "Identifies this node within the graph, and resolves to a pull request through `GET /v2/pull-requests` with the queue's `repositoryId`. A merge queue holds at most one entry per pull request, so the number is unique here.",
+            "example": 4901
+          },
+          "title": {
+            "type": "string",
+            "example": "Add the widget endpoint"
+          },
+          "author": {
+            "type": "string",
+            "example": "octocat"
+          },
+          "state": {
+            "$ref": "#/components/schemas/QueueEntryState"
+          },
+          "priorityValue": {
+            "type": "integer",
+            "description": "The pull request's OWN priority. Not the cascaded value the engine schedules on — that is computed per pass and is not exposed here.",
+            "example": 100
+          },
+          "priorityName": {
+            "type": "string",
+            "example": "medium"
+          },
+          "skipsTheLine": {
+            "type": "boolean",
+            "example": false
+          },
+          "allowsBatching": {
+            "type": "boolean",
+            "example": true
+          },
+          "verificationRunId": {
+            "type": "string",
+            "description": "The run testing this node, when it is testing.",
+            "example": "4f3e2d1c-0b9a-4876-9543-210fedcba987"
+          },
+          "isBisection": {
+            "type": "boolean",
+            "example": false
+          },
+          "impactedTargets": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 10000,
+            "description": "Present only under `includeImpactedTargets`. Truncated — see `totalImpactedTargets`."
+          },
+          "totalImpactedTargets": {
+            "type": "integer",
+            "example": 12
+          }
+        },
+        "required": [
+          "pullRequestNumber",
+          "title",
+          "author",
+          "state",
+          "priorityValue",
+          "skipsTheLine",
+          "allowsBatching",
+          "isBisection"
+        ],
+        "description": "One pull request in the queue's graph."
+      },
+      "MergeGraphEdge": {
+        "type": "object",
+        "properties": {
+          "fromPullRequestNumber": {
+            "type": "integer",
+            "example": 4901
+          },
+          "toPullRequestNumber": {
+            "type": "integer",
+            "example": 4902
+          },
+          "commonImpactedTargets": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 10000,
+            "description": "Why the edge exists: the targets both pull requests impact. Present only under `includeImpactedTargets`, and truncated."
+          },
+          "totalCommonImpactedTargets": {
+            "type": "integer",
+            "example": 3
+          }
+        },
+        "required": ["fromPullRequestNumber", "toPullRequestNumber"],
+        "description": "A dependency between two pull requests, derived from overlapping impacted targets."
+      },
+      "TestingResultList": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TestingResult"
+            },
+            "maxItems": 100
+          },
+          "nextCursor": {
+            "type": ["string", "null"],
+            "description": "Opaque cursor for the next page, or null on the last page. Pass it back verbatim as `cursor`; do not construct or inspect one.",
+            "example": "AQEKZm9vYmFy"
+          },
+          "hasMore": {
+            "type": "boolean",
+            "description": "True when another page is available.",
+            "example": true
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total rows matching the filter. Present only when the request set `includeTotal=true`.",
+            "example": 1247
+          }
+        },
+        "required": ["data", "nextCursor", "hasMore"]
+      },
+      "TestingResult": {
+        "type": "object",
+        "properties": {
+          "pullRequestNumber": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "description": "The pull request's number on the provider.",
+            "example": 4231
+          },
+          "endedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When this stretch of testing ended. The end of the testing, not of the queue entry — see `entryConclusion`.",
+            "example": "2026-09-21T17:04:11.000Z"
+          },
+          "testingDurationMs": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "How long this stretch of testing lasted. Recorded to whole seconds, so always a multiple of 1000.",
+            "example": 754000
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/TestingOutcome"
+          },
+          "entryConclusion": {
+            "$ref": "#/components/schemas/QueueEntryConclusion"
+          },
+          "isBisection": {
+            "type": "boolean",
+            "description": "This testing was itself part of a bisection.",
+            "example": false
+          },
+          "startedBisection": {
+            "type": "boolean",
+            "description": "This failure caused the pull request's batch to be split. Can be true together with `isBisection`, when a bisection step splits again.",
+            "example": false
+          },
+          "verificationRunId": {
+            "type": "string",
+            "description": "The run this testing belongs to — pass it to `GET /v2/merge-queue-verification-runs/{id}`. Absent on results recorded before runs were tracked on them.",
+            "example": "4f3e2d1c-0b9a-4876-9543-210fedcba987"
+          }
+        },
+        "required": [
+          "pullRequestNumber",
+          "endedAt",
+          "testingDurationMs",
+          "isBisection",
+          "startedBisection"
+        ],
+        "description": "One pull request's stretch of testing in a merge queue. A pull request appears once per attempt, so several times if its testing restarted, and a batched run appears once per pull request it tested. `outcome` and `entryConclusion` are absent when Trunk reports no classification."
+      },
+      "TestingOutcome": {
+        "type": "string",
+        "enum": ["passed", "failed", "interrupted", "cancelled"],
+        "description": "How this stretch of testing ended. `passed` — the run passed, including a passing bisection step. `failed` — the run failed, or the pull request entered bisection. `interrupted` — testing was cut short and will be retried (a restart, a preemption, or a base branch change). `cancelled` — the pull request left the queue while testing.",
+        "example": "passed"
+      },
+      "QueueEntryConclusion": {
+        "type": "string",
+        "enum": ["merged", "failed", "cancelled"],
+        "description": "How the queue entry this testing belonged to ended. A pull request that fails and is resubmitted has a new entry.",
+        "example": "merged"
       },
       "PullRequest": {
         "type": "object",
@@ -649,9 +1055,9 @@
             "description": "Whether this entry may be verified in a batch with others. The queue's own `config.allowBatching` is the ceiling — an entry cannot batch when the queue forbids it.",
             "example": true
           },
-          "isForceEnqueued": {
+          "direct": {
             "type": "boolean",
-            "description": "Whether the entry was force-enqueued past an unmet readiness condition (`direct` on submit, `isForceEnqueued` on `PATCH /v2/pull-requests/{id}/queue-entry`). It did not skip verification.",
+            "description": "Whether the entry was sent directly to the queue past an unmet readiness condition (`direct` on submit or on `PATCH /v2/pull-requests/{id}/queue-entry`). It did not skip the queue's own tests.",
             "example": false
           },
           "verifiedByVerificationRunId": {
@@ -682,27 +1088,12 @@
           "stateChangedAt",
           "skipsTheLine",
           "allowBatching",
-          "isForceEnqueued",
+          "direct",
           "readiness",
           "createdAt",
           "updatedAt"
         ],
         "description": "A pull request's queue membership. There is at most one ever — re-submitting the same pull request mutates this record rather than adding another."
-      },
-      "QueueEntryState": {
-        "type": "string",
-        "enum": [
-          "notReady",
-          "pending",
-          "testing",
-          "testsPassed",
-          "merged",
-          "failed",
-          "cancelled",
-          "pendingFailure"
-        ],
-        "description": "Where a pull request sits in its queue's lifecycle.\n\n| Value | Meaning |\n| --- | --- |\n| `notReady` | Enqueued but not yet eligible to test — a readiness condition is unmet (see `QueueEntry.readiness`). |\n| `pending` | Ready and waiting for a test slot, or waiting on an earlier entry. |\n| `testing` | A verification run is in flight for this entry. |\n| `testsPassed` | Verification succeeded; waiting to merge. |\n| `merged` | Terminal — merged into the target branch. |\n| `failed` | Terminal — verification or the merge itself failed. |\n| `cancelled` | Terminal — removed from the queue (dequeued, or cancelled by the engine). |\n| `pendingFailure` | A failure is expected because an entry ahead failed, but this entry has not been re-tested yet. Not terminal: it usually returns to `pending` or `testing`. |\n\nNew members may be added within v2.",
-        "example": "testing"
       },
       "Readiness": {
         "type": "object",
@@ -714,7 +1105,7 @@
           },
           "hasImpactedTargets": {
             "type": "boolean",
-            "description": "ABSENT, not false, in three cases: on a list read (which includes a coordinates lookup addressed by more than one `number`), for org-token callers, and on the 201 from a submit whose post-write lookup failed. Absence means 'not answered here' — never 'no targets'.",
+            "description": "Whether impacted targets are uploaded for the entry's commit — for a stacked pull request, for every pull request its queued stack covers — or not needed (queue mode, or a pull request predating the queue's switch to graph mode). ABSENT, not false, in two cases: on a list read (which includes a coordinates lookup addressed by more than one `number`), and on the response to a write whose post-write lookup failed. Absence means 'not answered here' — never 'no targets'.",
             "example": true
           },
           "doesBaseBranchMatch": {
@@ -848,25 +1239,13 @@
           },
           "direct": {
             "type": "boolean"
-          },
-          "force": {
-            "type": "boolean",
-            "deprecated": true,
-            "description": "Deprecated compatibility alias for `direct`; do not send both fields."
           }
         },
         "required": ["number"],
         "additionalProperties": false,
-        "description": "Omitting `allowBatching` allows batching. `priorityValue` and `priorityName` are mutually exclusive; `priorityValue: 0` skips the line. `direct` sends the pull request directly to the queue past unmet branch protection / failing required checks, merging via Trunk's bypass app (it does not skip the queue's own tests); an org API key is trusted, while a user token requires repository-admin permission. `force` is a deprecated compatibility alias for `direct`; do not send both fields.",
+        "description": "Omitting `allowBatching` allows batching. `priorityValue` and `priorityName` are mutually exclusive; `priorityValue: 0` skips the line. `direct` sends the pull request directly to the queue past unmet branch protection / failing required checks, merging via Trunk's bypass app (it does not skip the queue's own tests); an org API key is trusted, while a user token requires repository-admin permission.",
         "not": {
-          "anyOf": [
-            {
-              "required": ["priorityValue", "priorityName"]
-            },
-            {
-              "required": ["direct", "force"]
-            }
-          ]
+          "required": ["priorityValue", "priorityName"]
         }
       },
       "PullRequestList": {
@@ -1065,7 +1444,8 @@
           },
           "sha": {
             "type": "string",
-            "minLength": 1
+            "pattern": "^[A-Za-z0-9]+$",
+            "example": "3f2c9a1b7e4d"
           },
           "number": {
             "type": "integer",
@@ -1194,6 +1574,9 @@
           },
           "testBranchPullRequest": {
             "$ref": "#/components/schemas/TestBranchPullRequest"
+          },
+          "impactedTargets": {
+            "$ref": "#/components/schemas/VerificationRunImpactedTargets"
           }
         },
         "required": [
@@ -1404,6 +1787,49 @@
         "required": ["number", "url"],
         "description": "The draft pull request the queue opened for the test branch, where its checks and logs are. Absent unless the queue is configured to create one."
       },
+      "VerificationRunImpactedTargets": {
+        "type": "object",
+        "properties": {
+          "all": {
+            "$ref": "#/components/schemas/ImpactedTargetSet"
+          },
+          "testedPullRequestsOnly": {
+            "$ref": "#/components/schemas/ImpactedTargetSet"
+          }
+        },
+        "required": ["all"],
+        "description": "The impacted targets uploaded for the run's commits (`PUT /impacted-targets`). Returned only when a single run is fetched by ID, never in a list, and absent when no commit on the run has an upload. `all` spans every commit the run carried: the pull requests under test and the commits merged in beneath them to build the predicted base. `testedPullRequestsOnly` spans the tested pull requests' commits alone, and is absent when none of them uploaded. A commit with no upload contributes nothing to either set."
+      },
+      "ImpactedTargetSet": {
+        "type": "object",
+        "properties": {
+          "impactsAllTargets": {
+            "type": "boolean",
+            "description": "True when any commit in this set uploaded `impactsAllTargets: true`, which makes the explicit lists of the others moot.",
+            "example": false
+          },
+          "impactedTargets": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 100000,
+            "description": "The union of the commits' uploaded targets, sorted and deduplicated. Empty when `impactsAllTargets` is true, and also when every upload was an explicit empty list — the commits impact nothing. Truncated to the first 100,000 targets; `totalImpactedTargets` says whether it was.",
+            "example": ["//lib/db", "//svc/api"]
+          },
+          "totalImpactedTargets": {
+            "type": "integer",
+            "description": "The size of the union before truncation. 0 when `impactsAllTargets` is true.",
+            "example": 2
+          }
+        },
+        "required": [
+          "impactsAllTargets",
+          "impactedTargets",
+          "totalImpactedTargets"
+        ],
+        "description": "The impacted targets of a set of commits on a verification run."
+      },
       "VerificationRunList": {
         "type": "object",
         "properties": {
@@ -1479,7 +1905,7 @@
           },
           "reason": {
             "type": ["string", "null"],
-            "description": "Why the entry entered this state. `null` for `testing` and `pendingFailure`, which carry no reason.\n\nThe values below are the vocabulary in use today, grouped by the state they accompany. **This is an open set** — it is the engine's own vocabulary and new values may appear within v2, so match on the values you care about and treat anything else as unclassified rather than failing closed.\n\n**Why an entry is waiting (`notReady`)** — `USER_REQUESTED`, `TRUNK_ADMIN_REQUESTED`, `API_REQUESTED`.\n\n**Why an entry (re)entered the line (`pending`)** — these are what distinguish a restart's cause:\n\n| Value | Meaning |\n| --- | --- |\n| `TESTS_RESTARTED_BY_USER` | A person restarted the tests. |\n| `TESTS_RESTARTED_BY_API_REQUEST` | Restarted through the API — e.g. `pullRequests.restartTests`. |\n| `MERGE_ITEM_NOW_READY` | A readiness condition became satisfied. |\n| `MANUAL_PUSH_TO_TARGET_BRANCH` | Someone pushed to the target branch, invalidating the tested state. |\n| `PREREQUISITE_MERGE_ITEM_FAILED` | An entry ahead of this one failed, so this one must re-test. |\n| `PREREQUISITE_MERGE_ITEM_CANCELLED` | An entry ahead was removed. |\n| `PREREQUISITE_MERGE_ITEM_MANUALLY_MERGED` | An entry ahead was merged outside the queue. |\n| `SKIP_THE_LINE_INTERRUPTED` | A higher-priority entry preempted this one. |\n| `BISECTION_REQUIRED` | A batch failed and the engine is bisecting to find the culprit. |\n| `BISECTION_TEST_RUN_PASSED` | A bisection run cleared this entry. |\n\n**Why verification passed (`testsPassed`)** — `TEST_RUN_PASSED`, `SUCCESSOR_TEST_RUN_PASSED`, `PASSED_BY_OPTIMIZATION`.\n\n**Why an entry failed (`failed`)** — `TEST_RUN_REQUIRED_STATUS_FAILED`, `TEST_RUN_TIMEOUT`, `TEST_RUN_FAILED_BY_OPTIMIZATION`, `START_TEST_RUN_MERGE_CONFLICT`, `START_TEST_RUN_RETRY_EXHAUSTED`, `START_TEST_RUN_DRAFT_PRS_NOT_ALLOWED`, `START_TEST_RUN_PERMISSIONS_BLOCK_TEST_BRANCH`, `START_TEST_RUN_NO_REQUIRED_STATUSES`, `START_TEST_RUN_CONFIG_NOT_FOUND`, `START_TEST_RUN_CONFIG_PARSING_FAILURE`, `START_TEST_RUN_CONFIG_BAD_VERSION`, `START_TEST_RUN_CONFIG_BAD_REQUIRED_STATUSES`, `START_TEST_RUN_CONFIG_MISSING_REQUIRED_STATUSES`, `START_TEST_RUN_INVALID_EVENT`, `PR_UPDATED_AT_MERGE_TIME`, `GITHUB_API_MERGE_PR_FAILED`, `GITHUB_API_DIRECT_MERGE_PR_FAILED`, `GITHUB_API_BRANCH_PROTECTION_UNMET`, `GITHUB_API_MERGE_ALREADY_IN_PROGRESS`, `GITHUB_API_RATE_LIMIT_EXCEEDED`, `GITHUB_API_REPEATED_SERVER_ERRORS`.\n\n**Why an entry was removed (`cancelled`)** — `USER_REQUESTED`, `TRUNK_ADMIN_REQUESTED`, `PR_CLOSED`, `PR_PUSHED_TO`, `PR_BASE_BRANCH_CHANGED`, `PR_CONVERTED_TO_DRAFT`, `NOT_READY_TIMEOUT_EXPIRED`, `STACKED_PR_MEMBER_PUSHED_TO`, `STACKED_PR_MEMBER_CLOSED`, `STACKED_PR_MEMBER_MERGED`, `STACKED_PR_MEMBER_BASE_BRANCH_CHANGED`, `STACKED_PR_STACK_CHANGED`, `STACKED_PR_GROUP_CANCELLED_AT_MERGE_TIME`.\n\n**Why an entry merged (`merged`)** — `MERGE_GRAPH_MERGE`, `MERGE_GRAPH_DIRECT_MERGE`, `MANUAL_MERGE`.",
+            "description": "Why the entry entered this state. `null` for `testing` and `pendingFailure`, which carry no reason.\n\nThe values below are the vocabulary in use today, grouped by the state they accompany. **This is an open set** — it is the engine's own vocabulary and new values may appear within v2, so match on the values you care about and treat anything else as unclassified rather than failing closed.\n\n**Why an entry is waiting (`notReady`)** — `USER_REQUESTED`, `TRUNK_ADMIN_REQUESTED`, `API_REQUESTED`.\n\n**Why an entry (re)entered the line (`pending`)** — these are what distinguish a restart's cause:\n\n| Value | Meaning |\n| --- | --- |\n| `TESTS_RESTARTED_BY_USER` | A person restarted the tests. |\n| `TESTS_RESTARTED_BY_API_REQUEST` | Restarted through the API — e.g. `pullRequests.restartTests`. |\n| `MERGE_ITEM_NOW_READY` | A readiness condition became satisfied. |\n| `MANUAL_PUSH_TO_TARGET_BRANCH` | Someone pushed to the target branch, invalidating the tested state. |\n| `PREREQUISITE_MERGE_ITEM_FAILED` | An entry ahead of this one failed, so this one must re-test. |\n| `PREREQUISITE_MERGE_ITEM_CANCELLED` | An entry ahead was removed. |\n| `PREREQUISITE_MERGE_ITEM_MANUALLY_MERGED` | An entry ahead was merged outside the queue. |\n| `SKIP_THE_LINE_INTERRUPTED` | A higher-priority entry preempted this one. |\n| `BISECTION_REQUIRED` | A batch failed and the engine is bisecting to find the culprit. |\n| `BISECTION_TEST_RUN_PASSED` | A bisection run cleared this entry. |\n\n**Why verification passed (`testsPassed`)** — `TEST_RUN_PASSED`, `SUCCESSOR_TEST_RUN_PASSED`, `PASSED_BY_OPTIMIZATION`.\n\n**Why an entry failed (`failed`)** — `TEST_RUN_REQUIRED_STATUS_FAILED`, `TEST_RUN_TIMEOUT`, `TEST_RUN_FAILED_BY_OPTIMIZATION`, `START_TEST_RUN_MERGE_CONFLICT`, `START_TEST_RUN_RETRY_EXHAUSTED`, `START_TEST_RUN_DRAFT_PRS_NOT_ALLOWED`, `START_TEST_RUN_PERMISSIONS_BLOCK_TEST_BRANCH`, `START_TEST_RUN_NO_REQUIRED_STATUSES`, `START_TEST_RUN_CONFIG_NOT_FOUND`, `START_TEST_RUN_CONFIG_PARSING_FAILURE`, `START_TEST_RUN_CONFIG_BAD_VERSION`, `START_TEST_RUN_CONFIG_BAD_REQUIRED_STATUSES`, `START_TEST_RUN_CONFIG_MISSING_REQUIRED_STATUSES`, `START_TEST_RUN_INVALID_EVENT`, `PR_UPDATED_AT_MERGE_TIME`, `GITHUB_API_MERGE_PR_FAILED`, `GITHUB_API_DIRECT_MERGE_PR_FAILED`, `GITHUB_API_BRANCH_PROTECTION_UNMET`, `GITHUB_API_MERGE_ALREADY_IN_PROGRESS`, `GITHUB_API_RATE_LIMIT_EXCEEDED`, `GITHUB_API_REPEATED_SERVER_ERRORS`.\n\n**Why an entry was removed (`cancelled`)** — `USER_REQUESTED`, `TRUNK_ADMIN_REQUESTED`, `PR_CLOSED`, `PR_MERGED_INTO_OTHER_BRANCH`, `PR_PUSHED_TO`, `PR_BASE_BRANCH_CHANGED`, `PR_CONVERTED_TO_DRAFT`, `NOT_READY_TIMEOUT_EXPIRED`, `STACKED_PR_MEMBER_PUSHED_TO`, `STACKED_PR_MEMBER_CLOSED`, `STACKED_PR_MEMBER_MERGED`, `STACKED_PR_MEMBER_BASE_BRANCH_CHANGED`, `STACKED_PR_STACK_CHANGED`, `STACKED_PR_GROUP_CANCELLED_AT_MERGE_TIME`.\n\n**Why an entry merged (`merged`)** — `MERGE_GRAPH_MERGE`, `MERGE_GRAPH_DIRECT_MERGE`, `MANUAL_MERGE`.",
             "example": "TEST_RUN_REQUIRED_STATUS_FAILED"
           },
           "verificationRunId": {
@@ -1812,7 +2238,7 @@
               "$ref": "#/components/schemas/QueueEntryStateTransition"
             },
             "maxItems": 10000,
-            "description": "Its queue entry's state transitions, oldest first — the same order and shape the single-pull-request endpoint serves. Empty when the pull request was never enqueued, or is not yours to read: this endpoint reports neither as an error, so diff the ids you asked for against the groups you got."
+            "description": "Its queue entry's state transitions, oldest first by default and newest first under `direction=newest` — the same order and shape the single-pull-request endpoint serves. Empty when the pull request was never enqueued, or is not yours to read: this endpoint reports neither as an error, so diff the ids you asked for against the groups you got."
           }
         },
         "required": ["pullRequestId", "transitions"],
@@ -1854,9 +2280,9 @@
             "type": "string",
             "minLength": 1
           },
-          "isForceEnqueued": {
+          "direct": {
             "type": "boolean",
-            "description": "Enqueue the pull request even though a readiness condition is unmet, letting the queue test it immediately instead of holding it in `notReady`. It does NOT bypass verification — required checks must still pass to merge. Honoured on both lanes: a user token requires repository-admin permission in trunk1, while an org API key is trusted. Reflected as `QueueEntry.isForceEnqueued`.",
+            "description": "Send the pull request directly to the queue past unmet readiness (branch protection, failing required checks), merging via Trunk's bypass app. It does not skip the queue's own tests. An org API key is trusted; a user token requires repository-admin permission. `false` clears it. Reflected as `QueueEntry.direct`.",
             "example": false
           },
           "allowBatching": {
@@ -2032,6 +2458,16 @@
             "description": "`github.event_name`.",
             "example": "pull_request"
           },
+          "prLabels": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 256
+            },
+            "maxItems": 1000,
+            "description": "The pull request's label names, from `github.event.pull_request.labels`. While the repository is in Learning mode, a pull request carrying a label on the repository's managed allow list (matched case-insensitively) is gated as if Dynamic CI were enabled.",
+            "example": ["bug", "ready-for-ci"]
+          },
           "jobKeys": {
             "type": "array",
             "items": {
@@ -2050,6 +2486,9 @@
             "maxItems": 64,
             "description": "Signals to drop from the tally. An unrecognized identifier is rejected, so a typo surfaces.",
             "example": ["estimated-cost"]
+          },
+          "changedFiles": {
+            "$ref": "#/components/schemas/ChangedFiles"
           },
           "workflowPath": {
             "type": "string",
@@ -2087,6 +2526,100 @@
           }
         },
         "required": ["owner", "name"]
+      },
+      "ChangedFiles": {
+        "type": "object",
+        "properties": {
+          "base": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096,
+            "description": "The commit or ref the diff was taken from.",
+            "example": "1a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d"
+          },
+          "totalFiles": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "How many files changed, before the 200-file cap.",
+            "example": 1
+          },
+          "totalAdditions": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Lines added across every changed file, before the cap.",
+            "example": 12
+          },
+          "totalDeletions": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Lines removed across every changed file, before the cap.",
+            "example": 3
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChangedFile"
+            },
+            "maxItems": 200,
+            "description": "The first 200 changed files. Must hold exactly `min(totalFiles, 200)` entries."
+          }
+        },
+        "required": [
+          "base",
+          "totalFiles",
+          "totalAdditions",
+          "totalDeletions",
+          "files"
+        ],
+        "description": "The files changed between `base` and `commitSha`, diffed from their merge base (`base...commitSha`). No file contents. **Omit it if you cannot compute the diff; never send an empty list in its place.** An empty list says nothing changed, which is the strongest evidence to skip. When it is absent, Trunk fetches the diff through your GitHub App installation."
+      },
+      "ChangedFile": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096,
+            "example": "src/cache.ts"
+          },
+          "previousPath": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096,
+            "description": "The old path, for a `renamed` or `copied` file.",
+            "example": "src/lru.ts"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ChangedFileStatus"
+          },
+          "additions": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Lines added. 0 for a binary file.",
+            "example": 12
+          },
+          "deletions": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Lines removed. 0 for a binary file.",
+            "example": 3
+          }
+        },
+        "required": ["path", "status", "additions", "deletions"]
+      },
+      "ChangedFileStatus": {
+        "type": "string",
+        "enum": [
+          "added",
+          "modified",
+          "removed",
+          "renamed",
+          "copied",
+          "changed",
+          "unchanged"
+        ],
+        "description": "How the file changed. The values GitHub reports, so its `status` can be passed through. `changed` (a type change, such as a file becoming a symlink) is read as `modified`.",
+        "example": "modified"
       },
       "BuildkitePlanRequest": {
         "type": "object",
@@ -2133,6 +2666,16 @@
             "description": "What triggered the build — `BUILDKITE_SOURCE`.",
             "example": "webhook"
           },
+          "prLabels": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 256
+            },
+            "maxItems": 1000,
+            "description": "`BUILDKITE_PULL_REQUEST_LABELS`, split on commas. While the repository is in Learning mode, a pull request carrying a label on the repository's managed allow list (matched case-insensitively) is gated as if Dynamic CI were enabled.",
+            "example": ["bug", "ready-for-ci"]
+          },
           "jobKeys": {
             "type": "array",
             "items": {
@@ -2151,6 +2694,9 @@
             "maxItems": 64,
             "description": "Signals to drop from the tally. An unrecognized identifier is rejected, so a typo surfaces.",
             "example": ["estimated-cost"]
+          },
+          "changedFiles": {
+            "$ref": "#/components/schemas/ChangedFiles"
           },
           "buildkiteOrganizationSlug": {
             "type": "string",
@@ -3546,6 +4092,173 @@
         }
       }
     },
+    "/v2/merge-queues/metrics": {
+      "get": {
+        "operationId": "mergeQueues.organizationMetrics",
+        "tags": ["mergeQueues"],
+        "summary": "Get Prometheus metrics for every merge queue",
+        "description": "Returns Prometheus metrics for every merge queue in your organization, in the text exposition format, for a Prometheus scrape job. `repositoryId` narrows them to one repository's queues, across all its target branches, and is a 404 when your organization has no such repository. The metrics match v1's `getMergeQueueMetrics`.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Only this repository's queues.",
+              "example": "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+            },
+            "required": false,
+            "description": "Only this repository's queues.",
+            "name": "repositoryId",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The organization's merge-queue metrics",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrometheusExposition"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`INSUFFICIENT_PERMISSIONS`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`REPOSITORY_NOT_FOUND`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/merge-queues/{id}/metrics": {
+      "get": {
+        "operationId": "mergeQueues.metrics",
+        "tags": ["mergeQueues"],
+        "summary": "Get Prometheus metrics for a merge queue",
+        "description": "Returns Prometheus metrics for one merge queue, in the text exposition format, for a Prometheus scrape job. The series and labels are those of `GET /v2/merge-queues/metrics`, restricted to this queue.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "description": "The merge queue's id.",
+              "example": "xK9mP2nQ"
+            },
+            "required": true,
+            "description": "The merge queue's id.",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The merge queue's metrics",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrometheusExposition"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`MERGE_QUEUE_NOT_FOUND`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/merge-queues/{id}": {
       "get": {
         "operationId": "mergeQueues.get",
@@ -3672,6 +4385,378 @@
           },
           "409": {
             "description": "`QUEUE_HAS_ACTIVE_ENTRIES`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "`UPSTREAM_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/merge-queues/{id}/order": {
+      "get": {
+        "operationId": "mergeQueues.order",
+        "tags": ["mergeQueues"],
+        "summary": "Get a merge queue's dispatch order",
+        "description": "Returns the queue's batches with a verification run, what is admitted and waiting in the order the engine will consider it, and what has not been admitted yet.\n\n**A batch in `batches` is not necessarily still testing** — one that has passed, is merging, or is holding others back after a failure still has a run and is still listed. Read its `state`.\n\n**The order is one of consideration, not of execution, and array position is not a wait estimate.** `predictedBatch` repeats across every pull request predicted to start testing together, and in `graph` mode several predicted batches commonly start at once — so the pull requests ahead of yours may all start with it, and may sit on unrelated branches that never block yours. `directlyAhead` is what actually precedes a pull request; use it rather than counting.\n\nIt is a point-in-time prediction. A new submission, a priority change or a failure regroups it, and four things outside this response still gate dispatch: `queueState: paused` stops it entirely, the queue's testing-concurrency cap bounds how many start, a batch whose predecessors have no usable test branch is skipped over rather than blocking, and bisections dispatch on their own budget.\n\nPull requests that are not ready are deliberately absent — they are not admitted, so they hold no position. Read one through `GET /v2/pull-requests/{id}`.\n\nUnpaginated: the engine caps its own graph, so the admitted set is bounded. `awaitingAdmission` is not, and is truncated.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "description": "The merge queue's id.",
+              "example": "xK9mP2nQ"
+            },
+            "required": true,
+            "description": "The merge queue's id.",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The queue's dispatch order",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MergeQueueOrder"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`INSUFFICIENT_PERMISSIONS`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`MERGE_QUEUE_NOT_FOUND`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "`UPSTREAM_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/merge-queues/{id}/graph": {
+      "get": {
+        "operationId": "mergeQueues.graph",
+        "tags": ["mergeQueues"],
+        "summary": "Get a merge queue's dependency graph",
+        "description": "Returns the queue's dependency graph: which pull requests the engine considers related, and why.\n\n**This does not tell you what runs next.** The engine schedules on a priority that cascades backwards through the graph and on a pending-failure gate, and neither is in this payload — `priorityValue` here is each pull request's own value, not the cascaded one. For dispatch order use `GET /v2/merge-queues/{id}/order`.\n\nEdges are transitively reduced, so an indirect dependency appears through the node between its endpoints rather than as its own edge. They mean overlapping impacted targets, not a stacked-branch relationship.\n\nOnly pull requests the engine has admitted to its graph appear: anything past the graph's soft cap, or not yet ready, is absent. `includeImpactedTargets` adds the target lists that explain each node and edge; it is off by default because populating it costs a lookup per distinct commit.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "description": "The merge queue's id.",
+              "example": "xK9mP2nQ"
+            },
+            "required": true,
+            "description": "The merge queue's id.",
+            "name": "id",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "description": "Include the impacted-target lists on nodes and edges. Off by default: resolving them costs one lookup per distinct commit in the graph.",
+              "example": false
+            },
+            "required": false,
+            "description": "Include the impacted-target lists on nodes and edges. Off by default: resolving them costs one lookup per distinct commit in the graph.",
+            "name": "includeImpactedTargets",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The queue's dependency graph",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MergeGraph"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`INSUFFICIENT_PERMISSIONS`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`MERGE_QUEUE_NOT_FOUND`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "`UPSTREAM_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/merge-queues/{id}/testing-results": {
+      "get": {
+        "operationId": "mergeQueues.listTestingResults",
+        "tags": ["mergeQueues"],
+        "summary": "List a merge queue's completed testing",
+        "description": "Lists the stretches of testing the queue finished between `since` and `until`, newest first. One entry per pull request per attempt: a pull request appears several times if its testing restarted, and a batched run appears once per pull request it tested. Testing still in progress is not included. Pass an entry's `verificationRunId` to `GET /v2/merge-queue-verification-runs/{id}` for the run's checks and tested pull requests.\n\nThe range may span at most 45 days, which is also how long results are kept. When `until` is omitted it is fixed at the time of the first page, so later pages are not shifted by testing that finishes while you page.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "description": "The merge queue's id.",
+              "example": "xK9mP2nQ"
+            },
+            "required": true,
+            "description": "The merge queue's id.",
+            "name": "id",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25,
+              "description": "Page size, between 1 and 100.",
+              "example": 25
+            },
+            "required": false,
+            "description": "Page size, between 1 and 100.",
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "Opaque cursor from a previous response's `nextCursor`. A cursor is bound to the operation and filter it was minted for.",
+              "example": "AQEKZm9vYmFy"
+            },
+            "required": false,
+            "description": "Opaque cursor from a previous response's `nextCursor`. A cursor is bound to the operation and filter it was minted for.",
+            "name": "cursor",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "description": "Set true to include `total` in the response. Costs an extra COUNT query, so it is off by default.",
+              "example": false
+            },
+            "required": false,
+            "description": "Set true to include `total` in the response. Costs an extra COUNT query, so it is off by default.",
+            "name": "includeTotal",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Only testing that ended at or after this instant (ISO-8601). At most 45 days before `until`.",
+              "example": "2026-09-01T00:00:00Z"
+            },
+            "required": true,
+            "description": "Only testing that ended at or after this instant (ISO-8601). At most 45 days before `until`.",
+            "name": "since",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Only testing that ended at or before this instant (ISO-8601). Defaults to the time of the first page.",
+              "example": "2026-09-08T00:00:00Z"
+            },
+            "required": false,
+            "description": "Only testing that ended at or before this instant (ISO-8601). Defaults to the time of the first page.",
+            "name": "until",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of testing results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestingResultList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`VALIDATION_FAILED` | `INVALID_CURSOR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`INSUFFICIENT_PERMISSIONS`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`MERGE_QUEUE_NOT_FOUND`",
             "content": {
               "application/json": {
                 "schema": {
@@ -3849,7 +4934,7 @@
         "operationId": "mergeQueues.listPullRequests",
         "tags": ["mergeQueues"],
         "summary": "List a merge queue's pull requests",
-        "description": "Lists the pull requests in a queue, **most recently enqueued first**.\n\n**This is not queue order, and a pull request's position in the queue is not yet exposed** — do not infer position from this list's index. `state` accepts a comma-separated list of queue-entry states. `readiness.hasImpactedTargets` is omitted on this list read, because resolving it costs one upstream call per entry; read a single pull request to get it. `sort` and `direction` are not configurable yet: each accepts only the value this list already uses (`createdAt`, `desc`) and rejects anything else with `400`. `concludedAfter` is not served at all and is rejected with `400` whatever the value. Neither is ignored, so a client cannot silently receive an ordering or a window it did not ask for.",
+        "description": "Lists the pull requests in a queue, **most recently enqueued first**.\n\n**This is not queue order** — do not infer position from this list's index. For the order the engine will consider, use `GET /v2/merge-queues/{id}/order`. `state` accepts a comma-separated list of queue-entry states. `readiness.hasImpactedTargets` is omitted on this list read, because resolving it costs a storage lookup per entry; read a single pull request to get it. `sort` and `direction` are not configurable yet: each accepts only the value this list already uses (`createdAt`, `desc`) and rejects anything else with `400`. Neither is ignored, so a client cannot silently receive an ordering it did not ask for.\n\n`concludedAfter` and `concludedBefore` keep pull requests that reached `merged`, `failed` or `cancelled` inside that window, both bounds inclusive — v1's `since`/`until`. That is a fact about the entry's history, not its current state: an entry that failed in the window and was later resubmitted still matches, so pair them with `state` to filter on where it is now.",
         "parameters": [
           {
             "schema": {
@@ -3921,6 +5006,30 @@
             "required": false,
             "description": "Only pull requests opened by this author.",
             "name": "author",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Only entries that concluded at or after this instant (ISO-8601).",
+              "example": "2026-09-01T00:00:00Z"
+            },
+            "required": false,
+            "description": "Only entries that concluded at or after this instant (ISO-8601).",
+            "name": "concludedAfter",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Only entries that concluded at or before this instant (ISO-8601).",
+              "example": "2026-09-08T00:00:00Z"
+            },
+            "required": false,
+            "description": "Only entries that concluded at or before this instant (ISO-8601).",
+            "name": "concludedBefore",
             "in": "query"
           }
         ],
@@ -4510,6 +5619,16 @@
               }
             }
           },
+          "422": {
+            "description": "`ALLOWED_BOT_SUBMITTERS_FROZEN`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "429": {
             "description": "`RATE_LIMIT_EXCEEDED`",
             "content": {
@@ -4548,7 +5667,7 @@
         "operationId": "impactedTargets.upload",
         "tags": ["impactedTargets"],
         "summary": "Upload a pull request's impacted targets",
-        "description": "Records which build targets a pull request's head sha impacts, for queues that gate on impacted targets. Address the pull request by exactly one of `number` or `branch`, and declare impact with exactly one of `impactedTargets` or `impactsAllTargets: true`. An empty `impactedTargets` array is a valid upload meaning the sha impacts nothing — it satisfies the queue's has-impacted-targets gate, because that gate asks whether CI reported, not whether it reported a non-zero result. Supported only for github.com repositories named `owner/repo`; anything else returns `IMPACTED_TARGETS_UNSUPPORTED`. Answers 202: the targets are stored, but readiness is re-evaluated asynchronously, so a 202 does not mean readiness has changed yet.",
+        "description": "Records which build targets a pull request's head sha impacts, for queues that gate on impacted targets. Address the pull request by exactly one of `number` or `branch`, and declare impact with exactly one of `impactedTargets` or `impactsAllTargets: true`. An empty `impactedTargets` array is a valid upload meaning the sha impacts nothing — it satisfies the queue's has-impacted-targets gate, because that gate asks whether CI reported, not whether it reported a non-zero result. Supported only for github.com repositories named `owner/repo`; anything else returns `IMPACTED_TARGETS_UNSUPPORTED`. Answers 202: the targets are stored, but readiness is re-evaluated asynchronously, so a 202 does not mean readiness has changed yet.\n\nA token from a GitHub Actions run may upload only for its own repository. One from a fork pull request's run is bound to that pull request and its head sha: address the pull request by `number`, and send that sha, or the upload is refused with `INSUFFICIENT_PERMISSIONS`.",
         "requestBody": {
           "required": true,
           "content": {
@@ -4651,7 +5770,7 @@
         "operationId": "mergeQueueVerificationRuns.get",
         "tags": ["mergeQueueVerificationRuns"],
         "summary": "Get a verification run",
-        "description": "Returns one merge-queue verification run, including its normalized CI checks and the pull requests it tested.",
+        "description": "Returns one merge-queue verification run, including its normalized CI checks, the pull requests it tested, and the impacted targets uploaded for its commits.",
         "parameters": [
           {
             "schema": {
@@ -5009,7 +6128,7 @@
         "operationId": "pullRequests.queueEntryHistory",
         "tags": ["pullRequests"],
         "summary": "List a pull request's queue-entry state history",
-        "description": "Returns the state transitions of this pull request's queue entry, **oldest first** — the one list in this API that does, because it is an append-only log a reader replays forward. To find the CURRENT transition you must page to the end; `hasMore: false` is how you know you are there. A pull request that was never enqueued is a 200 with an empty page, not a 404.",
+        "description": "Returns the state transitions of this pull request's queue entry. Defaults to **oldest first** — the one list in this API that does, because it is an append-only log a reader replays forward — so finding the CURRENT transition means paging to the end, and `hasMore: false` is how you know you are there. Send `direction=newest` for v1's `includeTimeline` order, where the current transition is the first row of the first page. A pull request that was never enqueued is a 200 with an empty page, not a 404.",
         "parameters": [
           {
             "schema": {
@@ -5058,6 +6177,19 @@
             "required": false,
             "description": "Set true to include `total` in the response. Costs an extra COUNT query, so it is off by default.",
             "name": "includeTotal",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": ["oldest", "newest"],
+              "default": "oldest",
+              "description": "Order of the transitions within a timeline. `oldest` (the default) reads the log forward; `newest` matches v1's `includeTimeline` order, so the current transition is the first row rather than the last.",
+              "example": "oldest"
+            },
+            "required": false,
+            "description": "Order of the transitions within a timeline. `oldest` (the default) reads the log forward; `newest` matches v1's `includeTimeline` order, so the current transition is the first row rather than the last.",
+            "name": "direction",
             "in": "query"
           }
         ],
@@ -5130,7 +6262,7 @@
         "operationId": "pullRequests.queueEntryHistoryBatch",
         "tags": ["pullRequests"],
         "summary": "List queue-entry state history for several pull requests",
-        "description": "Returns up to 50 pull requests' complete queue-entry timelines in one response — the batch form of `GET /v2/pull-requests/{id}/queue-entry-history`, and the equivalent of v1's `getSubmittedPullRequests` with `includeTimeline`.\n\n`limit` counts **pull requests**, not transitions, and every group carries that pull request's whole timeline oldest-first, so one call answers for the whole set and each group is complete on arrival. A page's byte size therefore follows the data rather than a fixed row count: for a pull request with an exceptionally long timeline, page within it using the single-pull-request endpoint instead.\n\nAn id naming a pull request in another organization, or one that was never enqueued, comes back as an **empty group** rather than an error — this route never 404s, so diff the ids you asked for against the groups you got.",
+        "description": "Returns up to 50 pull requests' complete queue-entry timelines in one response — the batch form of `GET /v2/pull-requests/{id}/queue-entry-history`, and the equivalent of v1's `getSubmittedPullRequests` with `includeTimeline`.\n\n`limit` counts **pull requests**, not transitions, and every group carries that pull request's whole timeline (oldest-first by default; send `direction=newest` for v1's `includeTimeline` order), so one call answers for the whole set and each group is complete on arrival. A page's byte size therefore follows the data rather than a fixed row count: for a pull request with an exceptionally long timeline, page within it using the single-pull-request endpoint instead.\n\nAn id naming a pull request in another organization, or one that was never enqueued, comes back as an **empty group** rather than an error — this route never 404s, so diff the ids you asked for against the groups you got.",
         "parameters": [
           {
             "schema": {
@@ -5167,6 +6299,19 @@
             "required": false,
             "description": "Set true to include `total` in the response. Costs an extra COUNT query, so it is off by default.",
             "name": "includeTotal",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": ["oldest", "newest"],
+              "default": "oldest",
+              "description": "Order of the transitions within a timeline. `oldest` (the default) reads the log forward; `newest` matches v1's `includeTimeline` order, so the current transition is the first row rather than the last.",
+              "example": "oldest"
+            },
+            "required": false,
+            "description": "Order of the transitions within a timeline. `oldest` (the default) reads the log forward; `newest` matches v1's `includeTimeline` order, so the current transition is the first row rather than the last.",
+            "name": "direction",
             "in": "query"
           },
           {
@@ -5250,7 +6395,7 @@
         "operationId": "pullRequests.resolveByCoordinates",
         "tags": ["pullRequests"],
         "summary": "Resolve pull requests by repository coordinates",
-        "description": "Looks pull requests up by their provider coordinates within one repository. Send exactly one of `number` or `branch`.\n\n`number` takes up to 50 comma-separated numbers. `(repositoryId, number)` is unique, so each matches at most one pull request; numbers Trunk has not indexed are simply absent from the page, so recover them by diffing what you asked for against the `number`s you got back.\n\n`branch` is a head branch, which can carry several pull requests over time, so it resolves to the open one if there is one and otherwise the most recently created. Pair it with `baseBranch` — a merge queue's target branch — to scope the answer to pull requests aimed there.\n\nRows come back ordered by `number` ascending, which is not necessarily the order you asked in. A batch can exceed `limit`, so this page really does paginate — follow `nextCursor` rather than assuming one page. `readiness.hasImpactedTargets` is resolved only for a lookup that ASKED for a single pull request (`branch`, or one `number`); resolving it costs one upstream call each, so a multi-number lookup omits it whatever it matches, as the queue's list read does.",
+        "description": "Looks pull requests up by their provider coordinates within one repository. Send exactly one of `number` or `branch`.\n\n`number` takes up to 50 comma-separated numbers. `(repositoryId, number)` is unique, so each matches at most one pull request; numbers Trunk has not indexed are simply absent from the page, so recover them by diffing what you asked for against the `number`s you got back.\n\n`branch` is a head branch, which can carry several pull requests over time, so it resolves to the open one if there is one and otherwise the most recently created. Pair it with `baseBranch` — a merge queue's target branch — to scope the answer to pull requests aimed there.\n\nRows come back ordered by `number` ascending, which is not necessarily the order you asked in. A batch can exceed `limit`, so this page really does paginate — follow `nextCursor` rather than assuming one page. `readiness.hasImpactedTargets` is resolved only for a lookup that ASKED for a single pull request (`branch`, or one `number`); resolving it costs a storage lookup each, so a multi-number lookup omits it whatever it matches, as the queue's list read does.",
         "parameters": [
           {
             "schema": {
@@ -5379,16 +6524,6 @@
               }
             }
           },
-          "404": {
-            "description": "`REPOSITORY_NOT_FOUND`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
           "429": {
             "description": "`RATE_LIMIT_EXCEEDED`",
             "content": {
@@ -5408,16 +6543,6 @@
                 }
               }
             }
-          },
-          "502": {
-            "description": "`UPSTREAM_ERROR`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
           }
         }
       }
@@ -5427,7 +6552,7 @@
         "operationId": "pullRequests.get",
         "tags": ["pullRequests"],
         "summary": "Get a pull request",
-        "description": "Returns one pull request with its queue entry and readiness, if it has ever been submitted to a queue. `readiness.hasImpactedTargets` is omitted for org-token callers, whose credential the merge service cannot use to read it.",
+        "description": "Returns one pull request with its queue entry and readiness, if it has ever been submitted to a queue.",
         "parameters": [
           {
             "schema": {
@@ -5484,7 +6609,7 @@
             }
           },
           "404": {
-            "description": "`PR_NOT_FOUND` | `REPOSITORY_NOT_FOUND`",
+            "description": "`PR_NOT_FOUND`",
             "content": {
               "application/json": {
                 "schema": {
@@ -5505,16 +6630,6 @@
           },
           "500": {
             "description": "`INTERNAL_ERROR`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "502": {
-            "description": "`UPSTREAM_ERROR`",
             "content": {
               "application/json": {
                 "schema": {
@@ -5665,7 +6780,7 @@
         "operationId": "pullRequests.updateQueueEntry",
         "tags": ["pullRequests"],
         "summary": "Update a queued pull request's entry",
-        "description": "Patches a live queue entry; an omitted field leaves that attribute unchanged. `priorityValue` and `priorityName` are mutually exclusive. `skipsTheLine` is not settable — it is derived from `priorityValue === 0`, so send that instead. `isForceEnqueued` force-enqueues past unmet readiness (an org API key is trusted; a user token requires repository-admin permission). `allowBatching: false` gives the entry a test run of its own.",
+        "description": "Patches a live queue entry; an omitted field leaves that attribute unchanged. `priorityValue` and `priorityName` are mutually exclusive. `skipsTheLine` is not settable — it is derived from `priorityValue === 0`, so send that instead. `direct` sends the entry directly to the queue past unmet readiness (an org API key is trusted; a user token requires repository-admin permission). `allowBatching: false` gives the entry a test run of its own.",
         "parameters": [
           {
             "schema": {
@@ -6037,7 +7152,7 @@
         "operationId": "dynamicCi.generatePlan",
         "tags": ["dynamicCi"],
         "summary": "Generate a CI skip plan",
-        "description": "Returns a per-job verdict for one workflow run: which jobs the change makes it safe to skip, and the evidence behind each decision. Normally called once per run by the [`trunk-io/dynamic-ci`](https://github.com/trunk-io/dynamic-ci) action, which maps the verdicts onto job outputs.\n\n**Fail open.** A job absent from `jobs` must be run — that is the contract, not an error. Treat any non-200 the same way.\n\nThe changed file set is not sent: Trunk fetches the diff between `baseSha` and `commitSha` through your GitHub App installation.",
+        "description": "Returns a per-job verdict for one workflow run: which jobs the change makes it safe to skip, and the evidence behind each decision. Normally called once per run by the [`trunk-io/dynamic-ci`](https://github.com/trunk-io/dynamic-ci) action, which maps the verdicts onto job outputs.\n\n**Fail open.** A job absent from `jobs` must be run — that is the contract, not an error. Treat any non-200 the same way.\n\nSend the changed files as `changedFiles` when you can compute them. Without it, Trunk fetches the diff between `baseSha` and `commitSha` through your GitHub App installation, which needs both commits on GitHub.",
         "requestBody": {
           "required": true,
           "content": {
@@ -6127,7 +7242,7 @@
         "operationId": "dynamicCi.generateBuildkitePlan",
         "tags": ["dynamicCi"],
         "summary": "Generate a CI skip plan for a Buildkite pipeline",
-        "description": "As [`dynamicCi.generatePlan`](#tag/dynamicCi/operation/dynamicCi.generatePlan), for a Buildkite pipeline. Identical request and response but for the workflow identity: Buildkite has no workflow file, so the pipeline is named by the organization and pipeline slugs its agent exports, and `jobKeys` are step `key:` values.\n\n**Fail open.** A job absent from `jobs` must be run — that is the contract, not an error. Treat any non-200 the same way.\n\nThe changed file set is not sent: Trunk fetches the diff between `baseSha` and `commitSha` through your GitHub App installation.",
+        "description": "As [`dynamicCi.generatePlan`](#tag/dynamicCi/operation/dynamicCi.generatePlan), for a Buildkite pipeline. Identical request and response but for the workflow identity: Buildkite has no workflow file, so the pipeline is named by the organization and pipeline slugs its agent exports, and `jobKeys` are step `key:` values.\n\n**Fail open.** A job absent from `jobs` must be run — that is the contract, not an error. Treat any non-200 the same way.\n\nSend the changed files as `changedFiles` when you can compute them. Without it, Trunk fetches the diff between `baseSha` and `commitSha` through your GitHub App installation, which needs both commits on GitHub.",
         "requestBody": {
           "required": true,
           "content": {
