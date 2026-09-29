@@ -17,7 +17,7 @@
   ],
   "security": [
     {
-      "orgKey": []
+      "apiKey": []
     },
     {
       "trunkToken": []
@@ -59,7 +59,7 @@
   ],
   "components": {
     "securitySchemes": {
-      "orgKey": {
+      "apiKey": {
         "type": "http",
         "scheme": "bearer",
         "description": "An API key, sent as `Authorization: Bearer <key>`. An organization admin creates one in the Trunk app under **Settings → Developer → API Keys** and chooses the merge-queue permissions it holds; a key with none can read merge queues but change nothing. Those permissions scope merge queue only: every key can use the Flaky Tests and Dynamic CI endpoints, including their writes, whatever permissions it holds."
