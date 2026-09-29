@@ -32,7 +32,7 @@ Trunk records verdicts, and your pipeline is unchanged.
   # pipeline generator's output into trunk-dynamic-ci-filter instead.
   command: trunk-dynamic-ci-filter < .buildkite/pr-checks.yml > /dev/null
   plugins:
-    - trunk-io/dynamic-ci#v0.1.1:
+    - trunk-io/dynamic-ci#v0.1.3:
         token-env: TRUNK_API_TOKEN
 ```
 
@@ -53,7 +53,7 @@ steps:
         | trunk-dynamic-ci-filter \
         | buildkite-agent pipeline upload
     plugins:
-      - trunk-io/dynamic-ci#v0.1.1:
+      - trunk-io/dynamic-ci#v0.1.3:
           token-env: TRUNK_API_TOKEN
 ```
 
@@ -68,7 +68,7 @@ enforcement, list them in `exclude-keys`:
 
 ```yaml
 plugins:
-  - trunk-io/dynamic-ci#v0.1.1:
+  - trunk-io/dynamic-ci#v0.1.3:
       token-env: TRUNK_API_TOKEN
       exclude-keys: deploy-master,publish-release
 ```
