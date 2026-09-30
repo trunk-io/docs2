@@ -166,6 +166,7 @@ Here's an example file.
 	      with:
 	        junit-paths: <TEST OUTPUT PATH>
 	        org-slug: my-trunk-org-slug
+	        test-collection-id: <TRUNK_TEST_COLLECTION_ID>
 	        token: ${{ secrets.TRUNK_API_TOKEN }}
 ```
 
@@ -192,6 +193,7 @@ jobs:
           run: <COMMAND TO RUN TESTS>
           token: ${{ secrets.TRUNK_API_TOKEN }}
           org-slug: my-trunk-org-slug
+          test-collection-id: <TRUNK_TEST_COLLECTION_ID>
 ```
 </Tab>
 <Tab title="Using The Trunk Analytics CLI Directly">
