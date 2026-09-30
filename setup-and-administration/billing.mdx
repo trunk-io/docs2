@@ -9,22 +9,20 @@ Trunk offers a **Free**, **Team**, and **Enterprise** plan for access to any/all
 
 ### **Free plan**
 
-Trunk offers a free tier for small teams and open-source projects to experiment with each of our features. You can use Trunk at no cost if:
+Trunk offers a free tier for small teams to experiment with each of our features. You can use Trunk at no cost if:
 
-* You have 5 or fewer monthly active committers on private repositories, **and**
-* Your monthly test span usage is under 5 million
+* You have 5 or fewer monthly active committers, **and**
+* Your monthly test span usage is within your allowance: 1 million test spans per committer, up to 5 million
 
-Public repositories are always free for up to 5 million test spans per month.
-
-If you exceed these limits, you'll be prompted to upgrade based on the number of private committers and additional test span usage.
+If you exceed these limits, you'll be prompted to upgrade based on the number of committers and additional test span usage.
 
 Similar to [calculating user counts](./billing#calculating-user-counts), our free tier limits are calculated based on a 30-day rolling window.
 
 | Feature | Metric | Free Tier Limit |
 |---|---|---|
-| All | Users | Up to 5 private repo committers; unlimited on public repos |
-| Flaky Tests | Number of test spans (test case results uploaded) | 5 committers and 5M test spans per month |
-| Merge Queue | PRs merged per month | Unlimited usage; pricing begins if >5 private repo committers |
+| All | Users | Up to 5 committers |
+| Flaky Tests | Number of test spans (test case results uploaded) | 1M test spans per committer per month, up to 5M |
+| Merge Queue | PRs merged per month | Unlimited PRs merged, up to 5 committers |
 | Code Quality | Quality & security metrics | Unlimited usage |
 
 ### Team plan
@@ -47,7 +45,9 @@ You and your team can trial Trunk before signing up for an Enterprise or Team pl
 
 ### Calculating user counts
 
-A user is a non-bot user who has made a commit to a private repo with Trunk enabled in the last 30 days. Specifically, we look at their username; if someone changes their username on Git, _we would consider that a separate user_. We do not count contributions to public (open source) repos. Contributor counts are displayed on **Settings** → **Billing**.
+A user is a non-bot user who has made a commit to a repo with Trunk enabled in the last 30 days. Specifically, we look at their username; if someone changes their username on Git, _we would consider that a separate user_. Contributor counts are displayed on **Settings** → **Billing**.
+
+If you maintain a public (open source) repository, contact us at [sales@trunk.io](mailto:sales@trunk.io) to talk through how your contributors are counted.
 
 <Info>
 Trunk requires the [Trunk GitHub App](https://github.com/apps/trunk-io) to be installed in your repo to count seats.
