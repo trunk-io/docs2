@@ -12,15 +12,15 @@ Before you start these steps, see the [Test Frameworks](../frameworks/) docs for
 Work through the steps below in order. Once you've finished the last one, you're set up — navigate to [app.trunk.io](https://app.trunk.io) to see your results.
 
 <Steps>
-  <Step title={<a href="#trunk-organization-slug-and-token">Get your Trunk organization slug and token</a>} />
-  <Step title={<a href="#add-your-trunk-token-and-organization-slug-as-secrets">Set your slug and token as secrets in GitHub Actions</a>} />
+  <Step title={<a href="#trunk-organization-slug-and-token">Get your Trunk organization slug, token, and collection ID</a>} />
+  <Step title={<a href="#add-your-trunk-token-and-organization-slug-as-secrets">Set your slug, token, and collection ID in GitHub Actions</a>} />
   <Step title={<a href="#upload-to-trunk">Configure GitHub Actions to upload to Trunk</a>} />
   <Step title={<a href="#validate-your-uploads">Validate your uploads in Trunk</a>} />
 </Steps>
 
 ## Trunk Organization Slug and Token
 
-Before setting up uploads to Trunk, you must sign in to [app.trunk.io](https://app.trunk.io/login?intent=flaky%20tests) and obtain your Trunk organization slug and token.
+Before setting up uploads to Trunk, you must sign in to [app.trunk.io](https://app.trunk.io/login?intent=flaky%20tests) and obtain your Trunk organization slug, your token, and the ID of the test collection to upload to.
 
 ### Trunk Slug
 
@@ -30,9 +30,15 @@ You can find your organization slug under **Settings** → **Organization** → 
 
 You can find your token under **Settings** → **Organization** → **General**, in the **API** section. Since this is a secret, do not leak it publicly. Ensure you get your _organization token_, not your project/repo token.
 
+### Test Collection ID
+
+Create a [test collection](/flaky-tests/test-collections) under **Flaky Tests** → **Collections**, or open an existing one, and copy its ID from the collection's page header. It is eight alphanumeric characters. You'll save this as a variable in CI in a later step.
+
 ## Add Your Trunk Token and Organization Slug as Secrets
 
 Store the Trunk slug and API token obtained in the previous step in your repo as [GitHub secrets](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions) named `TRUNK_ORG_URL_SLUG` and `TRUNK_API_TOKEN` respectively.
+
+The collection ID is not a secret. Put it in each upload step's `test-collection-id` input, where the examples below show `<TRUNK_TEST_COLLECTION_ID>`. It is per job rather than per organization — a job that uploads to a different [test collection](/flaky-tests/test-collections) uses a different value.
 
 ## Upload to Trunk
 
@@ -239,7 +245,7 @@ Once your workflow has run on a stable branch, navigate to [app.trunk.io](https:
 - The **Uploads** tab lists every report Trunk has ingested, with status and any warnings (missing file paths, malformed XML, and so on).
 - The **Tests** tab shows individual test cases once an upload has been processed.
 
-If a recent run isn't showing up, check the action logs for upload errors and confirm your `TRUNK_API_TOKEN` and `TRUNK_ORG_URL_SLUG` secrets are set on the repo running the workflow.
+If a recent run isn't showing up, check the action logs for upload errors and confirm your `TRUNK_API_TOKEN`, `TRUNK_ORG_URL_SLUG`, and `TRUNK_TEST_COLLECTION_ID` are set on the repo running the workflow.
 
 ## Getting Direct Links to Job Logs
 
