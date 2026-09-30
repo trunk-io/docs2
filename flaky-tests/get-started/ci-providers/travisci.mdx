@@ -19,7 +19,7 @@ Work through the steps below in order. Once you've finished the last one, you're
 
 <Steps>
   <Step title={<a href="#trunk-organization-slug-and-token">Get your Trunk organization slug, token, and collection ID</a>} />
-  <Step title={<a href="#add-the-trunk-token-as-a-secret">Set your slug, token, and collection ID as variables in CI</a>} />
+  <Step title={<a href="#add-the-trunk-token-as-a-secret">Set your slug and token as a variable in CI</a>} />
   <Step title={<a href="#upload-to-trunk">Configure your CI to upload to Trunk</a>} />
   <Step title={<a href="#validate-your-uploads">Validate your uploads in Trunk</a>} />
 </Steps>
@@ -38,13 +38,11 @@ You can find your token under **Settings** → **Organization** → **General**,
 
 ### Test Collection ID
 
-Create a [test collection](/flaky-tests/test-collections) under **Flaky Tests** → **Collections**, or open an existing one, and copy its ID from the collection's page header. It is eight alphanumeric characters. You'll save this as a variable in CI in a later step.
+Create a [test collection](/flaky-tests/test-collections) under **Flaky Tests** → **Collections**, or open an existing one, and copy its ID from the collection's page header. It is not a secret, so the examples below put it directly in the upload command.
 
 ## Add the Trunk Token as a Secret
 
 Store the Trunk slug and API token obtained in the previous step as new secrets named `TRUNK_ORG_URL_SLUG` and `TRUNK_API_TOKEN` respectively.
-
-Set `TRUNK_TEST_COLLECTION_ID` as well, to the ID of the [test collection](/flaky-tests/test-collections) the results belong to. It is not a secret, and it is per job rather than per organization — a job that uploads to a different collection sets a different value.
 
 ## Upload to Trunk
 
@@ -76,7 +74,7 @@ node_js:
   - 20
 script:
   - curl -fL --retry 3 "https://github.com/trunk-io/analytics-cli/releases/latest/download/trunk-analytics-cli-x86_64-unknown-linux.tar.gz" | tar -xz && chmod +x trunk-analytics-cli
-  - ./trunk-analytics-cli upload --junit-paths "<XML_GLOB_PATH>" --org-url-slug <TRUNK_ORG_URL_SLUG> --test-collection-id $TRUNK_TEST_COLLECTION_ID --token $TRUNK_API_TOKEN
+  - ./trunk-analytics-cli upload --junit-paths "<XML_GLOB_PATH>" --org-url-slug <TRUNK_ORG_URL_SLUG> --test-collection-id <TRUNK_TEST_COLLECTION_ID> --token $TRUNK_API_TOKEN
 ```
 ```yaml Bazel
 language: node_js
@@ -85,7 +83,7 @@ node_js:
   - 20
 script:
   - curl -fL --retry 3 "https://github.com/trunk-io/analytics-cli/releases/latest/download/trunk-analytics-cli-x86_64-unknown-linux.tar.gz" | tar -xz && chmod +x trunk-analytics-cli
-  - ./trunk-analytics-cli upload --bazel-bep-path <BEP_JSON_PATH> --org-url-slug <TRUNK_ORG_URL_SLUG> --test-collection-id $TRUNK_TEST_COLLECTION_ID --token $TRUNK_API_TOKEN
+  - ./trunk-analytics-cli upload --bazel-bep-path <BEP_JSON_PATH> --org-url-slug <TRUNK_ORG_URL_SLUG> --test-collection-id <TRUNK_TEST_COLLECTION_ID> --token $TRUNK_API_TOKEN
 ```
 ```yaml XCode
 language: node_js
@@ -94,7 +92,7 @@ node_js:
   - 20
 script:
   - curl -fL --retry 3 "https://github.com/trunk-io/analytics-cli/releases/latest/download/trunk-analytics-cli-x86_64-unknown-linux.tar.gz" | tar -xz && chmod +x trunk-analytics-cli
-  - ./trunk-analytics-cli upload --xcresult-path <XCRESULT_PATH> --org-url-slug <TRUNK_ORG_URL_SLUG> --test-collection-id $TRUNK_TEST_COLLECTION_ID --token $TRUNK_API_TOKEN
+  - ./trunk-analytics-cli upload --xcresult-path <XCRESULT_PATH> --org-url-slug <TRUNK_ORG_URL_SLUG> --test-collection-id <TRUNK_TEST_COLLECTION_ID> --token $TRUNK_API_TOKEN
 ```
 ```yaml RSpec plugin
 language: node_js
@@ -102,7 +100,7 @@ dist: jammy
 node_js:
   - 20
 script:
-  - TRUNK_ORG_URL_SLUG=$TRUNK_ORG_URL_SLUG TRUNK_TEST_COLLECTION_ID=$TRUNK_TEST_COLLECTION_ID TRUNK_API_TOKEN=$TRUNK_API_TOKEN bundle exec rspec
+  - TRUNK_ORG_URL_SLUG=$TRUNK_ORG_URL_SLUG TRUNK_TEST_COLLECTION_ID=<TRUNK_TEST_COLLECTION_ID> TRUNK_API_TOKEN=$TRUNK_API_TOKEN bundle exec rspec
 ```
 </CodeGroup>
 
@@ -124,4 +122,4 @@ Once your pipeline has run on a stable branch, navigate to [app.trunk.io](https:
 - The **Uploads** tab lists every report Trunk has ingested, with status and any warnings (missing file paths, malformed XML, and so on).
 - The **Tests** tab shows individual test cases once an upload has been processed.
 
-If a recent run isn't showing up, check your CI logs for upload errors and confirm your `TRUNK_API_TOKEN`, `TRUNK_ORG_URL_SLUG`, and `TRUNK_TEST_COLLECTION_ID` are set on the project running the pipeline.
+If a recent run isn't showing up, check your CI logs for upload errors and confirm your `TRUNK_API_TOKEN` and `TRUNK_ORG_URL_SLUG` secrets are set on the project running the pipeline and the collection ID is correct.
