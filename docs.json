@@ -294,7 +294,8 @@
                       "flaky-tests/get-started/ci-providers/otherci"
                     ]
                   },
-                  "flaky-tests/get-started/multiple-repositories"
+                  "flaky-tests/get-started/multiple-repositories",
+                  "flaky-tests/get-started/fork-pr-uploads"
                 ]
               },
               {
