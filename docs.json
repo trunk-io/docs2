@@ -924,6 +924,7 @@
               {
                 "group": "September",
                 "pages": [
+                  "changelog/2026-09-30-web-app-free-plan-limits",
                   "changelog/2026-09-15-flaky-tests-test-collections"
                 ]
               },
