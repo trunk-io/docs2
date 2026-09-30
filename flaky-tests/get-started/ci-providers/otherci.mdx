@@ -18,7 +18,7 @@ Before you start on these steps, see the [Test Frameworks](../frameworks/) docs 
 Work through the steps below in order. Once you've finished the last one, you're set up — navigate to [app.trunk.io](https://app.trunk.io) to see your results.
 
 <Steps>
-  <Step title={<a href="#trunk-organization-slug-and-token">Get your Trunk organization slug and token</a>} />
+  <Step title={<a href="#trunk-organization-slug-and-token">Get your Trunk organization slug, token, and collection ID</a>} />
   <Step title={<a href="#add-the-trunk-token-as-a-secret">Set your slug and token as a variable in CI</a>} />
   <Step title={<a href="#upload-to-trunk">Configure your CI to upload to Trunk</a>} />
   <Step title={<a href="#validate-your-uploads">Validate your uploads in Trunk</a>} />
@@ -26,7 +26,7 @@ Work through the steps below in order. Once you've finished the last one, you're
 
 ## Trunk Organization Slug and Token
 
-Before setting up uploads to Trunk, you must sign in to [app.trunk.io](https://app.trunk.io/login?intent=flaky%20tests) and obtain your Trunk organization slug and token.
+Before setting up uploads to Trunk, you must sign in to [app.trunk.io](https://app.trunk.io/login?intent=flaky%20tests) and obtain your Trunk organization slug, your token, and the ID of the test collection to upload to.
 
 ### Trunk Slug
 
@@ -36,11 +36,13 @@ You can find your organization slug under **Settings** → **Organization** → 
 
 You can find your token under **Settings** → **Organization** → **General**, in the **API** section. Since this is a secret, do not leak it publicly. Ensure you get your _organization token_, not your project/repo token.
 
+### Test Collection ID
+
+Create a [test collection](/flaky-tests/test-collections) under **Flaky Tests** → **Collections**, or open an existing one, and copy its ID from the collection's page header. It is not a secret, so you can include it directly in your upload command.
+
 ## Add the Trunk Token as a Secret
 
 Store the Trunk slug and API token obtained in the previous step in your CI provider as a secret, environment variable, or an equivalent concept and name them `TRUNK_ORG_URL_SLUG` and `TRUNK_API_TOKEN` respectively.
-
-Set `TRUNK_TEST_COLLECTION_ID` as well, to the ID of the [test collection](/flaky-tests/test-collections) the results belong to. It is not a secret, and it is per job rather than per organization — a job that uploads to a different collection sets a different value.
 
 ## Upload to Trunk
 
@@ -103,6 +105,15 @@ Then, you can validate the results using the `trunk-analytics-cli validate` comm
 ./trunk-analytics-cli validate --junit-paths <PATH_TO_REPORTS>
 ```
 
+Then upload them:
+
+```bash
+./trunk-analytics-cli upload --junit-paths <PATH_TO_REPORTS> \
+  --org-url-slug $TRUNK_ORG_URL_SLUG \
+  --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
+  --token $TRUNK_API_TOKEN
+```
+
 See the [uploader.md](../../reference/cli-reference.md) for all available command line arguments and usage.
 
 ### Environment Variables
@@ -152,4 +163,4 @@ Once your pipeline has run on a stable branch, navigate to [app.trunk.io](https:
 - The **Uploads** tab lists every report Trunk has ingested, with status and any warnings (missing file paths, malformed XML, and so on).
 - The **Tests** tab shows individual test cases once an upload has been processed.
 
-If a recent run isn't showing up, check your CI logs for upload errors and confirm your `TRUNK_API_TOKEN` and `TRUNK_ORG_URL_SLUG` secrets are set on the project running the pipeline.
+If a recent run isn't showing up, check your CI logs for upload errors and confirm your `TRUNK_API_TOKEN` and `TRUNK_ORG_URL_SLUG` secrets are set on the project running the pipeline and the collection ID is correct.

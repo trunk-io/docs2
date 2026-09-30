@@ -63,9 +63,9 @@ chmod +x trunk-analytics-cli
 
 ## Organization Slug and Token
 
-The CLI requires your Trunk organization slug and token passed through `--org-url-slug` and `--token` to upload results to the correct organization. They can alternatively be set via environment variables, `TRUNK_ORG_URL_SLUG` and `TRUNK_API_TOKEN`, respectively.
+The CLI requires your Trunk organization slug, token, and test collection ID, passed through `--org-url-slug`, `--token`, and `--test-collection-id`, to upload results to the correct organization and collection. They can alternatively be set via environment variables, `TRUNK_ORG_URL_SLUG`, `TRUNK_API_TOKEN`, and `TRUNK_TEST_COLLECTION_ID`, respectively.
 
-You can find your organization slug and token by navigating to **Settings** → **Organization** → **General**.
+You can find your organization slug and token by navigating to **Settings** → **Organization** → **General**. The collection ID is on the collection's page; see [Test Collections](#test-collections).
 
 <Info>
 Your organization slug is the tail of your dashboard URL (`app.trunk.io/<org-slug>`). It defaults to your organization name with spaces replaced by hyphens. To change it, contact [help@trunk.io](mailto:help@trunk.io).
@@ -101,6 +101,7 @@ Trunk can accept JUnit XMLs through the `--junit-paths` argument:
 ```
 ./trunk-analytics-cli upload --junit-paths "test_output.xml" \
    --org-url-slug <TRUNK_ORG_URL_SLUG> \
+   --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
    --token $TRUNK_API_TOKEN
 ```
 </Tab>
@@ -110,6 +111,7 @@ Trunk can accept Bazel through the `--bazel-bep-path` argument:
 ```
 ./trunk-analytics-cli upload --bazel-bep-path <BEP_JSON_PATH> \
    --org-url-slug <TRUNK_ORG_URL_SLUG> \
+   --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
    --token $TRUNK_API_TOKEN
 ```
 </Tab>
@@ -119,6 +121,7 @@ Trunk can accept XCode through the `--xcresult-path` argument:
 ```
 ./trunk-analytics-cli upload --xcresult-path <XCRESULT_PATH> \
    --org-url-slug <TRUNK_ORG_URL_SLUG> \
+   --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
    --token $TRUNK_API_TOKEN
 ```
 </Tab>
@@ -135,6 +138,7 @@ You can specify a variant during upload using the `--variant` option:
 ```sh Upload an iOS variant
 ./trunk-analytics-cli upload --junit-paths "test_output.xml" \
    --org-url-slug <TRUNK_ORG_URL_SLUG> \
+   --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
    --token $TRUNK_API_TOKEN \
    --variant ios
 ```
@@ -148,7 +152,7 @@ Variant names are displayed in brackets next to test names in your dashboard:
 
 ## Test Collections
 
-[Test collections](/flaky-tests/test-collections) group tests so they can be configured and reviewed together, with their own flake detection and quarantining. To upload into one, pass its ID with `--test-collection-id`:
+[Test collections](/flaky-tests/test-collections) group tests so they can be configured and reviewed together, with their own flake detection and quarantining. Every upload names the collection it belongs to, by passing its ID with `--test-collection-id`:
 
 ```sh Upload to a test collection
 ./trunk-analytics-cli upload --junit-paths "test_output.xml" \
@@ -180,6 +184,7 @@ Trunk can accept JUnit XMLs through the `--junit-paths` argument:
 ```
 ./trunk-analytics-cli test --junit-paths "test_output.xml" \
    --org-url-slug <TRUNK_ORG_URL_SLUG> \
+   --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
    --token $TRUNK_API_TOKEN \
    <YOUR_TEST_COMMAND>
 ```
@@ -190,6 +195,7 @@ Trunk can accept Bazel through the `--bazel-bep-path` argument:
 ```
 ./trunk-analytics-cli test --bazel-bep-path <BEP_JSON_PATH> \
    --org-url-slug <TRUNK_ORG_URL_SLUG> \
+   --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
    --token $TRUNK_API_TOKEN \
    <YOUR_TEST_COMMAND>
 ```
@@ -200,6 +206,7 @@ Trunk can accept XCode through the `--xcresult-path` argument:
 ```
 ./trunk-analytics-cli test --xcresult-path <XCRESULT_PATH> \
    --org-url-slug <TRUNK_ORG_URL_SLUG> \
+   --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
    --token $TRUNK_API_TOKEN \
    <YOUR_TEST_COMMAND>
 ```
@@ -278,7 +285,7 @@ The `upload` and `test` commands accept the following options:
 | `--use-bazel-target-for-codeowners` | When uploading a Bazel BEP file, use the Bazel target as a fallback path to associate test cases to codeowners. **Optional**. |
 | `--allow-empty-test-results` | Don't fail commands if test results are empty or missing. Use it when you sometimes skip all tests for certain CI jobs. Defaults to `true`. |
 | `--variant <VARIANT_NAME>` | Upload tests to a specific variant group. **Optional**. |
-| `--test-collection-id <COLLECTION_ID>` | Upload to a [test collection](/flaky-tests/test-collections), in addition to (not instead of) `--org-url-slug`. Can also be set with the `TRUNK_TEST_COLLECTION_ID` environment variable. **Optional**. |
+| `--test-collection-id <COLLECTION_ID>` | Upload to a [test collection](/flaky-tests/test-collections), in addition to (not instead of) `--org-url-slug`. Can also be set with the `TRUNK_TEST_COLLECTION_ID` environment variable. **Required**. |
 | `--hide-test-collection-links` | Print repository links at the end of a run instead of test collection links. Only has an effect when a collection ID is passed. Can also be set with the `TRUNK_HIDE_TEST_COLLECTION_LINKS=true` environment variable. **Optional**. |
 | `--allow-forked-pr-uploads` | Upload from a forked pull request, whose CI can't read your API token. Requires `--test-collection-id`, and the collection must have forked pull request uploads turned on. See [Uploads from Forked Pull Requests](/flaky-tests/get-started/fork-pr-uploads). Can also be set with the `TRUNK_ALLOW_FORKED_PR_UPLOADS=true` environment variable. **Optional**. |
 | `--public-repo-id <PUBLIC_REPO_ID>` | Upload from a forked pull request to a repository with fork PR uploads turned on, using its public repo identifier in place of `--token`. See [Uploads from Forked Pull Requests](/flaky-tests/get-started/fork-pr-uploads). Can also be set with the `TRUNK_PUBLIC_REPO_ID` environment variable. **Optional**. |
