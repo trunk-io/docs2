@@ -1,0 +1,122 @@
+---
+title: "Uploads from Forked Pull Requests"
+description: "Upload test results and apply quarantining on pull requests from forks, which can't read your repository secrets or your Trunk API token."
+og:title: "Uploading test results from fork pull requests to Trunk"
+---
+CI on a pull request from a fork can't use your Trunk API token. GitHub Actions workflows triggered by `pull_request` events from a fork run with read-only permissions and can't read repository secrets, so `$TRUNK_API_TOKEN` is empty. Trunk lets these runs upload without a token through an opt-in you control.
+
+There are two ways to opt in. Which one you use depends on where the results go:
+
+| You upload to | Opt in on | The fork run sends | Minimum versions |
+| --- | --- | --- | --- |
+| A [test collection](../test-collections) | The collection's settings | `allow-forked-pr-uploads: true` with `test-collection-id` | analytics-cli 0.15.5, `analytics-uploader` v2.1.4 |
+| A repository, with no collection | The repository's settings | `public-repo-id` | analytics-cli 0.13.0 |
+
+<Info>
+This is intended for public repositories that accept outside contributions. For private repositories or forks inside your organization, keep using `$TRUNK_API_TOKEN`.
+</Info>
+
+Either way, a forked run can also read quarantined tests, so [quarantining](../quarantining/) works on fork pull requests the same way it does on your own branches.
+
+## Test collections
+
+### 1. Enable forked pull request uploads on the collection
+
+In the Trunk web app, open the collection, go to **Settings** → **Uploads**, and turn on **Accept uploads from forked pull requests**. Only organization admins can change this setting.
+
+Trunk does not issue a separate identifier for this. The fork run addresses the collection by its [collection ID](../test-collections#the-collection-id), the same eight-character ID you already pass with `--test-collection-id`.
+
+### 2. Upload from the fork workflow
+
+With the Trunk uploader action, set `allow-forked-pr-uploads: true` alongside `test-collection-id`. Leave out `token`:
+
+```yaml
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Tests
+        run: ...
+
+      - name: Upload Test Results to Trunk.io
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        uses: trunk-io/analytics-uploader@v2
+        with:
+          junit-paths: "**/junit.xml"
+          org-slug: ${{ vars.TRUNK_ORG_SLUG }}
+          test-collection-id: <YOUR_COLLECTION_ID>
+          allow-forked-pr-uploads: true
+```
+
+This needs `analytics-uploader` v2.1.4 or later, which the `@v2` tag already resolves to, and analytics-cli 0.15.5 or later. The action installs the latest CLI unless you pin an older one with `cli-version`.
+
+If you call the CLI directly, pass `--allow-forked-pr-uploads` together with `--test-collection-id`, or set `TRUNK_ALLOW_FORKED_PR_UPLOADS=true` and `TRUNK_TEST_COLLECTION_ID`:
+
+```sh
+./trunk-analytics-cli upload --junit-paths "test_output.xml" \
+   --org-url-slug <TRUNK_ORG_URL_SLUG> \
+   --test-collection-id <YOUR_COLLECTION_ID> \
+   --allow-forked-pr-uploads
+```
+
+`--allow-forked-pr-uploads` without a collection ID is an error, because the collection's own setting is what authorizes the upload.
+
+<Note>
+`allow-forked-pr-uploads` is a mode you choose explicitly, not a fallback. A workflow that passes a token but whose token secret didn't resolve still fails loudly rather than silently uploading without one.
+</Note>
+
+### How authorization works
+
+The collection ID is not a secret. It is safe to commit in your workflow file, and it shows up in links and webhooks anyway. The ID alone grants nothing: Trunk accepts a forked upload only while the collection has **Accept uploads from forked pull requests** turned on.
+
+- To stop accepting forked uploads, turn the setting off. It takes effect within about a minute.
+- An upload that names a collection that doesn't exist, is deleted, or doesn't have the setting on is refused. The response is the same in every case, so a refusal doesn't reveal which collections exist.
+- A refused upload from a fork logs a warning and exits successfully, so a contributor's pull request doesn't fail because of it.
+
+## Repositories without a test collection
+
+If you upload to a repository rather than to a collection, the opt-in is on the repository and comes with a non-secret **public repo identifier** that the fork run uses in place of the token.
+
+### 1. Enable fork PR uploads on the repository
+
+In the Trunk web app, go to **Settings** → **Repositories** → **[your repo]** → **Flaky Tests** and turn on **Fork PR Uploads**. Copy the **Public Repo Identifier** that appears below the toggle. It is an eight-character alphanumeric code scoped to that one repository. Only organization admins can change this setting.
+
+<Frame>
+  ![The Fork PR Uploads setting in a repository's Flaky Tests settings, showing the enabled toggle and the public repo identifier](/assets/flaky-tests/get-started/fork-pr-uploads-setting.png)
+</Frame>
+
+The identifier persists across toggles. Turning the setting off stops accepting fork PR uploads, and turning it back on reuses the same identifier.
+
+### 2. Upload from the fork workflow
+
+With the Trunk uploader action, set the `public-repo-id` input in place of `token`:
+
+```yaml
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Tests
+        run: ...
+
+      - name: Upload Test Results to Trunk.io
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        uses: trunk-io/analytics-uploader@v2
+        with:
+          junit-paths: "**/junit.xml"
+          org-slug: ${{ vars.TRUNK_ORG_SLUG }}
+          public-repo-id: <YOUR_8_CHAR_IDENTIFIER>
+```
+
+If you call the CLI directly, pass `--public-repo-id <YOUR_8_CHAR_IDENTIFIER>` or set the `TRUNK_PUBLIC_REPO_ID` environment variable. Either way the CLI sends the value on the `X-Trunk-Public-Repo-Id` header.
+
+### How authorization works
+
+The public repo identifier is not a secret, and it is safe to commit in your workflow file. Do not put your org API token in a fork PR workflow. Trunk accepts a fork PR upload only when both of these hold:
+
+1. The repository has **Fork PR Uploads** turned on.
+2. The upload targets the repository the identifier belongs to. An identifier only authorizes uploads to its own repository.
+
+To stop accepting fork PR uploads, turn off **Fork PR Uploads**. It takes effect immediately. As with collections, a refused upload from a fork logs a warning and exits successfully.
