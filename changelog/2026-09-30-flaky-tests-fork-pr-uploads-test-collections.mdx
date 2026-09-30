@@ -1,0 +1,22 @@
+---
+title: "Flaky Tests: Fork PR Uploads for Test Collections"
+description: "Test collections can now accept test result uploads from forked pull requests, with no API token in the fork workflow."
+slug: flaky-tests-fork-pr-uploads-test-collections
+date: 2026-09-30
+category: Flaky Tests
+type: new-feature
+---
+
+**Test collections can now accept uploads from forked pull requests.**
+
+CI on a fork pull request can't read your repository secrets, so it has no Trunk API token. You can now opt a [test collection](/flaky-tests/test-collections) into accepting those uploads, so outside contributors get flake detection and [quarantining](/flaky-tests/quarantining) too.
+
+- **Turn it on per collection.** Open the collection, go to **Settings** → **Uploads**, and turn on **Accept uploads from forked pull requests**. Only organization admins can change this setting.
+- **No new identifier.** The fork workflow addresses the collection by its existing collection ID, which is safe to commit. The ID grants nothing unless the setting is on.
+- **Upload without a token.** Set `allow-forked-pr-uploads: true` alongside `test-collection-id` on `trunk-io/analytics-uploader@v2`. If you call the CLI directly, pass `--allow-forked-pr-uploads` with `--test-collection-id`.
+- **Contributors' CI stays green.** A refused fork upload logs a warning and exits successfully.
+- **Easy to revoke.** Turning the setting off takes effect within about a minute.
+
+Requires analytics-cli 0.15.5 or later and `analytics-uploader` v2.1.4 or later. The `@v2` tag already includes it.
+
+Repositories that don't use test collections can keep using the existing public repo identifier. See [Uploads from forked pull requests](/flaky-tests/get-started/fork-pr-uploads) for both setups.
