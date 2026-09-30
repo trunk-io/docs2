@@ -1,0 +1,17 @@
+---
+title: "Flaky Tests: Test Collections in AI-Assisted Upload Setup"
+description: "The Trunk MCP server's upload setup tool and the Claude Code plugin now configure uploads for a specific test collection."
+slug: flaky-tests-mcp-setup-test-collections
+date: 2026-09-30
+category: Flaky Tests
+type: update
+---
+
+**AI-assisted upload setup now targets a test collection.**
+
+When you set up test uploads with your AI assistant, the generated configuration now routes results to the right [test collection](/flaky-tests/test-collections), so you don't have to add the collection ID by hand.
+
+- **MCP setup tool.** The [`setup-trunk-uploads`](/flaky-tests/reference/mcp-reference/set-up-test-uploads) tool accepts a new `testCollectionId` parameter. If you leave it out, the tool lists your organization's collections so you can pick one.
+- **Claude Code plugin.** [`/trunk:setup-uploads`](/flaky-tests/reference/mcp-reference/configuration/claude-code-plugin) now asks which collection your results belong to before it generates config snippets.
+
+For manual setup, see the [CI provider guides](/flaky-tests/get-started/ci-providers) and the [CLI reference](/flaky-tests/reference/cli-reference).

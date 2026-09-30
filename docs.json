@@ -926,6 +926,7 @@
                 "group": "September",
                 "pages": [
                   "changelog/2026-09-30-flaky-tests-fork-pr-uploads-test-collections",
+                  "changelog/2026-09-30-flaky-tests-mcp-setup-test-collections",
                   "changelog/2026-09-15-flaky-tests-test-collections"
                 ]
               },
