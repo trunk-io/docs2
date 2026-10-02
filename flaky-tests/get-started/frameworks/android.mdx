@@ -67,8 +67,9 @@ You can validate your test reports using the [Trunk Analytics CLI](../../referen
 <CodeGroup>
 ```bash Linux (x64)
 SKU="trunk-analytics-cli-x86_64-unknown-linux.tar.gz"
+VERSION=$(curl -fsSL https://trunk.io/releases/analytics-cli/prod/channel.json | cut -d'"' -f4)
 curl -fL --retry 3 \
-  "https://github.com/trunk-io/analytics-cli/releases/latest/download/${SKU}" \
+  "https://trunk.io/releases/analytics-cli/prod/${VERSION}/${SKU}" \
   | tar -xz
 
 chmod +x trunk-analytics-cli
@@ -76,8 +77,9 @@ chmod +x trunk-analytics-cli
 ```
 ```bash Linux (arm64)
 SKU="trunk-analytics-cli-aarch64-unknown-linux.tar.gz"
+VERSION=$(curl -fsSL https://trunk.io/releases/analytics-cli/prod/channel.json | cut -d'"' -f4)
 curl -fL --retry 3 \
-  "https://github.com/trunk-io/analytics-cli/releases/latest/download/${SKU}" \
+  "https://trunk.io/releases/analytics-cli/prod/${VERSION}/${SKU}" \
   | tar -xz
 
 chmod +x trunk-analytics-cli
@@ -85,8 +87,9 @@ chmod +x trunk-analytics-cli
 ```
 ```bash macOS (arm64)
 SKU="trunk-analytics-cli-aarch64-apple-darwin.tar.gz"
+VERSION=$(curl -fsSL https://trunk.io/releases/analytics-cli/prod/channel.json | cut -d'"' -f4)
 curl -fL --retry 3 \
-  "https://github.com/trunk-io/analytics-cli/releases/latest/download/${SKU}" \
+  "https://trunk.io/releases/analytics-cli/prod/${VERSION}/${SKU}" \
   | tar -xz
 
 chmod +x trunk-analytics-cli
@@ -95,8 +98,9 @@ chmod +x trunk-analytics-cli
 
 ```bash macOS (x64)
 SKU="trunk-analytics-cli-x86_64-apple-darwin.tar.gz"
+VERSION=$(curl -fsSL https://trunk.io/releases/analytics-cli/prod/channel.json | cut -d'"' -f4)
 curl -fL --retry 3 \
-  "https://github.com/trunk-io/analytics-cli/releases/latest/download/${SKU}" \
+  "https://trunk.io/releases/analytics-cli/prod/${VERSION}/${SKU}" \
   | tar -xz
 
 chmod +x trunk-analytics-cli

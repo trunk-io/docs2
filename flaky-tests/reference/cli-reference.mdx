@@ -20,41 +20,49 @@ If you're setting up Trunk Flaky Tests for the first time, you can follow the gu
   />
 </Columns>
 
-The CLI should be **downloaded as part of your test workflow** in your CI system. You can download the appropriate binary for your platform directly from the [GitHub releases page](https://github.com/trunk-io/analytics-cli/releases).
+The CLI should be **downloaded as part of your test workflow** in your CI system. Download the binary for your platform from `https://trunk.io/releases/analytics-cli/prod`, as shown in [Manual Download](#manual-download).
 
 ## Manual Download
 
-You can find the list of releases on [the GitHub release page](https://github.com/trunk-io/analytics-cli/releases). We provide executables for Linux and OS X. It’s a single file inside a tar and upon downloading the tar you will find a single binary - `trunk-analytics-cli` to use.
+Releases are served from `https://trunk.io/releases/analytics-cli/prod`. `channel.json` there names the latest version (`{"latest": "x.y.z"}`), and each version's files live under `<version>/`. We provide executables for Linux and OS X. It’s a single file inside a tar and upon downloading the tar you will find a single binary - `trunk-analytics-cli` to use. To pin a version, set `VERSION` to it instead of reading `channel.json`.
+
+<Note>
+Releases are also published on [GitHub](https://github.com/trunk-io/analytics-cli/releases), but GitHub rate-limits downloads, so it is not a reliable source for CI. Download from `trunk.io` instead.
+</Note>
 
 <CodeGroup>
 ```bash Linux (x64)
 SKU="trunk-analytics-cli-x86_64-unknown-linux.tar.gz"
+VERSION=$(curl -fsSL https://trunk.io/releases/analytics-cli/prod/channel.json | cut -d'"' -f4)
 curl -fL --retry 3 \
-  "https://github.com/trunk-io/analytics-cli/releases/latest/download/${SKU}" \
+  "https://trunk.io/releases/analytics-cli/prod/${VERSION}/${SKU}" \
   | tar -xz
 
 chmod +x trunk-analytics-cli
 ```
 ```bash Linux (arm64)
 SKU="trunk-analytics-cli-aarch64-unknown-linux.tar.gz"
+VERSION=$(curl -fsSL https://trunk.io/releases/analytics-cli/prod/channel.json | cut -d'"' -f4)
 curl -fL --retry 3 \
-  "https://github.com/trunk-io/analytics-cli/releases/latest/download/${SKU}" \
+  "https://trunk.io/releases/analytics-cli/prod/${VERSION}/${SKU}" \
   | tar -xz
 
 chmod +x trunk-analytics-cli
 ```
 ```bash macOS (arm64)
 SKU="trunk-analytics-cli-aarch64-apple-darwin.tar.gz"
+VERSION=$(curl -fsSL https://trunk.io/releases/analytics-cli/prod/channel.json | cut -d'"' -f4)
 curl -fL --retry 3 \
-  "https://github.com/trunk-io/analytics-cli/releases/latest/download/${SKU}" \
+  "https://trunk.io/releases/analytics-cli/prod/${VERSION}/${SKU}" \
   | tar -xz
 
 chmod +x trunk-analytics-cli
 ```
 ```bash macOS (x64)
 SKU="trunk-analytics-cli-x86_64-apple-darwin.tar.gz"
+VERSION=$(curl -fsSL https://trunk.io/releases/analytics-cli/prod/channel.json | cut -d'"' -f4)
 curl -fL --retry 3 \
-  "https://github.com/trunk-io/analytics-cli/releases/latest/download/${SKU}" \
+  "https://trunk.io/releases/analytics-cli/prod/${VERSION}/${SKU}" \
   | tar -xz
 
 chmod +x trunk-analytics-cli
