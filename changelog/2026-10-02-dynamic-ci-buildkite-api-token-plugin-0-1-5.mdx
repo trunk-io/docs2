@@ -1,0 +1,34 @@
+---
+title: "Dynamic CI: Buildkite API Token and Plugin v0.1.5"
+description: "Connect a Buildkite API token so Trunk can see the steps Dynamic CI skips, and upgrade to the more resilient Buildkite plugin v0.1.5."
+slug: dynamic-ci-buildkite-api-token-plugin-0-1-5
+date: 2026-10-02
+category: Dynamic CI
+type: new-feature
+---
+
+**Two improvements for Dynamic CI on Buildkite.**
+
+## New features
+
+**Connect a Buildkite API token**
+
+You can now give Trunk a Buildkite API token so it can see the steps Dynamic CI skips.
+
+- Create a token with the `read_builds` and `read_organizations` scopes. Use a dedicated Buildkite user.
+- Paste it into [Settings → Organization → Buildkite](https://app.trunk.io/settings/organization/buildkite).
+
+See [Set up Dynamic CI for Buildkite](/ci/dynamic-ci/getting-started/buildkite).
+
+## Updates
+
+**Buildkite plugin v0.1.5**
+
+The recommended `trunk-io/dynamic-ci` plugin version is now [v0.1.5](https://github.com/trunk-io/dynamic-ci-buildkite-plugin/releases/tag/v0.1.5).
+
+- The plugin retries when its connection to Trunk drops or is refused.
+- A misconfigured `token-env` now fails open, so your pipeline runs every step instead of breaking.
+
+Update your pipeline to `trunk-io/dynamic-ci#v0.1.5`. The minimum supported version is still v0.1.3.
+
+Dynamic CI is in private beta. [Reach out to Trunk](https://slack.trunk.io) for access.

@@ -923,6 +923,12 @@
             "group": "2026",
             "pages": [
               {
+                "group": "October",
+                "pages": [
+                  "changelog/2026-10-02-dynamic-ci-buildkite-api-token-plugin-0-1-5"
+                ]
+              },
+              {
                 "group": "September",
                 "pages": [
                   "changelog/2026-09-30-flaky-tests-fork-pr-uploads-test-collections",
