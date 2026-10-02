@@ -80,7 +80,8 @@ jobs:
       - run:
           name: Upload Test Results to Trunk.io
           command: |
-            curl -fL --retry 3 "https://github.com/trunk-io/analytics-cli/releases/latest/download/trunk-analytics-cli-x86_64-unknown-linux.tar.gz" | tar -xz && chmod +x trunk-analytics-cli
+            VERSION=$(curl -fsSL https://trunk.io/releases/analytics-cli/prod/channel.json | cut -d'"' -f4)
+            curl -fL --retry 3 "https://trunk.io/releases/analytics-cli/prod/${VERSION}/trunk-analytics-cli-x86_64-unknown-linux.tar.gz" | tar -xz && chmod +x trunk-analytics-cli
             ./trunk-analytics-cli upload --junit-paths "**/junit.xml" --org-url-slug <TRUNK_ORG_URL_SLUG> --test-collection-id <TRUNK_TEST_COLLECTION_ID> --token ${TRUNK_API_TOKEN}
 ```
 ```yaml Bazel
@@ -96,7 +97,8 @@ jobs:
       - run:
           name: Upload Test Results to Trunk.io
           command: |
-            curl -fL --retry 3 "https://github.com/trunk-io/analytics-cli/releases/latest/download/trunk-analytics-cli-x86_64-unknown-linux.tar.gz" | tar -xz && chmod +x trunk-analytics-cli
+            VERSION=$(curl -fsSL https://trunk.io/releases/analytics-cli/prod/channel.json | cut -d'"' -f4)
+            curl -fL --retry 3 "https://trunk.io/releases/analytics-cli/prod/${VERSION}/trunk-analytics-cli-x86_64-unknown-linux.tar.gz" | tar -xz && chmod +x trunk-analytics-cli
             ./trunk-analytics-cli upload --bazel-bep-path <BEP_JSON_PATH> --org-url-slug <TRUNK_ORG_URL_SLUG> --test-collection-id <TRUNK_TEST_COLLECTION_ID> --token ${TRUNK_API_TOKEN}
 ```
 ```yaml XCode
@@ -112,7 +114,8 @@ jobs:
       - run:
           name: Upload Test Results to Trunk.io
           command: |
-            curl -fL --retry 3 "https://github.com/trunk-io/analytics-cli/releases/latest/download/trunk-analytics-cli-x86_64-unknown-linux.tar.gz" | tar -xz && chmod +x trunk-analytics-cli
+            VERSION=$(curl -fsSL https://trunk.io/releases/analytics-cli/prod/channel.json | cut -d'"' -f4)
+            curl -fL --retry 3 "https://trunk.io/releases/analytics-cli/prod/${VERSION}/trunk-analytics-cli-x86_64-unknown-linux.tar.gz" | tar -xz && chmod +x trunk-analytics-cli
             ./trunk-analytics-cli upload --xcresult-path <XCRESULT_PATH> --org-url-slug <TRUNK_ORG_URL_SLUG> --test-collection-id <TRUNK_TEST_COLLECTION_ID> --token ${TRUNK_API_TOKEN}
 ```
 ```yaml RSpec plugin
