@@ -1,0 +1,18 @@
+---
+title: "Dynamic CI: Buildkite API token connection"
+description: "Connect a Buildkite API token so Trunk can see the Buildkite steps Dynamic CI skips."
+slug: dynamic-ci-buildkite-api-token
+date: 2026-10-02
+category: Dynamic CI
+type: update
+---
+
+**You can now connect a Buildkite API token to Dynamic CI.**
+
+Buildkite sends no telemetry for a job that never runs. Without a token, Trunk can't see the steps [Dynamic CI](/ci/dynamic-ci) skipped.
+
+- **Connect in Settings.** Paste a Buildkite API token into [Settings → Organization → Buildkite](https://app.trunk.io/settings/organization/buildkite).
+- **Two scopes.** The token needs `read_builds` and `read_organizations`.
+- **Use a dedicated user.** Create the token from a dedicated Buildkite user rather than a personal account.
+
+See [Dynamic CI for Buildkite](/ci/dynamic-ci/getting-started/buildkite) for the full setup.
