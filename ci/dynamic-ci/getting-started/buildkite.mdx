@@ -11,6 +11,11 @@ og:title: "Set up Trunk Dynamic CI for Buildkite"
   [Settings → Organization → General](https://app.trunk.io/settings/organization/general)
   as a Buildkite secret named `TRUNK_API_TOKEN`. The pipeline's remote must be
   on github.com.
+
+  So Trunk can see the steps it skips, paste a Buildkite API token with the
+  `read_builds` and `read_organizations` scopes into
+  [Settings → Organization → Buildkite](https://app.trunk.io/settings/organization/buildkite).
+  Use a token from a dedicated Buildkite user.
 </Note>
 
 ## Give your steps keys
