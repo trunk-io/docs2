@@ -1,0 +1,26 @@
+---
+title: "Flaky Tests: v2 API Renames Test Cases to Tests"
+description: "The Flaky Tests v2 API now uses \"tests\" instead of \"test cases\" in its paths, fields, and schemas."
+slug: flaky-tests-v2-api-tests-rename
+date: 2026-10-05
+category: Flaky Tests
+type: update
+---
+
+**The Flaky Tests v2 API now calls test cases "tests".**
+
+The [test collection endpoints](/flaky-tests/reference/api-reference#test-collection-endpoints) now match the naming used across the rest of Flaky Tests. If you call the v2 API, update your integration to the new names:
+
+| Before | After |
+|---|---|
+| `/v2/test-cases` | `/v2/tests` |
+| `testCaseId` | `testId` |
+| `TestCase` | `Test` |
+| `repoId` | `repositoryId` |
+| `testCaseCount` | `testCount` |
+
+- **Five renamed operations.** [List and search tests](/flaky-tests/reference/api-reference/v2/tests/list-and-search-tests), [get a test](/flaky-tests/reference/api-reference/v2/tests/get-a-test), [list a test's status transitions](/flaky-tests/reference/api-reference/v2/tests/list-a-tests-status-transitions), [list a test's runs](/flaky-tests/reference/api-reference/v2/tests/list-a-tests-runs), and [link a ticket to a test](/flaky-tests/reference/api-reference/v2/tests/link-a-ticket-to-a-test).
+- **Ticket linking in collections.** `POST /v2/tests/{testId}/ticket` links a ticket to a test in a collection, the collection equivalent of the repository endpoint.
+- **v1 is unchanged.** The repository-scoped `/v1` endpoints keep their existing names.
+
+See the [Flaky Tests API reference](/flaky-tests/reference/api-reference) for details.
