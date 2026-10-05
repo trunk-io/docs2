@@ -477,6 +477,7 @@
                 ]
               },
               "ci/dynamic-ci/configuration",
+              "ci/dynamic-ci/settings",
               "ci/dynamic-ci/github-integration",
               "ci/dynamic-ci/merge-queue",
               "ci/dynamic-ci/faq"

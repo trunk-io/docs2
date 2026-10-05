@@ -1,0 +1,50 @@
+---
+title: "Roll out Dynamic CI with Learning and Enforced modes"
+sidebarTitle: "Settings"
+description: "Choose Learning or Enforced mode for each repository, and use the Learning mode allow list to enforce Dynamic CI for selected engineers or GitHub labels."
+---
+
+Dynamic CI runs in one of two modes per repository: **Learning** or **Enforced**. Use these settings to try Dynamic CI safely and roll it out across your organization step by step, starting with a few engineers or labeled pull requests before you turn it on for everyone.
+
+Manage these settings on the [Dynamic CI settings page](https://app.trunk.io/ci/settings/dynamic-ci) in the Trunk web app. Every repository connected to Dynamic CI appears as a row with its mode and allow list.
+
+![The Dynamic CI settings table. Each repository has a Mode dropdown set to Learning or Enforced, and an Allow list column showing engineers and GitHub labels. Enforced repositories show "Not used when enforced".](/assets/ci/dynamic-ci/settings-modes.png)
+
+## Modes
+
+| Mode | What Dynamic CI does |
+| --- | --- |
+| **Learning** | The scoring engine is active and scores every job, but does not skip any jobs. The only exception is pull requests on the allow list. |
+| **Enforced** | Dynamic CI is fully active and skips jobs based on its scores and your [job configuration](/ci/dynamic-ci/configuration). |
+
+To change a repository's mode, pick **Learning** or **Enforced** from the **Mode** dropdown in its row.
+
+## Allow list
+
+In Learning mode, use the allow list to have Dynamic CI enforced on selected pull requests while the rest of the repository keeps running every job. A pull request is enforced if it matches either kind of entry:
+
+- **Engineers**: pull requests opened by these GitHub users.
+- **GitHub labels**: pull requests that have this label, for example `trunk:dynamic-ci`.
+
+Click the pencil icon in the **Allow list** column to add or remove entries. A repository with no entries shows **Empty**, and no pull requests in it are enforced.
+
+<Note>
+  The allow list only applies in Learning mode. In Enforced mode it is ignored, and the column shows **Not used when enforced**.
+</Note>
+
+## Suggested rollout
+
+<Steps>
+  <Step title="Start in Learning mode">
+    Leave the repository in Learning mode so the scoring engine can learn from your CI history without skipping any jobs.
+  </Step>
+  <Step title="Add a few early adopters">
+    Add a few engineers to the allow list, or add a label such as `trunk:dynamic-ci` that anyone can put on a pull request to opt in.
+  </Step>
+  <Step title="Widen the allow list">
+    Add more engineers and labels as your team gains confidence in which jobs Dynamic CI skips.
+  </Step>
+  <Step title="Switch to Enforced">
+    Set the repository to Enforced to apply Dynamic CI to every pull request.
+  </Step>
+</Steps>
