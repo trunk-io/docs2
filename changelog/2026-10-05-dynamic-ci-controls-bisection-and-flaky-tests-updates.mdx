@@ -1,0 +1,43 @@
+---
+title: "Dynamic CI: Job Controls, Rollout Modes, and Force Run"
+description: "Configure Dynamic CI per job, roll it out with Learning and Enforced modes, and force skipped jobs to run. Plus Merge Queue bisection and Flaky Tests API and upload updates."
+date: 2026-10-05
+category: Dynamic CI
+type: new-feature
+---
+
+**Dynamic CI gets per-job controls, a safe rollout path, and Force Run.** This week also brings updates to Merge Queue bisection and Flaky Tests uploads and API.
+
+## New features
+
+**Per-job configuration for Dynamic CI**
+
+The [Configuration tab](/ci/dynamic-ci/configuration) lists every job Dynamic CI manages, with filters by repository, workflow, and job name.
+
+- **Schedules.** Set each job to **Automatic**, **Always Run**, or **Always Skip**, separately for pull requests and the merge queue.
+- **Path filters.** Add path filters in a visual or YAML editor. Dynamic CI uses them as a signal when it decides whether to run a job.
+
+**Learning and Enforced modes**
+
+Roll out Dynamic CI one repository at a time from the [Dynamic CI settings](/ci/dynamic-ci/settings).
+
+- **Learning** scores every job but skips nothing.
+- **Enforced** skips jobs based on their scores and your job configuration.
+- **Allow list.** In Learning mode, enforce Dynamic CI only for selected engineers or pull requests with a GitHub label, such as `trunk:dynamic-ci`.
+
+**Force Run skipped jobs**
+
+Make Dynamic CI run a job on a pull request, no matter what it recommends. See [Force Run](/ci/dynamic-ci/github-integration).
+
+- **From GitHub.** The [Trunk browser extension](/merge-queue/browser-extensions) labels skipped checks **Skipped by dynamic-ci**. Mark the jobs you want, then click **Run N job now** to start them without another push.
+- **From Trunk.** Set the same overrides on the pull request view in the Trunk web app.
+
+Force Run is available for GitHub Actions workflows.
+
+## Updates
+
+- **Dynamic CI on Buildkite.** Connect a Buildkite API token under **Settings** → **Organization** → **Buildkite** so Trunk can see the steps it skips. The plugin is now at `v0.1.5`. See the [Buildkite guide](/ci/dynamic-ci/getting-started/buildkite).
+- **Merge Queue: Skip Redundant Bisection Tests.** With this queue setting on, Trunk doesn't re-test a combination of PRs that already failed during the same bisection. Skipped groups are split and re-tested right away. Only failures are reused. Trunk never marks a PR as passed without a run. See [Test caching during bisection](/merge-queue/optimizations/batching#test-caching-during-bisection).
+- **Flaky Tests: Uploads name a test collection.** Every upload now includes a [test collection](/flaky-tests/test-collections) ID with `--test-collection-id` or `test-collection-id`. The ID isn't a secret, so you can add it straight to your upload command. See the [CLI reference](/flaky-tests/reference/cli-reference).
+- **Flaky Tests: v2 API uses "tests".** The v2 test-cases endpoints are now under `/v2/tests`. A new endpoint links a ticket to a test in a collection. See the [Flaky Tests API](/flaky-tests/reference/api-reference).
+- **Flaky Tests: Download the CLI from trunk.io.** Download `trunk-analytics-cli` from `trunk.io` instead of GitHub, which rate-limits downloads in CI. See [Manual download](/flaky-tests/reference/cli-reference#manual-download).
