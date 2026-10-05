@@ -193,92 +193,60 @@ Start with bisection concurrency 2x your main queue concurrency, monitor the imp
 
 ## Test Caching During Bisection
 
-When a batch fails and Trunk splits it apart to identify the failing PR, the merge queue intelligently reuses test results it has already collected during the bisection process. This avoids redundant CI runs and speeds up failure isolation.
+When a batch fails and Trunk splits it apart to find the PR that broke it, the same combination of PRs can come up for testing more than once. With **Skip Redundant Bisection Tests** enabled, Trunk doesn't test a combination again if it has already failed during the same bisection. It reuses that failure instead, which saves a CI run and speeds up finding the failing PR.
 
 ### How it works
 
-During bisection, Trunk maintains a cache of test results as it progressively splits the failed batch. If the queue knows with certainty that a particular combination of PRs will fail (because it already tested that exact combination earlier in the bisection process), it skips running the test again and reuses the previous result.
+Bisection detaches the failed batch from the rest of the queue, so each test in a bisection runs a group of PRs on top of the PRs ahead of it in the bisection only. Before starting one, Trunk checks whether an earlier test in the current bisection already **failed** with the same set of PRs. A failed test of a larger set also counts once its extra PRs have merged. For example, if `AB` failed and `A` has since merged, testing `B` alone would repeat that failure. If an earlier failure covers the test, Trunk skips the CI run and reuses that failure. What happens next depends on whether the failure already shows which PR caused it:
+
+* **A single PR with nothing ahead of it:** the reused failure already names it. This is usually the case where the other PRs in the failed test have merged. The PR fails with `TEST_RUN_FAILED_BY_OPTIMIZATION` and is removed from the queue.
+* **A single PR with tests still running ahead of it:** it's re-tested on its own straight away, without the PRs ahead of it.
+* **A group of PRs:** it's split and re-tested straight away, alongside the rest of the bisection, instead of waiting for the tests ahead of it to finish.
+
+Only failures are reused. Test caching never marks a PR as passed.
 
 <Accordion title="Example bisection with test caching">
-1. Batch `ABCD` fails testing (main ← ABCD)
-2. Trunk splits the batch: `AB` and `CD`
-3. Tests `AB` (passes) and `CD` (fails)
-4. Now Trunk needs to split `CD` further: `C` and `D`
-5. Before testing, Trunk checks: "Have I already tested `C` or `D` individually?"
-6. If `main ← ABCD` failed and `main ← AB` passed, Trunk knows `CD` contains the failure
-7. When testing `main ← AB ← C`, if this combination was already tested earlier, reuse that result
-8. Skip redundant CI runs and identify the failing PR faster
+1. Batch `ABCD` fails testing (`main ← ABCD`).
+2. Trunk splits the batch into `AB` and `CD`. `AB` is tested as `main ← AB`, and `CD` would be tested on top of it, as `main ← AB ← CD`.
+3. `main ← AB ← CD` is the same set of PRs as `main ← ABCD`, which already failed. Trunk doesn't run it.
+4. Instead of waiting for `AB`'s result, Trunk splits `CD` right away. `main ← C` and `main ← C ← D` start testing alongside `main ← AB`.
+5. If `AB` then fails too, it's split into `main ← A` and `main ← A ← B`. The second is the same set of PRs as the failed `main ← AB`, so it's skipped, and `B` is re-tested on its own straight away, as `main ← B`.
 </Accordion>
 
 ### Benefits
 
-**Faster failure isolation**: Skip tests you've already run during bisection, reducing time to identify the culprit PR
+**Lower CI spend**: Every reused failure is a CI run that doesn't happen. This matters most for large batches and expensive test suites.
 
-**Significant CI cost savings**: Especially important for large batches or expensive test suites where redundant tests would waste substantial resources
-
-**Quicker developer feedback**: Developers learn which PR broke the batch sooner, allowing them to fix issues faster
-
-**Automatic optimization**: No configuration required - the merge queue automatically detects and reuses applicable test results
+**Faster failure isolation**: Bisection doesn't wait on a test whose result is already known, and the PRs it skipped start their next tests right away, so developers learn sooner which PR broke the batch.
 
 ### When test caching applies
 
-Test caching only applies during the bisection process when:
+A test is skipped only when all of these are true:
 
-1. **Batching is enabled** - This is a batching-specific optimization
-2. **A batch has failed** and is being split to identify the failure
-3. **The merge queue has already tested** a specific combination of PRs during the current bisection
-4. **The test result is definitive** - The queue has high confidence the result would be the same
+1. **Skip Redundant Bisection Tests is enabled** for the queue
+2. **A batch has failed** and is being bisected
+3. **An earlier test in the same bisection failed** with the same set of PRs, or with a larger set whose extra PRs have all merged since
+4. **The base hasn't changed since that failed test.** Trunk discards a reused failure if another PR has merged through the queue since then, or if the bisection's PRs were restarted. Restarts include a push to the target branch, a manual or API restart, and a PR merged outside the queue.
 
 Test caching does **not** apply to:
 
-* Initial batch testing (before any failures)
-* PRs in the main queue that aren't undergoing bisection
-* Tests that haven't been run yet in the current bisection process
+* Initial batch testing, before any failure
+* Combinations that passed. Passing results are never reused.
+* Results from a different bisection
 
-### Example scenario
+### Enabling it
 
-**Without test caching:**
+Test caching is off unless you turn it on. In the **Merge Queue** tab, select your queue, click **Settings**, and enable **Skip Redundant Bisection Tests** under **Batching**. You can also set it with `optimizationMode: bisectionSkipRedundantTests` when you [update a queue through the API](/merge-queue/reference/api-v2/mergequeues/update-a-merge-queues-configuration), or with `optimization_mode = "BISECTION_SKIP_REDUNDANT_TESTS"` in [Terraform](../administration/terraform).
 
-* Batch `ABCDEF` (6 PRs) fails
-* First bisection: Test `ABC` and `DEF` (2 CI runs)
-* `DEF` fails, need to split further
-* Second bisection: Test `DE` and `F` (2 CI runs)
-* `DE` fails, need to split further
-* Third bisection: Test `D` and `E` (2 CI runs)
-* Total: 6 CI runs to isolate the failure
-
-**With test caching:**
-
-* Batch `ABCDEF` fails - we know `ABCDEF` combination fails
-* First bisection: Test `ABC` (passes) and identify `DEF` fails (no new test needed - we know from original batch)
-* Second bisection: Test `DE` - if we've already tested this combination, reuse result
-* Third bisection: Test `D` or `E` - reuse any already-known results
-* Total: 2-4 CI runs instead of 6
-
-The exact savings depend on your batch size, bisection pattern, and which combinations have already been tested.
-
-### Best practices
-
-* Use with larger batch sizes - More PRs in a batch means more opportunities to cache results
-* Combine with bisection concurrency - Fast bisection + test caching = maximum efficiency
-* Enable batching - This feature only works when batching is enabled
-* Monitor your metrics - Track CI spend and bisection time to see the impact
-* **Don't** try to configure it - Test caching is automatic and always enabled when batching
-* **Don't** rely on it for flaky tests - Caching assumes consistent test behavior; flaky tests may bypass caching for safety
+<Warning>
+A reused failure isn't re-run. Most PRs covered by a reused failure are just split and re-tested, but when it singles out one PR, that PR is removed from the queue without failing a test of its own. If the original failure was flaky, that PR is removed even though nothing is wrong with it. If your queue sees a lot of flaky failures, consider leaving this setting off, or pair it with [Anti-flake protection](./anti-flake-protection).
+</Warning>
 
 ### How this works with other features
 
-Test caching complements other batching optimizations:
-
-* **Bisection Concurrency** - Run bisection tests faster AND skip redundant ones
-* **Pending Failure Depth** - Keep more PRs in queue during failure recovery
-* **Optimistic Merging** - Merge successful batches while bisection runs in background
-
-Together, these features create a highly efficient batch failure recovery system that minimizes both time and CI cost.
-
-<Info>
-**Note:** Test caching for batch failure isolation is automatically enabled for all repositories using batching mode. No configuration is required.
-</Info>
+* **Bisection Concurrency** - Run the bisection tests that are needed faster, and skip the ones that aren't
+* **Pending Failure Depth** - Keep more PRs in the queue during failure recovery
+* **Optimistic Merging** - Merge successful batches while bisection runs in the background
 
 ## Fine tuning batch sizes
 
