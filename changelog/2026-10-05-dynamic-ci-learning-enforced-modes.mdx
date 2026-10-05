@@ -1,0 +1,18 @@
+---
+title: "Dynamic CI: Learning and Enforced modes"
+description: "Roll out Dynamic CI one repository at a time with Learning and Enforced modes, plus an allow list for selected engineers and GitHub labels."
+slug: dynamic-ci-learning-enforced-modes
+date: 2026-10-05
+category: Dynamic CI
+type: new-feature
+---
+
+**You can now roll out Dynamic CI gradually, one repository at a time.**
+
+Each repository connected to Dynamic CI now runs in one of two modes. Manage both from the Dynamic CI settings page in the Trunk web app.
+
+- **Learning mode.** Dynamic CI scores every job but skips nothing, so you can see its decisions before they affect your pull requests.
+- **Enforced mode.** Dynamic CI skips jobs based on its scores and your [job configuration](/ci/dynamic-ci/configuration).
+- **Allow list for early adopters.** In Learning mode, add engineers or GitHub labels (for example, `trunk:dynamic-ci`) to enforce Dynamic CI only on matching pull requests. The rest of the repository keeps running every job.
+
+Start in Learning mode, widen the allow list as your team gains confidence, then switch to Enforced. See [Dynamic CI settings](/ci/dynamic-ci/settings) for the full guide.
