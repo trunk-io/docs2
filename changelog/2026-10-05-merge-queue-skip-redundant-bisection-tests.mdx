@@ -1,0 +1,18 @@
+---
+title: "Merge Queue: Skip Redundant Bisection Tests"
+description: "A new opt-in batching setting reuses failures from the current bisection instead of rerunning the same set of PRs."
+slug: merge-queue-skip-redundant-bisection-tests
+date: 2026-10-05
+category: Merge Queue
+type: new-feature
+---
+
+**Spend less CI time isolating a failed batch.**
+
+When a batch fails, bisection can test the same set of PRs more than once. With **Skip Redundant Bisection Tests** on, Trunk skips a test whose exact set of PRs already failed in the same bisection. Those PRs fail with `TEST_RUN_FAILED_BY_OPTIMIZATION`, and bisection keeps splitting them.
+
+- **Only failures are reused.** A PR never passes without its own test run.
+- **Off by default.** Turn it on under **Settings** → **Batching** for your queue, or through the [API](/merge-queue/reference/api-v2/mergequeues/update-a-merge-queues-configuration) or Terraform.
+- **Watch for flaky tests.** A flaky failure is reused, not retried. Pair this with [Anti-flake protection](/merge-queue/optimizations/anti-flake-protection) if your queue sees frequent flakes.
+
+See [Test caching during bisection](/merge-queue/optimizations/batching#test-caching-during-bisection).

@@ -1,0 +1,20 @@
+---
+title: "Dynamic CI: Job configuration, rollout modes, and Force Run"
+description: "Configure each job's schedule and path filters, roll out Dynamic CI gradually with Learning and Enforced modes, and force skipped jobs to run from GitHub."
+slug: dynamic-ci-configuration-rollout-force-run
+date: 2026-10-05
+category: Dynamic CI
+type: new-feature
+---
+
+**More control over which jobs Dynamic CI runs, and how you roll it out.**
+
+## New features
+
+- **Per-job configuration.** Set a schedule for each job on pull requests and in the merge queue: **Automatic**, **Always Run**, or **Always Skip**. Add path filters to tell Dynamic CI which changes matter to a job. See [Configuration](/ci/dynamic-ci/configuration).
+- **Learning and Enforced modes.** Start a repository in **Learning** mode to score jobs without skipping any. Use the allow list to enforce Dynamic CI for selected engineers or GitHub labels, then switch to **Enforced** when you're ready. See [Settings](/ci/dynamic-ci/settings).
+- **Force Run from GitHub.** The Trunk browser extension labels skipped jobs as **Skipped by dynamic-ci** and lets you force any of them to run right away. You can also set Force Run from the pull request view in the Trunk web app. See [GitHub Integration](/ci/dynamic-ci/github-integration).
+
+## Updates
+
+- **Buildkite.** The Buildkite plugin is now at `v0.1.5`. Add a Buildkite API token in **Settings** → **Organization** → **Buildkite** so Trunk can see the steps it skips. See [Buildkite setup](/ci/dynamic-ci/getting-started/buildkite).
