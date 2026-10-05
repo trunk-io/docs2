@@ -49,12 +49,24 @@
       "x-group": "Dynamic CI"
     },
     {
+      "name": "ciJobs",
+      "x-group": "CI Jobs"
+    },
+    {
+      "name": "ciWorkflowRuns",
+      "x-group": "CI Workflow Runs"
+    },
+    {
+      "name": "ciFailureClusters",
+      "x-group": "CI Failure Clusters"
+    },
+    {
       "name": "testCollections",
       "x-group": "Test Collections"
     },
     {
-      "name": "testCases",
-      "x-group": "Test Cases"
+      "name": "tests",
+      "x-group": "Tests"
     }
   ],
   "components": {
@@ -470,8 +482,10 @@
           "PROVIDER_URL_NOT_FOUND",
           "CI_HOST_UNSUPPORTED",
           "CI_SCOPE_NOT_FOUND",
+          "CI_JOB_NOT_FOUND",
+          "CI_FAILURE_CLUSTER_NOT_FOUND",
           "TEST_COLLECTION_NOT_FOUND",
-          "TEST_CASE_NOT_FOUND",
+          "TEST_NOT_FOUND",
           "TICKETING_NOT_CONFIGURED",
           "TICKETING_CREDENTIALS_INVALID",
           "TICKET_NOT_FOUND",
@@ -987,6 +1001,17 @@
             "type": "boolean",
             "description": "Whether the authenticated user authored this pull request. Provided on the queue pull-request list (`GET /merge-queues/{id}/pull-requests`); absent elsewhere and when the caller is not a signed-in user.",
             "example": true
+          },
+          "ci": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PullRequestCi"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "CI on the head commit. Null when the repository has no CI data. Absent from lists, from a lookup of more than one pull request, and when the CI read failed."
           }
         },
         "required": [
@@ -1216,6 +1241,97 @@
         ],
         "description": "Why the pull request is not mergeable. `behind`, `pending`, and `awaitingCheck` resolve without author action (Trunk updates the branch; GitHub is still computing; a required check is still running); the rest need the author to act. `stackNeedsRebase` means a PR in the middle of this GitHub stack was pushed to without rebasing the ones above it. `other` is a block Trunk could not attribute to a specific rule.",
         "example": "reviewRequired"
+      },
+      "PullRequestCi": {
+        "type": "object",
+        "properties": {
+          "headSha": {
+            "type": "string",
+            "description": "The commit the counts describe: the pull request's head.",
+            "example": "a0de7a77e8d758a346f83ed19209a5a25814bb17"
+          },
+          "observedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-09-29T15:12:25.000Z"
+          },
+          "pollAfterSeconds": {
+            "type": ["integer", "null"],
+            "description": "When to read again: 10 while a job is queued or running, 30 while a failure's analysis is on its way, null when nothing on this commit will change.",
+            "example": 10
+          },
+          "jobs": {
+            "$ref": "#/components/schemas/CiJobCounts"
+          },
+          "jobsUrl": {
+            "type": "string",
+            "description": "The jobs on `headSha`: `GET /v2/ci-jobs`, already filtered. Root-relative: resolve it against the host you called.",
+            "example": "/v2/ci-jobs?pullRequestId=0f8fad5b-d9cb-469f-a165-70867728950e&commitSha=a0de7a77e8d758a346f83ed19209a5a25814bb17"
+          },
+          "workflowRunsUrl": {
+            "type": "string",
+            "description": "The workflow runs on `headSha`: `GET /v2/ci-workflow-runs`, already filtered. Root-relative, like `jobsUrl`.",
+            "example": "/v2/ci-workflow-runs?pullRequestId=0f8fad5b-d9cb-469f-a165-70867728950e&commitSha=a0de7a77e8d758a346f83ed19209a5a25814bb17"
+          }
+        },
+        "required": [
+          "headSha",
+          "observedAt",
+          "pollAfterSeconds",
+          "jobs",
+          "jobsUrl",
+          "workflowRunsUrl"
+        ],
+        "description": "CI on the pull request's head commit, counted. The lists are one request away through `jobsUrl` and `workflowRunsUrl`."
+      },
+      "CiJobCounts": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer",
+            "example": 209
+          },
+          "queued": {
+            "type": "integer",
+            "example": 0
+          },
+          "running": {
+            "type": "integer",
+            "example": 0
+          },
+          "passed": {
+            "type": "integer",
+            "example": 110
+          },
+          "failed": {
+            "type": "integer",
+            "description": "Conclusion `failure` or `timedOut`.",
+            "example": 2
+          },
+          "cancelled": {
+            "type": "integer",
+            "example": 0
+          },
+          "skipped": {
+            "type": "integer",
+            "example": 97
+          },
+          "abandoned": {
+            "type": "integer",
+            "example": 0
+          }
+        },
+        "required": [
+          "total",
+          "queued",
+          "running",
+          "passed",
+          "failed",
+          "cancelled",
+          "skipped",
+          "abandoned"
+        ],
+        "description": "The latest attempt of every job, counted. The fields other than `total` sum to `total`."
       },
       "SubmitPullRequestRequest": {
         "type": "object",
@@ -2356,7 +2472,7 @@
           "message": {
             "type": "string",
             "description": "Human-readable evidence for this signal's contribution.",
-            "example": "Passed 98% of 240 runs in the last 14 days."
+            "example": "Reliably green (98.0% pass rate over 240 runs)."
           },
           "ignored": {
             "type": "boolean",
@@ -2465,7 +2581,8 @@
               "maxLength": 256
             },
             "maxItems": 1000,
-            "description": "The pull request's label names, from `github.event.pull_request.labels`. While the repository is in Learning mode, a pull request carrying a label on the repository's managed allow list (matched case-insensitively) is gated as if Dynamic CI were enabled.",
+            "deprecated": true,
+            "description": "Ignored. Trunk reads the pull request's labels itself when the run asks for a plan. While the repository is in Learning mode, a pull request carrying a label on the repository's managed allow list (matched case-insensitively) is gated as if Dynamic CI were enabled. Accepted so that older clients still validate.",
             "example": ["bug", "ready-for-ci"]
           },
           "jobKeys": {
@@ -2673,7 +2790,8 @@
               "maxLength": 256
             },
             "maxItems": 1000,
-            "description": "`BUILDKITE_PULL_REQUEST_LABELS`, split on commas. While the repository is in Learning mode, a pull request carrying a label on the repository's managed allow list (matched case-insensitively) is gated as if Dynamic CI were enabled.",
+            "deprecated": true,
+            "description": "Ignored. Trunk reads the pull request's labels itself when the run asks for a plan. While the repository is in Learning mode, a pull request carrying a label on the repository's managed allow list (matched case-insensitively) is gated as if Dynamic CI were enabled. Accepted so that older clients still validate.",
             "example": ["bug", "ready-for-ci"]
           },
           "jobKeys": {
@@ -2960,9 +3078,9 @@
             "type": ["string", "null"],
             "example": "Owned by the platform team."
           },
-          "testCaseCount": {
+          "testCount": {
             "type": "integer",
-            "description": "Distinct test cases seen in this collection. Reflects ingested uploads, so a brand-new collection reports 0 until its first upload is processed.",
+            "description": "Distinct tests seen in this collection. Reflects ingested uploads, so a brand-new collection reports 0 until its first upload is processed.",
             "example": 1284
           },
           "quarantineEnabled": {
@@ -2990,7 +3108,7 @@
           "id",
           "name",
           "description",
-          "testCaseCount",
+          "testCount",
           "quarantineEnabled",
           "autoQuarantineEnabled",
           "createdAt",
@@ -3016,10 +3134,10 @@
         "required": ["name"],
         "description": "Fields for a new test collection."
       },
-      "TestCase": {
+      "Test": {
         "allOf": [
           {
-            "$ref": "#/components/schemas/TestCaseSummary"
+            "$ref": "#/components/schemas/TestSummary"
           },
           {
             "type": "object",
@@ -3108,7 +3226,7 @@
           }
         },
         "required": ["id", "name", "description", "assignedAt", "sources"],
-        "description": "A label on a test case, folded across its sources — one entry per label, never one per assignment."
+        "description": "A label on a test, folded across its sources — one entry per label, never one per assignment."
       },
       "LabelSource": {
         "oneOf": [
@@ -3126,7 +3244,7 @@
             "monitor": "#/components/schemas/MonitorLabelSource"
           }
         },
-        "description": "Something that put a label on a test case. A `user` source carries no monitor fields and a `monitor` source carries no user."
+        "description": "Something that put a label on a test. A `user` source carries no monitor fields and a `monitor` source carries no user."
       },
       "UserLabelSource": {
         "type": "object",
@@ -3210,7 +3328,7 @@
         "description": "A monitor type that can apply a label.",
         "example": "failureRate"
       },
-      "TestCaseMetrics": {
+      "TestMetrics": {
         "type": "object",
         "properties": {
           "failureRate": {
@@ -3244,7 +3362,7 @@
           "lastFailureAt": {
             "type": ["string", "null"],
             "format": "date-time",
-            "description": "Within the period, unlike the test case's own field.",
+            "description": "Within the period, unlike the test's own field.",
             "example": "2026-06-01T10:00:00.000Z"
           }
         },
@@ -3318,12 +3436,12 @@
         "description": "A monitor type that can be active on a test. `manual` is the 'flag as flaky' mark, which has no addressable monitor resource and always reports a null `monitorId`.",
         "example": "failureRate"
       },
-      "TestCaseSummary": {
+      "TestSummary": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
-            "description": "The test case's globally unique id. Stable across repos and collections, and safe to store.",
+            "description": "The test's globally unique id. Stable across repos and collections, and safe to store.",
             "example": "bfeebcf4-0000-8000-8000-000000000001"
           },
           "testCollectionId": {
@@ -3331,9 +3449,9 @@
             "description": "The owning collection's id.",
             "example": "aB3xY9kQ"
           },
-          "repoId": {
+          "repositoryId": {
             "type": "string",
-            "description": "The repository the test was uploaded for. The nil UUID for uploads made without a repository.",
+            "description": "The repository the test was uploaded for. Resolve with `GET /v2/repositories/{id}`. Uploads made without a repository carry the nil UUID, which names no repository and does not resolve.",
             "example": "7a2b3c4d-5e6f-4a1b-8c9d-0e1f2a3b4c5d"
           },
           "name": {
@@ -3396,7 +3514,7 @@
           "metrics": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/TestCaseMetrics"
+                "$ref": "#/components/schemas/TestMetrics"
               },
               {
                 "type": "null"
@@ -3408,7 +3526,7 @@
         "required": [
           "id",
           "testCollectionId",
-          "repoId",
+          "repositoryId",
           "name",
           "parentName",
           "className",
@@ -3423,13 +3541,13 @@
           "labels"
         ]
       },
-      "TestCaseList": {
+      "TestList": {
         "type": "object",
         "properties": {
           "data": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/TestCaseSummary"
+              "$ref": "#/components/schemas/TestSummary"
             },
             "maxItems": 100
           },
@@ -3744,7 +3862,7 @@
           }
         },
         "required": ["externalTicketId"],
-        "description": "The ticket to link to a test case in a test collection."
+        "description": "The ticket to link to a test in a test collection."
       },
       "RepositoryList": {
         "type": "object",
@@ -3836,6 +3954,644 @@
         "enum": ["github", "gitlab", "bitbucket", "unknown"],
         "description": "The hosting provider. `unknown` is a repository Trunk has indexed without resolving a provider.",
         "example": "github"
+      },
+      "CiJobRunList": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CiJobRun"
+            },
+            "maxItems": 100
+          },
+          "nextCursor": {
+            "type": ["string", "null"],
+            "description": "Opaque cursor for the next page, or null on the last page. Pass it back verbatim as `cursor`; do not construct or inspect one.",
+            "example": "AQEKZm9vYmFy"
+          },
+          "hasMore": {
+            "type": "boolean",
+            "description": "True when another page is available.",
+            "example": true
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total rows matching the filter. Present only when the request set `includeTotal=true`.",
+            "example": 1247
+          }
+        },
+        "required": ["data", "nextCursor", "hasMore"]
+      },
+      "CiJobRun": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Opaque. Identifies the job's latest attempt.",
+            "example": "1a289f57705150d7~q1790685507000"
+          },
+          "commitSha": {
+            "type": "string",
+            "example": "a0de7a77e8d758a346f83ed19209a5a25814bb17"
+          },
+          "name": {
+            "type": "string",
+            "example": "test (2/2)"
+          },
+          "workflowName": {
+            "type": ["string", "null"],
+            "example": "CI"
+          },
+          "workflowRunId": {
+            "type": ["string", "null"],
+            "description": "The `CiWorkflowRun.id` of the job's run.",
+            "example": "5e1d2c3b4a596877"
+          },
+          "attempt": {
+            "type": "integer",
+            "example": 1
+          },
+          "attemptCount": {
+            "type": "integer",
+            "description": "Every attempt of the job, the latest included.",
+            "example": 2
+          },
+          "failedAttemptCount": {
+            "type": "integer",
+            "example": 1
+          },
+          "status": {
+            "$ref": "#/components/schemas/CiJobStatus"
+          },
+          "conclusion": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CiConclusion"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Set when `status` is `completed`."
+          },
+          "required": {
+            "type": ["boolean", "null"],
+            "description": "Whether the job is a required check on the pull request's base branch or its merge queue. Null when the list is read by commit, with no pull request to say which branch.",
+            "example": true
+          },
+          "queuedAt": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "example": "2026-09-29T12:37:00.000Z"
+          },
+          "startedAt": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "example": "2026-09-29T12:38:27.000Z"
+          },
+          "finishedAt": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "example": "2026-09-29T12:44:03.000Z"
+          },
+          "queuedMs": {
+            "type": ["integer", "null"],
+            "example": 87000
+          },
+          "durationMs": {
+            "type": ["integer", "null"],
+            "example": 336000
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-09-29T12:44:03.000Z"
+          },
+          "url": {
+            "type": ["string", "null"],
+            "example": "https://github.com/acme/widgets/actions/runs/36498062451/job/1"
+          },
+          "failure": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CiJobFailure"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Set when `conclusion` is `failure` or `timedOut`."
+          }
+        },
+        "required": [
+          "id",
+          "commitSha",
+          "name",
+          "workflowName",
+          "workflowRunId",
+          "attempt",
+          "attemptCount",
+          "failedAttemptCount",
+          "status",
+          "conclusion",
+          "required",
+          "queuedAt",
+          "startedAt",
+          "finishedAt",
+          "queuedMs",
+          "durationMs",
+          "updatedAt",
+          "url",
+          "failure"
+        ],
+        "description": "The latest attempt of one CI job on a commit. Named apart from Dynamic CI's `CiJob`, which is a job's definition rather than a run of it. A job is a workflow run and a rendered job name, so each matrix leg is its own job."
+      },
+      "CiJobStatus": {
+        "type": "string",
+        "enum": ["queued", "running", "completed", "abandoned"],
+        "description": "`abandoned` is a job whose queue or run never reported an end, past the 25-hour open-span cap.",
+        "example": "completed"
+      },
+      "CiConclusion": {
+        "type": "string",
+        "enum": ["success", "failure", "timedOut", "cancelled", "skipped"],
+        "example": "failure"
+      },
+      "CiJobFailure": {
+        "type": "object",
+        "properties": {
+          "failingStep": {
+            "type": ["string", "null"],
+            "example": "Typecheck"
+          },
+          "analysis": {
+            "$ref": "#/components/schemas/CiFailureAnalysis"
+          },
+          "logExcerpt": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CiLogExcerpt"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cluster": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CiFailureClusterRef"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Other failures with the same cause. Null until the hourly clustering run assigns this one."
+          },
+          "annotationCount": {
+            "type": "integer",
+            "description": "Read them with `GET /v2/ci-jobs/{id}/annotations`.",
+            "example": 0
+          }
+        },
+        "required": [
+          "failingStep",
+          "analysis",
+          "logExcerpt",
+          "cluster",
+          "annotationCount"
+        ]
+      },
+      "CiFailureAnalysis": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "$ref": "#/components/schemas/CiAnalysisState"
+          },
+          "summaryShort": {
+            "type": ["string", "null"],
+            "example": "Frontend TypeScript checks failed"
+          },
+          "summary": {
+            "type": ["string", "null"],
+            "example": "Frontend TypeScript checks failed on a type mismatch"
+          },
+          "rootCause": {
+            "type": ["string", "null"],
+            "example": "A string is passed where a number is expected."
+          }
+        },
+        "required": ["state", "summaryShort", "summary", "rootCause"]
+      },
+      "CiAnalysisState": {
+        "type": "string",
+        "enum": ["pending", "ready", "unavailable"],
+        "description": "`pending` for 15 minutes after a failed job finished with no analysis yet. `unavailable` after that: the organization is not enabled, AI features are off, or the analysis failed.",
+        "example": "ready"
+      },
+      "CiLogExcerpt": {
+        "type": "object",
+        "properties": {
+          "startLine": {
+            "type": "integer",
+            "example": 69
+          },
+          "endLine": {
+            "type": "integer",
+            "example": 71
+          },
+          "text": {
+            "type": ["string", "null"],
+            "description": "The stored reduced excerpt, which outlives the 30-day log. Null when the failure has no analysis. Read the lines with `GET /v2/ci-jobs/{id}/log-lines`.",
+            "example": "error TS2322: Type 'string' is not assignable to type 'number'."
+          }
+        },
+        "required": ["startLine", "endLine", "text"],
+        "description": "The failure's lines in the job's log, 1-based and inclusive."
+      },
+      "CiFailureClusterRef": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "0894d6a25f35e0786faac29a"
+          },
+          "occurrences": {
+            "type": "integer",
+            "example": 6
+          }
+        },
+        "required": ["id", "occurrences"]
+      },
+      "CiWorkflowRunList": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CiWorkflowRun"
+            },
+            "maxItems": 100
+          },
+          "nextCursor": {
+            "type": ["string", "null"],
+            "description": "Opaque cursor for the next page, or null on the last page. Pass it back verbatim as `cursor`; do not construct or inspect one.",
+            "example": "AQEKZm9vYmFy"
+          },
+          "hasMore": {
+            "type": "boolean",
+            "description": "True when another page is available.",
+            "example": true
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total rows matching the filter. Present only when the request set `includeTotal=true`.",
+            "example": 1247
+          }
+        },
+        "required": ["data", "nextCursor", "hasMore"]
+      },
+      "CiWorkflowRun": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "5e1d2c3b4a596877"
+          },
+          "commitSha": {
+            "type": "string",
+            "example": "a0de7a77e8d758a346f83ed19209a5a25814bb17"
+          },
+          "runId": {
+            "type": "string",
+            "description": "The provider's run id: a GitHub run, or a Buildkite build number.",
+            "example": "36498062451"
+          },
+          "name": {
+            "type": ["string", "null"],
+            "example": "CI"
+          },
+          "path": {
+            "type": ["string", "null"],
+            "example": ".github/workflows/ci.yml"
+          },
+          "attempt": {
+            "type": "integer",
+            "example": 1
+          },
+          "status": {
+            "$ref": "#/components/schemas/CiWorkflowRunStatus"
+          },
+          "conclusion": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CiConclusion"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-09-29T12:36:55.000Z"
+          },
+          "finishedAt": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "example": "2026-09-29T12:58:10.000Z"
+          },
+          "url": {
+            "type": ["string", "null"],
+            "example": "https://github.com/acme/widgets/actions/runs/36498062451"
+          },
+          "jobs": {
+            "$ref": "#/components/schemas/CiJobCounts"
+          }
+        },
+        "required": [
+          "id",
+          "commitSha",
+          "runId",
+          "name",
+          "path",
+          "attempt",
+          "status",
+          "conclusion",
+          "startedAt",
+          "finishedAt",
+          "url",
+          "jobs"
+        ],
+        "description": "The latest attempt of one workflow run, with its jobs counted."
+      },
+      "CiWorkflowRunStatus": {
+        "type": "string",
+        "enum": ["running", "completed"],
+        "example": "completed"
+      },
+      "CiLogLineList": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CiLogLine"
+            },
+            "maxItems": 100
+          },
+          "nextCursor": {
+            "type": ["string", "null"],
+            "description": "Opaque cursor for the next page, or null on the last page. Pass it back verbatim as `cursor`; do not construct or inspect one.",
+            "example": "AQEKZm9vYmFy"
+          },
+          "hasMore": {
+            "type": "boolean",
+            "description": "True when another page is available.",
+            "example": true
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total rows matching the filter. Present only when the request set `includeTotal=true`.",
+            "example": 1247
+          }
+        },
+        "required": ["data", "nextCursor", "hasMore"]
+      },
+      "CiLogLine": {
+        "type": "object",
+        "properties": {
+          "lineNumber": {
+            "type": "integer",
+            "example": 70
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-09-29T12:43:58.120Z"
+          },
+          "severity": {
+            "$ref": "#/components/schemas/CiLogSeverity"
+          },
+          "step": {
+            "type": ["string", "null"],
+            "example": "Typecheck"
+          },
+          "text": {
+            "type": "string",
+            "example": "src/app.ts(3,1): error TS2322"
+          }
+        },
+        "required": ["lineNumber", "timestamp", "severity", "step", "text"]
+      },
+      "CiLogSeverity": {
+        "type": "string",
+        "enum": ["debug", "info", "warning", "error"],
+        "example": "error"
+      },
+      "CiAnnotationList": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CiAnnotation"
+            },
+            "maxItems": 100
+          },
+          "nextCursor": {
+            "type": ["string", "null"],
+            "description": "Opaque cursor for the next page, or null on the last page. Pass it back verbatim as `cursor`; do not construct or inspect one.",
+            "example": "AQEKZm9vYmFy"
+          },
+          "hasMore": {
+            "type": "boolean",
+            "description": "True when another page is available.",
+            "example": true
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total rows matching the filter. Present only when the request set `includeTotal=true`.",
+            "example": 1247
+          }
+        },
+        "required": ["data", "nextCursor", "hasMore"]
+      },
+      "CiAnnotation": {
+        "type": "object",
+        "properties": {
+          "index": {
+            "type": "integer",
+            "example": 0
+          },
+          "path": {
+            "type": "string",
+            "example": ".github"
+          },
+          "startLine": {
+            "type": "integer",
+            "example": 1
+          },
+          "endLine": {
+            "type": "integer",
+            "example": 1
+          },
+          "level": {
+            "$ref": "#/components/schemas/CiAnnotationLevel"
+          },
+          "title": {
+            "type": "string",
+            "example": ""
+          },
+          "message": {
+            "type": "string",
+            "example": "The runner has received a shutdown signal."
+          },
+          "cause": {
+            "$ref": "#/components/schemas/CiAnnotationCause"
+          }
+        },
+        "required": [
+          "index",
+          "path",
+          "startLine",
+          "endLine",
+          "level",
+          "title",
+          "message",
+          "cause"
+        ],
+        "description": "A check-run annotation, for the failures a log does not explain, such as a runner that disconnected."
+      },
+      "CiAnnotationLevel": {
+        "type": "string",
+        "enum": ["notice", "warning", "failure"],
+        "example": "failure"
+      },
+      "CiAnnotationCause": {
+        "type": "string",
+        "enum": [
+          "unclassified",
+          "runnerDisconnect",
+          "deploymentRejected",
+          "exitCode",
+          "cancelled",
+          "jobTimeout"
+        ],
+        "example": "runnerDisconnect"
+      },
+      "CiCommitList": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CiCommit"
+            },
+            "maxItems": 100
+          },
+          "nextCursor": {
+            "type": ["string", "null"],
+            "description": "Opaque cursor for the next page, or null on the last page. Pass it back verbatim as `cursor`; do not construct or inspect one.",
+            "example": "AQEKZm9vYmFy"
+          },
+          "hasMore": {
+            "type": "boolean",
+            "description": "True when another page is available.",
+            "example": true
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total rows matching the filter. Present only when the request set `includeTotal=true`.",
+            "example": 1247
+          }
+        },
+        "required": ["data", "nextCursor", "hasMore"]
+      },
+      "CiCommit": {
+        "type": "object",
+        "properties": {
+          "sha": {
+            "type": "string",
+            "example": "a0de7a77e8d758a346f83ed19209a5a25814bb17"
+          },
+          "firstSeenAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-09-29T10:37:25.000Z"
+          },
+          "lastSeenAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-09-29T12:36:55.000Z"
+          },
+          "jobsUrl": {
+            "type": "string",
+            "example": "/v2/ci-jobs?pullRequestId=0f8fad5b-d9cb-469f-a165-70867728950e&commitSha=a0de7a77e8d758a346f83ed19209a5a25814bb17"
+          },
+          "workflowRunsUrl": {
+            "type": "string",
+            "example": "/v2/ci-workflow-runs?pullRequestId=0f8fad5b-d9cb-469f-a165-70867728950e&commitSha=a0de7a77e8d758a346f83ed19209a5a25814bb17"
+          }
+        },
+        "required": [
+          "sha",
+          "firstSeenAt",
+          "lastSeenAt",
+          "jobsUrl",
+          "workflowRunsUrl"
+        ],
+        "description": "A commit that ran CI on the pull request. Read its jobs through `jobsUrl`."
+      },
+      "CiFailureCluster": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "0894d6a25f35e0786faac29a"
+          },
+          "occurrences": {
+            "type": "integer",
+            "example": 6
+          },
+          "lastSeenAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-09-29T12:44:03.000Z"
+          },
+          "representative": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CiFailureClusterRepresentative"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": ["id", "occurrences", "lastSeenAt", "representative"],
+        "description": "Failures with the same cause, grouped by the hourly clustering run."
+      },
+      "CiFailureClusterRepresentative": {
+        "type": "object",
+        "properties": {
+          "summaryShort": {
+            "type": "string",
+            "example": "Frontend TypeScript checks failed"
+          },
+          "summary": {
+            "type": "string",
+            "example": "Frontend TypeScript checks failed on a type mismatch"
+          },
+          "rootCause": {
+            "type": "string",
+            "example": "A string is passed where a number is expected."
+          }
+        },
+        "required": ["summaryShort", "summary", "rootCause"]
       }
     },
     "parameters": {}
@@ -5667,7 +6423,7 @@
         "operationId": "impactedTargets.upload",
         "tags": ["impactedTargets"],
         "summary": "Upload a pull request's impacted targets",
-        "description": "Records which build targets a pull request's head sha impacts, for queues that gate on impacted targets. Address the pull request by exactly one of `number` or `branch`, and declare impact with exactly one of `impactedTargets` or `impactsAllTargets: true`. An empty `impactedTargets` array is a valid upload meaning the sha impacts nothing — it satisfies the queue's has-impacted-targets gate, because that gate asks whether CI reported, not whether it reported a non-zero result. Supported only for github.com repositories named `owner/repo`; anything else returns `IMPACTED_TARGETS_UNSUPPORTED`. Answers 202: the targets are stored, but readiness is re-evaluated asynchronously, so a 202 does not mean readiness has changed yet.\n\nA token from a GitHub Actions run may upload only for its own repository. One from a fork pull request's run is bound to that pull request and its head sha: address the pull request by `number`, and send that sha, or the upload is refused with `INSUFFICIENT_PERMISSIONS`.",
+        "description": "Records which build targets a pull request's head sha impacts, for queues that gate on impacted targets. Address the pull request by exactly one of `number` or `branch`, and declare impact with exactly one of `impactedTargets` or `impactsAllTargets: true`. An empty `impactedTargets` array is a valid upload meaning the sha impacts nothing — it satisfies the queue's has-impacted-targets gate, because that gate asks whether CI reported, not whether it reported a non-zero result. Supported only for GitHub and GitLab repositories; anything else returns `IMPACTED_TARGETS_UNSUPPORTED`. Answers 202: the targets are stored, but readiness is re-evaluated asynchronously, so a 202 does not mean readiness has changed yet.\n\nA token from a GitHub Actions run may upload only for its own repository. One from a fork pull request's run is bound to that pull request and its head sha: address the pull request by `number`, and send that sha, or the upload is refused with `INSUFFICIENT_PERMISSIONS`.",
         "requestBody": {
           "required": true,
           "content": {
@@ -6359,257 +7115,6 @@
           },
           "403": {
             "description": "`INSUFFICIENT_PERMISSIONS`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "`INTERNAL_ERROR`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v2/pull-requests": {
-      "get": {
-        "operationId": "pullRequests.resolveByCoordinates",
-        "tags": ["pullRequests"],
-        "summary": "Resolve pull requests by repository coordinates",
-        "description": "Looks pull requests up by their provider coordinates within one repository. Send exactly one of `number` or `branch`.\n\n`number` takes up to 50 comma-separated numbers. `(repositoryId, number)` is unique, so each matches at most one pull request; numbers Trunk has not indexed are simply absent from the page, so recover them by diffing what you asked for against the `number`s you got back.\n\n`branch` is a head branch, which can carry several pull requests over time, so it resolves to the open one if there is one and otherwise the most recently created. Pair it with `baseBranch` — a merge queue's target branch — to scope the answer to pull requests aimed there.\n\nRows come back ordered by `number` ascending, which is not necessarily the order you asked in. A batch can exceed `limit`, so this page really does paginate — follow `nextCursor` rather than assuming one page. `readiness.hasImpactedTargets` is resolved only for a lookup that ASKED for a single pull request (`branch`, or one `number`); resolving it costs a storage lookup each, so a multi-number lookup omits it whatever it matches, as the queue's list read does.",
-        "parameters": [
-          {
-            "schema": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 100,
-              "default": 25,
-              "description": "Page size, between 1 and 100.",
-              "example": 25
-            },
-            "required": false,
-            "description": "Page size, between 1 and 100.",
-            "name": "limit",
-            "in": "query"
-          },
-          {
-            "schema": {
-              "type": "string",
-              "description": "Opaque cursor from a previous response's `nextCursor`. A cursor is bound to the operation and filter it was minted for.",
-              "example": "AQEKZm9vYmFy"
-            },
-            "required": false,
-            "description": "Opaque cursor from a previous response's `nextCursor`. A cursor is bound to the operation and filter it was minted for.",
-            "name": "cursor",
-            "in": "query"
-          },
-          {
-            "schema": {
-              "type": "boolean",
-              "default": false,
-              "description": "Set true to include `total` in the response. Costs an extra COUNT query, so it is off by default.",
-              "example": false
-            },
-            "required": false,
-            "description": "Set true to include `total` in the response. Costs an extra COUNT query, so it is off by default.",
-            "name": "includeTotal",
-            "in": "query"
-          },
-          {
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "description": "The repository the pull requests belong to.",
-              "example": "7c9e6679-7425-40de-944b-e07fc1f90ae7"
-            },
-            "required": true,
-            "description": "The repository the pull requests belong to.",
-            "name": "repositoryId",
-            "in": "query"
-          },
-          {
-            "schema": {
-              "type": "string",
-              "minLength": 1,
-              "description": "One provider pull-request number, or up to 50 comma-separated, each between 1 and 10000000. Mutually exclusive with `branch`. Deliberately typed as a string rather than published with a `pattern`: the route's own parse names the offending member, which a schema-level rejection cannot.",
-              "example": "4901,4902"
-            },
-            "required": false,
-            "description": "One provider pull-request number, or up to 50 comma-separated, each between 1 and 10000000. Mutually exclusive with `branch`. Deliberately typed as a string rather than published with a `pattern`: the route's own parse names the offending member, which a schema-level rejection cannot.",
-            "name": "number",
-            "in": "query"
-          },
-          {
-            "schema": {
-              "type": "string",
-              "minLength": 1,
-              "description": "A head branch. Resolves to the open pull request from it, else the most recently created. Mutually exclusive with `number`.",
-              "example": "feature/widget-limit"
-            },
-            "required": false,
-            "description": "A head branch. Resolves to the open pull request from it, else the most recently created. Mutually exclusive with `number`.",
-            "name": "branch",
-            "in": "query"
-          },
-          {
-            "schema": {
-              "type": "string",
-              "minLength": 1,
-              "description": "Narrows a `branch` lookup to pull requests targeting this base — a merge queue's target branch. Sending it without `branch` is a 400 rather than ignored.",
-              "example": "main"
-            },
-            "required": false,
-            "description": "Narrows a `branch` lookup to pull requests targeting this base — a merge queue's target branch. Sending it without `branch` is a 400 rather than ignored.",
-            "name": "baseBranch",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A page of the matching pull requests",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PullRequestList"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "`VALIDATION_FAILED` | `INVALID_CURSOR`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "`INSUFFICIENT_PERMISSIONS`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "`INTERNAL_ERROR`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v2/pull-requests/{id}": {
-      "get": {
-        "operationId": "pullRequests.get",
-        "tags": ["pullRequests"],
-        "summary": "Get a pull request",
-        "description": "Returns one pull request with its queue entry and readiness, if it has ever been submitted to a queue.",
-        "parameters": [
-          {
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "description": "The pull request's id.",
-              "example": "0f8fad5b-d9cb-469f-a165-70867728950e"
-            },
-            "required": true,
-            "description": "The pull request's id.",
-            "name": "id",
-            "in": "path"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "The pull request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PullRequest"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "`VALIDATION_FAILED`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "`INSUFFICIENT_PERMISSIONS`",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "`PR_NOT_FOUND`",
             "content": {
               "application/json": {
                 "schema": {
@@ -7814,7 +8319,7 @@
         "operationId": "testCollections.create",
         "tags": ["testCollections"],
         "summary": "Create a test collection",
-        "description": "Creates a test collection and returns it. Its `id` is server-assigned; `testCaseCount` is 0 until the collection's first upload is ingested.",
+        "description": "Creates a test collection and returns it. Its `id` is server-assigned; `testCount` is 0 until the collection's first upload is ingested.",
         "requestBody": {
           "required": true,
           "content": {
@@ -7973,23 +8478,23 @@
         }
       }
     },
-    "/v2/test-cases/{testCaseId}": {
+    "/v2/tests/{testId}": {
       "get": {
-        "operationId": "testCases.get",
-        "tags": ["testCases"],
-        "summary": "Get a test case",
-        "description": "Returns one test case by its globally unique id, with the labels, quarantine override and active monitors currently applied to it. Ids come from list responses; they are opaque and not derivable client-side.\n\nA test case in another organization is reported as `404`, not `403`, and so is a malformed id — a caller must not be able to probe which ids exist.",
+        "operationId": "tests.get",
+        "tags": ["tests"],
+        "summary": "Get a test",
+        "description": "Returns one test by its globally unique id, with the labels, quarantine override and active monitors currently applied to it. Ids come from list responses; they are opaque and not derivable client-side.\n\nA test in another organization is reported as `404`, not `403`, and so is a malformed id — a caller must not be able to probe which ids exist.",
         "parameters": [
           {
             "schema": {
               "type": "string",
               "minLength": 1,
-              "description": "The test case's globally unique id.",
+              "description": "The test's globally unique id.",
               "example": "bfeebcf4-0000-8000-8000-000000000001"
             },
             "required": true,
-            "description": "The test case's globally unique id.",
-            "name": "testCaseId",
+            "description": "The test's globally unique id.",
+            "name": "testId",
             "in": "path"
           },
           {
@@ -8019,11 +8524,11 @@
         ],
         "responses": {
           "200": {
-            "description": "The test case",
+            "description": "The test",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TestCase"
+                  "$ref": "#/components/schemas/Test"
                 }
               }
             }
@@ -8049,7 +8554,7 @@
             }
           },
           "404": {
-            "description": "`TEST_CASE_NOT_FOUND`",
+            "description": "`TEST_NOT_FOUND`",
             "content": {
               "application/json": {
                 "schema": {
@@ -8081,12 +8586,12 @@
         }
       }
     },
-    "/v2/test-cases": {
+    "/v2/tests": {
       "get": {
-        "operationId": "testCases.list",
-        "tags": ["testCases"],
-        "summary": "List and search test cases",
-        "description": "Lists test cases, by default across every test collection in your organization — pass `testCollectionId` to narrow to one. Each row carries the `id` to pass to the per-test endpoints.\n\n`q` searches name, file, class and parent as case-insensitive substrings. Several words are separate requirements, not a phrase — `q=flaky slow` returns tests matching both, in any position. It also accepts per-field qualifiers mixed freely with those words: `q=file:checkout flaky class:PaymentTest`. Qualifier keys are case-sensitive, and an unrecognized prefix is treated as literal text rather than guessed at.\n\nRows omit `quarantineOverride`, `activeMonitors`, `firstSeenAt` and `lastFailureAt` — fetch a single test case for those.",
+        "operationId": "tests.list",
+        "tags": ["tests"],
+        "summary": "List and search tests",
+        "description": "Lists tests, by default across every test collection in your organization — pass `testCollectionId` to narrow to one. Each row carries the `id` to pass to the per-test endpoints.\n\n`q` searches name, file, class and parent as case-insensitive substrings. Several words are separate requirements, not a phrase — `q=flaky slow` returns tests matching both, in any position. It also accepts per-field qualifiers mixed freely with those words: `q=file:checkout flaky class:PaymentTest`. Qualifier keys are case-sensitive, and an unrecognized prefix is treated as literal text rather than guessed at.\n\nRows omit `quarantineOverride`, `activeMonitors`, `firstSeenAt` and `lastFailureAt` — fetch a single test for those.",
         "parameters": [
           {
             "schema": {
@@ -8300,11 +8805,11 @@
         ],
         "responses": {
           "200": {
-            "description": "A page of test cases",
+            "description": "A page of tests",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TestCaseList"
+                  "$ref": "#/components/schemas/TestList"
                 }
               }
             }
@@ -8362,23 +8867,23 @@
         }
       }
     },
-    "/v2/test-cases/{testCaseId}/status-history": {
+    "/v2/tests/{testId}/status-history": {
       "get": {
-        "operationId": "testCases.listStatusHistory",
-        "tags": ["testCases"],
-        "summary": "List a test case's status transitions",
-        "description": "Returns the test case's status transitions, newest first. A row is recorded only when the composite status changes, so `fromStatus` is the status it moved away from and the series has no repeats.\n\n`activeMonitors` is the set active immediately after each transition, as recorded at the time. Transitions predating this report an empty set.",
+        "operationId": "tests.listStatusHistory",
+        "tags": ["tests"],
+        "summary": "List a test's status transitions",
+        "description": "Returns the test's status transitions, newest first. A row is recorded only when the composite status changes, so `fromStatus` is the status it moved away from and the series has no repeats.\n\n`activeMonitors` is the set active immediately after each transition, as recorded at the time. Transitions predating this report an empty set.",
         "parameters": [
           {
             "schema": {
               "type": "string",
               "minLength": 1,
-              "description": "The test case's globally unique id.",
+              "description": "The test's globally unique id.",
               "example": "bfeebcf4-0000-8000-8000-000000000001"
             },
             "required": true,
-            "description": "The test case's globally unique id.",
-            "name": "testCaseId",
+            "description": "The test's globally unique id.",
+            "name": "testId",
             "in": "path"
           },
           {
@@ -8475,7 +8980,7 @@
             }
           },
           "404": {
-            "description": "`TEST_CASE_NOT_FOUND`",
+            "description": "`TEST_NOT_FOUND`",
             "content": {
               "application/json": {
                 "schema": {
@@ -8507,23 +9012,23 @@
         }
       }
     },
-    "/v2/test-cases/{testCaseId}/test-runs": {
+    "/v2/tests/{testId}/test-runs": {
       "get": {
-        "operationId": "testCases.listTestRuns",
-        "tags": ["testCases"],
-        "summary": "List a test case's runs",
-        "description": "Returns the individual runs recorded for a test case, newest first, each with the branch, commit and CI job it came from.\n\n`branches` takes shell-style globs, where `*` matches any run of characters and `?` exactly one (`main,release-?.*`); `pullRequestOnly=true` selects pull-request runs instead. They are alternatives, so sending both is a `400` rather than a silent intersection.\n\n`startedAfter` and `startedBefore` bound when the run started, as your CI reported it.",
+        "operationId": "tests.listTestRuns",
+        "tags": ["tests"],
+        "summary": "List a test's runs",
+        "description": "Returns the individual runs recorded for a test, newest first, each with the branch, commit and CI job it came from.\n\n`branches` takes shell-style globs, where `*` matches any run of characters and `?` exactly one (`main,release-?.*`); `pullRequestOnly=true` selects pull-request runs instead. They are alternatives, so sending both is a `400` rather than a silent intersection.\n\n`startedAfter` and `startedBefore` bound when the run started, as your CI reported it.",
         "parameters": [
           {
             "schema": {
               "type": "string",
               "minLength": 1,
-              "description": "The test case's globally unique id.",
+              "description": "The test's globally unique id.",
               "example": "bfeebcf4-0000-8000-8000-000000000001"
             },
             "required": true,
-            "description": "The test case's globally unique id.",
-            "name": "testCaseId",
+            "description": "The test's globally unique id.",
+            "name": "testId",
             "in": "path"
           },
           {
@@ -8667,7 +9172,7 @@
             }
           },
           "404": {
-            "description": "`TEST_CASE_NOT_FOUND`",
+            "description": "`TEST_NOT_FOUND`",
             "content": {
               "application/json": {
                 "schema": {
@@ -8699,23 +9204,23 @@
         }
       }
     },
-    "/v2/test-cases/{testCaseId}/ticket": {
+    "/v2/tests/{testId}/ticket": {
       "post": {
-        "operationId": "testCases.linkTicket",
-        "tags": ["testCases"],
-        "summary": "Link a ticket to a test case",
-        "description": "Links an existing ticket from one of your organization's ticketing connections to a test case, and returns the ticket as Trunk now holds it. The ticket is fetched from its provider first, so a key or URL the provider does not recognize is refused.\n\nA test case carries at most one ticket. Linking replaces any ticket already linked; linking the one already there changes nothing. Which connection is used is `integrationId`, defaulting to the collection's default connection — with no default and no `integrationId`, the call is refused with `TICKETING_NOT_CONFIGURED`.\n\nThe call round-trips to the ticketing provider twice (to validate the connection, then to fetch the ticket) and answers `504` if that takes longer than five seconds. A `504` does not mean the link failed — retry it; re-linking the same ticket is a no-op. A `502 UPSTREAM_ERROR` means the provider did not answer; when it was rate-limiting, `Retry-After` says how long to wait.\n\nA test case in another organization is reported as `404`, not `403`, and so is a malformed id.",
+        "operationId": "tests.linkTicket",
+        "tags": ["tests"],
+        "summary": "Link a ticket to a test",
+        "description": "Links an existing ticket from one of your organization's ticketing connections to a test, and returns the ticket as Trunk now holds it. The ticket is fetched from its provider first, so a key or URL the provider does not recognize is refused.\n\nA test carries at most one ticket. Linking replaces any ticket already linked; linking the one already there changes nothing. Which connection is used is `integrationId`, defaulting to the collection's default connection — with no default and no `integrationId`, the call is refused with `TICKETING_NOT_CONFIGURED`.\n\nThe call round-trips to the ticketing provider twice (to validate the connection, then to fetch the ticket) and answers `504` if that takes longer than five seconds. A `504` does not mean the link failed — retry it; re-linking the same ticket is a no-op. A `502 UPSTREAM_ERROR` means the provider did not answer; when it was rate-limiting, `Retry-After` says how long to wait.\n\nA test in another organization is reported as `404`, not `403`, and so is a malformed id.",
         "parameters": [
           {
             "schema": {
               "type": "string",
               "minLength": 1,
-              "description": "The test case's globally unique id.",
+              "description": "The test's globally unique id.",
               "example": "bfeebcf4-0000-8000-8000-000000000001"
             },
             "required": true,
-            "description": "The test case's globally unique id.",
-            "name": "testCaseId",
+            "description": "The test's globally unique id.",
+            "name": "testId",
             "in": "path"
           }
         ],
@@ -8771,7 +9276,7 @@
             }
           },
           "404": {
-            "description": "`TEST_CASE_NOT_FOUND`",
+            "description": "`TEST_NOT_FOUND`",
             "content": {
               "application/json": {
                 "schema": {
@@ -9017,6 +9522,1170 @@
           },
           "404": {
             "description": "`REPOSITORY_NOT_FOUND`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/pull-requests": {
+      "get": {
+        "operationId": "pullRequests.resolveByCoordinates",
+        "tags": ["pullRequests"],
+        "summary": "Resolve pull requests by repository coordinates",
+        "description": "Looks pull requests up by their provider coordinates within one repository. Send exactly one of `number` or `branch`.\n\n`number` takes up to 50 comma-separated numbers. `(repositoryId, number)` is unique, so each matches at most one pull request; numbers Trunk has not indexed are simply absent from the page, so recover them by diffing what you asked for against the `number`s you got back.\n\n`branch` is a head branch, which can carry several pull requests over time, so it resolves to the open one if there is one and otherwise the most recently created. Pair it with `baseBranch` — a merge queue's target branch — to scope the answer to pull requests aimed there.\n\nRows come back ordered by `number` ascending, which is not necessarily the order you asked in. A batch can exceed `limit`, so this page really does paginate — follow `nextCursor` rather than assuming one page. `readiness.hasImpactedTargets` is resolved only for a lookup that ASKED for a single pull request (`branch`, or one `number`); resolving it costs a storage lookup each, so a multi-number lookup omits it whatever it matches, as the queue's list read does. `ci` follows the same rule: a lookup that asked for one pull request carries it, and a multi-number lookup does not.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25,
+              "description": "Page size, between 1 and 100.",
+              "example": 25
+            },
+            "required": false,
+            "description": "Page size, between 1 and 100.",
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "Opaque cursor from a previous response's `nextCursor`. A cursor is bound to the operation and filter it was minted for.",
+              "example": "AQEKZm9vYmFy"
+            },
+            "required": false,
+            "description": "Opaque cursor from a previous response's `nextCursor`. A cursor is bound to the operation and filter it was minted for.",
+            "name": "cursor",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "description": "Set true to include `total` in the response. Costs an extra COUNT query, so it is off by default.",
+              "example": false
+            },
+            "required": false,
+            "description": "Set true to include `total` in the response. Costs an extra COUNT query, so it is off by default.",
+            "name": "includeTotal",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "The repository the pull requests belong to.",
+              "example": "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+            },
+            "required": true,
+            "description": "The repository the pull requests belong to.",
+            "name": "repositoryId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "One provider pull-request number, or up to 50 comma-separated, each between 1 and 10000000. Mutually exclusive with `branch`. Deliberately typed as a string rather than published with a `pattern`: the route's own parse names the offending member, which a schema-level rejection cannot.",
+              "example": "4901,4902"
+            },
+            "required": false,
+            "description": "One provider pull-request number, or up to 50 comma-separated, each between 1 and 10000000. Mutually exclusive with `branch`. Deliberately typed as a string rather than published with a `pattern`: the route's own parse names the offending member, which a schema-level rejection cannot.",
+            "name": "number",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "A head branch. Resolves to the open pull request from it, else the most recently created. Mutually exclusive with `number`.",
+              "example": "feature/widget-limit"
+            },
+            "required": false,
+            "description": "A head branch. Resolves to the open pull request from it, else the most recently created. Mutually exclusive with `number`.",
+            "name": "branch",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Narrows a `branch` lookup to pull requests targeting this base — a merge queue's target branch. Sending it without `branch` is a 400 rather than ignored.",
+              "example": "main"
+            },
+            "required": false,
+            "description": "Narrows a `branch` lookup to pull requests targeting this base — a merge queue's target branch. Sending it without `branch` is a 400 rather than ignored.",
+            "name": "baseBranch",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of the matching pull requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PullRequestList"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "Not modified: the `ETag` sent in `If-None-Match` still describes the response."
+          },
+          "400": {
+            "description": "`VALIDATION_FAILED` | `INVALID_CURSOR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`INSUFFICIENT_PERMISSIONS`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/pull-requests/{id}": {
+      "get": {
+        "operationId": "pullRequests.get",
+        "tags": ["pullRequests"],
+        "summary": "Get a pull request",
+        "description": "Returns one pull request: its queue entry and readiness if it has ever been submitted to a queue, and `ci`, the head commit's CI jobs counted with the URLs of the lists. Poll it: `ci.pollAfterSeconds` says when to read again, and a request that sends the last `ETag` in `If-None-Match` gets `304` when nothing changed.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "The pull request's id.",
+              "example": "0f8fad5b-d9cb-469f-a165-70867728950e"
+            },
+            "required": true,
+            "description": "The pull request's id.",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The pull request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PullRequest"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "Not modified: the `ETag` sent in `If-None-Match` still describes the response."
+          },
+          "400": {
+            "description": "`VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`INSUFFICIENT_PERMISSIONS`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`PR_NOT_FOUND`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/ci-jobs": {
+      "get": {
+        "operationId": "ciJobs.list",
+        "tags": ["ciJobs"],
+        "summary": "List the CI jobs on a commit",
+        "description": "The latest attempt of every CI job on one commit, oldest first. Address the commit by `pullRequestId` (its head, or `commitSha`) or by `repositoryId` and `commitSha`.\n\nA job is a workflow run and a rendered job name, so each matrix leg is its own job and a re-run folds into the job it re-ran. A failed job carries its failure inline: the failing step, the AI analysis, the log excerpt and its cluster.\n\nThe list follows `GET /v2/pull-requests/{id}`'s `ci.jobsUrl`. Send `If-None-Match` with the last `ETag` to get `304` when nothing changed, or `updatedAfter` to read only the jobs that moved.\n\nA page walk is not a snapshot: a job whose data arrives late can sort before a cursor already passed. To be sure of every job, compare the count read with `ci.jobs.total` on the pull request, and read again when it is lower.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25,
+              "description": "Page size, between 1 and 100.",
+              "example": 25
+            },
+            "required": false,
+            "description": "Page size, between 1 and 100.",
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "Opaque cursor from a previous response's `nextCursor`. A cursor is bound to the operation and filter it was minted for.",
+              "example": "AQEKZm9vYmFy"
+            },
+            "required": false,
+            "description": "Opaque cursor from a previous response's `nextCursor`. A cursor is bound to the operation and filter it was minted for.",
+            "name": "cursor",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "description": "Set true to include `total` in the response. Costs an extra COUNT query, so it is off by default.",
+              "example": false
+            },
+            "required": false,
+            "description": "Set true to include `total` in the response. Costs an extra COUNT query, so it is off by default.",
+            "name": "includeTotal",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Read the CI of this pull request. Mutually exclusive with `repositoryId`.",
+              "example": "0f8fad5b-d9cb-469f-a165-70867728950e"
+            },
+            "required": false,
+            "description": "Read the CI of this pull request. Mutually exclusive with `repositoryId`.",
+            "name": "pullRequestId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Read the CI of one commit of this repository, for a commit no pull request names, such as a push to the default branch. Needs `commitSha`.",
+              "example": "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+            },
+            "required": false,
+            "description": "Read the CI of one commit of this repository, for a commit no pull request names, such as a push to the default branch. Needs `commitSha`.",
+            "name": "repositoryId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{40}(?:[0-9a-f]{24})?$",
+              "description": "The full commit sha. Defaults to the pull request's head when `pullRequestId` is sent.",
+              "example": "a0de7a77e8d758a346f83ed19209a5a25814bb17"
+            },
+            "required": false,
+            "description": "The full commit sha. Defaults to the pull request's head when `pullRequestId` is sent.",
+            "name": "commitSha",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Comma-separated statuses: `queued`, `running`, `completed`, `abandoned`.",
+              "example": "queued,running"
+            },
+            "required": false,
+            "description": "Comma-separated statuses: `queued`, `running`, `completed`, `abandoned`.",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Comma-separated conclusions: `success`, `failure`, `timedOut`, `cancelled`, `skipped`. A match has finished.",
+              "example": "failure,timedOut"
+            },
+            "required": false,
+            "description": "Comma-separated conclusions: `success`, `failure`, `timedOut`, `cancelled`, `skipped`. A match has finished.",
+            "name": "conclusion",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Only the jobs of this `CiWorkflowRun`.",
+              "example": "5e1d2c3b4a596877"
+            },
+            "required": false,
+            "description": "Only the jobs of this `CiWorkflowRun`.",
+            "name": "workflowRunId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Only rows that changed strictly after this time: queued, started or finished. Send the time of your last read to fetch only what moved.",
+              "example": "2026-09-29T12:40:00.000Z"
+            },
+            "required": false,
+            "description": "Only rows that changed strictly after this time: queued, started or finished. Send the time of your last read to fetch only what moved.",
+            "name": "updatedAfter",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of jobs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CiJobRunList"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "Not modified: the `ETag` sent in `If-None-Match` still describes the response."
+          },
+          "400": {
+            "description": "`VALIDATION_FAILED` | `INVALID_CURSOR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`INSUFFICIENT_PERMISSIONS`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`PR_NOT_FOUND` | `REPOSITORY_NOT_FOUND`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/ci-workflow-runs": {
+      "get": {
+        "operationId": "ciWorkflowRuns.list",
+        "tags": ["ciWorkflowRuns"],
+        "summary": "List the CI workflow runs on a commit",
+        "description": "The latest attempt of every workflow run on one commit, oldest first, each with its jobs counted. Addressed like `GET /v2/ci-jobs`, and followed from `GET /v2/pull-requests/{id}`'s `ci.workflowRunsUrl`.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25,
+              "description": "Page size, between 1 and 100.",
+              "example": 25
+            },
+            "required": false,
+            "description": "Page size, between 1 and 100.",
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "Opaque cursor from a previous response's `nextCursor`. A cursor is bound to the operation and filter it was minted for.",
+              "example": "AQEKZm9vYmFy"
+            },
+            "required": false,
+            "description": "Opaque cursor from a previous response's `nextCursor`. A cursor is bound to the operation and filter it was minted for.",
+            "name": "cursor",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "description": "Set true to include `total` in the response. Costs an extra COUNT query, so it is off by default.",
+              "example": false
+            },
+            "required": false,
+            "description": "Set true to include `total` in the response. Costs an extra COUNT query, so it is off by default.",
+            "name": "includeTotal",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Read the CI of this pull request. Mutually exclusive with `repositoryId`.",
+              "example": "0f8fad5b-d9cb-469f-a165-70867728950e"
+            },
+            "required": false,
+            "description": "Read the CI of this pull request. Mutually exclusive with `repositoryId`.",
+            "name": "pullRequestId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Read the CI of one commit of this repository, for a commit no pull request names, such as a push to the default branch. Needs `commitSha`.",
+              "example": "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+            },
+            "required": false,
+            "description": "Read the CI of one commit of this repository, for a commit no pull request names, such as a push to the default branch. Needs `commitSha`.",
+            "name": "repositoryId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{40}(?:[0-9a-f]{24})?$",
+              "description": "The full commit sha. Defaults to the pull request's head when `pullRequestId` is sent.",
+              "example": "a0de7a77e8d758a346f83ed19209a5a25814bb17"
+            },
+            "required": false,
+            "description": "The full commit sha. Defaults to the pull request's head when `pullRequestId` is sent.",
+            "name": "commitSha",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Comma-separated statuses: `running`, `completed`.",
+              "example": "running"
+            },
+            "required": false,
+            "description": "Comma-separated statuses: `running`, `completed`.",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Comma-separated conclusions: `success`, `failure`, `timedOut`, `cancelled`, `skipped`. A match has finished.",
+              "example": "failure,timedOut"
+            },
+            "required": false,
+            "description": "Comma-separated conclusions: `success`, `failure`, `timedOut`, `cancelled`, `skipped`. A match has finished.",
+            "name": "conclusion",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Only rows that changed strictly after this time: queued, started or finished. Send the time of your last read to fetch only what moved.",
+              "example": "2026-09-29T12:40:00.000Z"
+            },
+            "required": false,
+            "description": "Only rows that changed strictly after this time: queued, started or finished. Send the time of your last read to fetch only what moved.",
+            "name": "updatedAfter",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of workflow runs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CiWorkflowRunList"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "Not modified: the `ETag` sent in `If-None-Match` still describes the response."
+          },
+          "400": {
+            "description": "`VALIDATION_FAILED` | `INVALID_CURSOR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`INSUFFICIENT_PERMISSIONS`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`PR_NOT_FOUND` | `REPOSITORY_NOT_FOUND`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/ci-jobs/{id}/log-lines": {
+      "get": {
+        "operationId": "ciJobs.listLogLines",
+        "tags": ["ciJobs"],
+        "summary": "List a CI job's log lines",
+        "description": "A job's log in line order. Send a failure's `logExcerpt.startLine` and `endLine` as `fromLine` and `toLine` to read exactly the failing lines. Logs are kept for 30 days, and a job that has not finished has none yet.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "A `CiJob.id`.",
+              "example": "1a289f57705150d7~q1790685507000"
+            },
+            "required": true,
+            "description": "A `CiJob.id`.",
+            "name": "id",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25,
+              "description": "Page size, between 1 and 100.",
+              "example": 25
+            },
+            "required": false,
+            "description": "Page size, between 1 and 100.",
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "Opaque cursor from a previous response's `nextCursor`. A cursor is bound to the operation and filter it was minted for.",
+              "example": "AQEKZm9vYmFy"
+            },
+            "required": false,
+            "description": "Opaque cursor from a previous response's `nextCursor`. A cursor is bound to the operation and filter it was minted for.",
+            "name": "cursor",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "description": "Set true to include `total` in the response. Costs an extra COUNT query, so it is off by default.",
+              "example": false
+            },
+            "required": false,
+            "description": "Set true to include `total` in the response. Costs an extra COUNT query, so it is off by default.",
+            "name": "includeTotal",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "The first line to return, 1-based.",
+              "example": 69
+            },
+            "required": false,
+            "description": "The first line to return, 1-based.",
+            "name": "fromLine",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "The last line to return, inclusive.",
+              "example": 71
+            },
+            "required": false,
+            "description": "The last line to return, inclusive.",
+            "name": "toLine",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of log lines",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CiLogLineList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`VALIDATION_FAILED` | `INVALID_CURSOR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`INSUFFICIENT_PERMISSIONS`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`CI_JOB_NOT_FOUND`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/ci-jobs/{id}/annotations": {
+      "get": {
+        "operationId": "ciJobs.listAnnotations",
+        "tags": ["ciJobs"],
+        "summary": "List a CI job's check-run annotations",
+        "description": "The check-run annotations of a failed job whose failure no log step explains, such as a runner that disconnected or a deployment gate that rejected it. Each carries a classified `cause`.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "A `CiJob.id`.",
+              "example": "1a289f57705150d7~q1790685507000"
+            },
+            "required": true,
+            "description": "A `CiJob.id`.",
+            "name": "id",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25,
+              "description": "Page size, between 1 and 100.",
+              "example": 25
+            },
+            "required": false,
+            "description": "Page size, between 1 and 100.",
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "Opaque cursor from a previous response's `nextCursor`. A cursor is bound to the operation and filter it was minted for.",
+              "example": "AQEKZm9vYmFy"
+            },
+            "required": false,
+            "description": "Opaque cursor from a previous response's `nextCursor`. A cursor is bound to the operation and filter it was minted for.",
+            "name": "cursor",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "description": "Set true to include `total` in the response. Costs an extra COUNT query, so it is off by default.",
+              "example": false
+            },
+            "required": false,
+            "description": "Set true to include `total` in the response. Costs an extra COUNT query, so it is off by default.",
+            "name": "includeTotal",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of annotations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CiAnnotationList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`VALIDATION_FAILED` | `INVALID_CURSOR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`INSUFFICIENT_PERMISSIONS`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`CI_JOB_NOT_FOUND`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/pull-requests/{id}/ci-commits": {
+      "get": {
+        "operationId": "pullRequests.listCiCommits",
+        "tags": ["pullRequests"],
+        "summary": "List the commits that ran CI on a pull request",
+        "description": "Every commit that ran CI on the pull request, newest activity first, each with the URLs of its jobs and workflow runs. A run from a fork or a manual dispatch names no pull request, so it is not found here; its commit's jobs are still readable by `commitSha`.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "example": "0f8fad5b-d9cb-469f-a165-70867728950e"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25,
+              "description": "Page size, between 1 and 100.",
+              "example": 25
+            },
+            "required": false,
+            "description": "Page size, between 1 and 100.",
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "Opaque cursor from a previous response's `nextCursor`. A cursor is bound to the operation and filter it was minted for.",
+              "example": "AQEKZm9vYmFy"
+            },
+            "required": false,
+            "description": "Opaque cursor from a previous response's `nextCursor`. A cursor is bound to the operation and filter it was minted for.",
+            "name": "cursor",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "description": "Set true to include `total` in the response. Costs an extra COUNT query, so it is off by default.",
+              "example": false
+            },
+            "required": false,
+            "description": "Set true to include `total` in the response. Costs an extra COUNT query, so it is off by default.",
+            "name": "includeTotal",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of commits",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CiCommitList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`VALIDATION_FAILED` | `INVALID_CURSOR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`INSUFFICIENT_PERMISSIONS`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`PR_NOT_FOUND`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/ci-failure-clusters/{id}": {
+      "get": {
+        "operationId": "ciFailureClusters.get",
+        "tags": ["ciFailureClusters"],
+        "summary": "Get a CI failure cluster",
+        "description": "A group of failures with the same cause, from a failed job's `failure.cluster.id`: how often it happened and the analysis of its representative failure.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "example": "0894d6a25f35e0786faac29a"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The cluster",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CiFailureCluster"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`INSUFFICIENT_PERMISSIONS`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`CI_FAILURE_CLUSTER_NOT_FOUND`",
             "content": {
               "application/json": {
                 "schema": {
