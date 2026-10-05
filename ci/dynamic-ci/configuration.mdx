@@ -40,10 +40,6 @@ The schedule controls how Dynamic CI evaluates a job. You set it separately for 
   In the merge queue, **Automatic** runs every job by default to guarantee correctness. The merge queue is the final safeguard against regressions, so Dynamic CI does not skip jobs there on its own.
 </Note>
 
-<Tip>
-  Leave most jobs on **Automatic**. Use **Always Run** for jobs that must gate every change, and **Always Skip** for jobs you want to retire without editing your workflow files.
-</Tip>
-
 ## Path filters
 
 Path filters describe which changed files are relevant to a job. They use the same glob syntax as [dorny/paths-filter](https://github.com/dorny/paths-filter): the job's name followed by a list of patterns.
@@ -69,7 +65,7 @@ Jobs with path filters show a **Path filters** badge in the job list.
 ## Related
 
 <CardGroup cols={2}>
-  <Card title="Force jobs to run" icon="bolt" href="/ci/dynamic-ci/github-integration">
+  <Card title="Force jobs to run" icon="arrow-up" href="/ci/dynamic-ci/github-integration">
     Override Dynamic CI on a single pull request.
   </Card>
   <Card title="Merge queues" icon="shield-check" href="/ci/dynamic-ci/merge-queue">
