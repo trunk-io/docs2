@@ -924,6 +924,12 @@
             "group": "2026",
             "pages": [
               {
+                "group": "October",
+                "pages": [
+                  "changelog/2026-10-05-dynamic-ci-force-run-from-github"
+                ]
+              },
+              {
                 "group": "September",
                 "pages": [
                   "changelog/2026-09-30-flaky-tests-fork-pr-uploads-test-collections",
