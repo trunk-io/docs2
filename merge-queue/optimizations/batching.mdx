@@ -197,13 +197,13 @@ When a batch fails and Trunk splits it apart to find the PR that broke it, the s
 
 ### How it works
 
-Each test in a bisection runs a group of PRs on top of the PRs ahead of it in the queue. Before starting one, Trunk checks whether a test of that exact set of PRs has already **failed** in the current bisection. If it has, Trunk skips the CI run and reuses that failure. What happens next depends on whether the failure already shows which PR caused it:
+Bisection detaches the failed batch from the rest of the queue, so each test in a bisection runs a group of PRs on top of the PRs ahead of it in the bisection only. Before starting one, Trunk checks whether an earlier test in the current bisection already **failed** with the same set of PRs. A failed test of a larger set also counts once its extra PRs have merged. For example, if `AB` failed and `A` has since merged, testing `B` alone would repeat that failure. If an earlier failure covers the test, Trunk skips the CI run and reuses that failure. What happens next depends on whether the failure already shows which PR caused it:
 
-* **A single PR with nothing ahead of it:** the reused failure already names it. The PR fails with `TEST_RUN_FAILED_BY_OPTIMIZATION` and is removed from the queue.
+* **A single PR with nothing ahead of it:** the reused failure already names it. This is usually the case where the other PRs in the failed test have merged. The PR fails with `TEST_RUN_FAILED_BY_OPTIMIZATION` and is removed from the queue.
 * **A single PR with tests still running ahead of it:** it's re-tested on its own straight away, without the PRs ahead of it.
 * **A group of PRs:** it's split and re-tested straight away, alongside the rest of the bisection, instead of waiting for the tests ahead of it to finish.
 
-Only failures are reused. A PR never passes without a test run of its own.
+Only failures are reused. Test caching never marks a PR as passed.
 
 <Accordion title="Example bisection with test caching">
 1. Batch `ABCD` fails testing (`main ← ABCD`).
@@ -225,7 +225,8 @@ A test is skipped only when all of these are true:
 
 1. **Skip Redundant Bisection Tests is enabled** for the queue
 2. **A batch has failed** and is being bisected
-3. **A test of the same set of PRs has already failed** in the same bisection
+3. **An earlier test in the same bisection failed** with the same set of PRs, or with a larger set whose extra PRs have all merged since
+4. **The base hasn't changed since that failed test.** Trunk discards a reused failure if another PR has merged through the queue since then, or if the bisection's PRs were restarted. Restarts include a push to the target branch, a manual or API restart, and a PR merged outside the queue.
 
 Test caching does **not** apply to:
 
@@ -238,7 +239,7 @@ Test caching does **not** apply to:
 Test caching is off unless you turn it on. In the **Merge Queue** tab, select your queue, click **Settings**, and enable **Skip Redundant Bisection Tests** under **Batching**. You can also set it with `optimizationMode: bisectionSkipRedundantTests` when you [update a queue through the API](/merge-queue/reference/api-v2/mergequeues/update-a-merge-queues-configuration), or with `optimization_mode = "BISECTION_SKIP_REDUNDANT_TESTS"` in [Terraform](../administration/terraform).
 
 <Warning>
-A reused failure isn't re-run. If a test failed because it was flaky, the PRs it covered fail again without a new run, and the queue goes on bisecting them. If your queue sees a lot of flaky failures, consider leaving this setting off, or pair it with [Anti-flake protection](./anti-flake-protection).
+A reused failure isn't re-run. Most PRs covered by a reused failure are just split and re-tested, but when it singles out one PR, that PR is removed from the queue without failing a test of its own. If the original failure was flaky, that PR is removed even though nothing is wrong with it. If your queue sees a lot of flaky failures, consider leaving this setting off, or pair it with [Anti-flake protection](./anti-flake-protection).
 </Warning>
 
 ### How this works with other features
