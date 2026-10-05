@@ -19,6 +19,7 @@ Scoped to [test collections](/flaky-tests/test-collections), on `/v2`. Use these
   <Card title="Get a test" href="/flaky-tests/reference/api-reference/v2/tests/get-a-test" />
   <Card title="List a test's status transitions" href="/flaky-tests/reference/api-reference/v2/tests/list-a-tests-status-transitions" />
   <Card title="List a test's runs" href="/flaky-tests/reference/api-reference/v2/tests/list-a-tests-runs" />
+  <Card title="Link a ticket to a test" href="/flaky-tests/reference/api-reference/v2/tests/link-a-ticket-to-a-test" />
 </Columns>
 
 Authenticate with **either** an organization API key as `Authorization: Bearer <key>`, **or** a short-lived first-party token in the `x-trunk-token` header. Existing v1 API tokens work unchanged as organization API keys. Every 4xx and 5xx response is an error envelope — switch on its `code`, which is stable, rather than its prose `message`.
@@ -66,7 +67,7 @@ The two scopes are separate APIs rather than two versions of one, so there is no
 | Find unhealthy tests | Get a list of unhealthy tests | List and search tests, filtered by status |
 | Find quarantined tests | Get a list of quarantined tests | List and search tests, filtered by quarantine state |
 | Find recent failures | Get a list of distinct tests that failed | List a test's runs |
-| Link a ticket to a test | Link a ticket to a test case | *No equivalent yet* — use the app |
+| Link a ticket to a test | Link a ticket to a test case | Link a ticket to a test |
 | List or create collections | *Not applicable* | List / Create a test collection |
 
 <Note>
