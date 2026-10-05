@@ -1,0 +1,21 @@
+---
+title: "Dynamic CI: Per-job configuration"
+description: "Set how Dynamic CI schedules each CI job on pull requests and in the merge queue, and add path filters that guide its run-or-skip decisions."
+slug: dynamic-ci-job-configuration
+date: 2026-10-05
+category: Dynamic CI
+type: new-feature
+---
+
+**You can now tune Dynamic CI job by job from the new Configuration tab.**
+
+Open the [Configuration tab](https://app.trunk.io/ci/dynamic-ci?tab=configuration) in the Trunk web app to see every job Dynamic CI manages across your repositories.
+
+- **Find jobs fast.** Filter by repository or workflow, or search by job name or ID. Each row shows the job's workflow, a summary, its typical runtime, and its current schedule.
+- **Set a schedule per job.** Choose **Automatic**, **Always Run**, or **Always Skip**, separately for pull requests and the merge queue. **Automatic** lets the scoring engine decide push by push.
+- **Add path filters.** Tell Dynamic CI which changed files matter to a job, using the same glob syntax as `dorny/paths-filter`. Edit filters in the **Visual** editor or in **YAML**. Filters are a signal to the scoring engine, not a hard rule.
+- **Retire jobs without editing workflows.** Set a job to **Always Skip** instead of changing your workflow files.
+
+The merge queue still runs every job by default on **Automatic**, so `main` stays protected.
+
+Dynamic CI is in private beta. See [Configure how Dynamic CI schedules each CI job](/ci/dynamic-ci/configuration) to get started.
