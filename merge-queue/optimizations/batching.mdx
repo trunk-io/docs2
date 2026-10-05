@@ -197,22 +197,27 @@ When a batch fails and Trunk splits it apart to find the PR that broke it, the s
 
 ### How it works
 
-Each test in a bisection runs a group of PRs on top of the PRs ahead of it in the queue. Before starting one, Trunk checks whether a test of that exact set of PRs has already **failed** in the current bisection. If it has, Trunk skips the CI run. The group's PRs fail with `TEST_RUN_FAILED_BY_OPTIMIZATION`, reusing the earlier result, and bisection continues by splitting them further.
+Each test in a bisection runs a group of PRs on top of the PRs ahead of it in the queue. Before starting one, Trunk checks whether a test of that exact set of PRs has already **failed** in the current bisection. If it has, Trunk skips the CI run and reuses that failure. What happens next depends on whether the failure already shows which PR caused it:
+
+* **A single PR with nothing ahead of it:** the reused failure already names it. The PR fails with `TEST_RUN_FAILED_BY_OPTIMIZATION` and is removed from the queue.
+* **A single PR with tests still running ahead of it:** it's re-tested on its own straight away, without the PRs ahead of it.
+* **A group of PRs:** it's split and re-tested straight away, alongside the rest of the bisection, instead of waiting for the tests ahead of it to finish.
 
 Only failures are reused. A PR never passes without a test run of its own.
 
 <Accordion title="Example bisection with test caching">
 1. Batch `ABCD` fails testing (`main ← ABCD`).
-2. Trunk splits the batch into `AB` and `CD`. `AB` is tested as `main ← AB`, and `CD` is tested on top of it, as `main ← AB ← CD`.
-3. `main ← AB ← CD` is the same set of PRs as `main ← ABCD`, which already failed. Trunk doesn't run it. `CD` fails with `TEST_RUN_FAILED_BY_OPTIMIZATION`.
-4. Bisection continues by splitting `CD` into `C` and `D`, which are tested as normal, and saves one CI run.
+2. Trunk splits the batch into `AB` and `CD`. `AB` is tested as `main ← AB`, and `CD` would be tested on top of it, as `main ← AB ← CD`.
+3. `main ← AB ← CD` is the same set of PRs as `main ← ABCD`, which already failed. Trunk doesn't run it.
+4. Instead of waiting for `AB`'s result, Trunk splits `CD` right away. `main ← C` and `main ← C ← D` start testing alongside `main ← AB`.
+5. If `AB` then fails too, it's split into `main ← A` and `main ← A ← B`. The second is the same set of PRs as the failed `main ← AB`, so it's skipped, and `B` is re-tested on its own straight away, as `main ← B`.
 </Accordion>
 
 ### Benefits
 
 **Lower CI spend**: Every reused failure is a CI run that doesn't happen. This matters most for large batches and expensive test suites.
 
-**Faster failure isolation**: Bisection doesn't wait on a test whose result is already known, so developers learn sooner which PR broke the batch.
+**Faster failure isolation**: Bisection doesn't wait on a test whose result is already known, and the PRs it skipped start their next tests right away, so developers learn sooner which PR broke the batch.
 
 ### When test caching applies
 

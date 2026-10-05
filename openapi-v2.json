@@ -406,7 +406,7 @@
       "OptimizationMode": {
         "type": "string",
         "enum": ["off", "bisectionSkipRedundantTests"],
-        "description": "Whether the engine may skip work it can prove is redundant. `off` runs every verification. `bisectionSkipRedundantTests` lets the engine reuse a passing result from a superset run instead of re-testing, which reduces CI spend but means an entry can reach `testsPassed` without a run of its own (`VerificationRunStatus` reports the run that covered it).",
+        "description": "Whether the engine may skip work it can prove is redundant. `off` runs every verification. `bisectionSkipRedundantTests` applies while a failed batch is being bisected: a combination of pull requests that has already failed is not tested again, and that failure is reused, so an entry can reach `failed` (`TEST_RUN_FAILED_BY_OPTIMIZATION`) without a run of its own. If that does not yet show which pull request caused it, its pull requests are re-tested straight away, alongside the rest of the bisection. It never passes an entry without a run.",
         "example": "off"
       },
       "MergeMethod": {
