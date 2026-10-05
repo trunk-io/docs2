@@ -72,7 +72,7 @@ When Trunk drops a PR, it records a failure reason that appears in the Trunk Das
 |---|---|---|
 | `TEST_RUN_REQUIRED_STATUS_FAILED` | A required CI status check failed during the test run. | Check the CI logs for the failing check. Fix the underlying test or code issue and re-queue the PR. |
 | `TEST_RUN_TIMEOUT` | The test run exceeded the configured timeout threshold. | Investigate why tests are running longer than expected. If the timeout is too short, adjust it in your Trunk configuration. Re-queue the PR once resolved. |
-| `TEST_RUN_FAILED_BY_OPTIMIZATION` | Trunk's optimization strategy (such as parallel testing or bisection) determined this PR caused a failure. | Check the test results to identify which tests failed. Fix the issue and re-queue the PR. |
+| `TEST_RUN_FAILED_BY_OPTIMIZATION` | While bisecting a failed batch, the queue had already seen this set of PRs fail, so it reused that failure instead of starting a new test run. Only happens with [Skip Redundant Bisection Tests](../optimizations/batching#test-caching-during-bisection) enabled. | Check the earlier failed run in the same bisection to see which tests failed. Fix the issue and re-queue the PR. |
 
 **Configuration issues.** These mean Trunk could not start a test run because of a problem with your configuration.
 
