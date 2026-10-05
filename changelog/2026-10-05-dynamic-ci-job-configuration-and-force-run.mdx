@@ -1,0 +1,29 @@
+---
+title: "Dynamic CI: Per-Job Configuration and Force Run"
+description: "Set a schedule and path filters for each Dynamic CI job, and force skipped jobs to run straight from the GitHub pull request page."
+slug: dynamic-ci-job-configuration-and-force-run
+date: 2026-10-05
+category: Dynamic CI
+type: new-feature
+---
+
+**You now have more control over which jobs [Dynamic CI](/ci/dynamic-ci) runs.**
+
+Dynamic CI is in private beta. Reach out on [Slack](https://slack.trunk.io) to have it enabled for your organization.
+
+## New features
+
+**Per-job configuration.** The new **Configuration** tab in the Trunk web app lists every job Dynamic CI manages. Filter by repository or workflow, or search by job name or ID. See [Configuration](/ci/dynamic-ci/configuration).
+
+- **Schedules.** Set each job to **Automatic**, **Always Run**, or **Always Skip**. Pull requests and the merge queue each get their own setting.
+- **Path filters.** Tell Dynamic CI which changed files matter to a job. Use the **Visual** editor or **YAML**, with the same glob syntax as `dorny/paths-filter`. A matching change makes the job more likely to run. The scoring engine still considers the job's history and the pull request's state.
+
+**Force Run from GitHub.** The [Trunk browser extension](/merge-queue/browser-extensions) for Chrome and Firefox adds Dynamic CI controls to the checks list on GitHub pull requests. See [Force jobs to run](/ci/dynamic-ci/github-integration).
+
+- **See what was skipped.** Jobs that Dynamic CI skipped are labeled **Skipped by dynamic-ci**.
+- **Force a job.** Click the up-arrow next to a skipped job, then click **Run N job now**. The jobs start right away, without another push.
+- **Check history first.** Open the **⋯** menu on a job and choose **View job history** to see how it ran on recent pull requests.
+
+## Updates
+
+- **The merge queue stays strict.** In the merge queue, **Automatic** runs every job by default. Force Run overrides apply only to the pull request you set them on. See [Merge queues](/ci/dynamic-ci/merge-queue).
