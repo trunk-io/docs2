@@ -13,17 +13,22 @@ og:title: "Trunk Dynamic CI"
 Dynamic CI decides which CI jobs a pull request actually needs to run. For each
 job, it weighs that job's history, what the pull request changed, and where the
 pull request sits in a stack. Anything it can safely skip, it skips, so you
-spend less on CI and wait less on each push. Every call comes with a
-plain-language reason, and your merge queue backs the whole thing up.
+spend less on CI and wait less on each push.
 
 ## What it helps with
 
-| If you're having problems with…                                   | Dynamic CI helps by…                                                                                                                                             |
-| ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Paying to run jobs that were never going to fail                  | Scoring every job against this diff and this pull request's history, and skipping the ones with nothing left to check. Savings are reported per repository, workflow and job. |
-| Every push to a PR restarting all your jobs                       | Only running what hasn't been validated, or what is likely to fail, with special handling for stacked PRs.                                                        |
-| Path filters and CI rules that get written once and quietly decay | Working out which jobs matter from your own CI history on every push, while still letting you pin any job where you want to be explicit.                        |
-| More concurrent jobs than runners to run them                     | Taking jobs with nothing to check out of the queue entirely, so your runners go to the work that matters.                                                         |
+Traditional CI was built on a zero-trust model. Engineers couldn't be trusted to run the right tests before pushing, and reviewers wanted a green run before they would look at the code. So every push ran everything.
+
+Agentic engineering has rewritten those rules. Agents happily run tests locally, but they also iterate on pull requests constantly. Under the old model, every one of those pushes restarts your full CI suite, and you pay for it in runner time and wait time.
+
+The ideal CI run executes only the tests that are going to fail. Short of precognition, Dynamic CI gets as close as it can by deciding, push by push, which jobs a pull request still needs:
+
+- **A maturing pull request runs less.** As a pull request becomes more solid, fewer jobs need to run, and earlier results tell Dynamic CI whether a job needs to be retested at all.
+- **Small tweaks don't restart everything.** A job that just passed doesn't need to run again because someone addressed a review comment or made a minor change.
+- **Failures always get a second look.** A job that just failed is rerun to confirm the fix actually works.
+- **Stacks are verified as a stack.** Pull requests in the middle of a stack are likely to merge together, so they don't each need full individual verification.
+
+The goal is simple: run the minimal set of jobs needed to get a pull request into the merge queue, and rely on the merge queue as the ultimate safeguard against regressions.
 
 ## Backed by the merge queue
 
@@ -49,8 +54,16 @@ runs** panel to the GitHub pull request page. Check a job, or a whole workflow,
 to force it to run on that pull request regardless of Trunk's recommendation.
 
 <Frame>
-  <img className="block dark:hidden" src="/assets/ci/dynamic-ci/force-ci-runs-light.png" alt="The Force CI runs panel on a GitHub pull request, listing each workflow and its jobs with checkboxes, the last run of each job, and Save and Save and rerun buttons." />
-  <img className="hidden dark:block" src="/assets/ci/dynamic-ci/force-ci-runs-dark.png" alt="The Force CI runs panel on a GitHub pull request, listing each workflow and its jobs with checkboxes, the last run of each job, and Save and Save and rerun buttons." />
+  <img
+    className="block dark:hidden"
+    alt="The Force CI runs panel on a GitHub pull request, listing each workflow and its jobs with checkboxes, the last run of each job, and Save and Save and rerun buttons."
+    src="/assets/ci/dynamic-ci/force-ci-runs-light.png"
+  />
+  <img
+    className="hidden dark:block"
+    alt="The Force CI runs panel on a GitHub pull request, listing each workflow and its jobs with checkboxes, the last run of each job, and Save and Save and rerun buttons."
+    src="/assets/ci/dynamic-ci/force-ci-runs-dark.png"
+  />
 </Frame>
 
 **Save** applies the overrides on the next push or rerun. **Save and rerun**

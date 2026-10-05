@@ -476,6 +476,7 @@
                   "ci/dynamic-ci/getting-started/buildkite"
                 ]
               },
+              "ci/dynamic-ci/github-integration",
               "ci/dynamic-ci/merge-queue",
               "ci/dynamic-ci/faq"
             ]
