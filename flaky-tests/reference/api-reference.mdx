@@ -1,6 +1,6 @@
 ---
 title: "Flaky Tests API"
-description: "REST API for test collections, test cases, and the repository-scoped v1 endpoints."
+description: "REST API for test collections, tests, and the repository-scoped v1 endpoints."
 og:title: "Trunk Flaky Tests API reference"
 ---
 The Trunk Flaky Tests API is an HTTP REST API, returns JSON from all requests, and uses standard HTTP response codes.
@@ -15,10 +15,10 @@ Scoped to [test collections](/flaky-tests/test-collections), on `/v2`. Use these
   <Card title="List test collections" href="/flaky-tests/reference/api-reference/v2/testcollections/list-test-collections" />
   <Card title="Create a test collection" href="/flaky-tests/reference/api-reference/v2/testcollections/create-a-test-collection" />
   <Card title="Get a test collection" href="/flaky-tests/reference/api-reference/v2/testcollections/get-a-test-collection" />
-  <Card title="List and search test cases" href="/flaky-tests/reference/api-reference/v2/testcases/list-and-search-test-cases" />
-  <Card title="Get a test case" href="/flaky-tests/reference/api-reference/v2/testcases/get-a-test-case" />
-  <Card title="List a test case's status transitions" href="/flaky-tests/reference/api-reference/v2/testcases/list-a-test-cases-status-transitions" />
-  <Card title="List a test case's runs" href="/flaky-tests/reference/api-reference/v2/testcases/list-a-test-cases-runs" />
+  <Card title="List and search tests" href="/flaky-tests/reference/api-reference/v2/tests/list-and-search-tests" />
+  <Card title="Get a test" href="/flaky-tests/reference/api-reference/v2/tests/get-a-test" />
+  <Card title="List a test's status transitions" href="/flaky-tests/reference/api-reference/v2/tests/list-a-tests-status-transitions" />
+  <Card title="List a test's runs" href="/flaky-tests/reference/api-reference/v2/tests/list-a-tests-runs" />
 </Columns>
 
 Authenticate with **either** an organization API key as `Authorization: Bearer <key>`, **or** a short-lived first-party token in the `x-trunk-token` header. Existing v1 API tokens work unchanged as organization API keys. Every 4xx and 5xx response is an error envelope — switch on its `code`, which is stable, rather than its prose `message`.
@@ -62,15 +62,15 @@ The two scopes are separate APIs rather than two versions of one, so there is no
 
 | If you want to | Repository endpoint | Collection endpoint |
 |---|---|---|
-| Read one test case | Get the details of a test case | Get a test case |
-| Find unhealthy tests | Get a list of unhealthy tests | List and search test cases, filtered by status |
-| Find quarantined tests | Get a list of quarantined tests | List and search test cases, filtered by quarantine state |
-| Find recent failures | Get a list of distinct tests that failed | List a test case's runs |
+| Read one test | Get the details of a test case | Get a test |
+| Find unhealthy tests | Get a list of unhealthy tests | List and search tests, filtered by status |
+| Find quarantined tests | Get a list of quarantined tests | List and search tests, filtered by quarantine state |
+| Find recent failures | Get a list of distinct tests that failed | List a test's runs |
 | Link a ticket to a test | Link a ticket to a test case | *No equivalent yet* — use the app |
 | List or create collections | *Not applicable* | List / Create a test collection |
 
 <Note>
-A test case's ID is not the same value in both scopes, so an ID read from a repository endpoint cannot be passed to a collection endpoint or vice versa. The repository's `repository.id` is the only identifier the two share.
+A test's ID is not the same value in both scopes, so an ID read from a repository endpoint cannot be passed to a collection endpoint or vice versa. The repository's `repository.id` is the only identifier the two share.
 </Note>
 
 ## Questions

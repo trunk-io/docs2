@@ -407,11 +407,11 @@
                       "GET /v2/test-collections",
                       "POST /v2/test-collections",
                       "GET /v2/test-collections/{id}",
-                      "GET /v2/test-cases",
-                      "GET /v2/test-cases/{testCaseId}",
-                      "GET /v2/test-cases/{testCaseId}/status-history",
-                      "GET /v2/test-cases/{testCaseId}/test-runs",
-                      "POST /v2/test-cases/{testCaseId}/ticket"
+                      "GET /v2/tests",
+                      "GET /v2/tests/{testId}",
+                      "GET /v2/tests/{testId}/status-history",
+                      "GET /v2/tests/{testId}/test-runs",
+                      "POST /v2/tests/{testId}/ticket"
                     ]
                   },
                   {
