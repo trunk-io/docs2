@@ -1,0 +1,21 @@
+---
+title: "Merge Queue: Testing capacity metrics for batched queues"
+description: "The Prometheus metrics endpoint adds a new mq_prs_testing gauge and clarifies mq_testing_slots_active, so you can track CI slot usage and PR throughput separately when batching is enabled."
+slug: merge-queue-testing-capacity-metrics
+date: 2026-08-19
+category: Merge Queue
+type: update
+---
+
+**The Merge Queue Prometheus endpoint now separates CI slot usage from PR counts.**
+
+If you use [batching](/merge-queue/optimizations/batching), several PRs can test together in a single CI run. Until now, the metrics endpoint reported only one testing gauge, which made it hard to tell how many CI slots were in use versus how many PRs were moving through the queue.
+
+The endpoint now exposes two point-in-time gauges:
+
+- **`mq_testing_slots_active`** counts active CI slots. A batch counts as one slot, so this gauge reflects actual CI capacity in use.
+- **`mq_prs_testing`** counts PRs currently in the TESTING state. With batching enabled, this can be higher than `mq_testing_slots_active`.
+
+Without batching, the two gauges report the same value. With batching, you can now chart CI capacity and PR throughput independently in your dashboards.
+
+See the [metrics reference](/merge-queue/administration/metrics#available-metrics) for the full list of available metrics and labels.
