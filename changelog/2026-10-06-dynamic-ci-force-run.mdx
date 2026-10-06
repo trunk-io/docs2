@@ -1,0 +1,20 @@
+---
+title: "Dynamic CI: Force Run"
+description: "Force a Dynamic CI job to run on a pull request from GitHub, the Trunk web app, or the API."
+slug: dynamic-ci-force-run
+date: 2026-10-06
+category: Dynamic CI
+type: new-feature
+---
+
+**You can now force a job to run on a pull request, even when Dynamic CI would skip it.**
+
+Sometimes you know something the history can't see, like a config or dependency change. A [Force Run](/ci/dynamic-ci/force-run) override makes sure the job runs anyway.
+
+- **Force jobs from GitHub.** The [Trunk browser extension](/merge-queue/browser-extensions) for Chrome and Firefox adds a **Force job** button to skipped checks. Click **Run N job now** in the **Dynamic CI** row to start them without another push.
+- **See what was skipped.** Jobs Dynamic CI skipped are labeled **Skipped by dynamic-ci** in GitHub's checks list.
+- **Check job history first.** The **⋯** menu on each job offers **View details** and **View job history**.
+- **Force jobs from Trunk.** The same controls are on the pull request view in the Trunk web app.
+- **Force jobs from automation.** Agents can mark a job as Force Run through the Trunk API, for example to verify a fix on their next push.
+
+Overrides apply only to the pull request you set them on. The [merge queue](/ci/dynamic-ci/merge-queue) keeps its own rules. Force Run supports GitHub Actions workflows today. Buildkite support is not available yet.
