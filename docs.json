@@ -926,6 +926,12 @@
             "group": "2026",
             "pages": [
               {
+                "group": "October",
+                "pages": [
+                  "changelog/2026-10-05-merge-queue-faster-bisection-skip-redundant-tests"
+                ]
+              },
+              {
                 "group": "September",
                 "pages": [
                   "changelog/2026-09-30-flaky-tests-fork-pr-uploads-test-collections",

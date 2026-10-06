@@ -1,0 +1,22 @@
+---
+title: "Merge Queue: Faster bisection with Skip Redundant Bisection Tests"
+description: "When Skip Redundant Bisection Tests skips a test during bisection, Trunk now splits and re-tests those PRs right away instead of waiting."
+slug: merge-queue-faster-bisection-skip-redundant-tests
+date: 2026-10-05
+category: Merge Queue
+type: update
+---
+
+**Bisection now moves on immediately after skipping a redundant test.**
+
+With [Skip Redundant Bisection Tests](/merge-queue/optimizations/batching#test-caching-during-bisection) enabled, Trunk skips any bisection test whose set of PRs already failed earlier in the same bisection. The skipped PRs no longer wait for the tests ahead of them to finish.
+
+- **Skipped groups split right away.** A skipped group of PRs is split and re-tested immediately, alongside the rest of the bisection.
+- **Skipped single PRs re-test on their own.** If tests are still running ahead of a skipped PR, Trunk re-tests it by itself straight away.
+- **Removal only when the cause is clear.** A skipped PR is removed with [`TEST_RUN_FAILED_BY_OPTIMIZATION`](/merge-queue/using-the-queue/handle-failed-pull-requests) only when it has nothing ahead of it, so the earlier failure already identifies it as the cause.
+
+The result is fewer wasted CI runs and faster identification of the PR that broke a batch.
+
+<Note>
+  Only failures are reused. Trunk never marks a PR as passed without testing it. The setting is off by default. Turn it on in your queue's **Settings** under **Batching**, through the [API](/merge-queue/reference/api-v2/mergequeues/update-a-merge-queues-configuration), or with [Terraform](/merge-queue/administration/terraform).
+</Note>
