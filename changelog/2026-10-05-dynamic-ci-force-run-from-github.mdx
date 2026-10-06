@@ -1,0 +1,22 @@
+---
+title: "Dynamic CI: Force skipped jobs from GitHub"
+description: "The Trunk browser extension now labels jobs Dynamic CI skipped and lets you force them to run directly from the GitHub checks list."
+date: 2026-10-05
+category: Dynamic CI
+type: new-feature
+---
+
+**You can now force a skipped Dynamic CI job to run directly from the GitHub pull request page.**
+
+The [Trunk browser extension](/merge-queue/browser-extensions) for Chrome and Firefox adds Dynamic CI controls to the checks list in the merge box.
+
+![The checks list on a GitHub pull request with the Trunk extension, showing jobs labeled Skipped by dynamic-ci with Force job buttons and a Run 1 job now button](/assets/ci/dynamic-ci/extension-force-job.png)
+
+- **See what was skipped.** Jobs Dynamic CI skipped are labeled **Skipped by dynamic-ci**, so you can tell them apart from checks that never ran for another reason.
+- **Force jobs in one click.** Click the up-arrow next to a skipped job, or choose **Force job** from its **⋯** menu.
+- **Run them now.** Click **Run N job now** in the **Dynamic CI** row. Forced jobs start without waiting for another push.
+- **Check history first.** Use **View job history** to see how a job has run on recent pull requests before forcing it.
+
+You can also set Force Run overrides from the pull request view in the Trunk web app. Overrides apply only to that pull request, and the [merge queue](/ci/dynamic-ci/merge-queue) still applies its own rules. Force Run is available for GitHub Actions workflows.
+
+See [Force Dynamic CI jobs to run](/ci/dynamic-ci/github-integration) to get started.
