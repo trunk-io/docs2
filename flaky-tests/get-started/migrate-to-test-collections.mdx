@@ -126,6 +126,15 @@ It is one switch for every collection event, not one per event type. What you ar
 
 Leave it off until your consumer is ready and nothing reaches it in the meantime. See [Webhooks](../webhooks/) for the payloads.
 
+## AI agents and the MCP server
+
+The [Trunk MCP server](../reference/mcp-reference/index) reads the same places the Trunk app shows you:
+
+- **While you are migrating**, [`search-test`](../reference/mcp-reference/search-test) and [`investigate-ci-failure`](../reference/mcp-reference/investigate-ci-failure) read both your repositories and your collections. A test can appear once in each, under two different IDs.
+- **Once you have fully migrated**, they read only your collections, and [`fix-flaky-test`](../reference/mcp-reference/fix-flaky-test) is not available yet, because it works only with repository test IDs.
+
+[`list-test-collections`](../reference/mcp-reference/list-test-collections) lists the collections a repository uploads to, and `search-test` can search just one of them.
+
 ## Dashboards start fresh
 
 Collections don't backfill. A collection's metrics begin at its first upload, so a correctly configured collection can still look empty for a day, and comparisons against a repository's history aren't meaningful until the collection has accumulated its own.

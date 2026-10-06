@@ -11,7 +11,7 @@ The `investigate-ci-failure` tool investigates a failing CI run by fetching stru
 
 ## Prerequisites
 
-- Your repository must be set up to [upload test results to Trunk](../../get-started/index)
+- Your repository must be set up to [upload test results to Trunk](../../get-started/index), with or without a [test collection](/flaky-tests/test-collections)
 - For best results, [enable quarantining](../../quarantining/) so known-flaky tests are filtered out automatically
 
 ## Parameters
@@ -48,7 +48,7 @@ Investigate the CI failure at https://github.com/trunk-io/trunk/actions/runs/123
 
 ## What the tool does
 
-- Looks up test result uploads Trunk has received for that run
+- Looks up test result uploads Trunk has received for that run, including uploads to [test collections](/flaky-tests/test-collections). An upload recorded for both the repository and a collection while you [migrate](/flaky-tests/get-started/migrate-to-test-collections) is only read once
 - Parses the test runs to extract test names, error messages, stdout and stderr
 - Filters out quarantined (known-flaky) tests so you only see real failures
 - Returns structured failure details you can act on
@@ -62,3 +62,6 @@ Investigate the CI failure at https://github.com/trunk-io/trunk/actions/runs/123
 | `Invalid workflow URL`         | Malformed or incorrect workflow URL           | Verify the URL follows the pattern `https://github.com/{owner}/{repo}/actions/runs/{runId}` |
 | `No test results were uploaded for this CI run`           | No test run uploads were uploaded from the provided workflow | Check that the workflow run URL is correct and that it is uploading test results. Compilation and build failures will not upload test results |
 | `No test uploads found for this repository` | Repo hasn't configured Trunk test result uploads | Follow setup instructions to [upload test results](../../get-started/index) |
+| `No test uploads from this repository reached its Trunk test collections in the last 45 days` | Your organization uses test collections, and the repository has not uploaded to one recently | Check the job passes a [Collection ID](/flaky-tests/test-collections#upload-test-results-to-a-collection) |
+| `No test results were found for this CI run in the stores Trunk could read` | Part of Trunk's test result storage was unavailable, so the run's results could not be ruled out | Try again shortly, or pull the CI logs from the workflow URL |
+| `Trunk could not read ... just now` (after a report) | Part of Trunk's test result storage was unavailable, so some of the run's results may be missing | Try again shortly |

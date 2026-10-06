@@ -5,10 +5,9 @@ og:title: "Trunk MCP tool: Search Test"
 ---
 ## Overview
 
-The `search-test` tool looks up the ID of a test case given its name.
+The `search-test` tool looks up a test by part of its name, class, or file. It searches the repository's tests and, if your organization uses [test collections](/flaky-tests/test-collections), the repository's tests in every collection.
 
-
-**Return Type:** Metadata about the test, including its ID.
+**Return Type:** Metadata about each matching test, including its ID and status. Results from test collections are listed in their own section, with the test's ID, its Collection ID, and whether it is quarantined.
 
 ## Parameters
 
@@ -17,14 +16,27 @@ The `search-test` tool looks up the ID of a test case given its name.
 | Parameter  | Type   | Description                                                     |
 | ---------- | ------ | --------------------------------------------------------------- |
 | `repoName` | string | Repository name in `owner/repo` format (e.g., `trunk-io/trunk`) |
-| `testNameSearch` | string | Search string for the test name. Does not include filepaths |
+| `testNameSearch` | string | Case-insensitive part of the test's name, class, or file |
 
 ### Optional Parameters
 
 | Parameter | Type   | Description                                                            |
 | --------- | ------ | ---------------------------------------------------------------------- |
 | `orgSlug` | string | The name of your organization in the Trunk app                         |
-| `limit`   | number | Limit for test results to return, up to 20 |
+| `testCollectionShortId` | string | The [Collection ID](/flaky-tests/test-collections#the-collection-id) of one test collection to search. Get it from [`list-test-collections`](./list-test-collections). Omit to search every collection |
+| `limit`   | number | Maximum number of results to return, up to 20, from the repository and again from its test collections. Defaults to 5 |
+
+## Which tests are searched
+
+What the tool searches follows your organization's [migration to test collections](/flaky-tests/get-started/migrate-to-test-collections), and matches what the Trunk app shows you:
+
+| Organization | Searched |
+| --- | --- |
+| Not using test collections | The repository's tests |
+| Migrating to test collections | The repository's tests and its tests in every collection. The same test can appear in both lists |
+| Fully on test collections | The repository's tests in every collection |
+
+Passing `testCollectionShortId` searches only that collection.
 
 ## Getting Parameter Values
 
@@ -46,9 +58,17 @@ Look for the repository name in the output (e.g., `trunk-io/trunk` from `git@git
 What's the test case ID for the test "clear all filters button appears in empty state and clears filters"
 ```
 
+### Search one test collection
+
+```
+Find the "checkout" tests in the backend-unit test collection
+```
+
 ## Error Handling
 
 | Error                          | Cause                                         | Resolution                                                |
 | ------------------------------ | --------------------------------------------- | --------------------------------------------------------- |
-| `No tests matched {searchString} in repo {repoName}` | No results found | Check your search string and try again |
+| `No tests matched {searchString} in {repoName}` | No results found | Check your search string and try again |
+| `No tests matched {searchString} in {repoName} in test collection {collectionId}` | No results in that collection, or no collection with that ID in your organization | Check the Collection ID with [`list-test-collections`](./list-test-collections) |
+| `Trunk could not read ... just now` | One of the places Trunk stores test results was unavailable, so results from it may be missing | Try again shortly |
 | Repository authorization error | Insufficient permissions or invalid repo name | Verify repository name format and your access permissions |

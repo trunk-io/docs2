@@ -431,6 +431,7 @@
                         ]
                       },
                       "flaky-tests/reference/mcp-reference/search-test",
+                      "flaky-tests/reference/mcp-reference/list-test-collections",
                       "flaky-tests/reference/mcp-reference/fix-flaky-test",
                       "flaky-tests/reference/mcp-reference/set-up-test-uploads",
                       "flaky-tests/reference/mcp-reference/investigate-ci-failure"

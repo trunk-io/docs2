@@ -1,0 +1,55 @@
+---
+title: "List Test Collections"
+description: "MCP tool reference: list-test-collections"
+og:title: "Trunk MCP tool: List Test Collections"
+---
+## Overview
+
+The `list-test-collections` tool lists the [test collections](/flaky-tests/test-collections) a repository uploads test results to. A repository's tests can be split across several collections, by language, suite, or product area, and each holds different tests. Use this tool to find a collection's ID, then pass it to [`search-test`](./search-test) to search only that collection.
+
+**Return Type:** Each collection's Collection ID, name, and first and last upload time, most recently uploaded first.
+
+## Parameters
+
+### Required Parameters
+
+| Parameter  | Type   | Description                                                     |
+| ---------- | ------ | --------------------------------------------------------------- |
+| `repoName` | string | Repository name in `owner/repo` format (e.g., `trunk-io/trunk`) |
+
+### Optional Parameters
+
+| Parameter | Type   | Description                                                            |
+| --------- | ------ | ---------------------------------------------------------------------- |
+| `orgSlug` | string | The name of your organization in the Trunk app                         |
+
+<Note>
+Only collections the repository has uploaded to in the last 45 days are listed. A collection that has not received an upload from the repository in that time is not shown.
+</Note>
+
+## Getting Parameter Values
+
+If your AI assistant doesn't have direct access to Git information, use these commands:
+
+**Get repository name:**
+
+```bash
+git remote -v
+```
+
+Look for the repository name in the output (e.g., `trunk-io/trunk` from `git@github.com:trunk-io/trunk.git`)
+
+## Usage Examples
+
+### List collections
+
+```
+Which Trunk test collections does this repository upload to?
+```
+
+## Error Handling
+
+| Error                          | Cause                                         | Resolution                                                |
+| ------------------------------ | --------------------------------------------- | --------------------------------------------------------- |
+| `{repoName} has uploaded no test results to a Trunk test collection in the last 45 days.` | The repository uploads without a Collection ID, or has not uploaded recently | See [Upload test results to a collection](/flaky-tests/test-collections#upload-test-results-to-a-collection) |
+| Repository authorization error | Insufficient permissions or invalid repo name | Verify repository name format and your access permissions |
