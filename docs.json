@@ -927,6 +927,13 @@
             "group": "2026",
             "pages": [
               {
+                "group": "October",
+                "pages": [
+                  "changelog/2026-10-06-flaky-tests-mcp-test-collections-and-api-updates",
+                  "changelog/2026-10-06-merge-queue-skip-redundant-bisection-tests"
+                ]
+              },
+              {
                 "group": "September",
                 "pages": [
                   "changelog/2026-09-30-flaky-tests-fork-pr-uploads-test-collections",

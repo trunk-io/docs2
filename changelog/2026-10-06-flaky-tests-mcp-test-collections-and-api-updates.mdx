@@ -1,0 +1,24 @@
+---
+title: "Flaky Tests: MCP Test Collection Support and API Updates"
+description: "The Trunk MCP server now reads test collections, the v2 API can link tickets to tests, and the CLI downloads from trunk.io."
+date: 2026-10-06
+category: Flaky Tests
+type: new-feature
+---
+
+**Your AI tools and API integrations now work with test collections.**
+
+### New features
+
+- **MCP server reads test collections.** [`search-test`](/flaky-tests/reference/mcp-reference/search-test) and [`investigate-ci-failure`](/flaky-tests/reference/mcp-reference/investigate-ci-failure) now include results from your [test collections](/flaky-tests/test-collections). Search results show each test's Collection ID and quarantine state.
+- **New `list-test-collections` MCP tool.** [List the collections](/flaky-tests/reference/mcp-reference/list-test-collections) a repository uploads to. Pass a Collection ID to `search-test` to search just that collection.
+- **Link a ticket through the v2 API.** The new [Link a ticket to a test](/flaky-tests/reference/api-reference/v2/tests/link-a-ticket-to-a-test) endpoint closes the last gap with the v1 API.
+
+### Updates
+
+- **v2 API endpoints renamed to `tests`.** The v2 `test-cases` endpoints are now under `/v2/tests`. See the [API reference](/flaky-tests/reference/api-reference).
+- **Download the CLI from trunk.io.** The analytics CLI is now served from `https://trunk.io/releases/analytics-cli/prod`. GitHub rate-limits release downloads, so switch your CI scripts over for more reliable uploads. See [Manual Download](/flaky-tests/reference/cli-reference#manual-download).
+
+<Note>
+`fix-flaky-test` doesn't support test collections yet. If your organization has fully moved to collections, use `search-test` instead. See [AI agents and the MCP server](/flaky-tests/get-started/migrate-to-test-collections#ai-agents-and-the-mcp-server).
+</Note>
