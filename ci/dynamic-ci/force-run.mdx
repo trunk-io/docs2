@@ -1,0 +1,106 @@
+---
+title: "Force Dynamic CI jobs to run from GitHub, Trunk, or the API"
+sidebarTitle: "Force Run"
+description: "Use the Trunk browser extension for Chrome and Firefox, the Trunk web app, or the API to mark a Dynamic CI job as Force Run on a pull request."
+---
+
+Dynamic CI decides which jobs a pull request needs, but sometimes an engineer or an agent knows something the history does not. A **Force Run** override tells Dynamic CI to run a job on a pull request no matter what it recommends. You can set it from GitHub with the Trunk browser extension, from the pull request view in the Trunk web app, or through the API.
+
+| Surface | Best for |
+| --- | --- |
+| [Browser extension](#browser-extension) | Engineers reviewing a pull request on GitHub |
+| [Trunk web app](#trunk-web-app) | Engineers working in Trunk, or without the extension installed |
+| [API](#api) | Agents and automation that need a job to run as part of their workflow |
+
+<Note>
+  Force Run overrides are available for GitHub Actions workflows. Buildkite is not supported yet.
+</Note>
+
+## When to force a job
+
+- **You changed something the history can't see**, such as a config, a dependency, or an environment change that affects a job Dynamic CI would skip.
+- **You want fresh signal before review**, for example a slow integration suite you want green before asking for approval.
+- **An agent needs proof**: an agent fixing a specific failure can require the affected job to run on its next push to confirm the fix.
+
+## Browser extension
+
+The [Trunk browser extension](/merge-queue/browser-extensions) for Chrome and Firefox adds Dynamic CI controls directly to the checks list on the GitHub pull request page. It is the same extension that powers the Trunk merge queue panel, so if your team already uses it, there is nothing extra to install.
+
+<CardGroup cols={2}>
+  <Card title="Chrome Web Store" icon="chrome" iconType="brands" href="https://chromewebstore.google.com/detail/liggeliamkammmieidmmfmmdnjilabgn?utm_source=item-share-cb">
+    Chrome, plus Chromium browsers like Edge, Brave, and Arc.
+  </Card>
+
+  <Card title="Firefox Add-ons" icon="firefox" iconType="brands" href="https://addons.mozilla.org/en-US/firefox/addon/trunk-for-github/">
+    Firefox 140+ on desktop, Firefox 142+ on Android.
+  </Card>
+</CardGroup>
+
+After installing, sign in to [app.trunk.io](https://app.trunk.io) in the same browser. The extension reuses that session.
+
+<Frame>
+  ![The checks list on a GitHub pull request with the Trunk extension. Jobs skipped by Dynamic CI are labeled "Skipped by dynamic-ci", each with an up-arrow Force job button and a menu offering View details, View job history, and Force job. A Dynamic CI row at the bottom shows a Run 1 job now button.](/assets/ci/dynamic-ci/extension-force-job.png)
+</Frame>
+
+### See what Dynamic CI skipped
+
+Every job Dynamic CI skipped is labeled **Skipped by dynamic-ci** in GitHub's checks list, so you can tell at a glance which checks were skipped on purpose and which never ran for another reason.
+
+### Force a job
+
+<Steps>
+  <Step title="Open the pull request on GitHub">
+    Expand the checks list in the merge box to see each job and its status.
+  </Step>
+  <Step title="Mark the jobs to force">
+    Click the up-arrow button next to a skipped job to mark it as Force Run. The button is highlighted once the job is selected. You can also open the **⋯** menu on the job and choose **Force job**.
+  </Step>
+  <Step title="Run the jobs">
+    In the **Dynamic CI** row at the bottom of the checks list, click **Run N job now**, where N is the number of jobs you marked. The forced jobs start without waiting for another push.
+  </Step>
+</Steps>
+
+### Investigate a job
+
+The **⋯** menu on each job also offers:
+
+- **View details**: open the job's details.
+- **View job history**: see how the job has run on recent pull requests, to judge whether forcing it is worthwhile.
+
+## Trunk web app
+
+The same Force Run controls are available on the pull request view in the Trunk web app, so you can set overrides without the extension.
+
+{/* SCREENSHOT: Pull request view in the Trunk web app with Force Run controls */}
+
+<Steps>
+  <Step title="Open the pull request in Trunk">
+    In [app.trunk.io](https://app.trunk.io), open the pull request.
+  </Step>
+  <Step title="Mark jobs as Force Run">
+    Select the dynamically managed jobs, or whole workflows, that should always run on this pull request.
+
+    {/* SCREENSHOT: Marking a job as Force Run in the Trunk web app */}
+  </Step>
+  <Step title="Save">
+    The override applies to the pull request's next push or rerun.
+  </Step>
+</Steps>
+
+## API
+
+Agents and automation can set Force Run through the Trunk API. For example, an agent that is fixing a failing job can mark that job as Force Run before it pushes, so the fix is always verified even if Dynamic CI would otherwise skip it.
+
+Authenticate with your organization's API token from [Settings → Organization → General](https://app.trunk.io/settings/organization/general).
+
+{/* TODO: Add the Force Run API endpoint, request parameters, and an example request and response. */}
+
+<Info>
+  API reference details for Force Run are coming soon.
+</Info>
+
+## How overrides interact with Dynamic CI
+
+- **Overrides always win.** A job marked Force Run runs regardless of Trunk's recommendation, just like your paths filters and per-job policies.
+- **Overrides are per pull request.** Forcing a job on one pull request does not change how Dynamic CI treats it anywhere else.
+- **The merge queue is unaffected.** The [merge queue](/ci/dynamic-ci/merge-queue) applies its own, stricter rules no matter which jobs ran on the pull request.

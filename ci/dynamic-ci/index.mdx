@@ -46,30 +46,6 @@ request.
   A job that rejected a pull request from the queue always runs on that pull
   request's next push. See [Merge queues](/ci/dynamic-ci/merge-queue).
 
-## Force a job to run
-
-Sometimes you know something the history does not. The
-[Trunk browser extension](/merge-queue/browser-extensions) adds a **Force CI
-runs** panel to the GitHub pull request page. Check a job, or a whole workflow,
-to force it to run on that pull request regardless of Trunk's recommendation.
-
-<Frame>
-  <img
-    className="block dark:hidden"
-    alt="The Force CI runs panel on a GitHub pull request, listing each workflow and its jobs with checkboxes, the last run of each job, and Save and Save and rerun buttons."
-    src="/assets/ci/dynamic-ci/force-ci-runs-light.png"
-  />
-  <img
-    className="hidden dark:block"
-    alt="The Force CI runs panel on a GitHub pull request, listing each workflow and its jobs with checkboxes, the last run of each job, and Save and Save and rerun buttons."
-    src="/assets/ci/dynamic-ci/force-ci-runs-dark.png"
-  />
-</Frame>
-
-**Save** applies the overrides on the next push or rerun. **Save and rerun**
-applies them now: it cancels the pull request's in-progress runs and starts them
-again. Overrides are available for GitHub Actions workflows; Buildkite is not supported yet.
-
 ## How it decides
 
 For every job, Dynamic CI combines several independent kinds of evidence into

@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "name": "Trunk Platform Documentation",
+  "name": "Trunk Platform",
   "public": true,
   "theme": "aspen",
   "colors": {
@@ -478,7 +478,7 @@
               },
               "ci/dynamic-ci/configuration",
               "ci/dynamic-ci/settings",
-              "ci/dynamic-ci/github-integration",
+              "ci/dynamic-ci/force-run",
               "ci/dynamic-ci/merge-queue",
               "ci/dynamic-ci/faq"
             ]
@@ -2679,6 +2679,10 @@
     {
       "source": "/dynamic-ci/:slug*",
       "destination": "/ci/dynamic-ci/:slug*"
+    },
+    {
+      "source": "/ci/dynamic-ci/github-integration",
+      "destination": "/ci/dynamic-ci/force-run"
     }
   ],
   "interaction": {
@@ -2687,5 +2691,6 @@
   "styling": {
     "eyebrows": "section",
     "codeblocks": "system"
-  }
+  },
+  "description": "Trunk is building the outer loop platform for engineers and coding agents. Make software delivery cheaper, faster, and more reliable with Merge Queue, Flaky Tests, CI Intelligence, and Dynamic CI. Cut compute costs, eliminate wasted work, and keep pull requests moving as code volume grows."
 }
