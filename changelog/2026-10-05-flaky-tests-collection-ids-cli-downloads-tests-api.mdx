@@ -1,0 +1,20 @@
+---
+title: "Flaky Tests: Collection IDs, faster CLI downloads, and the v2 Tests API"
+description: "Uploads now name a test collection, the analytics CLI downloads from trunk.io, and the v2 API adds a Tests reference with ticket linking."
+slug: flaky-tests-collection-ids-cli-downloads-tests-api
+date: 2026-10-05
+category: Flaky Tests
+type: update
+---
+
+**A few updates to how you upload results and work with the API.**
+
+## New features
+
+- **Link a ticket through the API.** The v2 API can now link a ticket to a test. Previously this was only possible in the web app. See the [API reference](/flaky-tests/reference/api-reference).
+
+## Updates
+
+- **Uploads name a test collection.** Pass the collection ID with `--test-collection-id`, or `test-collection-id` in GitHub Actions. The ID isn't a secret, so you can put it directly in your workflow. Every [CI provider guide](/flaky-tests/get-started/ci-providers/github-actions) now includes it. See [Migrate to test collections](/flaky-tests/get-started/migrate-to-test-collections).
+- **Download the CLI from trunk.io.** Fetch `trunk-analytics-cli` from `trunk.io` instead of GitHub releases, which rate-limits downloads in CI. See the [CLI reference](/flaky-tests/reference/cli-reference#manual-download).
+- **v2 "test cases" are now "tests".** The v2 API reference groups its endpoints under **Tests**, matching the rest of the product.
