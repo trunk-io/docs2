@@ -10,6 +10,10 @@ The `fix-flaky-test` tool retrieves insights and historical failure analysis abo
 
 **Return Type:** Structured analysis data with fix recommendations. Structure: metadata, summary, facts
 
+<Note>
+`fix-flaky-test` does not yet support [test collections](/flaky-tests/test-collections). It works with the test IDs [`search-test`](./search-test) returns for the repository, not for a test collection. If your organization has fully moved to test collections, the tool says so instead of returning an investigation.
+</Note>
+
 ## Parameters
 
 ### Required Parameters
@@ -75,4 +79,5 @@ Retrieve the investigation for test <testCaseId> with investigationId <investiga
 | `Please provide either \`investigationId\` or \`testCaseId\`.` | Neither `investigationId` nor `testCaseId` was provided | Provide one of `investigationId` or `testCaseId` |
 | `This investigation was skipped before producing a completed summary.` | The repository or test reached its monthly [investigation limit](../../agents/autofix-flaky-tests#investigation-limits), or investigations are disabled for the repository | Start the investigation by hand from the test's detail page, which is exempt from both limits, or revisit the prerequisites in [Autofix Flaky Tests](../../agents/autofix-flaky-tests) |
 | `This investigation failed before producing a completed summary. Please contact Trunk support.` | Investigation error | This feature is still in Beta, please contact support |
+| `... cannot investigate a test in a test collection yet` | Your organization has fully moved to [test collections](/flaky-tests/test-collections) | Use [`search-test`](./search-test) to see the test's status and quarantine state in its collection |
 | Repository authorization error | Insufficient permissions or invalid repo name | Verify repository name format and your access permissions |
