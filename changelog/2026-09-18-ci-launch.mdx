@@ -1,0 +1,24 @@
+---
+title: "Trunk CI: See every job your CI runs"
+description: "Trunk CI records every workflow, job, and step across GitHub Actions and Buildkite, with an org-wide dashboard and a per-pull-request waterfall view."
+slug: ci-launch
+date: 2026-09-18
+category: CI
+type: new-feature
+---
+
+**Trunk CI is now available.** Point your CI provider at Trunk and get every workflow run, every job, and every step - what it cost, how long it queued, and which commit it ran on - without instrumenting your pipelines.
+
+- **[The CI tab](/ci/ci-tab)** ranks every job across every repository by pass rate, duration, and run count, and shows what is running and queued right now. Filters for repository, workflow, and provider are shared across the tab.
+- **[The Pull Requests view](/ci/pull-requests)** lists your organization's open PRs with their current CI state and drills into any one of them. The detail view has an attempt picker for each commit and a waterfall of every job that ran.
+- **[Commit traces](/ci/commit-traces)** draw every workflow run on a commit - across every re-run attempt - as a single waterfall, down to the step and its logs. Diagonal stripes call out queue time so you can see what was slow versus what was waiting.
+- **Live data.** Spans are written as a run progresses, so a workflow is visible while it is still executing.
+
+## Setting it up
+
+Ingestion is per repository and off by default. Turn on **CI Intelligence** for a repository in **Settings → Repositories**, then wire up your provider:
+
+- **[GitHub Actions](/ci/get-started/github-actions)** - install the Trunk CI app and push a commit.
+- **[Buildkite](/ci/get-started/buildkite)** - point Buildkite's OpenTelemetry notification service (and, optionally, agent tracing) at Trunk's ingest endpoint.
+
+See [Getting started](/ci/get-started) for the full walkthrough.
