@@ -14,18 +14,19 @@ This page shows how to run your first job on Kiln.
     team turns on Kiln for you and sets up your access.
   </Step>
   <Step title="Set your defaults">
-    Set an organization default template, region, and size. Most jobs then need
-    only a size in the label. See
+    Set an organization default template and region. Most jobs then need no options
+    in the label. See
     [Organization defaults](/kiln/settings/ci-defaults).
   </Step>
   <Step title="Point a job at Kiln">
-    Change the `runs-on` label of a job to the Kiln label. The label sets the
-    machine size. See [The runs-on label](/kiln/actions/runs-on).
+    Change the `runs-on` label of a job to the Kiln label. With no options, the
+    job runs on a machine with 2 CPUs and 8 GiB of memory. See
+    [The runs-on label](/kiln/actions/runs-on).
 
     ```yaml
     jobs:
       build:
-        runs-on: trunk-kiln=${{ github.run_id }}-${{ github.run_attempt }}..size=medium
+        runs-on: trunk-kiln=${{ github.run_id }}-${{ github.run_attempt }}
         steps:
           - uses: actions/checkout@v4
           - run: make build

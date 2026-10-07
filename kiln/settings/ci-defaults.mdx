@@ -1,34 +1,38 @@
 ---
 title: "Organization defaults"
-description: "Set a default template, region, and size for your CI jobs."
+description: "Set a default template and region for your CI jobs."
 groups: ["firewatch"]
 ---
 
 {/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
 
-An organization admin sets the defaults for CI jobs. A job then needs only a size
-in its label, and the defaults fill in the rest.
+An organization admin sets the defaults for CI jobs. A job then needs no options in
+its label, and the defaults fill in the rest.
 
 ## The defaults
 
-| Default  | What it sets                                                    |
-| -------- | --------------------------------------------------------------- |
-| Template | The template a job uses when its label has no `template`.       |
-| Region   | The region a job uses when its label has no `region`.           |
-| Size     | The size a job uses in tools that read an organization default. |
+| Default  | What it sets                                              |
+| -------- | --------------------------------------------------------- |
+| Template | The template a job uses when its label has no `template`. |
+| Region   | The region a job uses when its label has no `region`.     |
 
-## How a job resolves a value
-
-For a template or a region, Kiln uses this order:
-
-1. The value in the job's `runs-on` label, if present.
-2. The organization default, if set.
-3. The Trunk default.
-
-So a job label can override a default per job. See
+A job label overrides a default for that job. See
 [Templates and regions](/kiln/actions/templates-and-regions).
 
+## How a job resolves a template
+
+1. The `template` value in the job's `runs-on` label, if present.
+2. Your organization default template, if set.
+3. No template. The job runs on the default Kiln image, which contains most of
+   the GitHub Actions `ubuntu-latest` image.
+
+## How a job resolves a region
+
+1. The `region` value in the job's `runs-on` label, if present.
+2. Your organization default region, if set.
+3. The Trunk default region.
+
 <Info>
-  Set an organization default template so most jobs need only a size. Keep the
+  Set an organization default template so most jobs need no options. Keep the
   per-job `template` option for jobs that need a different environment.
 </Info>

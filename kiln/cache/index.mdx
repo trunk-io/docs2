@@ -11,36 +11,102 @@ finish faster. The cache is on by default.
 
 ## What the cache supports
 
-The shared cache works with the GitHub Actions cache and common build tools:
+Kiln sets up each supported tool for the job. You do not edit your workflows.
 
-- The GitHub Actions cache (`actions/cache`)
-- `sccache`
-- `bazel`
-- `gradle`
-- `ccache`
+| Tool            | On by default | What Kiln does when it is on                                           |
+| --------------- | ------------- | ---------------------------------------------------------------------- |
+| `actions/cache` | Yes           | Sends the GitHub Actions cache to the Kiln cache.                      |
+| Bazel           | Yes           | Sets the Kiln cache as Bazel's remote cache.                           |
+| sccache         | No            | Builds Rust code through `sccache`, with the Kiln cache as storage.    |
+| Nix             | No            | Adds the Kiln cache as a Nix binary cache, and uploads what you build. |
 
-Common build-tool lanes work with no setup. To choose the cache for the GitHub
-Actions cache on one job, use the `cache` option.
+An admin turns each tool on or off, per repository or for the organization. See
+[Cache settings](/kiln/cache/settings).
+
+### sccache
+
+When sccache is on, Kiln sets `RUSTC_WRAPPER` and `CARGO_INCREMENTAL=0` for the
+job. These values replace the values that you set in a workflow-level or job-level
+`env:`. A step-level `env:` still wins.
+
+### Bazel
+
+Kiln uses a Bazel result from the cache only when all of its outputs are still in
+the cache. If an output is missing, Bazel gets a cache miss and builds the target
+again.
+
+A job that runs in a container (`container:`) does not get the Bazel setup.
+
+### Nix
+
+The default Kiln image does not include Nix. Install it with a
+[template](/kiln/actions/templates-and-regions), or with an installer step such as
+`cachix/install-nix-action` or `DeterminateSystems/nix-installer-action`.
+
+- Nix uses the Kiln cache only when the runner user is a trusted Nix user. Both
+  installer actions trust the runner user by default.
+- Your own Nix settings win. If your job sets its own `post-build-hook`, Kiln does
+  not upload what the job builds.
+- If Nix cannot get a path from the cache, it builds the path from source.
+- Kiln does not cache a single store path that is larger than 2 GiB.
+- A job that runs in a container (`container:`) does not get the Nix setup.
 
 ## The cache option
 
-Add `cache` to the `runs-on` label to choose the cache for a job:
+Add `cache` to the `runs-on` label to choose the cache for `actions/cache` in one
+job:
 
-| Value          | Effect                                                  |
-| -------------- | ------------------------------------------------------- |
-| `cache=kiln`   | Use the Kiln shared cache for the GitHub Actions cache. |
-| `cache=github` | Use the GitHub cache for that job.                      |
+| Value          | Effect                                                       |
+| -------------- | ------------------------------------------------------------ |
+| `cache=kiln`   | Use the Kiln cache for `actions/cache`. This is the default. |
+| `cache=github` | Use the GitHub cache for `actions/cache` in that job.        |
 
 ```yaml
-runs-on: trunk-kiln=${{ github.run_id }}-${{ github.run_attempt }}..size=medium..cache=kiln
+runs-on: trunk-kiln=${{ github.run_id }}-${{ github.run_attempt }}..size=medium..cache=github
 ```
+
+The `cache` option changes only `actions/cache`. Bazel, sccache, and Nix follow
+your [cache settings](/kiln/cache/settings). `cache=kiln` does not turn on
+`actions/cache` for a repository where the setting is off.
+
+## Which entries a job uses
+
+By default, a job uses cache entries from its own branch and from the default
+branch. A job writes only to its own branch.
+
+For Bazel, sccache, and Nix, an admin can let a job also use entries from all
+branches in the repository. See
+[Which branches a job uses cache from](/kiln/cache/settings#which-branches-a-job-uses-cache-from).
 
 <Info>
   A fork pull request gets read-only cache access. A push to your own repository
   can write to the cache.
 </Info>
 
-## Turn the cache on or off
+## Storage limits
 
-An admin can turn the shared cache off, per repository or for the whole
-organization. See [Cache settings](/kiln/cache/settings).
+- Kiln removes an entry that no job used for 7 days.
+- Each repository can keep up to 20 GiB for each tool. When a repository goes over
+  that limit, Kiln removes the least recently used entries first.
+- Bazel's cache results and their outputs share one 20 GiB limit.
+- Kiln removes a Nix path only when no other path in the cache refers to it.
+- Each region has its own cache.
+
+## See what is cached
+
+GitHub's Caches page and `gh cache` do not show the Kiln cache. To see it, open
+the **Shared cache** tab in your Kiln settings, then click **See what is cached**.
+
+- The first page shows the cache usage of each repository. A member sees the
+  names of the repositories that they can read on GitHub. An organization admin
+  sees every name.
+- Open a repository to see its usage for each tool, its entries, its evictions,
+  and its purges. Choose a region to see the cache of that region.
+- To remove bad entries, filter the entries, then click **Purge matching…**. A
+  purge removes the entries that the filter shows.
+
+| Who                                                    | Can see the entries of | Can purge        |
+| ------------------------------------------------------ | ---------------------- | ---------------- |
+| An organization admin                                  | Every repository       | Every repository |
+| A member with write access to the repository on GitHub | That repository        | That repository  |
+| A member with read access to the repository on GitHub  | That repository        | No               |
