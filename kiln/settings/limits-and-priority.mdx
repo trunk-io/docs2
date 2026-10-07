@@ -1,34 +1,73 @@
 ---
 title: "Limits and priority"
-description: "Set a CPU limit for CI, and mark the branches that run first when CI is busy."
+description: "Your organization has a CPU limit for CI. Mark the branches that run first when CI is busy."
 groups: ["firewatch"]
 ---
 
 {/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
 
-An organization admin sets how much CI your organization runs at once, and which
-jobs run first when CI is busy.
+Two controls set how much CI your organization runs at once, and which jobs run
+first when CI is busy. Different people set them.
+
+| Control           | Who sets it                                          |
+| ----------------- | ---------------------------------------------------- |
+| CPU limit         | Trunk. Ask the Trunk team to change it.              |
+| Priority branches | An organization admin or owner, in your CI settings. |
 
 ## CPU limit
 
-Your organization has a limit on the total CPUs that CI jobs use at once. When
-jobs reach the limit, Kiln holds new jobs until CPUs free up. The held jobs start
-when there is room. A job is not lost; it waits.
+Your organization has a limit on the total CPUs that its CI jobs use at once.
+Trunk sets this limit for your organization.
+
+When your jobs reach the limit, Kiln holds each new job until CPUs become free. A
+held job is not lost. Kiln starts it when there is sufficient room.
 
 <Info>
-  Ask the Trunk team to raise your CPU limit if your CI waits too often.
+  An organization admin cannot change this limit. Ask the Trunk team to raise it
+  if your CI waits too frequently.
 </Info>
 
 ## Priority branches
 
-You can mark branches as priority. Jobs on those branches run first when CI is
-busy. Kiln does not hold a priority job under load.
+An organization admin or owner marks branches as priority in your CI settings.
+When CI is busy, Kiln then gives a job on one of those branches two advantages:
 
-Use priority branches for the branches that must stay fast, such as your default
-branch or a release branch.
+- Kiln starts a priority job immediately. Other jobs wait.
+- If a priority job waits because of the CPU limit, it starts before other
+  jobs.
+
+Use priority for the branches that must stay fast, such as your default branch or
+a release branch.
+
+<Warning>
+  **Priority does not give a job more CPUs, and it does not let a job pass the
+  CPU limit.** When your organization is at the limit, a priority job also
+  waits.
+</Warning>
+
+## Branch patterns
+
+You give the priority branches as two lists of patterns: an include list and an
+exclude list. A branch has priority when a pattern in the include list matches it,
+and no pattern in the exclude list matches it. Kiln uses the same rules as GitHub
+rulesets.
+
+| Rule                        | Effect                                                                    |
+| --------------------------- | ------------------------------------------------------------------------- |
+| `*` does not match `/`      | `trunk-merge/*` matches `trunk-merge/123`, but not `trunk-merge/foo/bar`. |
+| `**` matches across `/`     | Use `trunk-merge/**/*` for a branch name with more levels.                |
+| An exclude pattern wins     | A branch that both lists match does not have priority.                    |
+| Patterns are case-sensitive | `Main` does not match `main`.                                             |
+
+Each list holds a maximum of 20 patterns. Each pattern holds a maximum of 200
+characters. Kiln does not support brace alternation, or the GitHub `~ALL` and
+`~DEFAULT_BRANCH` names.
 
 <Note>
-  Priority changes the order of jobs. It does not raise the CPU limit. Under
-  heavy load, a priority job runs before other jobs, but the total CPUs still
-  stay under the limit.
+  Kiln refuses a pattern that matches all branches, such as `*` or `**`. An
+  error message on the CI settings page shows you the pattern that you must
+  correct.
 </Note>
+
+To turn priority off, clear the whole setting. No job then has priority. Kiln
+refuses a setting whose include list is empty.

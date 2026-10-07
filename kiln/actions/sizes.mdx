@@ -6,8 +6,8 @@ groups: ["firewatch"]
 
 {/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
 
-The `size` option sets the CPU count of the runner. `size` is required in the
-`runs-on` label.
+The `size` option sets the CPU count of the runner. `size` is optional. A job that
+leaves it out runs on the [default machine](#the-default-machine).
 
 ## Sizes
 
@@ -23,21 +23,38 @@ The `size` option sets the CPU count of the runner. `size` is required in the
 runs-on: trunk-kiln=${{ github.run_id }}-${{ github.run_attempt }}..size=large
 ```
 
+## The default machine
+
+If you leave out `size`, the job runs on a `small` runner with high memory: 2 CPUs
+and 8 GiB. This is the same machine as the GitHub Actions `ubuntu-latest` runner in a
+private repository, so a job that you move to Kiln keeps the machine it had.
+
+```yaml
+runs-on: trunk-kiln=${{ github.run_id }}-${{ github.run_attempt }}
+```
+
 <Note>
-  There is no default size. You must set `size` on every Kiln job. A missing or
-  unknown size fails the job with a clear message.
+  An unknown size, such as `size=huge`, gets no runner, and the job stays queued
+  with no message. See [The runs-on label](/kiln/actions/runs-on).
 </Note>
 
 ## Memory
 
-By default, a runner has 2 GiB of memory per CPU. When a job needs more, add
-`memory=high` for 4 GiB per CPU. The size still sets the CPU count.
+When you set `size`, a runner has 2 GiB of memory per CPU. When a job needs more,
+add `memory=high` for 4 GiB per CPU. The size still sets the CPU count.
 
 ```yaml
 runs-on: trunk-kiln=${{ github.run_id }}-${{ github.run_attempt }}..size=large..memory=high
 ```
 
 A `large` runner with `memory=high` has 8 CPUs and 32 GiB of memory.
+
+<Warning>
+  `size=small` and no size are different machines. `size=small` gives 2 CPUs and
+  4 GiB. No size gives 2 CPUs and 8 GiB, because the default machine uses high
+  memory. To get the default machine and also name its size, use
+  `size=small..memory=high`.
+</Warning>
 
 <Tip>
   Start with a size that matches your job. Add `memory=high` only for a job that

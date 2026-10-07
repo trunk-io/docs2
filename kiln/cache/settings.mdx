@@ -1,36 +1,83 @@
 ---
 title: "Cache settings"
-description: "Turn the shared cache on or off, per repository or for the organization."
+description: "Choose which tools use the shared cache, and which branches a job uses cache from."
 groups: ["firewatch"]
 ---
 
 {/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
 
-The shared cache is on by default. An admin can turn it off. This page shows the
-settings and who can change them.
+The shared cache is on by default. An admin can change it in the **Shared cache**
+tab of your Kiln settings. This page shows the settings and who can change them.
 
-## Where the setting applies
+## Where the settings apply
 
-| Level        | What it controls                  |
-| ------------ | --------------------------------- |
-| Repository   | The cache for one repository.     |
-| Organization | The default for every repository. |
+The tab shows one row for the **Organization default** and one row for each
+repository override. To change a row, click **Edit**.
 
-The repository setting wins over the organization default. If a repository has no
-setting, the job uses the organization default. If the organization has no
-default, the cache is on.
+| Level                | What it controls                   |
+| -------------------- | ---------------------------------- |
+| Organization default | The settings for every repository. |
+| Repository override  | The settings for one repository.   |
 
-## Who can change it
+A repository override can set each setting, or keep **Default** to use the
+organization's value. If the organization did not change a setting, the job uses
+the Kiln default.
 
-An **organization admin** or a **repository admin** on GitHub can change the
-setting.
+## The settings
 
-## Turn the cache off for one job
+| Setting             | Values                                | Kiln default                                       |
+| ------------------- | ------------------------------------- | -------------------------------------------------- |
+| **Shared cache**    | On, Off                               | On                                                 |
+| **Cache**, per tool | On, Off                               | `actions/cache` and Bazel on. sccache and Nix off. |
+| **Uses cache from** | This branch and default, All branches | This branch and default                            |
 
-To keep the cache on but skip it for one job, add `cache=github` to the job's
-`runs-on` label. See [Caching](/kiln/cache/index).
+**Shared cache** is the main switch. When it is off, no tool uses the shared cache.
+Kiln keeps the tool settings, and uses them again when you turn the cache back on.
 
-<Note>
-  When you turn the cache off, jobs stop reading and writing the shared cache. A
-  job that already started keeps its cache until it ends.
-</Note>
+**Cache** turns one tool on or off. See
+[What the cache supports](/kiln/cache/index#what-the-cache-supports). When a tool is
+off, Kiln does not set up that tool for the job.
+
+## Which branches a job uses cache from
+
+**Uses cache from** is available for Bazel, sccache, and Nix. `actions/cache` always
+follows the GitHub rules.
+
+| Value                       | A job uses cache entries from                                                   |
+| --------------------------- | ------------------------------------------------------------------------------- |
+| **This branch and default** | Its own branch and the default branch.                                          |
+| **All branches**            | Its own branch and the default branch, then any other branch in the repository. |
+
+With either value, a job writes only to its own branch. For Bazel, the setting
+applies to the action cache.
+
+With **All branches**, a job first looks in its own branch and in the default
+branch. It uses an entry from another branch only when those do not have one.
+
+<Warning>
+  With All branches, a person who can push a branch can change what the default
+  branch builds. Keep **This branch and default** for a repository that releases
+  from its default branch. For Nix, keep it if you deploy from Nix builds.
+</Warning>
+
+A fork pull request never uses entries from other branches. In a repository where
+a tool uses **All branches**, a job that Kiln cannot confirm comes from the same
+repository gets read-only cache access.
+
+## Who can change the settings
+
+| Row                  | Who can change it                                                                    |
+| -------------------- | ------------------------------------------------------------------------------------ |
+| Organization default | An organization admin.                                                               |
+| Repository override  | An organization admin, or a person with the admin role on that repository on GitHub. |
+
+## When a change applies
+
+Kiln reads the settings when a job starts. A job that already started keeps its
+settings until it ends.
+
+## Use the GitHub cache for one job
+
+To keep the shared cache on but use the GitHub cache for `actions/cache` in one job,
+add `cache=github` to the job's `runs-on` label. This changes only
+`actions/cache`. See [The cache option](/kiln/cache/index#the-cache-option).

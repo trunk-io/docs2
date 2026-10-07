@@ -12,7 +12,7 @@ with more context, see [The runs-on label](/kiln/actions/runs-on).
 ## Format
 
 ```text
-trunk-kiln=<run>..size=<size>[..memory=<value>][..template=<id>][..region=<name>][..cache=<value>][..run-as=<mode>]
+trunk-kiln=<run>[..size=<size>][..memory=<value>][..template=<id>][..region=<name>][..cache=<value>][..run-as=<mode>]
 ```
 
 - `trunk-kiln=<run>` — the anchor. Use `${{ github.run_id }}-${{
@@ -22,23 +22,35 @@ github.run_attempt }}` for `<run>`, so each job keeps its own runner.
 
 ## Options
 
-| Option     | Required | Values                                         | Default               |
-| ---------- | -------- | ---------------------------------------------- | --------------------- |
-| `size`     | Yes      | `xsmall`, `small`, `medium`, `large`, `xlarge` | None                  |
-| `memory`   | No       | `standard`, `high`                             | `standard`            |
-| `template` | No       | A template ID                                  | Organization default  |
-| `region`   | No       | A region name                                  | Organization default  |
-| `cache`    | No       | `kiln`, `github`                               | On, per your settings |
-| `run-as`   | No       | `dispatcher`, `actor`                          | Off                   |
+| Option     | Required | Values                                         | Default                   |
+| ---------- | -------- | ---------------------------------------------- | ------------------------- |
+| `size`     | No       | `xsmall`, `small`, `medium`, `large`, `xlarge` | `small`                   |
+| `memory`   | No       | `standard`, `high`                             | See below                 |
+| `template` | No       | A template ID                                  | Organization default      |
+| `region`   | No       | A region name                                  | Organization default      |
+| `cache`    | No       | `kiln`, `github`                               | `kiln`, per your settings |
+| `run-as`   | No       | `dispatcher`, `actor`                          | Off                       |
+
+The default `memory` depends on `size`. With no `size`, the default is `high`, which
+gives the [default machine](/kiln/actions/sizes). With a `size`, the default is
+`standard`.
 
 ## Rules
 
 - The order of the options does not matter.
 - Keys are not case-sensitive.
 - A key must not repeat.
-- A wrong or unknown key fails the job with a clear message.
+- The Kiln label must be the only label in `runs-on`.
+- A label that breaks one of these rules gets no runner. The job stays queued, and
+  Kiln gives you no message.
 
 ## Examples
+
+The default machine, 2 CPUs and 8 GiB:
+
+```yaml
+runs-on: trunk-kiln=${{ github.run_id }}-${{ github.run_attempt }}
+```
 
 A medium runner:
 
