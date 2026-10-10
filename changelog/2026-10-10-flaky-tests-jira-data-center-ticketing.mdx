@@ -1,0 +1,23 @@
+---
+title: "Flaky Tests: Jira Data Center ticketing integration"
+description: "Trunk Flaky Tests now files, links, and automates tickets in self-managed Jira Data Center instances."
+date: 2026-10-10
+category: Flaky Tests
+type: new-feature
+---
+
+**Self-managed Jira users can now track flaky tests where their team already works.**
+
+### New features
+
+- **Connect Jira Data Center.** Add a Jira Data Center connection under **Settings** → **Organization** → **Ticketing**, then pick it as the default for any [test collection](/flaky-tests/test-collections). Requires Jira Data Center 10.0 or later, reachable over HTTPS from the internet.
+- **Create and link tickets.** File a ticket for any test from the dashboard, or link an existing one. Descriptions are written in Jira wiki markup, so they render natively.
+- **Automatic ticketing.** Turn on [automatic ticketing](/flaky-tests/management/ticketing/automatic-ticketing) to open, reopen, and close tickets as tests change state, using your project's workflow.
+- **Field defaults.** Set defaults for text, number, single-select, user, label, and component fields, or require them at ticket creation.
+
+A few things to know:
+
+- **Use a service account.** Jira Data Center personal access tokens have no scopes and act as the user who created them. The docs list the exact project permissions needed.
+- **Enabled per organization.** Contact [support@trunk.io](mailto:support@trunk.io) to turn it on. To link tickets through the Trunk API, include your site URL so we can allow it.
+
+See the [Jira Data Center integration docs](/flaky-tests/management/ticketing/jira-data-center-integration) for setup and troubleshooting.
