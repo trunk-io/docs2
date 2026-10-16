@@ -28,7 +28,7 @@ Batching is enabled in the Merge Settings of your repo at **Merge Queue** → **
 
 With Batching enabled, you can configure two options:
 
-* **Maximum wait time** - The maximum amount of time the Merge Queue should wait to fill the target batch size before beginning testing. A higher maximum wait time will cause the Time-In-Queue metric to increase but have the net effect of reducing CI costs per pull request. Set it to **0** to never wait: PRs start testing as soon as a testing slot is free, and they only batch together while the queue is at its testing concurrency.
+* **Maximum wait time** - The maximum amount of time the Merge Queue should wait to fill the target batch size before beginning testing. A higher maximum wait time will cause the Time-In-Queue metric to increase but have the net effect of reducing CI costs per pull request. Set it to **0** to never wait: a batch starts as soon as a testing slot is free, holding up to the target batch size of the PRs already waiting. PRs then batch only when several are waiting at once, for example while the queue is at its testing concurrency, or after a failure restarts the PRs behind it.
 * **Target batch size** - The largest number of entries in the queue that will be tested in a single batch. A larger target batch size will help reduce CI cost per pull request but require more work to be performed when progressive failures necessitate bisection.
 
 <Info>
