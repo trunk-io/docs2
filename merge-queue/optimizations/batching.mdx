@@ -28,7 +28,7 @@ Batching is enabled in the Merge Settings of your repo at **Merge Queue** → **
 
 With Batching enabled, you can configure two options:
 
-* **Maximum wait time** - The maximum amount of time the Merge Queue should wait to fill the target batch size before beginning testing. A higher maximum wait time will cause the Time-In-Queue metric to increase but have the net effect of reducing CI costs per pull request.
+* **Maximum wait time** - The maximum amount of time the Merge Queue should wait to fill the target batch size before beginning testing. A higher maximum wait time will cause the Time-In-Queue metric to increase but have the net effect of reducing CI costs per pull request. Set it to **0** to never wait: a batch starts as soon as a testing slot is free, holding up to the target batch size of the PRs already waiting. PRs then batch only when several are waiting at once, for example while the queue is at its testing concurrency, or after a failure restarts the PRs behind it.
 * **Target batch size** - The largest number of entries in the queue that will be tested in a single batch. A larger target batch size will help reduce CI cost per pull request but require more work to be performed when progressive failures necessitate bisection.
 
 <Info>
@@ -315,7 +315,7 @@ Trunk groups PRs into a batch based on:
 
 * **FIFO order** — PRs are considered for batching in the order they were submitted to the queue.
 * **Target overlap** — In parallel mode, PRs only batch together if they share enough impacted-target overlap to belong to the same lane. PRs with disjoint target sets stay in separate lanes and don't batch with each other.
-* **Maximum wait time and target batch size** — A batch forms when either the target batch size fills, or the maximum wait time elapses with at least one PR present.
+* **Maximum wait time and target batch size** — A batch forms when either the target batch size fills, or the maximum wait time elapses with at least one PR present. With a maximum wait time of 0, a batch forms as soon as a testing slot is free, holding up to the target batch size of the PRs waiting.
 * **`--no-batch` flag** — PRs submitted with `--no-batch` (or `noBatch: true` via API) test in isolation, regardless of the batching configuration.
 
 If a PR ahead in the queue declares it impacts ALL targets, every PR queued behind it is serialized behind it — see the next section.

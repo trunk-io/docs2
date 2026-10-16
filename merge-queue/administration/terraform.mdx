@@ -115,7 +115,7 @@ These attributes are computed by the API if not specified. You only need to set 
 | `pending_failure_depth` | integer | Number of successor test runs to wait on before transitioning a failed group. See [Pending failure depth](../optimizations/pending-failure-depth). |
 | `can_optimistically_merge` | Boolean | Enable [optimistic merging](../optimizations/optimistic-merging). |
 | `batch` | Boolean | Enable [batching](../optimizations/batching). |
-| `batching_max_wait_time_minutes` | integer | Maximum minutes to wait for a batch to fill. |
+| `batching_max_wait_time_minutes` | integer | Maximum minutes to wait for a batch to fill. `0` means no wait. |
 | `batching_min_size` | integer | Minimum number of PRs in a batch before testing begins. |
 | `merge_method` | string | How PRs are merged: `"MERGE_COMMIT"`, `"SQUASH"`, or `"REBASE"`. See [Merge Method](./advanced-settings#merge-method). |
 | `comments_enabled` | Boolean | Whether Trunk posts status comments on PRs. See [GitHub comments](./advanced-settings#github-comments). |
