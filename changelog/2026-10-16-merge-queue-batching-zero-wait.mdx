@@ -1,0 +1,17 @@
+---
+title: "Merge Queue: Batching with No Wait Time"
+description: "Setting batching's maximum wait time to 0 now starts a batch as soon as a testing slot is free, instead of waiting for a full batch."
+date: 2026-10-16
+category: Merge Queue
+type: update
+---
+
+**Batch PRs without slowing down a quiet queue.**
+
+### Updates
+
+- **A maximum wait time of 0 means no wait.** A batch starts as soon as a testing slot is free. It holds up to your target batch size of the PRs already waiting.
+- **Batches form only under load.** PRs batch together only when several are waiting at once. For example, while the queue is at its testing concurrency, or after a failure restarts the PRs behind it.
+- **Previously, 0 waited indefinitely.** Before this change, a batch didn't start until it reached the target batch size.
+
+Set it in your queue's **Settings** under **Batching**, or with [Terraform](/merge-queue/administration/terraform) using `batching_max_wait_time_minutes`. See [Batching](/merge-queue/optimizations/batching) for details.
