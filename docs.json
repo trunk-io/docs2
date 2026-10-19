@@ -285,6 +285,7 @@
                       "flaky-tests/get-started/ci-providers/buildkite",
                       "flaky-tests/get-started/ci-providers/circleci",
                       "flaky-tests/get-started/ci-providers/droneci",
+                      "flaky-tests/get-started/ci-providers/evergreen",
                       "flaky-tests/get-started/ci-providers/github-actions",
                       "flaky-tests/get-started/ci-providers/gitlab",
                       "flaky-tests/get-started/ci-providers/google-cloud-build",

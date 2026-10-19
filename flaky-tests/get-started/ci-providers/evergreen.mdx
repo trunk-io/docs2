@@ -1,0 +1,186 @@
+---
+title: "Evergreen"
+description: "Configure Evergreen to upload test results to Trunk Flaky Tests"
+og:title: "Using Evergreen with Trunk Flaky Tests"
+---
+Trunk Flaky Tests integrates with your CI by adding a step in your [Evergreen](https://github.com/evergreen-ci/evergreen) project configuration to upload tests with the [Trunk Analytics CLI](../../reference/cli-reference).
+
+<Info>
+**Not using GitHub for source control?**
+
+Flaky Test support for source control providers like GitLab and BitBucket is still experimental. If you're using a source control provider other than GitHub, [**contact us**](mailto:support@trunk.io) **to get started**.&#x20;
+</Info>
+
+Before you start on these steps, see the [Test Frameworks](../frameworks/) docs for instructions on producing a Trunk-compatible output for your test framework.
+
+## Setup steps
+
+Work through the steps below in order. Once you've finished the last one, you're set up — navigate to [app.trunk.io](https://app.trunk.io) to see your results.
+
+<Steps>
+  <Step title={<a href="#trunk-organization-slug-and-token">Get your Trunk organization slug, token, and collection ID</a>} />
+  <Step title={<a href="#store-the-trunk-token-as-a-project-variable">Store your token as a private Evergreen project variable</a>} />
+  <Step title={<a href="#upload-to-trunk">Configure your project to upload to Trunk</a>} />
+  <Step title={<a href="#validate-your-uploads">Validate your uploads in Trunk</a>} />
+</Steps>
+
+## Trunk Organization Slug and Token
+
+Before setting up uploads to Trunk, you must sign in to [app.trunk.io](https://app.trunk.io/login?intent=flaky%20tests) and obtain your Trunk organization slug, your token, and the ID of the test collection to upload to.
+
+### Trunk Slug
+
+You can find your organization slug under **Settings** → **Organization** → **General**. You'll use it in your upload command in a later step.
+
+### Trunk Token
+
+You can find your token under **Settings** → **Organization** → **General**, in the **API** section. Since this is a secret, do not leak it publicly. Ensure you get your _organization token_, not your project/repo token.
+
+### Test Collection ID
+
+Create a [test collection](/flaky-tests/test-collections) under **Flaky Tests** → **Collections**, or open an existing one, and copy its ID from the collection's page header. It is not a secret, so you can include it directly in your upload command.
+
+## Store the Trunk Token as a Project Variable
+
+Store your Trunk API token as an Evergreen project variable so tasks can read it as an expansion.
+
+1. Open your project's settings in Evergreen and go to **Variables**.
+2. Add a variable named `trunk_token` with your Trunk organization API token as the value.
+3. Check **Private** so the value is redacted from the projects page, the API, and task logs.
+4. Save the settings.
+
+You'll reference this variable in your project configuration as `${trunk_token}`.
+
+## Upload to Trunk
+
+Add an upload step to your project configuration that runs after your tests. The Trunk CLI detects Evergreen from the `EVR_TASK_ID` environment variable, which Evergreen sets for every command, and reads the build details from the CLI's [custom CI variables](./otherci#environment-variables), which the upload step sets from Evergreen [expansions](https://github.com/evergreen-ci/evergreen/blob/main/docs/Project-Configuration/Project-Configuration-Files.md#expansions).
+
+<Note>
+Apart from `EVR_TASK_ID`, Evergreen puts no build details into a command's environment. The branch, pull request number, and task details are expansions, so the upload step must map them to the variables below in its `env`. Without them, Trunk can't tell pull request, merge queue, and mainline runs apart, and can't link uploads to their Evergreen tasks.
+</Note>
+
+### Variables to Set
+
+| Variable | Value | Why |
+|----------|-------|-----|
+| `JOB_URL` | `<EVERGREEN_UI_URL>/task/${task_id}?execution=${execution}` | Links each upload to the task execution that produced it |
+| `JOB_NAME` | `${build_variant}/${task_name}` | Names the job the tests ran in |
+| `AUTHOR_EMAIL` | `${author_email}` | Email of the version's author |
+| `AUTHOR_NAME` | `${github_author}`, falling back to `${author}` | The PR author's GitHub username, or the Evergreen user for other builds |
+| `PR_NUMBER` | `${github_pr_number}` | Set only on PR patches, so their results count as pull request runs |
+| `COMMIT_BRANCH` | `${github_head_branch}` for merge queue patches, `${github_pr_head_branch}` for PR patches, `${branch_name}` for mainline builds, and a branch of its own for manual patches | The branch being tested. Evergreen checks PRs and merge queue groups out onto a temporary local branch, and builds a manual patch on a checkout of the tracked branch, so the branch git reports is wrong for every patch. |
+
+`<EVERGREEN_UI_URL>` is the address of your Evergreen UI, for example `https://spruce.mongodb.com`. The example uses Evergreen's `${a|*b}` syntax, which falls back to expansion `b` when `a` is not set. It reaches only one level deep, so the script sets `COMMIT_BRANCH` itself for mainline builds and manual patches. A manual patch gets `evergreen-patch/${version_id}`, so its results are not counted as runs on your stable branch.
+
+### Example Project Configuration
+
+The following example defines an upload function and calls it from `post`, which Evergreen runs after every task, including tasks whose tests failed. For tasks in a task group, call it from `teardown_task` instead. Note: you must either run the CLI from the repo root when uploading test results or pass a `--repo-root` argument.
+
+To find out how to produce the report files the uploader needs, see the instructions for your test framework in the [Test Frameworks](../frameworks/) docs.&#x20;
+
+<CodeGroup>
+```yaml XML
+functions:
+  upload-test-results:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          TRUNK_API_TOKEN: ${trunk_token}
+          JOB_URL: <EVERGREEN_UI_URL>/task/${task_id}?execution=${execution}
+          JOB_NAME: ${build_variant}/${task_name}
+          AUTHOR_EMAIL: ${author_email}
+          AUTHOR_NAME: ${github_author|*author}
+          PR_NUMBER: ${github_pr_number}
+          COMMIT_BRANCH: ${github_head_branch|*github_pr_head_branch}
+        script: |
+          set -euo pipefail
+          if [ "${is_patch}" != "true" ]; then
+            export COMMIT_BRANCH="${branch_name}"
+          elif [ -z "$COMMIT_BRANCH" ]; then
+            export COMMIT_BRANCH="evergreen-patch/${version_id}"
+          fi
+          VERSION=$(curl -fsSL https://trunk.io/releases/analytics-cli/prod/channel.json | cut -d'"' -f4)
+          curl -fL --retry 3 "https://trunk.io/releases/analytics-cli/prod/$VERSION/trunk-analytics-cli-x86_64-unknown-linux.tar.gz" | tar -xz && chmod +x trunk-analytics-cli
+          ./trunk-analytics-cli upload \
+            --junit-paths "<XML_GLOB_PATH>" \
+            --org-url-slug <TRUNK_ORG_URL_SLUG> \
+            --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
+            --token "$TRUNK_API_TOKEN"
+
+post:
+  - func: upload-test-results
+```
+```yaml Bazel
+functions:
+  upload-test-results:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          TRUNK_API_TOKEN: ${trunk_token}
+          JOB_URL: <EVERGREEN_UI_URL>/task/${task_id}?execution=${execution}
+          JOB_NAME: ${build_variant}/${task_name}
+          AUTHOR_EMAIL: ${author_email}
+          AUTHOR_NAME: ${github_author|*author}
+          PR_NUMBER: ${github_pr_number}
+          COMMIT_BRANCH: ${github_head_branch|*github_pr_head_branch}
+        script: |
+          set -euo pipefail
+          if [ "${is_patch}" != "true" ]; then
+            export COMMIT_BRANCH="${branch_name}"
+          elif [ -z "$COMMIT_BRANCH" ]; then
+            export COMMIT_BRANCH="evergreen-patch/${version_id}"
+          fi
+          VERSION=$(curl -fsSL https://trunk.io/releases/analytics-cli/prod/channel.json | cut -d'"' -f4)
+          curl -fL --retry 3 "https://trunk.io/releases/analytics-cli/prod/$VERSION/trunk-analytics-cli-x86_64-unknown-linux.tar.gz" | tar -xz && chmod +x trunk-analytics-cli
+          ./trunk-analytics-cli upload \
+            --bazel-bep-path bep.json \
+            --org-url-slug <TRUNK_ORG_URL_SLUG> \
+            --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
+            --token "$TRUNK_API_TOKEN"
+
+post:
+  - func: upload-test-results
+```
+</CodeGroup>
+
+<Note>
+Evergreen replaces every `${...}` in a script with an expansion before the shell runs it, and an unknown expansion becomes an empty string. Refer to shell variables in the script as `$NAME`, not `${NAME}`.
+</Note>
+
+Replace the following placeholders in the example:
+
+| Placeholder | Description |
+|-------------|-------------|
+| `<XML_GLOB_PATH>` | Glob pattern matching your JUnit XML test report files (for example, `**/junit.xml`) |
+| `<TRUNK_ORG_URL_SLUG>` | Your Trunk organization slug |
+| `<TRUNK_TEST_COLLECTION_ID>` | The ID of the [test collection](/flaky-tests/test-collections) the results belong to |
+| `<EVERGREEN_UI_URL>` | The address of your Evergreen UI, without a trailing slash |
+
+The examples use the Linux x64 binary. If your hosts run on a different platform, see the [Trunk Analytics CLI](../../reference/cli-reference#manual-download) page for all available platform downloads.
+
+See the [Trunk Analytics CLI](../../reference/cli-reference.md) for all available command line arguments and usage.
+
+<Tip>
+It is important to upload test results from CI runs on [**stable branches**](../../detection#branch-aware-detection), such as `main`, `master`, or `develop`. In Evergreen, these are your mainline (`commit`) builds. This will give you a stronger signal about the health of your code and tests.
+
+Trunk can also detect test flakes on PR and merge queue patches. To best detect flaky tests, it is recommended to upload test results from mainline, PR, and merge queue runs.
+
+[Learn more about detection](../../detection)
+</Tip>
+
+### Stale files
+
+Ensure you report every test run in CI and **clean up stale files** produced by your test framework. If you're reusing hosts and using a glob like `**/junit.xml` to upload tests, stale files not cleaned up will be included in the current test run, throwing off detection of flakiness. You should clean up all your results files after every upload step.
+
+## Validate Your Uploads
+
+Once a mainline build has run, navigate to [app.trunk.io](https://app.trunk.io) and confirm Trunk received your results.
+
+- The **Uploads** tab lists every report Trunk has ingested, with status and any warnings (missing file paths, malformed XML, and so on).
+- The **Tests** tab shows individual test cases once an upload has been processed.
+
+If a recent run isn't showing up, check your task logs for upload errors and confirm the `trunk_token` project variable is set and the org slug and collection ID in your project configuration are correct.
