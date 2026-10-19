@@ -1,0 +1,44 @@
+---
+title: "Trunk Runners"
+sidebarTitle: "Runners"
+description: "Run your CI jobs on Trunk-hosted runners. Each job gets a fresh, isolated VM."
+groups:
+  - "firewatch"
+---
+
+{/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
+
+## Why Trunk Runners
+
+<CardGroup cols={2}>
+  <Card title="Stop repeating setup every run" icon="server">
+    Custom templates allow you to bake in all the machine setup so you get to work quicker.
+  </Card>
+
+  <Card title="Tuned for your jobs" icon="gauge">
+    Control how much CPU and Memory your jobs need to succeed. No more over-provisioning.
+  </Card>
+
+  <Card title="Caching" icon="bolt">
+    A shared in-cluster cache lets jobs reuse build results across runs.
+  </Card>
+
+  <Card title="Observability" icon="sliders">
+    Monitor system usage to tune your jobs for the right balance of cost vs performance.
+  </Card>
+</CardGroup>
+
+## How it works
+
+You keep your workflows on GitHub. You change one thing: the `runs-on` label of a job. That label tells Trunk to run the job. Trunk starts a VM, runs the job, and removes the VM when the job ends.
+
+<Card title="Get started" icon="arrow-right" href="/runners/getting-started">
+  Turn on Trunk Runners for your organization and run your first job.
+</Card>
+
+## What you can configure
+
+- **The runner** — the `runs-on` label sets the size you need and the template to start on. See [The runs-on label](/runners/actions/runs-on).
+- **Caching** — turn the shared cache on or off, per repository or for the whole organization. See [Caching](/runners/cache/index).
+- **Organization defaults** — set a default template, and size. See [Organization defaults](/runners/settings/ci-defaults).
+- **Limits and priority** — set a CPU limit for CI and mark priority branches. See [Limits and priority](/runners/settings/limits-and-priority).

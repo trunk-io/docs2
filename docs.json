@@ -796,43 +796,43 @@
         ]
       },
       {
-        "tab": "Kiln",
+        "tab": "Runners",
         "groups": [
           {
             "group": "Overview",
             "pages": [
-              "kiln/index",
-              "kiln/getting-started"
+              "runners/index",
+              "runners/getting-started"
             ]
           },
           {
             "group": "GitHub Actions",
             "pages": [
-              "kiln/actions/runs-on",
-              "kiln/actions/sizes",
-              "kiln/actions/templates-and-regions",
-              "kiln/actions/run-as"
+              "runners/actions/runs-on",
+              "runners/actions/sizes",
+              "runners/actions/templates-and-regions",
+              "runners/actions/run-as"
             ]
           },
           {
             "group": "Caching",
             "pages": [
-              "kiln/cache/index",
-              "kiln/cache/settings"
+              "runners/cache/index",
+              "runners/cache/settings"
             ]
           },
           {
             "group": "Organization settings",
             "pages": [
-              "kiln/settings/ci-defaults",
-              "kiln/settings/limits-and-priority"
+              "runners/settings/ci-defaults",
+              "runners/settings/limits-and-priority"
             ]
           },
           {
             "group": "Reference",
             "pages": [
-              "kiln/reference/runs-on-grammar",
-              "kiln/roadmap"
+              "runners/reference/runs-on-grammar",
+              "runners/roadmap"
             ]
           }
         ]
@@ -1387,6 +1387,14 @@
     }
   },
   "redirects": [
+    {
+      "source": "/kiln",
+      "destination": "/runners"
+    },
+    {
+      "source": "/kiln/:slug*",
+      "destination": "/runners/:slug*"
+    },
     {
       "source": "/merge-queue/using-the-queue/force-merge",
       "destination": "/merge-queue/using-the-queue/direct-to-queue"
