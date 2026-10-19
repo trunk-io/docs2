@@ -1,0 +1,17 @@
+---
+title: "Flaky Tests: Evergreen CI Support"
+description: "Upload test results to Trunk Flaky Tests from Evergreen CI, plus a corrected list of Jira API token scopes."
+date: 2026-10-19
+category: Flaky Tests
+type: new-feature
+---
+
+**Evergreen users can now send test results to Trunk Flaky Tests.**
+
+### New features
+
+- **Evergreen CI support.** Add an upload step to your Evergreen project configuration to send test results to Trunk. The Trunk Analytics CLI detects Evergreen runs automatically. Map the branch, pull request, and task details from Evergreen expansions so Trunk can tell pull request, merge queue, and mainline runs apart. See the [Evergreen guide](/flaky-tests/get-started/ci-providers/evergreen).
+
+### Bug fixes
+
+- **Complete Jira granular scope list.** The list of granular scopes for Jira Cloud API tokens was missing eight scopes. Without them, Trunk could create tickets but couldn't close, reopen, or comment on them. If you use a granular-scoped token, check it against the updated [API token permissions](/flaky-tests/management/ticketing/jira-integration#api-token-permissions).
