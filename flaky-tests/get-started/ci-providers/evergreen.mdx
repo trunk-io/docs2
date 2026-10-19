@@ -53,33 +53,25 @@ You'll reference this variable in your project configuration as `${trunk_token}`
 
 ## Upload to Trunk
 
-Add an upload step to your project configuration that runs after your tests. The Trunk CLI automatically detects Evergreen from the `EVR_TASK_ID` environment variable, which Evergreen sets for every command.
+Add an upload step to your project configuration that runs after your tests. Evergreen is not auto-detected, so the upload step sets the CLI's [custom CI variables](./otherci#environment-variables) from Evergreen [expansions](https://github.com/evergreen-ci/evergreen/blob/main/docs/Project-Configuration/Project-Configuration-Files.md#expansions).
 
 <Note>
-Evergreen only puts a few variables into a command's environment by default. Build details such as the branch, pull request number, and task name are [expansions](https://github.com/evergreen-ci/evergreen/blob/main/docs/Project-Configuration/Project-Configuration-Files.md#expansions), which reach the environment only when the command lists them in `include_expansions_in_env` or sets `add_expansions_to_env: true`. Without them, Trunk can't tell pull request, merge queue, and mainline runs apart, and can't link uploads to their Evergreen tasks.
+Evergreen puts only a few variables, such as `CI` and `EVR_TASK_ID`, into a command's environment. The branch, pull request number, and task details are expansions, so the upload step must map them to the variables below in its `env`. Without them, Trunk can't tell pull request, merge queue, and mainline runs apart, and can't link uploads to their Evergreen tasks.
 </Note>
 
-### Expansions to Include
+### Variables to Set
 
-The following expansions should be included in the upload command's environment:
+| Variable | Value | Why |
+|----------|-------|-----|
+| `CUSTOM` | `true` | Turns on the custom CI variables below |
+| `JOB_URL` | `<EVERGREEN_UI_URL>/task/${task_id}?execution=${execution}` | Links each upload to the task execution that produced it |
+| `JOB_NAME` | `${build_variant}/${task_name}` | Names the job the tests ran in |
+| `AUTHOR_EMAIL` | `${author_email}` | Email of the version's author |
+| `AUTHOR_NAME` | `${github_author}`, falling back to `${author}` | The PR author's GitHub username, or the Evergreen user for other builds |
+| `PR_NUMBER` | `${github_pr_number}` | Set only on PR patches, so their results count as pull request runs |
+| `COMMIT_BRANCH` | `${github_head_branch}` for merge queue patches, `${github_pr_head_branch}` for PR patches, `${branch_name}` for mainline builds, and a branch of its own for manual patches | The branch being tested. Evergreen checks PRs and merge queue groups out onto a temporary local branch, and builds a manual patch on a checkout of the tracked branch, so the branch git reports is wrong for every patch. |
 
-| Expansion | Description |
-|-----------|-------------|
-| `requester` | What triggered the task (for example `commit`, `github_pr`, or `github_merge_queue`) |
-| `is_patch` | `"true"` when the task is part of a patch build |
-| `branch_name` | The branch the project tracks (used for mainline uploads) |
-| `github_pr_number` | Pull request number for PR patches |
-| `github_pr_head_branch` | Head branch for PR patches |
-| `github_head_branch` | Merge queue branch for GitHub merge queue patches |
-| `github_author` | GitHub username of the PR author |
-| `author` | Evergreen user who created the version |
-| `build_variant` | Build variant the task belongs to |
-| `task_name` | Name of the task |
-| `execution` | Execution number of the task (how many times it has been restarted) |
-
-<Tip>
-`add_expansions_to_env: true` works in place of the `include_expansions_in_env` list, but it exports every expansion to the command, including your other project variables. Listing the expansions keeps the upload's environment to what Trunk reads.
-</Tip>
+`<EVERGREEN_UI_URL>` is the address of your Evergreen UI, for example `https://spruce.mongodb.com`. The example uses Evergreen's `${a|*b}` syntax, which falls back to expansion `b` when `a` is not set. It reaches only one level deep, so the script sets `COMMIT_BRANCH` itself for mainline builds and manual patches. A manual patch gets `evergreen-patch/${version_id}`, so its results are not counted as runs on your stable branch.
 
 ### Example Project Configuration
 
@@ -95,22 +87,22 @@ functions:
       params:
         working_dir: src
         shell: bash
-        include_expansions_in_env:
-          - requester
-          - is_patch
-          - branch_name
-          - github_pr_number
-          - github_pr_head_branch
-          - github_head_branch
-          - github_author
-          - author
-          - build_variant
-          - task_name
-          - execution
         env:
           TRUNK_API_TOKEN: ${trunk_token}
+          CUSTOM: "true"
+          JOB_URL: <EVERGREEN_UI_URL>/task/${task_id}?execution=${execution}
+          JOB_NAME: ${build_variant}/${task_name}
+          AUTHOR_EMAIL: ${author_email}
+          AUTHOR_NAME: ${github_author|*author}
+          PR_NUMBER: ${github_pr_number}
+          COMMIT_BRANCH: ${github_head_branch|*github_pr_head_branch}
         script: |
           set -euo pipefail
+          if [ "${is_patch}" != "true" ]; then
+            export COMMIT_BRANCH="${branch_name}"
+          elif [ -z "$COMMIT_BRANCH" ]; then
+            export COMMIT_BRANCH="evergreen-patch/${version_id}"
+          fi
           VERSION=$(curl -fsSL https://trunk.io/releases/analytics-cli/prod/channel.json | cut -d'"' -f4)
           curl -fL --retry 3 "https://trunk.io/releases/analytics-cli/prod/$VERSION/trunk-analytics-cli-x86_64-unknown-linux.tar.gz" | tar -xz && chmod +x trunk-analytics-cli
           ./trunk-analytics-cli upload \
@@ -129,22 +121,22 @@ functions:
       params:
         working_dir: src
         shell: bash
-        include_expansions_in_env:
-          - requester
-          - is_patch
-          - branch_name
-          - github_pr_number
-          - github_pr_head_branch
-          - github_head_branch
-          - github_author
-          - author
-          - build_variant
-          - task_name
-          - execution
         env:
           TRUNK_API_TOKEN: ${trunk_token}
+          CUSTOM: "true"
+          JOB_URL: <EVERGREEN_UI_URL>/task/${task_id}?execution=${execution}
+          JOB_NAME: ${build_variant}/${task_name}
+          AUTHOR_EMAIL: ${author_email}
+          AUTHOR_NAME: ${github_author|*author}
+          PR_NUMBER: ${github_pr_number}
+          COMMIT_BRANCH: ${github_head_branch|*github_pr_head_branch}
         script: |
           set -euo pipefail
+          if [ "${is_patch}" != "true" ]; then
+            export COMMIT_BRANCH="${branch_name}"
+          elif [ -z "$COMMIT_BRANCH" ]; then
+            export COMMIT_BRANCH="evergreen-patch/${version_id}"
+          fi
           VERSION=$(curl -fsSL https://trunk.io/releases/analytics-cli/prod/channel.json | cut -d'"' -f4)
           curl -fL --retry 3 "https://trunk.io/releases/analytics-cli/prod/$VERSION/trunk-analytics-cli-x86_64-unknown-linux.tar.gz" | tar -xz && chmod +x trunk-analytics-cli
           ./trunk-analytics-cli upload \
@@ -169,6 +161,7 @@ Replace the following placeholders in the example:
 | `<XML_GLOB_PATH>` | Glob pattern matching your JUnit XML test report files (for example, `**/junit.xml`) |
 | `<TRUNK_ORG_URL_SLUG>` | Your Trunk organization slug |
 | `<TRUNK_TEST_COLLECTION_ID>` | The ID of the [test collection](/flaky-tests/test-collections) the results belong to |
+| `<EVERGREEN_UI_URL>` | The address of your Evergreen UI, without a trailing slash |
 
 The examples use the Linux x64 binary. If your hosts run on a different platform, see the [Trunk Analytics CLI](../../reference/cli-reference#manual-download) page for all available platform downloads.
 
