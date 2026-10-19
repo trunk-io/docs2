@@ -1,0 +1,30 @@
+---
+title: "Flaky Tests: Jira Cloud Granular Scope Requirements"
+description: "Jira Cloud tokens with granular scopes need eight more scopes than previously documented so Trunk can close and reopen tickets."
+date: 2026-10-19
+category: Flaky Tests
+type: fix
+---
+
+**If your Jira Cloud token uses granular scopes, check that it can close and reopen tickets.**
+
+### Bug fixes
+
+- **Complete granular scope list.** The required granular scopes for Jira Cloud API tokens were missing eight entries. A token built from the old list could create tickets, but Trunk couldn't close or reopen them. The [Jira integration docs](/flaky-tests/management/ticketing/jira-integration#api-token-permissions) now list every scope Trunk needs.
+
+Scopes to add to existing granular tokens:
+
+- `read:issue.transition:jira`
+- `write:issue.property:jira`
+- `read:comment:jira`
+- `read:comment.property:jira`
+- `read:project-role:jira`
+- `read:issue-details:jira`
+- `read:audit-log:jira`
+- `read:issue-status:jira`
+
+Tokens using classic scopes (`read:jira-work`, `write:jira-work`, `read:jira-user`) aren't affected.
+
+<Note>
+If you use [automatic ticketing](/flaky-tests/management/ticketing/automatic-ticketing) with a granular-scoped token, create a new token with the full scope list and update your Jira connection in Trunk.
+</Note>
