@@ -53,17 +53,16 @@ You'll reference this variable in your project configuration as `${trunk_token}`
 
 ## Upload to Trunk
 
-Add an upload step to your project configuration that runs after your tests. Evergreen is not auto-detected, so the upload step sets the CLI's [custom CI variables](./otherci#environment-variables) from Evergreen [expansions](https://github.com/evergreen-ci/evergreen/blob/main/docs/Project-Configuration/Project-Configuration-Files.md#expansions).
+Add an upload step to your project configuration that runs after your tests. The Trunk CLI detects Evergreen from the `EVR_TASK_ID` environment variable, which Evergreen sets for every command, and reads the build details from the CLI's [custom CI variables](./otherci#environment-variables), which the upload step sets from Evergreen [expansions](https://github.com/evergreen-ci/evergreen/blob/main/docs/Project-Configuration/Project-Configuration-Files.md#expansions).
 
 <Note>
-Evergreen puts only a few variables, such as `CI` and `EVR_TASK_ID`, into a command's environment. The branch, pull request number, and task details are expansions, so the upload step must map them to the variables below in its `env`. Without them, Trunk can't tell pull request, merge queue, and mainline runs apart, and can't link uploads to their Evergreen tasks.
+Apart from `EVR_TASK_ID`, Evergreen puts no build details into a command's environment. The branch, pull request number, and task details are expansions, so the upload step must map them to the variables below in its `env`. Without them, Trunk can't tell pull request, merge queue, and mainline runs apart, and can't link uploads to their Evergreen tasks.
 </Note>
 
 ### Variables to Set
 
 | Variable | Value | Why |
 |----------|-------|-----|
-| `CUSTOM` | `true` | Turns on the custom CI variables below |
 | `JOB_URL` | `<EVERGREEN_UI_URL>/task/${task_id}?execution=${execution}` | Links each upload to the task execution that produced it |
 | `JOB_NAME` | `${build_variant}/${task_name}` | Names the job the tests ran in |
 | `AUTHOR_EMAIL` | `${author_email}` | Email of the version's author |
@@ -89,7 +88,6 @@ functions:
         shell: bash
         env:
           TRUNK_API_TOKEN: ${trunk_token}
-          CUSTOM: "true"
           JOB_URL: <EVERGREEN_UI_URL>/task/${task_id}?execution=${execution}
           JOB_NAME: ${build_variant}/${task_name}
           AUTHOR_EMAIL: ${author_email}
@@ -123,7 +121,6 @@ functions:
         shell: bash
         env:
           TRUNK_API_TOKEN: ${trunk_token}
-          CUSTOM: "true"
           JOB_URL: <EVERGREEN_UI_URL>/task/${task_id}?execution=${execution}
           JOB_NAME: ${build_variant}/${task_name}
           AUTHOR_EMAIL: ${author_email}
