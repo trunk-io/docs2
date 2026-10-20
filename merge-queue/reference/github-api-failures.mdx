@@ -87,4 +87,16 @@ Common GitHub error messages and their fixes:
 
 Some of these fixes require repository admin access (merge settings, branch protection rules) — if you don't have it, share this page and the error with a repo admin.
 
+### Stacked pull requests
+
+[Stacked pull requests](/merge-queue/using-the-queue/stacked-pull-requests) merge through GitHub's asynchronous stack merge API, and a failure there starts with `GitHub stack merge failed:`. GitHub accepts the merge request and lands the whole stack in the background, which normally takes anywhere from a few seconds to tens of seconds. Trunk keeps checking on it and re-requests the merge for a few minutes before marking the PR as failed to merge.
+
+Occasionally GitHub leaves a stack merge stuck in a pending state that never finishes. Every new request is then refused with `A merge request already exists for this pull request`, and re-submitting the same stack runs into the same stuck request.
+
+**To resolve:**
+
+1. Check the base branch's commit history for the stack's commits. If they're there, the stack merged and nothing more is needed.
+2. Remove the PR from its stack (unstack it) in GitHub, or restack it. This discards GitHub's stuck merge request.
+3. Re-submit the PR. If you restacked it, Trunk merges it as a stack again; if you unstacked it, it merges like any other PR.
+
 If the error you received isn't listed here and the cause isn't clear, contact [help@trunk.io](mailto:help@trunk.io) with the full failure message.
