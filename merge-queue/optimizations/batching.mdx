@@ -1,299 +1,119 @@
 ---
 title: "Batching"
-description: "Test multiple PRs together as a single unit to increase merge throughput and reduce CI costs."
+description: "Test several pull requests in one CI run to cut CI cost and raise merge throughput."
 og:title: "Batching in Trunk Merge Queue"
 ---
-## What it is
+With batching on, Trunk Merge Queue tests several queued pull requests together in one CI run instead of running CI once per PR. If the batch passes, every PR in it merges. Each PR still merges as its own commit: batching changes how PRs are tested, not how they land.
 
-Batching allows Trunk Merge Queue to test multiple pull requests together as a single unit, rather than testing them one at a time.&#x20;
+Batching is off by default.
 
-When batching is enabled, Trunk intelligently groups compatible PRs and runs your test suite once for the entire batch. If the batch passes, all PRs in the batch merge together, dramatically reducing total test time.
+## When batching pays off
 
-## Why use it
+Batching replaces per-PR test runs with shared ones, so it helps most when PRs arrive faster than CI can test them one at a time and most batches pass. It has two costs:
 
-* **Reduce total test time by 60-80%** - Instead of running your full test suite 10 times for 10 PRs, you run it 2-3 times for the same PRs grouped into batches. More PRs merged with less CI time.
-* **Increase merge throughput** - Process 3-5x more PRs per hour compared to testing individually. A queue that handled 20 PRs/hour can now handle 60-100 PRs/hour with batching.
-* **Lower CI costs** - Fewer test runs means lower CI/CD infrastructure costs. Teams report 50-70% reduction in CI minutes consumed by merge queue testing.
-* **Faster time-to-production** - PRs spend less time waiting in queue. What used to take hours can now take minutes, getting features and fixes to production faster.
+* **Failures cost more.** When a batch fails, Trunk runs more tests to find the PR responsible, and the rest of the batch waits while it does. Every failing batch, whether from a broken PR or a flaky test, gives back some of the savings.
+* **No per-PR proof.** A PR that merged in a batch was only ever tested alongside others. If you later revert one, test the revert or send it through the queue rather than assuming the branch stays green.
 
-## How to enable
+On a low-traffic queue, or one with frequent flaky failures, batching may not save anything. If flakes are the problem, pair it with [anti-flake protection](./anti-flake-protection).
 
-<Info>
-Batching is **disabled by default** and must be explicitly enabled.
-</Info>
+## When a batch fails
 
-Batching is enabled in the Merge Settings of your repo at **Merge Queue** → **[your repository]** → **Settings** → **Batching**, then toggle batching **On**.
+Trunk splits the failed batch and tests the parts, repeating until it has isolated the PR that fails. That PR is removed from the queue. PRs that pass along the way continue to merge.
 
-### Configuration options
+A PR's status in the queue tells you where it is in this process:
 
-With Batching enabled, you can configure two options:
+| Status | Meaning |
+| --- | --- |
+| "waiting for tests to start on a bisection of its batch because tests failed on it" | Its batch failed, and it's waiting to be tested in a smaller group. |
+| "re-entering the merge queue because it has passed tests on a bisection of its original batch" | It passed in a smaller group and is continuing toward merge. |
+| Removed for failing tests | It's the PR that caused the failure. |
+| Removed because "it failed tests in a previous identical test run" | It was singled out by a reused failure. See [Test caching during bisection](#test-caching-during-bisection). |
 
-* **Maximum wait time** - The maximum amount of time the Merge Queue should wait to fill the target batch size before beginning testing. A higher maximum wait time will cause the Time-In-Queue metric to increase but have the net effect of reducing CI costs per pull request. Set it to **0** to never wait: a batch starts as soon as a testing slot is free, holding up to the target batch size of the PRs already waiting. PRs then batch only when several are waiting at once, for example while the queue is at its testing concurrency, or after a failure restarts the PRs behind it.
-* **Target batch size** - The largest number of entries in the queue that will be tested in a single batch. A larger target batch size will help reduce CI cost per pull request but require more work to be performed when progressive failures necessitate bisection.
+## Settings
 
-<Info>
-A good place to start is with the defaults, Maximum wait time set to 5 (minutes) and Target batch size set to 4 (PRs).
-</Info>
+Configure batching in **Merge Queue** → your repository → **Settings** → **Batching**. The other settings appear once batching is on.
 
-## Excluding PRs from Batching
+| Setting | Default | What it does |
+| --- | --- | --- |
+| Batching | Off | Turns batching on. |
+| Target batch size | 2 | The most PRs in one batch. Trunk waits for this many before starting a batch, up to the maximum wait time. Larger batches save more when they pass and take more runs to sort out when they fail. |
+| Maximum wait time | 5 minutes | How long Trunk waits for a batch to fill before testing the PRs it has. With **0** it never waits: a batch starts as soon as a testing slot is free, so PRs only batch when several are already waiting. |
+| [Bisection concurrency](#bisection-concurrency) | 5 | How many test runs can run at once while finding the PR that broke a batch. |
+| [Skip redundant bisection tests](#test-caching-during-bisection) | Off | Reuses failures during bisection instead of re-running them. |
+| [Batching rules](#batching-rules) | None | Build targets whose PRs always test alone. |
 
-Sometimes you need a specific PR to test in isolation, even when batching is enabled for your queue. You can prevent individual PRs from batching without changing your overall batching configuration.
+The same settings through the [v2 API](/merge-queue/reference/api-v2/mergequeues/update-a-merge-queues-configuration) and [Terraform](../administration/terraform):
 
-### When to use this
+| Setting | API v2 field | Terraform attribute |
+| --- | --- | --- |
+| Batching | `allowBatching` | `batch` |
+| Target batch size | `batchingMinSize` | `batching_min_size` |
+| Maximum wait time | `batchingMaxWaitTimeMinutes` | `batching_max_wait_time_minutes` |
+| Bisection concurrency | `bisectionConcurrency` | `bisection_concurrency` |
+| Skip redundant bisection tests | `optimizationMode: "bisectionSkipRedundantTests"` | `optimization_mode = "BISECTION_SKIP_REDUNDANT_TESTS"` |
+| Batching rules | `batchingRules` | Not supported |
 
-* **High-risk changes** — Infrastructure updates, database migrations, or changes that could affect other PRs in unpredictable ways
-* **Debugging batch failures** — Isolate a suspected problematic PR to confirm it tests correctly on its own
-* **Critical hotfixes** — Make sure a time-sensitive fix isn't delayed or affected by other PRs in a batch
-* **Flaky PR isolation** — Test a PR with known flaky behavior separately to avoid impacting other PRs
+### Tuning batch size
 
-### How to exclude a PR from batching
+| If you see | Try |
+| --- | --- |
+| Batches fail and split often | A smaller target batch size, or [anti-flake protection](./anti-flake-protection) if the failures are flaky |
+| PRs wait a long time for a batch to fill | A shorter maximum wait time |
+| Batches fill immediately and CI is still busy | A larger target batch size |
 
-**Option 1: Using the `/trunk merge` command**
+Use [metrics](../administration/metrics) to compare CI usage and time in queue before and after a change.
 
-Add the `--no-batch` flag when submitting your PR:
+## Bisection concurrency
 
-```
-/trunk merge --no-batch
-```
+Tests run while isolating a failing PR have their own concurrency limit, separate from the queue's testing concurrency, so they don't take testing slots from the rest of the queue. Raise it if developers wait a long time to learn which PR broke a batch and your CI has spare capacity. Lower it if failures cause CI spikes you can't absorb.
 
-**Option 2: Using the API**
+Through the API, `0` gives bisection no dedicated capacity: it shares the queue's testing concurrency.
 
-Set `noBatch: true` when calling the [`/submitPullRequest`](/merge-queue/reference/merge/submit-a-pull-request-to-a-merge-queue) endpoint:
+## Test caching during bisection
 
-```bash
-curl -X POST https://api.trunk.io/v1/submitPullRequest \
-  -H "Content-Type: application/json" \
-  -H "x-api-token: $TRUNK_API_TOKEN" \
-  -d '{
-    "repo": {
-      "host": "github.com",
-      "owner": "my-org",
-      "name": "my-repo"
-    },
-    "targetBranch": "main",
-    "pr": {
-      "number": 123
-    },
-    "noBatch": true
-  }'
-```
+With **Skip redundant bisection tests** on, Trunk skips a test during bisection when an earlier test in the same bisection already failed with the same PRs, and reuses that failure instead. This saves CI runs and gets to the failing PR sooner.
 
-### How it works
-
-When a PR is submitted with no-batch:
-
-* **Queue position is unchanged** — The PR maintains its position in the queue based on when it was submitted
-* **No restarts triggered** — Submitting a no-batch PR doesn't restart testing for other PRs already in the queue
-* **Tests in isolation** — The PR is guaranteed to test by itself, not grouped with other PRs
-* **Other PRs unaffected** — Batching continues normally for all other PRs in the queue
-
-<Info>
-Excluding a PR from batching only affects that specific PR. Your queue's batching settings and other PRs remain unaffected.
-</Info>
-
-## Bisection Concurrency
-
-When a batch fails, Trunk automatically splits it apart (bisects) to identify which PR caused the failure. You can configure a separate, higher concurrency limit specifically for these bisection tests to isolate failures faster without impacting your main queue.
-
-<Frame>
-![](/assets/merge-queue/optimizations/1768426960-batching-settings.avif)
-</Frame>
-
-### Why separate bisection concurrency?
-
-By default, bisection tests use the same concurrency limit as your main queue. This means:
-
-* Bisection can slow down other PRs waiting to merge
-* Developers wait longer to learn which PR broke the batch
-* Your main queue's throughput decreases during failure investigation
-
-With independent bisection concurrency, you can:
-
-* **Speed up failure isolation** - Run bisection tests at higher concurrency to identify problems faster
-* **Maintain queue throughput** - Keep your main queue running at optimal capacity during bisection
-* **Optimize each workflow independently** - Be aggressive about isolating failures without impacting successful PR flow
-
-### How it works
-
-When you set a higher bisection concurrency:
-
-1. **Main queue concurrency** controls how many PRs test simultaneously in the normal queue
-2. **Bisection concurrency** controls how many PRs test simultaneously during failure isolation
-3. Both run independently - bisection tests don't count against your main queue limit
-
-<Accordion title="Example scenario:">
-* Main queue concurrency: 5
-* Bisection concurrency: 15
-* Batch `ABCD` fails and needs to be split
-
-The bisection process can spin up 15 test runners to quickly isolate which PR failed, while your main queue continues processing 5 PRs normally. Developers get faster feedback about failures without slowing down successful merges.
-</Accordion>
-
-### Configuring bisection concurrency
-
-Navigate to **Merge Queue** → **[your repository]** → **Settings** → **Batching**:
-
-1. Enable **Batching** (if not already enabled)
-2. Find the **Bisection Concurrency** setting
-3. Set a value higher than your main **Testing Concurrency** for faster failure isolation
-4. Monitor your CI resource usage and adjust as needed
-
-### Recommended settings
-
-<Tabs>
-<Tab title="Conservative approach">
-* Main queue concurrency: 5
-* Bisection concurrency: 10
-* Good for: Teams managing CI costs carefully
-</Tab>
-<Tab title="Balanced approach">
-* Main queue concurrency: 10
-* Bisection concurrency: 25
-* Good for: Teams with moderate CI capacity
-</Tab>
-<Tab title="Aggressive approach">
-* Main queue concurrency: 25
-* Bisection concurrency: 50
-* Good for: Teams prioritizing fast feedback over CI costs
-</Tab>
-</Tabs>
-
-### When to use higher bisection concurrency
-
-Consider increasing bisection concurrency if:
-
-* Developers frequently wait for bisection results to know what to fix
-* Your CI system has spare capacity during failure investigation
-* Large batches fail and take a long time to isolate the culprit
-* Fast feedback on failures is critical to your workflow
-
-### Monitoring and optimization
-
-Track these metrics to optimize your bisection concurrency:
-
-* **Time to isolate failures** - How long it takes to identify which PR broke a batch
-* **CI resource usage during bisection** - Are you maxing out your runners?
-* **Developer wait time** - How long developers wait for failure feedback
-* **Main queue throughput during bisection** - Is bisection slowing down other PRs?
-
-<Info>
-Start with bisection concurrency 2x your main queue concurrency, monitor the impact, and adjust based on your team's priorities and CI capacity.
-</Info>
-
-### Best practices
-
-* Set bisection concurrency higher than main queue - This is the whole point of the feature
-* Monitor CI costs - Higher bisection concurrency means more runners during failures
-* Start conservative - Begin with 2x main concurrency and increase gradually
-* Combine with other optimizations - Works best alongside Pending Failure Depth and Anti-flake Protection
-* **Don't** set too high - Extremely high bisection concurrency can overwhelm CI systems
-* **Don't** set lower than main queue - This defeats the purpose and slows down bisection
-
-
-
-## Test Caching During Bisection
-
-When a batch fails and Trunk splits it apart to find the PR that broke it, the same combination of PRs can come up for testing more than once. With **Skip Redundant Bisection Tests** enabled, Trunk doesn't test a combination again if it has already failed during the same bisection. It reuses that failure instead, which saves a CI run and speeds up finding the failing PR.
-
-### How it works
-
-Bisection detaches the failed batch from the rest of the queue, so each test in a bisection runs a group of PRs on top of the PRs ahead of it in the bisection only. Before starting one, Trunk checks whether an earlier test in the current bisection already **failed** with the same set of PRs. A failed test of a larger set also counts once its extra PRs have merged. For example, if `AB` failed and `A` has since merged, testing `B` alone would repeat that failure. If an earlier failure covers the test, Trunk skips the CI run and reuses that failure. What happens next depends on whether the failure already shows which PR caused it:
-
-* **A single PR with nothing ahead of it:** the reused failure already names it. This is usually the case where the other PRs in the failed test have merged. The PR fails with `TEST_RUN_FAILED_BY_OPTIMIZATION` and is removed from the queue.
-* **A single PR with tests still running ahead of it:** it's re-tested on its own straight away, without the PRs ahead of it.
-* **A group of PRs:** it's split and re-tested straight away, alongside the rest of the bisection, instead of waiting for the tests ahead of it to finish.
-
-Only failures are reused. Test caching never marks a PR as passed.
-
-<Accordion title="Example bisection with test caching">
-1. Batch `ABCD` fails testing (`main ← ABCD`).
-2. Trunk splits the batch into `AB` and `CD`. `AB` is tested as `main ← AB`, and `CD` would be tested on top of it, as `main ← AB ← CD`.
-3. `main ← AB ← CD` is the same set of PRs as `main ← ABCD`, which already failed. Trunk doesn't run it.
-4. Instead of waiting for `AB`'s result, Trunk splits `CD` right away. `main ← C` and `main ← C ← D` start testing alongside `main ← AB`.
-5. If `AB` then fails too, it's split into `main ← A` and `main ← A ← B`. The second is the same set of PRs as the failed `main ← AB`, so it's skipped, and `B` is re-tested on its own straight away, as `main ← B`.
-</Accordion>
-
-### Benefits
-
-**Lower CI spend**: Every reused failure is a CI run that doesn't happen. This matters most for large batches and expensive test suites.
-
-**Faster failure isolation**: Bisection doesn't wait on a test whose result is already known, and the PRs it skipped start their next tests right away, so developers learn sooner which PR broke the batch.
-
-### When test caching applies
-
-A test is skipped only when all of these are true:
-
-1. **Skip Redundant Bisection Tests is enabled** for the queue
-2. **A batch has failed** and is being bisected
-3. **An earlier test in the same bisection failed** with the same set of PRs, or with a larger set whose extra PRs have all merged since
-4. **The base hasn't changed since that failed test.** Trunk discards a reused failure if another PR has merged through the queue since then, or if the bisection's PRs were restarted. Restarts include a push to the target branch, a manual or API restart, and a PR merged outside the queue.
-
-Test caching does **not** apply to:
-
-* Initial batch testing, before any failure
-* Combinations that passed. Passing results are never reused.
-* Results from a different bisection
-
-### Enabling it
-
-Test caching is off unless you turn it on. In the **Merge Queue** tab, select your queue, click **Settings**, and enable **Skip Redundant Bisection Tests** under **Batching**. You can also set it with `optimizationMode: bisectionSkipRedundantTests` when you [update a queue through the API](/merge-queue/reference/api-v2/mergequeues/update-a-merge-queues-configuration), or with `optimization_mode = "BISECTION_SKIP_REDUNDANT_TESTS"` in [Terraform](../administration/terraform).
+* Only failures are reused. A PR is never marked as passing without its own test.
+* A reused failure is discarded if the base changes, for example when another PR merges through the queue, someone pushes to the target branch, or the bisection's PRs are restarted.
+* A reused failure can single out one PR, which is then removed with "it failed tests in a previous identical test run" without a test of its own.
 
 <Warning>
-A reused failure isn't re-run. Most PRs covered by a reused failure are just split and re-tested, but when it singles out one PR, that PR is removed from the queue without failing a test of its own. If the original failure was flaky, that PR is removed even though nothing is wrong with it. If your queue sees a lot of flaky failures, consider leaving this setting off, or pair it with [Anti-flake protection](./anti-flake-protection).
+If the original failure was a flake, the PR it singles out is removed even though nothing is wrong with it. If your queue sees frequent flaky failures, leave this off or pair it with [anti-flake protection](./anti-flake-protection).
 </Warning>
 
-### How this works with other features
+## Keeping a PR out of a batch
 
-* **Bisection Concurrency** - Run the bisection tests that are needed faster, and skip the ones that aren't
-* **Pending Failure Depth** - Keep more PRs in the queue during failure recovery
-* **Optimistic Merging** - Merge successful batches while bisection runs in the background
+Some PRs, such as database migrations, should be tested alone. An excluded PR is always tested by itself, and other PRs keep batching as usual.
 
-## Fine tuning batch sizes
+### Batching rules
 
-**Signs your batch size is too large:**
+A batching rule names a build target. Any PR that impacts a matching target is tested alone. Add rules under **Batching rules** in the batching settings, or set `batchingRules` through the API:
 
-* Batches frequently fail and need to be split
-* Long wait times to form full batches
-* Test suite times out or becomes unstable
+```json
+"batchingRules": [{ "targetPattern": "//db/migrations:*", "policy": "isolate" }]
+```
 
-**Signs your batch size is too small:**
+* A pattern matches a target label exactly, or as a prefix when it ends in `*`. A `*` anywhere else is rejected.
+* Rules only apply to queues in [parallel mode](./parallel-queues), because they match against the impacted targets your CI uploads. In single mode, rules have no effect.
+* A PR that impacts all targets matches no rule.
+* A PR whose impacted targets can't be read batches normally.
+* Rules are checked against a PR's latest impacted targets, so a push that adds a matching target makes the PR test alone, and a push that removes it lets the PR batch again.
 
-* Not seeing significant throughput improvement
-* Batches form immediately (could handle more PRs)
-* Still consuming lots of CI resources
+### For a single PR
 
-**Optimal batch size depends on:**
+Submit the PR with batching turned off:
 
-* Test suite speed (faster tests = larger batches)
-* Test stability (more flaky tests = smaller batches)
-* PR submission rate (more PRs = larger batches)
+* Comment `/trunk merge --no-batch`.
+* Send `allowBatching: false` to [submit a pull request](/merge-queue/reference/api-v2/mergequeues/submit-a-pull-request-to-a-merge-queue) (v2 API), or `noBatch: true` to `/v1/submitPullRequest`.
 
-## Tradeoffs and considerations
+The PR keeps its place in the queue and doesn't restart testing for other PRs. The flag applies to that submission only: resubmitting the PR without it, for example to change its priority, puts it back into batching.
 
-The downsides here are very limited. Since batching combines multiple pull requests into one, you essentially give up the proof that every pull request in complete isolation can safely be merged into your protected branch.&#x20;
+## Related
 
-In the unlikely case that you have to revert a change from your protected branch or do a rollback, you will need to retest that revert or submit it to the queue to make sure nothing has broken. In practice, this re-testing is required in almost any case, regardless of how it was originally merged, and the downsides are fairly limited.
-
-### Common misconceptions
-
-* **Misconception:** "Batching merges multiple PRs into a single commit"&#x20;
-  * **Reality:** No! Each PR is still merged as a separate commit. Batching only affects testing, not merging.
-* **Misconception:** "If a batch fails, all PRs in the batch fail"&#x20;
-  * **Reality:** Trunk automatically splits the batch and retests to identify only the failing PR(s). Passing PRs still merge.
-* **Misconception:** "Batching always makes the queue faster"&#x20;
-  * **Reality:** Batching is most effective with stable tests and high PR volume. For low-traffic repos or flaky tests, the overhead may outweigh benefits.
-
-## Related features
-
-Batching works exceptionally well with these optimizations:
-
-**Predictive testing** - Batching builds on predictive testing. Batches are tested against the projected future state of main, just like individual PRs. These features complement each other perfectly.
-
-**Optimistic merging** - While a batch is testing, the next batch can begin forming and testing optimistically. Combining batching with optimistic merging provides maximum throughput. Configure both for best results.
-
-**Pending failure depth** - When a batch fails, [pending failure depth](./pending-failure-depth) controls how many successor test runs the system waits on before transitioning the failed batch. Combined with optimistic merging, this can prevent premature bisection of a batch that only failed due to a transient issue.
-
-**Anti-flake protection** - Essential companion to batching. Reduces false batch failures caused by flaky tests, making batching more reliable and efficient.
+* [Optimistic merging](./optimistic-merging) and [pending failure depth](./pending-failure-depth) let a batch that failed merge anyway when a later batch containing its changes passes. Together they form [anti-flake protection](./anti-flake-protection), which keeps flaky failures from triggering bisection.
+* [Parallel queues](./parallel-queues): in parallel mode, PRs only batch with others in the same lane.
+* [Predictive testing](./predictive-testing): batches are tested on top of the PRs ahead of them, like individual PRs.
+* [Webhooks](../webhooks): batch and bisection events, including `pending_failure`.
 
 ## How batching interacts with parallel queues and PFD
 
@@ -380,41 +200,3 @@ In practice, the queue's anti-flake protection (optimistic merging + PFD) catche
 
 For the webhook lifecycle of these batch events — including the `pending_failure` event that fires when a batch enters the hold state — see the [webhooks reference](../webhooks).
 
-## Batching + Optimistic Merging and Pending Failure Depth
-
-Enabling batching along with Pending Failure Depth and Optimistic Merging can help you realize the major cost savings of batching while still reaping the [anti-flake](./anti-flake-protection) protection of optimistic merging and pending failure depth.
-
-<Frame caption="example of testing pull requests in batches of 3">
-<iframe allow="autoplay; fullscreen; picture-in-picture; display-capture; clipboard-write" allowfullscreen="" allowtransparency="true" referrerpolicy="no-referrer-when-downgrade" class="vidyard-iframe-BsPi6f1KHvsa6wE18ySAJf" frameborder="0" height="100%" width="100%" scrolling="no" src="https://play.vidyard.com/BsPi6f1KHvsa6wE18ySAJf?disable_popouts=1&amp;disable_analytics=0&amp;preload=auto&amp;disable_larger_player=false&amp;theater_button=0&amp;pip_button=0&amp;controller=hubs&amp;action=show&amp;type=inline&amp;v=4.3.20" title="trunk.io merge queue // batching" spellcheck="false"></iframe>
-</Frame>
-
-<table><thead><tr><th width="331">event</th><th>queue</th></tr></thead><tbody><tr><td>Enqueue <strong>A</strong>, <strong>B</strong>, <strong>C, D, E, F, G</strong></td><td><code>main</code> &#x3C;- <strong>ABC</strong> &#x3C;- <strong>DEF</strong> +abc</td></tr><tr><td>Batch ABC fails</td><td><code>main</code> &#x3C;- <strong style={{color: 'red'}}>ABC</strong></td></tr><tr><td>pending failure depth keeps <strong>ABC</strong> from being evicted while <strong>DEF</strong></td><td><code>main</code> &#x3C;- <strong style={{color: 'red'}}>ABC</strong> (hold) &#x3C;- <strong>DEF</strong>+abc</td></tr><tr><td><strong>DEF</strong> passes</td><td><code>main</code> &#x3C;- <strong style={{color: 'red'}}>ABC</strong> &#x3C;- <strong style={{color: 'green'}}>DEF</strong>+abc</td></tr><tr><td>optimistic merging allows <strong>ABC</strong> and <strong>DEF</strong> to merge</td><td><code>merge</code> <strong>ABC</strong>, <strong>DEF</strong></td></tr></tbody></table>
-
-Combined, Pending Failure Depth, Optimistic Merging, and Batching can greatly improve your CI performance because now Merge can optimistically merge whole batches of PRs with far less wasted testing.
-
-## Next steps
-
-**Start with batching:**
-
-1. Enable batching with conservative settings (batch size: 3-5)
-2. Monitor for a few days and observe behavior
-3. Gradually increase batch size as you gain confidence
-4. Check [Metrics and monitoring](../administration/metrics) to measure impact
-
-**Optimize further:**
-
-* [Optimistic merging](./optimistic-merging) - Combine with batching for maximum throughput
-* [Anti-flake protection](./anti-flake-protection) - Reduce false batch failures
-* [Pending failure depth](./pending-failure-depth) - Tune behavior during batch failures
-
-**Monitor performance:**
-
-* [Metrics and monitoring](../administration/metrics) - Track throughput improvements and CI cost savings
-* Watch batch failure rate (should be \<10%)
-* Measure time-to-merge improvements
-
-**Troubleshoot issues:**
-
-* If batches fail frequently → Lower batch size or enable [Anti-flake protection](./anti-flake-protection)
-* If not seeing improvements → Check PR volume and test stability
-* For detailed help → [Troubleshooting](../reference/troubleshooting)
