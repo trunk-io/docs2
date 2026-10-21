@@ -1,0 +1,14 @@
+---
+title: "Merge Queue: Zero-Wait Batching and Stuck Stack Merge Recovery"
+description: "Set batching's maximum wait time to 0 to start testing right away, and recover stacked PRs stuck in a pending GitHub merge."
+date: 2026-10-21
+category: Merge Queue
+type: update
+---
+
+**Faster batching control and a clear path out of stuck stack merges.**
+
+### Updates
+
+- **Zero-wait batching.** Set the batching **Maximum wait time** to `0` and a batch starts as soon as a testing slot is free. Each batch holds up to the target batch size of PRs already waiting. PRs only batch together when several are waiting at once. This also applies to `batching_max_wait_time_minutes` in [Terraform](/merge-queue/administration/terraform). See [Batching](/merge-queue/optimizations/batching#configuration-options).
+- **Recover stuck stack merges.** GitHub occasionally leaves a [stacked PR](/merge-queue/using-the-queue/stacked-pull-requests) merge pending forever, so every retry fails with `A merge request already exists for this pull request`. Unstack or restack the PR in GitHub, then re-submit it. See [Stacked pull requests](/merge-queue/reference/github-api-failures#stacked-pull-requests).
