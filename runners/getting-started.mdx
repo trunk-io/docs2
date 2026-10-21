@@ -12,14 +12,14 @@ groups: ["firewatch"]
     on your organization. Then contact Trunk support to add your organization to
     the Trunk Runners Beta program.
   </Step>
-  <Step title="Set your defaults">
-    Set an organization default template. Most jobs then need no options
-    in the label. See
-    [Organization defaults](/runners/settings/ci-defaults).
-  </Step>
-  <Step title="Point a job at Trunk Runners">
-    Change the `runs-on` label of a job to a `trunk=` label. With no
-    options, the job runs on a machine with 2 CPUs and 8 GiB of memory. See
+  <Step title="Move your jobs to Trunk Runners">
+    In the [Trunk web app](https://app.trunk.io), open **Migrate** on the
+    **Runners** page. Select your repositories, review the proposed `runs-on`
+    changes, and approve them. Trunk opens one pull request for each repository.
+    Merge the pull requests to move the jobs.
+
+    You can also change a `runs-on` label by hand. With no options, the job runs
+    on a machine with 2 CPUs and 8 GiB of memory. See
     [The runs-on label](/runners/actions/runs-on).
 
     ```yaml
