@@ -1,17 +1,20 @@
 ---
 title: "Templates and regions"
-description: "Run a job on a chosen template or region, or use your organization defaults."
-groups:
-  - "firewatch"
+description: "Run a job on a chosen template or region."
+groups: ["firewatch"]
 ---
 
 {/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
 
-A job can run on a chosen template or in a chosen region. If you do not choose, the job uses your [organization defaults](/runners/settings/ci-defaults).
+A job can run on a chosen template or in a chosen region. If you do not choose a
+template, the job uses your
+[organization default template](/runners/settings/ci-defaults).
 
 ## Templates
 
-A template is a prepared environment for a job. It holds the tools and the setup your jobs need, so a job starts ready. Your organization admin creates templates and sets an organization default.
+A template is a prepared environment for a job. It holds the tools and the setup
+your jobs need, so a job starts ready. Members of your organization create
+templates. An organization admin sets the organization default.
 
 Add `template` to run a job on a chosen template:
 
@@ -19,18 +22,41 @@ Add `template` to run a job on a chosen template:
 runs-on: trunk=${{ github.run_id }}-${{ github.run_attempt }}..size=medium..template=<template-id>
 ```
 
-If you leave out `template`, the job uses the organization default template.
+If you leave out `template`, the job uses the organization default template. If
+your organization has no default template, the job runs on the default Trunk
+runner image.
 
 ## Regions
 
-A region is the location where the job runs. Your organization admin sets a default region. Add `region` to run a job in a chosen region:
+A region is the location where the job runs. An organization admin can set a
+region for a repository and a default region for the organization. Add `region`
+to run a job in a chosen region:
 
 ```yaml
 runs-on: trunk=${{ github.run_id }}-${{ github.run_attempt }}..size=medium..region=us-west
 ```
 
-If you leave out `region`, the job uses the organization default region.
+### How a job resolves a region
+
+1. The `region` value in the job's `runs-on` label, if present.
+2. The region an organization admin set for the job's repository, if set.
+3. Your organization default region, if set.
+4. The Trunk default region.
+
+#### Templates that list regions
+
+A template can list the regions it is built in. A job on that template runs only
+in one of those regions:
+
+- **The label sets `region`:** the region must be in the template's list. If it
+  is not, Trunk does not start a runner for the job.
+- **The label has no `region`:** Trunk uses steps 2 to 4 in order, and skips each
+  region that the template does not list. If the template lists none of them, the
+  job runs in the first region of the template's list.
+
+A template with no region list runs in any region.
 
 <Info>
-  Ask your organization admin for the template IDs and the regions your organization can use.
+  Ask your organization admin for the template IDs and the regions your
+  organization can use.
 </Info>

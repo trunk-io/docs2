@@ -1,31 +1,40 @@
 ---
 title: "Get started"
-description: "Turn on Trunk Runners, choose your machine size and run"
-groups:
-  - "firewatch"
+description: "Turn on Trunk Runners, choose your machine size, and run your first job."
+groups: ["firewatch"]
 ---
+
+{/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
 
 <Steps>
   <Step title="Connect your organization">
-    [Install the Trunk GitHub and Trunk Runner apps](https://app.trunk.io/settings/organization/github) on your organization. Reach out Trunk support to have tour organization onboarded to the Trunk Runner Beta program
+    [Install the Trunk GitHub and Trunk Runners apps](https://app.trunk.io/settings/organization/github)
+    on your organization. Then contact Trunk support to add your organization to
+    the Trunk Runners Beta program.
   </Step>
   <Step title="Set your defaults">
-    Set an organization default template, region, and size. Most jobs then need only a size in the label. See [Organization defaults](/runners/settings/ci-defaults).
+    Set an organization default template. Most jobs then need no options
+    in the label. See
+    [Organization defaults](/runners/settings/ci-defaults).
   </Step>
   <Step title="Point a job at Trunk Runners">
-    Change the `runs-on` label of a job to the Trunk Runners label. The label sets the machine size. See [The runs-on label](/runners/actions/runs-on).
+    Change the `runs-on` label of a job to a `trunk=` label. With no
+    options, the job runs on a machine with 2 CPUs and 8 GiB of memory. See
+    [The runs-on label](/runners/actions/runs-on).
 
     ```yaml
     jobs:
       build:
-        runs-on: trunk=${{ github.run_id }}-${{ github.run_attempt }}..size=medium
+        runs-on: trunk=${{ github.run_id }}-${{ github.run_attempt }}
         steps:
           - uses: actions/checkout@v4
           - run: make build
     ```
+
   </Step>
   <Step title="Run the workflow">
-    Push a commit or start the workflow. Trunk provisions a fresh VM, runs the job, and removes the VM when the job ends.
+    Push a commit or start the workflow. Trunk provisions a fresh VM, runs the
+    job, and removes the VM when the job ends.
   </Step>
 </Steps>
 
@@ -35,16 +44,17 @@ groups:
   <Card title="The runs-on label" icon="tag" href="/runners/actions/runs-on">
     Every option you can set on a job.
   </Card>
-
   <Card title="Machine sizes" icon="gauge" href="/runners/actions/sizes">
-    The sizes, their CPU counts, and high memory.
+    The sizes, their CPU counts, and the memory options.
   </Card>
-
   <Card title="Caching" icon="database" href="/runners/cache/index">
     Reuse build results to make jobs faster.
   </Card>
-
-  <Card title="Limits and priority" icon="sliders" href="/runners/settings/limits-and-priority">
+  <Card
+    title="Limits and priority"
+    icon="sliders"
+    href="/runners/settings/limits-and-priority"
+  >
     Set a CPU limit and mark priority branches.
   </Card>
 </CardGroup>
