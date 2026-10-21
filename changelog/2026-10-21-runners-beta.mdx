@@ -1,0 +1,21 @@
+---
+title: "Runners: Trunk Runners beta"
+description: "Run GitHub Actions jobs on fast, right-sized Trunk VMs with a shared build cache by changing one runs-on label."
+date: 2026-10-21
+category: Runners
+type: new-feature
+---
+
+**Run your GitHub Actions jobs on Trunk Runners by changing one label.**
+
+### New features
+
+- **One-label setup.** Keep your workflows on GitHub and point a job at Trunk with its `runs-on` label. Trunk starts a fresh VM, runs the job, and removes the VM when it ends. See [Get started](/runners/getting-started).
+- **Right-sized machines.** Pick a size from 1 to 16 CPUs, and add `memory=high` for 4 GiB per CPU. See [Machine sizes](/runners/actions/sizes).
+- **Templates and regions.** Start jobs on a prepared template with your tools baked in, in the region you choose. See [Templates and regions](/runners/actions/templates-and-regions).
+- **Shared build cache.** Jobs reuse results across runs with the GitHub Actions cache, `sccache`, `bazel`, `gradle`, and `ccache`. The cache is on by default and admins can turn it off per repository or organization. See [Caching](/runners/cache/index).
+- **Organization defaults.** Set a default template and region so most jobs need only a size. See [Organization defaults](/runners/settings/ci-defaults).
+- **CPU limits and priority branches.** Cap total CI CPUs and mark branches, like your default branch, that run first when CI is busy. See [Limits and priority](/runners/settings/limits-and-priority).
+- **Run as a user (Beta).** Run a job as the person who started it instead of a shared CI identity. See [Run as a user](/runners/actions/run-as).
+
+Trunk Runners is in beta. Contact [support@trunk.io](mailto:support@trunk.io) to onboard your organization. See the [roadmap](/runners/roadmap) for what's next.
