@@ -1,8 +1,7 @@
 ---
 title: "The runs-on label"
-description: "One label selects the Trunk runner and sets its options."
-groups:
-  - "firewatch"
+description: "One label selects a Trunk runner and sets its options."
+groups: ["firewatch"]
 mode: "wide"
 ---
 
@@ -11,30 +10,37 @@ mode: "wide"
 You point a job at Trunk Runners with one `runs-on` label.
 
 ```yaml
-runs-on: trunk=${{ github.run_id }}-${{ github.run_attempt }}..size=medium
+runs-on: trunk=${{ github.run_id }}-${{ github.run_attempt }}
 ```
 
 ## Options
 
-| Option | Required | What it sets |
-| --- | --- | --- |
-| `size` | Yes | The machine size, which sets the CPU count. See [Machine sizes](/runners/actions/sizes). |
-| `memory` | No | `high` for 4 GiB per CPU instead of 2. <br />See [Machine sizes](/runners/actions/sizes). |
-| `template` | No | The template (a prepared environment) for the job. See [Templates and regions](/runners/actions/templates-and-regions). |
-| `cache` | No | `trunk` or `github` to choose the cache. See [Caching](/runners/cache/index). |
+| Option     | Required | What it sets                                                                                                            |
+| ---------- | -------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `size`     | No       | The machine size, which sets the CPU count. See [Machine sizes](/runners/actions/sizes).                                |
+| `memory`   | No       | The memory per CPU: `low`, `standard`, or `high`. <br />See [Machine sizes](/runners/actions/sizes#sizes).              |
+| `template` | No       | The template (a prepared environment) for the job. See [Templates and regions](/runners/actions/templates-and-regions). |
+| `cache`    | No       | `trunk` or `github` to choose the cache for `actions/cache`. See [Caching](/runners/cache/index).                       |
 
 ## Examples
 
-A medium runner with high memory:
+A large runner with high memory:
 
 ```yaml
 runs-on: trunk=${{ github.run_id }}-${{ github.run_attempt }}..size=large..memory=high
 ```
 
-A job on a chosen template and region:
+A large runner with low memory, for a job that needs CPUs but little memory:
 
 ```yaml
-runs-on: trunk=${{ github.run_id }}-${{ github.run_attempt }}..size=medium..template=<template-id>..region=us-west
+runs-on: trunk=${{ github.run_id }}-${{ github.run_attempt }}..size=large..memory=low
 ```
 
-See the [full label format](/runners/reference/runs-on-grammar) for every option in one table.
+A job on a chosen template:
+
+```yaml
+runs-on: trunk=${{ github.run_id }}-${{ github.run_attempt }}..size=medium..template=<template-id>
+```
+
+See the [full label format](/runners/reference/runs-on-grammar) for every option in
+one table.

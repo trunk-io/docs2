@@ -1,42 +1,77 @@
 ---
 title: "Machine sizes"
-description: "Pick a size to set the CPU count. Ask for high memory when a job needs it."
-groups:
-  - "firewatch"
+description: "Pick a size to set the CPU count. Set memory to change the memory per CPU."
+groups: ["firewatch"]
 ---
 
 {/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
 
-The `size` option sets the CPU count of the runner. `size` is required in the `runs-on` label.
+The `size` option sets the CPU count of the runner. `size` is optional. The
+default size is `small`. A job that leaves out `size` runs on the
+[default machine](#the-default-machine).
 
 ## Sizes
 
-| Size | CPUs |
-| --- | --- |
-| `xsmall` | 1 |
-| `small` | 2 |
-| `medium` | 4 |
-| `large` | 8 |
-| `xlarge` | 16 |
+The memory columns are the values of the `memory` option.
+
+| Size     | CPUs | `low`  | `standard` (default with a `size`) | `high`                      |
+| -------- | ---- | ------ | ---------------------------------- | --------------------------- |
+| `xsmall` | 1    | 1 GiB  | 2 GiB                              | 4 GiB                       |
+| `small`  | 2    | 2 GiB  | 4 GiB                              | 8 GiB (the default machine) |
+| `medium` | 4    | 4 GiB  | 8 GiB                              | 16 GiB                      |
+| `large`  | 8    | 8 GiB  | 16 GiB                             | 32 GiB                      |
+| `xlarge` | 16   | 16 GiB | 32 GiB                             | 64 GiB                      |
+
+With `size` set and no `memory`, the runner uses `memory=standard`. With no
+`size`, the runner is the [default machine](#the-default-machine): `small` with
+`memory=high`, 2 CPUs and 8 GiB.
 
 ```yaml
 runs-on: trunk=${{ github.run_id }}-${{ github.run_attempt }}..size=large
 ```
 
+## The default machine
+
+If you leave out `size`, the job runs on a `small` runner with high memory: 2 CPUs
+and 8 GiB. This is the same machine as the GitHub Actions `ubuntu-latest` runner in a
+private repository, so a job that you move to Trunk Runners keeps the machine it had.
+
+```yaml
+runs-on: trunk=${{ github.run_id }}-${{ github.run_attempt }}
+```
+
 <Note>
-  There is no default size. You must set `size` on every job that runs on Trunk Runners. A missing or unknown size fails the job with a clear message.
+  An unknown size, such as `size=huge`, gets no runner, and the job stays queued
+  with no message. See the [label
+  rules](/runners/reference/runs-on-grammar#rules).
 </Note>
 
 ## Memory
 
-By default, a runner has 2 GiB of memory per CPU. When a job needs more, add `memory=high` for 4 GiB per CPU. The size still sets the CPU count.
+The `memory` option sets the memory per CPU. The size still sets the CPU count.
+
+| `memory`   | Memory per CPU |
+| ---------- | -------------- |
+| `low`      | 1 GiB          |
+| `standard` | 2 GiB          |
+| `high`     | 4 GiB          |
+
+See [Sizes](#sizes) for the CPUs and memory of each size with each `memory`
+value.
 
 ```yaml
 runs-on: trunk=${{ github.run_id }}-${{ github.run_attempt }}..size=large..memory=high
 ```
 
-A `large` runner with `memory=high` has 8 CPUs and 32 GiB of memory.
+<Warning>
+  `size=small` and no size are different machines. `size=small` gives 2 CPUs and
+  4 GiB. No size gives 2 CPUs and 8 GiB, because the default machine uses high
+  memory. To get the default machine and also name its size, use
+  `size=small..memory=high`.
+</Warning>
 
 <Tip>
-  Start with a size that matches your job. Add `memory=high` only for a job that runs out of memory, such as a large build or a test suite that holds a lot of data.
+  Start with a size that matches your job. Add `memory=high` only for a job that
+  runs out of memory, such as a large build or a test suite that holds a lot of
+  data. Use `memory=low` for a job that needs CPUs but little memory.
 </Tip>

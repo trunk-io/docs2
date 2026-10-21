@@ -2,8 +2,7 @@
 title: "Trunk Runners"
 sidebarTitle: "Runners"
 description: "Run Faster and Run Less"
-groups:
-  - "firewatch"
+groups: ["firewatch"]
 ---
 
 {/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
@@ -12,25 +11,26 @@ groups:
 
 <CardGroup cols={2}>
   <Card title="Stop repeating setup every run" icon="server">
-    Custom templates allow you to bake in all the machine setup so you run less with every job.
+    Custom templates allow you to bake in all the machine setup so you run less
+    with every job.
   </Card>
-
   <Card title="Tuned for your jobs" icon="gauge">
     Mix-n-match CPU and memory to match your needs.
   </Card>
-
   <Card title="Caching" icon="bolt">
-    A shared in-cluster cache lets jobs reuse results across runs. 
+    A shared in-cluster cache lets jobs reuse results across runs.
   </Card>
-
   <Card title="Observability" icon="sliders">
-    Monitor system usage to tune your jobs for the right balance of cost vs performance.
+    Monitor system usage to tune your jobs for the right balance of cost vs
+    performance.
   </Card>
 </CardGroup>
 
 ## How it works
 
-You keep your workflows on GitHub. You change one thing: the `runs-on` label of a job. That label tells Trunk to run the job. Trunk starts a VM, runs the job, and removes the VM when the job ends.
+You keep your workflows on GitHub. You change one thing: the `runs-on` label of a
+job. That label tells Trunk to run the job. Trunk starts a VM, runs the job, and
+removes the VM when the job ends.
 
 <Card title="Get started" icon="arrow-right" href="/runners/getting-started">
   Turn on Trunk Runners for your organization and run your first job.
@@ -38,7 +38,12 @@ You keep your workflows on GitHub. You change one thing: the `runs-on` label of 
 
 ## What you can configure
 
-- **The runner** — the `runs-on` label sets the size you need and the template to start on. See [The runs-on label](/runners/actions/runs-on).
-- **Caching** — turn the shared cache on or off, per repository or for the whole organization. See [Caching](/runners/cache/index).
-- **Organization defaults** — set a default template, and size. See [Organization defaults](/runners/settings/ci-defaults).
-- **Limits and priority** — set a CPU limit for CI and mark priority branches. See [Limits and priority](/runners/settings/limits-and-priority).
+- **The runner** — the `runs-on` label sets the size you need and the template to
+  start on. See [The runs-on label](/runners/actions/runs-on).
+- **Caching** — choose which build tools use the shared cache, per repository or
+  for the whole organization, and see what is cached. See
+  [Caching](/runners/cache/index).
+- **Organization defaults** — set a default template. See
+  [Organization defaults](/runners/settings/ci-defaults).
+- **Limits and priority** — set a CPU limit for CI and mark priority branches.
+  See [Limits and priority](/runners/settings/limits-and-priority).
