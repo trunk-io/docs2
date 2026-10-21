@@ -6,8 +6,8 @@ groups: ["firewatch"]
 
 {/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
 
-An organization admin sets the defaults for CI jobs. A job then needs no options in
-its label, and the defaults fill in the rest.
+An organization admin can set defaults for CI jobs. A default fills in an option
+that a job label does not set.
 
 ## The defaults
 
@@ -26,6 +26,6 @@ A job label overrides a default for that job. See
    most of the GitHub Actions `ubuntu-latest` image.
 
 <Info>
-  Set an organization default template so most jobs need no options. Keep the
-  per-job `template` option for jobs that need a different environment.
+  A default is optional. Set one when most of your jobs use the same template,
+  and keep the per-job `template` option for jobs that need a different one.
 </Info>
