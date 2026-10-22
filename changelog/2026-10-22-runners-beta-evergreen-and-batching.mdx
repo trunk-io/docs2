@@ -1,0 +1,26 @@
+---
+title: "Trunk Runners Beta, Evergreen Support, and Zero-Wait Batching"
+description: "Run GitHub Actions jobs on Trunk Runners, upload Flaky Tests results from Evergreen, and start Merge Queue batches without waiting."
+date: 2026-10-22
+category: Runners
+type: new-feature
+---
+
+**A new way to run your CI, plus updates to Flaky Tests and Merge Queue.**
+
+### New features
+
+- **Trunk Runners (Beta).** Run your GitHub Actions jobs on Trunk-managed VMs by changing one thing: the job's `runs-on` label. Each job gets a fresh VM that Trunk removes when the job ends. See [Trunk Runners](/runners/index).
+  - **Guided migration.** Open **Migrate** on the **Runners** page, pick your repositories, and approve the proposed changes. Trunk opens one pull request per repository. See [Get started](/runners/getting-started).
+  - **Sizes and templates.** Mix CPU and memory to fit each job, and start from a template with your setup already baked in. See [Machine sizes](/runners/actions/sizes) and [Templates and regions](/runners/actions/templates-and-regions).
+  - **Shared cache.** Let jobs reuse build results across runs, per repository or for your whole organization. See [Caching](/runners/cache/index).
+  - **Limits and priority.** Set a CPU limit for CI and mark priority branches. See [Limits and priority](/runners/settings/limits-and-priority).
+  - **Run as a user.** Run a job as the person who started it instead of a shared CI identity. See [Run as a user](/runners/actions/run-as).
+
+  Contact Trunk support to join the Beta.
+
+- **Flaky Tests: Evergreen support.** Upload test results from [Evergreen](https://github.com/evergreen-ci/evergreen) projects with the Trunk Analytics CLI. Trunk tells pull request, merge queue, and mainline runs apart and links each upload to its Evergreen task. See the [Evergreen setup guide](/flaky-tests/get-started/ci-providers/evergreen).
+
+### Updates
+
+- **Merge Queue: Batch without waiting.** Set **Maximum wait time** to **0** and a batch starts as soon as a testing slot is free. It holds up to your target batch size of the PRs already waiting. PRs still batch together when several are waiting at once. See [Batching](/merge-queue/optimizations/batching).
