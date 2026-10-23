@@ -409,6 +409,10 @@
                       "GET /v2/test-collections",
                       "POST /v2/test-collections",
                       "GET /v2/test-collections/{id}",
+                      "POST /v2/test-collections/{id}/quarantine-status",
+                      "GET /v2/test-collections/{id}/all-quarantined-tests",
+                      "POST /v2/test-collections/{id}/uploads",
+                      "GET /v2/test-uploads/{id}",
                       "GET /v2/tests",
                       "GET /v2/tests/{testId}",
                       "GET /v2/tests/{testId}/status-history",
@@ -883,7 +887,8 @@
                   "POST /v2/pull-requests/{id}/restart-tests",
                   "POST /v2/pull-requests/{id}/dequeue",
                   "GET /v2/pull-requests/{id}/queue-entry-history",
-                  "GET /v2/queue-entry-history"
+                  "GET /v2/queue-entry-history",
+                  "GET /v2/pull-requests/{id}/queue-entry-estimate"
                 ]
               },
               {
