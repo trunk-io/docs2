@@ -47,7 +47,17 @@ In BuildKite, navigate to **Settings** → **Notification Services**, then add a
 
 **Nothing arrives at all.** The endpoint answers `401` for a token it does not
 recognize and `200` for everything it accepts, including an export it skips.
-Check the token first, then the repository gate below.
+Check the token first, then the repository gate below. A header without the
+`Bearer ` prefix is also rejected with `401`, so check its format too.
+
+<Warning>
+Buildkite shows the status codes Trunk returns only in the notification
+service's [request log](https://buildkite.com/docs/pipelines/integrations/observability/opentelemetry#opentelemetry-tracing-notification-service-request-log).
+The request log is in preview, and Buildkite support has to turn it on for your
+organization. Without it, a `401` from Trunk looks the same as an export that
+was never sent. If your organization doesn't have the request log, contact
+Buildkite support to turn it on before you debug further.
+</Warning>
 
 **Builds arrive for one pipeline but not another.** Each pipeline is matched to
 a Trunk repository through its own git remote. Confirm the remote resolves to a
