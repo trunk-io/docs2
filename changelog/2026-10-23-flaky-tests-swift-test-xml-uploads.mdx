@@ -1,0 +1,23 @@
+---
+title: "Flaky Tests: Upload swift test results with file attribution"
+description: "Trunk Analytics CLI 0.15.5 uploads the XML written by swift test and attributes each Swift test to the file it is declared in."
+date: 2026-10-23
+category: Flaky Tests
+type: new-feature
+---
+
+**Swift packages tested with `swift test` now get first-class uploads, with each test linked to its source file.**
+
+### New features
+
+- **Upload `swift test` XML.** Pass `--swift-test-xunit-paths` to upload the reports written by `swift test --xunit-output`. One glob covers both the Swift Testing and XCTest files a run writes. See [Swift Testing](/flaky-tests/get-started/frameworks/swift-testing#test-upload).
+- **Tests attributed to their declaring file.** These reports carry no file paths, so Trunk resolves each test to the file it is declared in. CODEOWNERS attribution and file links now work for your Swift tests.
+- **GitHub Actions support.** Use the new `swift-test-xunit-paths` input on `trunk-io/analytics-uploader`. See the [GitHub Actions guide](/flaky-tests/get-started/ci-providers/github-actions).
+- **Declared-file locations for `.xcresult` (beta).** Add `--use-experimental-xcresult-test-locations` to attribute each test in an `.xcresult` bundle to where it is declared. Passing tests get a file too, and large bundles parse faster. macOS only. See [XCTest](/flaky-tests/get-started/frameworks/xctest#attributing-tests-to-their-declaring-file).
+
+A few things to know:
+
+- **History resets once.** Switching from `--junit-paths` to `--swift-test-xunit-paths` changes test IDs, so affected tests start a fresh history.
+- **Pick one format per repository.** The same test uploaded from `.xcresult` and from `swift test` XML counts as two distinct tests.
+
+See the [CLI reference](/flaky-tests/reference/cli-reference) for all upload options.
