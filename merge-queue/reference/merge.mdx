@@ -134,6 +134,8 @@ Provide either `pr.number` or `pr.branch`, but not both. Because a branch name c
 2. Otherwise, the most recently closed PR submitted from this branch is returned.
 3. Otherwise, the endpoint responds with `404`.
 
+Set `includeEstimatedTimeToMerge` to `true` to get `estimatedTimeToMerge` in the response: when the PR is expected to merge, based on the PRs ahead of it and the queue's recent test times. When Trunk can't give an estimate, for example because the queue has too few recent test runs, the response says why. [`/getSubmittedPullRequests`](/merge-queue/reference/merge/get-several-submitted-pull-requests-from-a-merge-queue) doesn't return estimates.
+
 ### Get queue state
 
 ```bash
