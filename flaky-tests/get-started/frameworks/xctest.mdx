@@ -109,7 +109,7 @@ You can find your Trunk organization slug and token in the settings or by follow
 ## Attributing Tests to Their Declaring File
 
 <Info>
-This is an opt-in beta. It requires `trunk-analytics-cli` 0.15.5 or newer, macOS with Xcode or the Command Line Tools installed, and that you run the upload from the checkout that produced the bundle.
+This is an opt-in beta. It requires macOS with Xcode or the Command Line Tools installed, and that you run the upload from the checkout that produced the bundle.
 </Info>
 
 An `.xcresult` bundle records where a *failure* was raised, which is not always where the test is written: a failure raised inside a shared helper points at the helper, and a test that passed carries no path at all.
