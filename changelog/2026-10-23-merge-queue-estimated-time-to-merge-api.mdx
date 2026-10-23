@@ -1,0 +1,22 @@
+---
+title: "Merge Queue: Estimated time to merge in the API"
+description: "Ask the Merge Queue API when a pull request is expected to merge, and tell reruns apart in testing webhooks."
+date: 2026-10-23
+category: Merge Queue
+type: new-feature
+---
+
+**Know when your PR will land without opening the dashboard.**
+
+### New features
+
+- **Estimated time to merge.** Set `includeEstimatedTimeToMerge` to `true` on [`/getSubmittedPullRequest`](/merge-queue/reference/merge/get-a-submitted-pull-request-from-a-merge-queue) to get `estimatedTimeToMerge` in the response. Trunk bases the estimate on the PRs ahead of yours and the queue's recent test times. When Trunk can't give an estimate, for example because the queue has too few recent test runs, the response says why. See the [Merge Queue API](/merge-queue/reference/merge) for details.
+
+### Updates
+
+- **Rerun flag on testing webhooks.** The `pull_request.testing` and `pull_request_batch.testing` [webhooks](/merge-queue/webhooks) now include `rerun`. It's `true` when testing began because failed required checks were re-run on the same test branch.
+- **More detailed reasons.** PR timelines and webhook payloads now report additional cancellation, pending, and not-ready reasons, so you can see more precisely why a PR left or is waiting in the queue.
+
+<Note>
+[`/getSubmittedPullRequests`](/merge-queue/reference/merge/get-several-submitted-pull-requests-from-a-merge-queue) doesn't return estimates.
+</Note>
