@@ -1,0 +1,79 @@
+---
+title: "Pricing"
+description: "Trunk Runners bill compute per vCPU minute, memory per GB minute, and storage per GB month."
+groups: ["firewatch"]
+---
+
+{/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
+
+Trunk Runners have usage-based pricing. You pay for the CPUs and memory a job's
+machine has while the job runs, and for the cache and template storage your
+organization keeps. There is no plan to buy and no minimum machine size.
+
+## Rates
+
+| Resource         | Price                      |
+| ---------------- | -------------------------- |
+| Compute          | $0.001 per vCPU per minute |
+| Memory           | $0.0005 per GB per minute  |
+| Cache storage    | $0.50 per GB per month     |
+| Template storage | $0.50 per GB per month     |
+
+## Price per minute by machine
+
+A machine's price is its CPU count times the compute rate, plus its memory
+times the memory rate. The columns are the values of the `memory` option. See
+[Machine sizes](/runners/actions/sizes).
+
+| Size     | CPUs | `low`           | `standard`      | `high`          |
+| -------- | ---- | --------------- | --------------- | --------------- |
+| `xsmall` | 1    | $0.0015 (1 GiB) | $0.002 (2 GiB)  | $0.003 (4 GiB)  |
+| `small`  | 2    | $0.003 (2 GiB)  | $0.004 (4 GiB)  | $0.006 (8 GiB)  |
+| `medium` | 4    | $0.006 (4 GiB)  | $0.008 (8 GiB)  | $0.012 (16 GiB) |
+| `large`  | 8    | $0.012 (8 GiB)  | $0.016 (16 GiB) | $0.024 (32 GiB) |
+| `xlarge` | 16   | $0.024 (16 GiB) | $0.032 (32 GiB) | $0.048 (64 GiB) |
+
+A job with no `size` runs on the
+[default machine](/runners/actions/sizes#the-default-machine), `small` with
+`memory=high`: $0.006 per minute.
+
+## Examples
+
+<AccordionGroup>
+  <Accordion title="A 10-minute job on the default machine">
+    2 CPUs × $0.001 + 8 GB × $0.0005 = $0.006 per minute. 10 minutes × $0.006 =
+    **$0.06**.
+  </Accordion>
+  <Accordion title="A 15-minute build on size=large">
+    8 CPUs × $0.001 + 16 GB × $0.0005 = $0.016 per minute. 15 minutes × $0.016 =
+    **$0.24**.
+  </Accordion>
+  <Accordion title="A 3-minute lint job on size=xsmall..memory=low">
+    1 CPU × $0.001 + 1 GB × $0.0005 = $0.0015 per minute. 3 minutes × $0.0015 =
+    **$0.0045**.
+  </Accordion>
+  <Accordion title="Cache and template storage">
+    A repository that keeps 10 GB in the shared cache, plus a 5 GB template,
+    stores 15 GB × $0.50 = **$7.50 per month**.
+  </Accordion>
+</AccordionGroup>
+
+## Keep costs down
+
+- **Right-size each job.** Use `memory=low` for jobs that need CPUs but little
+  memory, and save `memory=high` for the jobs that run out of memory.
+- **Bake setup into a template.** Minutes spent installing tools are billed like
+  any other minutes. A [template](/runners/actions/templates-and-regions) removes
+  them from every run.
+- **Use the shared cache.** Cache hits shorten builds. Trunk removes entries that
+  no job used for 7 days, and caps each repository at 20 GiB per tool, so cache
+  storage stays bounded. See [Storage limits](/runners/cache/index#storage-limits).
+- **Run less CI.** [Dynamic CI](/ci/dynamic-ci/index) skips jobs that a change
+  cannot affect.
+- **Cap concurrency.** Your organization's [CPU limit](/runners/settings/limits-and-priority#cpu-limit)
+  bounds how much CI runs at once.
+
+<Info>
+  Questions about pricing, or about volume and Enterprise terms? Contact
+  [sales@trunk.io](mailto:sales@trunk.io).
+</Info>

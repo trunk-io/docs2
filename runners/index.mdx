@@ -1,30 +1,86 @@
 ---
 title: "Trunk Runners"
 sidebarTitle: "Runners"
-description: "Run Faster and Run Less"
+description: "Fast, reliable, affordable CI runners for GitHub Actions."
 groups: ["firewatch"]
 ---
 
 {/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
 
-## Why Trunk Runners
+Trunk Runners run your GitHub Actions jobs on Trunk's own bare-metal fleet. You
+keep your workflows on GitHub and change one line, the `runs-on` label, to move a
+job. Trunk Runners are built around three promises:
 
-<CardGroup cols={2}>
-  <Card title="Stop repeating setup every run" icon="server">
-    Custom templates allow you to bake in all the machine setup so you run less
-    with every job.
+<CardGroup cols={3}>
+  <Card title="Fast" icon="bolt">
+    Bare-metal machines, templates that start jobs ready to run, and caches that
+    live next to the compute.
   </Card>
-  <Card title="Tuned for your jobs" icon="gauge">
-    Mix-n-match CPU and memory to match your needs.
+  <Card title="Reliable" icon="shield-check">
+    A fleet run by Trunk's platform team, with priority for the branches that
+    must stay fast.
   </Card>
-  <Card title="Caching" icon="bolt">
-    A shared in-cluster cache lets jobs reuse results across runs.
-  </Card>
-  <Card title="Observability" icon="sliders">
-    Monitor system usage to tune your jobs for the right balance of cost vs
-    performance.
+  <Card title="Affordable" icon="piggy-bank" href="/runners/pricing">
+    Pay per CPU minute and per GB minute of memory, with no plan to buy and no
+    machine minimums.
   </Card>
 </CardGroup>
+
+## Fast
+
+### Faster hardware
+
+Jobs run on bare-metal machines, not on shared cloud VMs. On the same job, a
+Trunk runner is about 40% faster than a comparable AWS machine.
+
+### Start ready with templates
+
+Most CI time is spent before the first build step: installing toolchains,
+pulling images, restoring dependencies. A [template](/runners/actions/templates-and-regions)
+bakes that setup into the machine image, so a job starts with everything it
+needs already in place. Setup that a cache can only speed up, a template
+removes.
+
+### Caches in the compute cluster
+
+The Trunk shared cache runs in the same cluster as your jobs, and Trunk sets it
+up for you with no workflow changes.
+
+| Tool            | What you get                                                                        |
+| --------------- | ----------------------------------------------------------------------------------- |
+| `actions/cache` | About 275 MiB/s, against about 110 MiB/s on the GitHub cache, with similar latency. |
+| Bazel           | The shared cache as Bazel's remote cache.                                           |
+| sccache         | Rust builds through `sccache`, with the shared cache as storage.                    |
+| Nix             | The shared cache as a Nix binary cache.                                             |
+
+`actions/cache` support makes moving to Trunk Runners easy. Over time, move the
+setup it restores into a template and skip the restore entirely. See
+[Caching](/runners/cache/index).
+
+## Reliable
+
+- **Run by a platform team.** Trunk operates the fleet, the images, and the
+  caches, so your team does not maintain self-hosted runners.
+- **Priority for the branches that matter.** Mark your default branch, release
+  branches, or merge queue branches as priority. When CI is busy, their jobs
+  start first. See [Limits and priority](/runners/settings/limits-and-priority).
+- **Nothing dropped under load.** When your organization reaches its CPU limit,
+  Trunk holds new jobs and starts them as CPUs free up.
+- **A fresh machine for every job.** Each job gets a new VM, which Trunk removes
+  when the job ends. No state leaks from one job to the next.
+
+## Affordable
+
+- **Pay for what the job uses.** Compute is billed per vCPU minute and memory per
+  GB minute. The default machine (2 CPUs, 8 GiB) costs $0.006 per minute. See
+  [Pricing](/runners/pricing).
+- **Size each job to fit.** Mix CPU count and memory per job, so a lint job does
+  not pay for a build machine. See [Machine sizes](/runners/actions/sizes).
+- **Run less CI.** Pair Trunk Runners with [Dynamic CI](/ci/dynamic-ci/index) to
+  skip jobs that a change cannot affect. The cheapest job is the one that does
+  not run.
+- **See where the time goes.** Monitor CPU and memory use per job to find the
+  right balance of cost and speed.
 
 ## How it works
 

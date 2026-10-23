@@ -806,7 +806,8 @@
             "group": "Overview",
             "pages": [
               "runners/index",
-              "runners/getting-started"
+              "runners/getting-started",
+              "runners/pricing"
             ]
           },
           {
