@@ -139,6 +139,7 @@ Trunk can accept the XML written by `swift test --xunit-output` through the `--s
 ```
 ./trunk-analytics-cli upload --swift-test-xunit-paths "junit-swift-testing.xml,junit.xml" \
    --org-url-slug <TRUNK_ORG_URL_SLUG> \
+   --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
    --token $TRUNK_API_TOKEN
 ```
 
@@ -236,6 +237,7 @@ Trunk can accept the XML written by `swift test --xunit-output` through the `--s
 ```
 ./trunk-analytics-cli test --swift-test-xunit-paths "junit-swift-testing.xml,junit.xml" \
    --org-url-slug <TRUNK_ORG_URL_SLUG> \
+   --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
    --token $TRUNK_API_TOKEN \
    <YOUR_TEST_COMMAND>
 ```
