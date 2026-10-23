@@ -883,7 +883,8 @@
                   "POST /v2/pull-requests/{id}/restart-tests",
                   "POST /v2/pull-requests/{id}/dequeue",
                   "GET /v2/pull-requests/{id}/queue-entry-history",
-                  "GET /v2/queue-entry-history"
+                  "GET /v2/queue-entry-history",
+                  "GET /v2/pull-requests/{id}/queue-entry-estimate"
                 ]
               },
               {

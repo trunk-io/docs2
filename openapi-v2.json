@@ -67,6 +67,10 @@
     {
       "name": "tests",
       "x-group": "Tests"
+    },
+    {
+      "name": "testUploads",
+      "x-group": "Test Uploads"
     }
   ],
   "components": {
@@ -479,6 +483,7 @@
           "MERGE_QUEUE_NOT_CREATABLE",
           "PR_TESTS_NOT_RESTARTABLE",
           "ALLOWED_BOT_SUBMITTERS_FROZEN",
+          "ESTIMATE_NOT_ENABLED",
           "PROVIDER_URL_NOT_FOUND",
           "CI_HOST_UNSUPPORTED",
           "CI_SCOPE_NOT_FOUND",
@@ -486,8 +491,10 @@
           "CI_FAILURE_CLUSTER_NOT_FOUND",
           "TEST_COLLECTION_NOT_FOUND",
           "TEST_NOT_FOUND",
+          "TEST_UPLOAD_NOT_FOUND",
           "TICKETING_NOT_CONFIGURED",
           "TICKETING_CREDENTIALS_INVALID",
+          "TICKETING_SITE_REFUSED",
           "TICKET_NOT_FOUND",
           "TICKET_LINK_CONFLICT",
           "RATE_LIMIT_EXCEEDED"
@@ -1901,7 +1908,7 @@
           }
         },
         "required": ["number", "url"],
-        "description": "The draft pull request the queue opened for the test branch, where its checks and logs are. Absent unless the queue is configured to create one."
+        "description": "The pull request or merge request the queue opened for the test branch, where its checks and logs are. On GitHub, the pull request the queue opened for the test branch, present only when the queue is configured to open one. On GitLab, the draft merge request the queue always opens for the test branch; `number` is its iid and `url` its web URL, e.g. `https://gitlab.com/acme/widgets/-/merge_requests/42`."
       },
       "VerificationRunImpactedTargets": {
         "type": "object",
@@ -2312,6 +2319,222 @@
         "enum": ["queuePullRequest", "baseBranch", "stackedPullRequest"],
         "description": "What the conflicting commit belongs to. `queuePullRequest` — an entry ahead in the queue. `baseBranch` — the target branch itself advanced. `stackedPullRequest` — a member of a stacked pull request."
       },
+      "QueueEntryEstimate": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/AvailableQueueEntryEstimate"
+          },
+          {
+            "$ref": "#/components/schemas/UnavailableQueueEntryEstimate"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "status",
+          "mapping": {
+            "available": "#/components/schemas/AvailableQueueEntryEstimate",
+            "unavailable": "#/components/schemas/UnavailableQueueEntryEstimate"
+          }
+        },
+        "description": "A live estimate for a queued pull request, computed by simulating the queue forward from its current state over the queue's recent test history, or why there is none. A point-in-time prediction: a new submission, a priority change or a failure ahead changes it, so read it again when it is needed rather than counting down from one answer."
+      },
+      "AvailableQueueEntryEstimate": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["available"],
+            "example": "available"
+          },
+          "computedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the public API received the estimate from the merge service; every other instant is relative to it, so each carries that call's latency.",
+            "example": "2026-10-07T15:04:05.000Z"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/QueueEntryEstimateKind"
+          },
+          "estimatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "For `kind: merge`, the median estimate of when the pull request merges: half of comparable entries finish sooner, half later. For `kind: pendingFailureResolution`, when the failure is expected to resolve — an upper bound, since it waits for every run the failure depends on, while a restart or a passing run behind it can resolve it sooner.",
+            "example": "2026-10-07T15:24:05.000Z"
+          },
+          "estimatedAtState": {
+            "$ref": "#/components/schemas/QueueEntryEstimateTimeState"
+          },
+          "confidence": {
+            "$ref": "#/components/schemas/QueueEntryEstimateConfidence"
+          },
+          "pullRequestsAhead": {
+            "type": "integer",
+            "description": "How many pull requests this one depends on and so must merge behind: a count of blockers, not a queue position. In a `graph` queue, pull requests in independent lanes are not counted. Past the graph's soft cap, before the pull request is admitted, it counts every pull request in the queue — an upper bound on its blockers.",
+            "example": 3
+          },
+          "startsTestingAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Present while the entry waits for a test slot.",
+            "example": "2026-10-07T15:09:05.000Z"
+          },
+          "startsTestingAtState": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/QueueEntryEstimateTimeState"
+              },
+              {
+                "description": "Present exactly when `startsTestingAt` is: how far to trust it."
+              }
+            ]
+          },
+          "testsFinishAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Present while the entry waits or tests: when its verification run is expected to finish passing, including expected restarts.",
+            "example": "2026-10-07T15:23:05.000Z"
+          },
+          "testsFinishAtState": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/QueueEntryEstimateTimeState"
+              },
+              {
+                "description": "Present exactly when `testsFinishAt` is: how far to trust it."
+              }
+            ]
+          },
+          "typicalTestDurationSeconds": {
+            "type": "integer",
+            "description": "The queue's median duration over its recent passing verification runs, in whole seconds rounded down. Absent when the queue has none to report.",
+            "example": 900
+          },
+          "waitingForPullRequestNumbers": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "maxItems": 10000,
+            "description": "For `pendingFailureResolution`, the pull requests whose runs the failure is waiting on right now; empty otherwise.",
+            "example": [4901]
+          },
+          "sampleSize": {
+            "type": "integer",
+            "description": "Passing tested pull requests in the queue's last 14 days the estimate draws on — one per pull request per verification run, so a passing batch of four counts four.",
+            "example": 120
+          }
+        },
+        "required": [
+          "status",
+          "computedAt",
+          "kind",
+          "estimatedAt",
+          "estimatedAtState",
+          "confidence",
+          "pullRequestsAhead",
+          "waitingForPullRequestNumbers",
+          "sampleSize"
+        ],
+        "description": "An estimate the merge service could compute."
+      },
+      "QueueEntryEstimateKind": {
+        "type": "string",
+        "enum": ["merge", "pendingFailureResolution"],
+        "description": "`merge`: `estimatedAt` is when the pull request is expected to merge. `pendingFailureResolution`: the entry is in `pendingFailure`, and `estimatedAt` is when the failure is expected to resolve — by a restart, a bisection, a pass, or a failure — not a merge time.",
+        "example": "merge"
+      },
+      "QueueEntryEstimateTimeState": {
+        "type": "string",
+        "enum": ["onTrack", "holding", "pastTypical", "pastP95"],
+        "description": "How far to trust the instant it accompanies. `onTrack`: a forecast that moves closer as time passes. `holding`: not counting down, because the queue is waiting on a step it treats as instant (such as a verification run that can start now) or the instant is under a 30-second floor; it does not mean the instant is near. `pastTypical`: held by a run, this entry's or one ahead of it, that is past its typical time, so the instant is likely an underestimate; on `testsFinishAtState` the run is this entry's own, so compare against `typicalTestDurationSeconds`. `pastP95`: only on `testsFinishAtState`, this entry's verification run is taking longer than 95% of the queue's recent passing runs.",
+        "example": "onTrack"
+      },
+      "QueueEntryEstimateConfidence": {
+        "type": "string",
+        "enum": ["low", "medium", "high"],
+        "description": "From how much history the queue has, lowered while the entry waits, sits deep in the queue, is held behind a failure, is bisecting, or has a pending failure ahead of it.",
+        "example": "medium"
+      },
+      "UnavailableQueueEntryEstimate": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["unavailable"],
+            "example": "unavailable"
+          },
+          "computedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the public API received the estimate from the merge service; every other instant is relative to it, so each carries that call's latency.",
+            "example": "2026-10-07T15:04:05.000Z"
+          },
+          "reason": {
+            "$ref": "#/components/schemas/QueueEntryEstimateUnavailableReason"
+          },
+          "sampleSize": {
+            "type": "integer",
+            "description": "Present for `insufficientHistory` and `unsupportedQueueState`. Passing tested pull requests in the queue's last 14 days the estimate draws on — one per pull request per verification run, so a passing batch of four counts four.",
+            "example": 3
+          },
+          "samplesRequired": {
+            "type": "integer",
+            "description": "Present for `insufficientHistory`: the `sampleSize` an estimate needs.",
+            "example": 8
+          },
+          "startsTestingAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Present for `inBisection` while the entry waits for a test slot in its bisection.",
+            "example": "2026-10-07T15:09:05.000Z"
+          },
+          "startsTestingAtState": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/QueueEntryEstimateTimeState"
+              },
+              {
+                "description": "Present exactly when `startsTestingAt` is: how far to trust it."
+              }
+            ]
+          },
+          "testsFinishAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Present for `inBisection` while the entry waits or tests: when its bisection run is expected to finish passing. Passing returns the entry to the queue rather than merging it.",
+            "example": "2026-10-07T15:23:05.000Z"
+          },
+          "testsFinishAtState": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/QueueEntryEstimateTimeState"
+              },
+              {
+                "description": "Present exactly when `testsFinishAt` is: how far to trust it."
+              }
+            ]
+          },
+          "typicalTestDurationSeconds": {
+            "type": "integer",
+            "description": "The queue's median duration over its recent passing verification runs, in whole seconds rounded down. Absent when the queue has none to report.",
+            "example": 900
+          }
+        },
+        "required": ["status", "computedAt", "reason"],
+        "description": "Why no estimate could be computed."
+      },
+      "QueueEntryEstimateUnavailableReason": {
+        "type": "string",
+        "enum": [
+          "insufficientHistory",
+          "notInQueue",
+          "queueNotRunning",
+          "unsupportedQueueState",
+          "estimateFailed",
+          "inBisection"
+        ],
+        "description": "`insufficientHistory`: too few passing tested pull requests in the last 14 days — see `sampleSize` and `samplesRequired`. `notInQueue`: the entry is not ready yet, so it holds no position. `queueNotRunning`: the queue is paused, draining or switching modes. `unsupportedQueueState`: the queue's current shape cannot be estimated, for example a dependency cycle or an entry far past the graph's soft cap. `estimateFailed`: the estimate could not be computed; retry later. `inBisection`: the entry is in a bisection, where passing returns it to the queue rather than merging it, and when depends on the rest of the bisection.",
+        "example": "insufficientHistory"
+      },
       "BatchQueueEntryHistoryList": {
         "type": "object",
         "properties": {
@@ -2423,7 +2646,7 @@
               "$ref": "#/components/schemas/JobVerdict"
             },
             "maxItems": 1000,
-            "description": "One verdict per job. **A job absent from this list must be run** — the documented fail-safe, and how an unrecognized job, a merge-queue branch, and a not-yet-enabled organization are all reported."
+            "description": "One verdict per job. **A job absent from this list must be run** — the documented fail-safe, and how an unrecognized job, a CI job experiment branch, and a not-yet-enabled organization are all reported."
           },
           "notice": {
             "$ref": "#/components/schemas/PlanNotice"
@@ -2494,7 +2717,8 @@
           "mid-pr-stack",
           "required-check",
           "merge-queue-is-required",
-          "paths-filter"
+          "paths-filter",
+          "draft-pull-request"
         ],
         "description": "Which independent signal produced a contribution to a job's verdict. These identifiers are also what `ignoreSignals` accepts.",
         "example": "historical-pass-rate"
@@ -2517,7 +2741,7 @@
         "properties": {
           "code": {
             "type": "string",
-            "description": "A stable identifier for the condition, safe to branch on. Today: `ORG_NOT_ENABLED`, `REPO_NOT_ENABLED`, `REPO_IN_SHADOW_MODE`, `ENGINE_UNAVAILABLE`, `WORKFLOW_NOT_RECOGNIZED`. `MERGE_QUEUE_BRANCH` is retired and no longer sent — merge-queue runs now carry real per-job verdicts. **An open set** — fall back to `message` for a code you do not recognize.",
+            "description": "A stable identifier for the condition, safe to branch on. Today: `ORG_NOT_ENABLED`, `REPO_NOT_ENABLED`, `REPO_IN_SHADOW_MODE`, `ENGINE_UNAVAILABLE`, `WORKFLOW_NOT_RECOGNIZED`, `EXPERIMENT_BRANCH` (a Trunk Runners experiment branch, where every job runs). `MERGE_QUEUE_BRANCH` is retired and no longer sent — merge-queue runs now carry real per-job verdicts. **An open set** — fall back to `message` for a code you do not recognize.",
             "example": "ORG_NOT_ENABLED"
           },
           "message": {
@@ -2527,7 +2751,7 @@
           }
         },
         "required": ["code", "message"],
-        "description": "Why this plan has the shape it does. **Absent unless every job runs for a reason `jobs` cannot express**: a not-yet-enabled organization or repository, a merge-queue branch, an engine outage, or a workflow Trunk has not enumerated — all indistinguishable otherwise, and all arriving as an empty `jobs` when you request a whole workflow. `REPO_IN_SHADOW_MODE` is the exception: the plan is fully populated and each `summary` is the recommendation the job would have received, but nothing is allowed to skip."
+        "description": "Why this plan has the shape it does. **Absent unless every job runs for a reason `jobs` cannot express**: a not-yet-enabled organization or repository, a CI job experiment branch (`trunk-runners/experiments/`), an engine outage, or a workflow Trunk has not enumerated — all indistinguishable otherwise, and all arriving as an empty `jobs` when you request a whole workflow. `REPO_IN_SHADOW_MODE` is the exception: the plan is fully populated and each `summary` is the recommendation the job would have received, but nothing is allowed to skip."
       },
       "CiPlanRequest": {
         "type": "object",
@@ -3080,7 +3304,7 @@
           },
           "testCount": {
             "type": "integer",
-            "description": "Distinct tests seen in this collection. Reflects ingested uploads, so a brand-new collection reports 0 until its first upload is processed.",
+            "description": "Distinct tests seen in this collection. Reflects ingested uploads, so a brand-new collection reports 0 until its first upload is processed. `GET /v2/test-collections/{id}` may serve a value up to a minute old.",
             "example": 1284
           },
           "quarantineEnabled": {
@@ -3133,6 +3357,162 @@
         },
         "required": ["name"],
         "description": "Fields for a new test collection."
+      },
+      "QuarantineStatus": {
+        "type": "object",
+        "properties": {
+          "testCollectionUuid": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The collection's internal UUID, which a test's `testId` is computed from. Use it only for that: everywhere else a collection is addressed by its `id`.",
+            "example": "204b6c93-1c51-4e0f-a13c-e07b9bc60688"
+          },
+          "repositoryId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The repository the tests are stored under. The nil UUID for an upload without a repository, or for a repository Trunk does not know.",
+            "example": "7a1f0e3d-2b4c-4d5e-8f90-123456789abc"
+          },
+          "quarantineEnabled": {
+            "type": "boolean",
+            "description": "Whether quarantining is on for the collection. When it is off, no test is quarantined.",
+            "example": true
+          },
+          "tests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuarantineStatusTest"
+            },
+            "maxItems": 2000,
+            "description": "One entry per requested identifier, in request order. Empty when none were sent. The whole quarantined set is `GET /v2/test-collections/{id}/all-quarantined-tests`."
+          }
+        },
+        "required": [
+          "testCollectionUuid",
+          "repositoryId",
+          "quarantineEnabled",
+          "tests"
+        ]
+      },
+      "QuarantineStatusTest": {
+        "type": "object",
+        "properties": {
+          "clientTestId": {
+            "type": ["string", "null"],
+            "description": "The identifier's `id`, echoed so the caller can match it.",
+            "example": "88e5353c-190c-5dce-9d06-0e66c3e062b1"
+          },
+          "testId": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "The test's id, as `GET /v2/tests/{testId}` takes it. Always present when the identifier had an `id`. Without one, present only when the identifier matched a quarantined test by name.",
+            "example": "bfeebcf4-72d1-887d-8bcd-788d0dec7f97"
+          },
+          "quarantined": {
+            "type": "boolean",
+            "description": "Whether the test is quarantined, so its failure should not fail the run.",
+            "example": true
+          }
+        },
+        "required": ["clientTestId", "testId", "quarantined"]
+      },
+      "QuarantineStatusRequest": {
+        "type": "object",
+        "properties": {
+          "repo": {
+            "type": ["object", "null"],
+            "properties": {
+              "host": {
+                "type": "string",
+                "minLength": 1,
+                "example": "github.com"
+              },
+              "owner": {
+                "type": "string",
+                "minLength": 1,
+                "example": "acme"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "example": "web"
+              }
+            },
+            "required": ["host", "owner", "name"],
+            "description": "The repository the tests ran in, as the CLI reads it from git. `null` for an upload made without a repository (`--no-repo`)."
+          },
+          "testIdentifiers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "The CLI's id for the test, in UUID form. When present, the test is matched by it alone.",
+                  "example": "88e5353c-190c-5dce-9d06-0e66c3e062b1"
+                },
+                "name": {
+                  "type": "string",
+                  "example": "renders the checkout total"
+                },
+                "parentName": {
+                  "type": "string",
+                  "example": "CheckoutSuite"
+                },
+                "className": {
+                  "type": "string",
+                  "description": "Narrows a match by name. Ignored when `id` is present or when empty.",
+                  "example": "CheckoutSuiteTest"
+                }
+              },
+              "required": ["name", "parentName"]
+            },
+            "maxItems": 2000,
+            "description": "The tests to report on, usually the run's failures. Each one gets an entry in `tests`, in this order."
+          }
+        },
+        "required": ["repo"],
+        "description": "The repository and the tests to look up."
+      },
+      "QuarantinedTestList": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuarantinedTest"
+            },
+            "maxItems": 25000
+          },
+          "nextCursor": {
+            "type": ["string", "null"],
+            "description": "Opaque cursor for the next page, or null on the last page. Pass it back verbatim as `cursor`; do not construct or inspect one.",
+            "example": "AQEKZm9vYmFy"
+          },
+          "hasMore": {
+            "type": "boolean",
+            "description": "True when another page is available.",
+            "example": true
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total rows matching the filter. Present only when the request set `includeTotal=true`.",
+            "example": 1247
+          }
+        },
+        "required": ["data", "nextCursor", "hasMore"]
+      },
+      "QuarantinedTest": {
+        "type": "object",
+        "properties": {
+          "testId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The test's id, as `GET /v2/tests/{testId}` takes it. A test runner computes the same id for each test it runs from `testCollectionUuid`, `repositoryId` and its own test id (`gen_test_case_guid`), then checks it against this list.",
+            "example": "bfeebcf4-72d1-887d-8bcd-788d0dec7f97"
+          }
+        },
+        "required": ["testId"]
       },
       "Test": {
         "allOf": [
@@ -3328,6 +3708,42 @@
         "description": "A monitor type that can apply a label.",
         "example": "failureRate"
       },
+      "TicketSummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Trunk's id for the linked ticket.",
+            "example": "5d4c3b2a-1f0e-4a1b-8c9d-0e1f2a3b4c5d"
+          },
+          "provider": {
+            "$ref": "#/components/schemas/TicketProvider"
+          },
+          "key": {
+            "type": "string",
+            "description": "The provider's human-readable key. Mutable on some providers (a Jira issue moved between projects gets a new one).",
+            "example": "TRUNK-1234"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://acme.atlassian.net/browse/TRUNK-1234"
+          },
+          "status": {
+            "type": "string",
+            "description": "The provider's status name, as last synced.",
+            "example": "In Progress"
+          }
+        },
+        "required": ["id", "provider", "key", "url", "status"],
+        "description": "The ticket linked to a test, as Trunk last synced it. Reading a test never calls the ticketing provider."
+      },
+      "TicketProvider": {
+        "type": "string",
+        "enum": ["jiraCloud", "linear", "asana", "jiraDataCenter"],
+        "description": "The ticketing system a ticket lives in.",
+        "example": "jiraCloud"
+      },
       "TestMetrics": {
         "type": "object",
         "properties": {
@@ -3504,12 +3920,35 @@
           "quarantineState": {
             "$ref": "#/components/schemas/QuarantineState"
           },
+          "quarantinedSince": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "When the test's current quarantine began, as far as Trunk records it. Null exactly when `quarantineState` is `notQuarantined`. For a test quarantined by an `alwaysQuarantine` override, the time that override was set. For a test quarantined automatically, the later of `statusSince` and the last time an override on it was cleared. Changes to the collection's quarantine settings are not recorded per test, so this can be earlier than when quarantining was turned on for the collection.",
+            "example": "2026-06-01T10:00:00.000Z"
+          },
           "labels": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Label"
             },
             "maxItems": 100
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "The test's page in the Trunk web app.",
+            "example": "https://app.trunk.io/acme/flaky-tests/collections/aB3xY9kQ/tests/bfeebcf4-0000-8000-8000-000000000001"
+          },
+          "ticket": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TicketSummary"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The ticket currently linked to this test, as Trunk last synced it, or null if none is linked."
           },
           "metrics": {
             "anyOf": [
@@ -3538,7 +3977,10 @@
           "status",
           "statusSince",
           "quarantineState",
-          "labels"
+          "quarantinedSince",
+          "labels",
+          "url",
+          "ticket"
         ]
       },
       "TestList": {
@@ -3785,6 +4227,222 @@
         },
         "required": ["number"]
       },
+      "CreatedTestUpload": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The upload's id. The bundle uploaded to `uploadUrl` must carry it, with `createdAt`.",
+            "example": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["awaitingData"],
+            "description": "The bundle has not been uploaded yet.",
+            "example": "awaitingData"
+          },
+          "uploadUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "A pre-signed URL to `PUT` the bundle to, without Trunk credentials. It expires at `expiresAt`.",
+            "example": "https://bundles.s3.us-west-2.amazonaws.com/20261006/0d9c3de1-14a0-4f68-a44a-2fbbcf0dcb2f/a1b2c3/f47ac10b-58cc-4372-a567-0e02b2c3d479.tar.zst?X-Amz-Signature=3f1b8c9e"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When `uploadUrl` stops accepting the bundle: at most an hour after `createdAt`, and at least 15 minutes.",
+            "example": "2026-10-06T17:00:00.000Z"
+          },
+          "repositoryId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The repository the tests are stored under. The nil UUID for an upload without a repository, or for a repository Trunk could not find or create.",
+            "example": "7a1f0e3d-2b4c-4d5e-8f90-123456789abc"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the upload was created.",
+            "example": "2026-10-06T16:00:00.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "uploadUrl",
+          "expiresAt",
+          "repositoryId",
+          "createdAt"
+        ],
+        "description": "A test-results upload, waiting for its bundle."
+      },
+      "CreateTestUploadRequest": {
+        "type": "object",
+        "properties": {
+          "repo": {
+            "type": ["object", "null"],
+            "properties": {
+              "host": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256,
+                "example": "github.com"
+              },
+              "owner": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512,
+                "example": "acme"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512,
+                "example": "web"
+              }
+            },
+            "required": ["host", "owner", "name"],
+            "description": "The repository the tests ran in, as the CLI reads it from git. `null` for an upload made without a repository (`--no-repo`)."
+          },
+          "remoteUrls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048
+            },
+            "maxItems": 20,
+            "description": "The repository's git remote URLs. When present and Trunk does not know the repository yet, it is created.",
+            "example": ["https://github.com/acme/web.git"]
+          },
+          "clientVersion": {
+            "type": "string",
+            "maxLength": 256,
+            "description": "The uploading client's version.",
+            "example": "0.12.3"
+          },
+          "externalId": {
+            "type": "string",
+            "maxLength": 256,
+            "description": "The CI job's own id, used to match the upload to its GitHub Actions job.",
+            "example": "45829103344"
+          }
+        },
+        "required": ["repo"],
+        "description": "The repository the tests ran in, and the client uploading."
+      },
+      "TestUpload": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The upload's id.",
+            "example": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+          },
+          "testCollectionId": {
+            "type": "string",
+            "description": "The id of the test collection the upload belongs to.",
+            "example": "aB3xY9kQ"
+          },
+          "repositoryId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The repository the tests are stored under. The nil UUID for an upload without a repository.",
+            "example": "7a1f0e3d-2b4c-4d5e-8f90-123456789abc"
+          },
+          "status": {
+            "$ref": "#/components/schemas/TestUploadStatus"
+          },
+          "defects": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TestUploadDefect"
+            },
+            "maxItems": 1000,
+            "description": "The problems ingestion found, oldest first. Empty until the bundle has been read. At most 1000; past that, every `invalid` defect is kept before any `suboptimal` one."
+          },
+          "clientVersion": {
+            "type": "string",
+            "description": "The version of the client that built the bundle, as ingestion read it from the bundle. Empty until the bundle has been read. It is not the `clientVersion` sent on the create.",
+            "example": "trunk-analytics-cli 0.12.3"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the upload was created.",
+            "example": "2026-10-06T16:00:00.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The last time ingestion touched the upload. Each ingestion attempt moves it, even when `status` stays the same.",
+            "example": "2026-10-06T16:00:04.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "testCollectionId",
+          "repositoryId",
+          "status",
+          "defects",
+          "clientVersion",
+          "createdAt",
+          "updatedAt"
+        ],
+        "description": "A test-results upload: where it is, and what ingestion found."
+      },
+      "TestUploadStatus": {
+        "type": "string",
+        "enum": ["awaitingData", "received", "ingested", "skipped"],
+        "description": "Where an upload is. `awaitingData`: Trunk has not read the bundle. Past `expiresAt` on the create, it was never uploaded or could not be read. `received`: ingestion has started and not finished. Ingestion retries for about 10 minutes, so an upload still `received` with `updatedAt` more than 15 minutes old was not ingested and will not change. `ingested`: ingestion has recorded the upload. Its results and defects are written just after, so `defects` can still grow for a few seconds; each one moves `updatedAt`. If writing them fails, the upload stays `ingested` with its results incomplete. An `invalid` defect names a part of the bundle that was left out. `skipped`: it was read, but so many of its tests failed that Trunk treated the run as an infrastructure failure and stored no results.",
+        "example": "ingested"
+      },
+      "TestUploadDefect": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/TestUploadDefectType"
+          },
+          "level": {
+            "$ref": "#/components/schemas/TestUploadDefectLevel"
+          },
+          "source": {
+            "type": "string",
+            "description": "Where in the upload the defect is, such as a report path.",
+            "example": "reports/junit.xml"
+          },
+          "message": {
+            "type": "string",
+            "description": "What is wrong.",
+            "example": "Test case `login` has no timestamp"
+          }
+        },
+        "required": ["type", "level", "source", "message"],
+        "description": "A problem ingestion found in an upload."
+      },
+      "TestUploadDefectType": {
+        "type": "string",
+        "enum": [
+          "unspecified",
+          "junit",
+          "env",
+          "repo",
+          "bundleSize",
+          "reportLimit",
+          "meta",
+          "deprecatedCli"
+        ],
+        "description": "What part of the upload a defect is about.",
+        "example": "junit"
+      },
+      "TestUploadDefectLevel": {
+        "type": "string",
+        "enum": ["suboptimal", "invalid"],
+        "description": "`invalid`: Trunk could not use the part of the bundle the defect names (`type`, `source`), and ingested the rest. `suboptimal`: that part was used, with less information than it could have had.",
+        "example": "suboptimal"
+      },
       "Ticket": {
         "type": "object",
         "properties": {
@@ -3837,12 +4495,6 @@
           "assignee",
           "syncedAt"
         ]
-      },
-      "TicketProvider": {
-        "type": "string",
-        "enum": ["jiraCloud", "linear", "asana"],
-        "description": "The ticketing system a ticket lives in.",
-        "example": "jiraCloud"
       },
       "LinkTicketRequest": {
         "type": "object",
@@ -7013,6 +7665,120 @@
         }
       }
     },
+    "/v2/pull-requests/{id}/queue-entry-estimate": {
+      "get": {
+        "operationId": "pullRequests.queueEntryEstimate",
+        "tags": ["pullRequests"],
+        "summary": "Estimate when a queued pull request will merge",
+        "description": "Returns a live estimate for this pull request's queue entry: when it is expected to merge, when it starts and finishes testing, and how many pull requests it is waiting behind. An entry in `pendingFailure` instead reports when that failure is expected to resolve (`kind: pendingFailureResolution`) and which pull requests it is waiting on.\n\nThe estimate is computed on each request by simulating the queue forward, so it changes as the queue moves. Read it when the answer is needed rather than in a tight loop: each call runs a fresh simulation, and like the other pull-request reads it is rate-limited per caller. When no estimate can be given — a queue with too little test history, a pull request that is not ready yet, a paused queue — the response says why (`status: unavailable`, `reason`).\n\nNot every queue serves estimates yet: one that does not answers 404 `ESTIMATE_NOT_ENABLED`.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "The pull request's id.",
+              "example": "0f8fad5b-d9cb-469f-a165-70867728950e"
+            },
+            "required": true,
+            "description": "The pull request's id.",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The entry's estimate, or why there is none",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueueEntryEstimate"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`INSUFFICIENT_PERMISSIONS`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`PR_NOT_FOUND` | `ESTIMATE_NOT_ENABLED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "`PR_NOT_IN_ACTIVE_STATE`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "`UPSTREAM_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/queue-entry-history": {
       "get": {
         "operationId": "pullRequests.queueEntryHistoryBatch",
@@ -8399,7 +9165,7 @@
         "operationId": "testCollections.get",
         "tags": ["testCollections"],
         "summary": "Get a test collection",
-        "description": "Returns one test collection. A collection in another organization is reported as `404`, not `403`.",
+        "description": "Returns one test collection. `quarantineEnabled` and `autoQuarantineEnabled` are read on every call, so a CI run can check them before it uploads; `testCount` may lag by up to a minute. A collection in another organization is reported as `404`, not `403`.",
         "parameters": [
           {
             "schema": {
@@ -8447,6 +9213,253 @@
           },
           "404": {
             "description": "`TEST_COLLECTION_NOT_FOUND`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/test-collections/{id}/quarantine-status": {
+      "post": {
+        "operationId": "testCollections.getQuarantineStatus",
+        "tags": ["testCollections"],
+        "summary": "Get quarantine status for a CI run",
+        "description": "Reports which tests are quarantined in a collection for one repository, so a CI run can ignore their failures. Send the run's failing tests as `testIdentifiers` to get an answer for each. This is a read sent as `POST` because the identifier list can be large. Requires the **Upload test results** permission. Quarantine changes reach this response within a minute.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9A-Za-z]{8}$",
+              "description": "The collection's id: 8 alphanumeric characters.",
+              "example": "aB3xY9kQ"
+            },
+            "required": true,
+            "description": "The collection's id: 8 alphanumeric characters.",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuarantineStatusRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The collection's quarantine status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuarantineStatus"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`INSUFFICIENT_PERMISSIONS`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`TEST_COLLECTION_NOT_FOUND`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/test-collections/{id}/all-quarantined-tests": {
+      "get": {
+        "operationId": "testCollections.listAllQuarantinedTests",
+        "tags": ["testCollections"],
+        "summary": "List every quarantined test for a CI run",
+        "description": "Lists the `testId` of every quarantined test in a collection for one repository, in `testId` order, so a test runner can decide each failure itself as it happens. Take `repositoryId` and `testCollectionUuid` from `POST /v2/test-collections/{id}/quarantine-status`, which also reports `quarantineEnabled`; while quarantining is off this list is empty. A runner computes each test's `testId` from those two and its own test id, and matches on it. A page holds up to 25,000 tests. A `repositoryId` that is neither the nil UUID nor a repository in your organization is a `404`. Requires the **Upload test results** permission. Quarantine changes reach this list within a minute, so a test that joins or leaves the set while you page through it may be missed, or still listed, until your next pass.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9A-Za-z]{8}$",
+              "description": "The collection's id: 8 alphanumeric characters.",
+              "example": "aB3xY9kQ"
+            },
+            "required": true,
+            "description": "The collection's id: 8 alphanumeric characters.",
+            "name": "id",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 25000,
+              "default": 25,
+              "description": "Page size, between 1 and 25000.",
+              "example": 25
+            },
+            "required": false,
+            "description": "Page size, between 1 and 25000.",
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "Opaque cursor from a previous response's `nextCursor`. A cursor is bound to the operation and filter it was minted for.",
+              "example": "AQEKZm9vYmFy"
+            },
+            "required": false,
+            "description": "Opaque cursor from a previous response's `nextCursor`. A cursor is bound to the operation and filter it was minted for.",
+            "name": "cursor",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "description": "Set true to include `total` in the response. Costs an extra COUNT query, so it is off by default.",
+              "example": false
+            },
+            "required": false,
+            "description": "Set true to include `total` in the response. Costs an extra COUNT query, so it is off by default.",
+            "name": "includeTotal",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "The repository the tests are stored under, as `quarantine-status` returns it. The nil UUID for uploads without a repository.",
+              "example": "7a1f0e3d-2b4c-4d5e-8f90-123456789abc"
+            },
+            "required": true,
+            "description": "The repository the tests are stored under, as `quarantine-status` returns it. The nil UUID for uploads without a repository.",
+            "name": "repositoryId",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of quarantined tests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuarantinedTestList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`VALIDATION_FAILED` | `INVALID_CURSOR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`INSUFFICIENT_PERMISSIONS`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`TEST_COLLECTION_NOT_FOUND` | `REPOSITORY_NOT_FOUND`",
             "content": {
               "application/json": {
                 "schema": {
@@ -9204,6 +10217,194 @@
         }
       }
     },
+    "/v2/test-collections/{id}/uploads": {
+      "post": {
+        "operationId": "testCollections.createUpload",
+        "tags": ["testCollections"],
+        "summary": "Create a test-results upload",
+        "description": "Starts an upload of one CI run's test results to a collection. `PUT` the results bundle to the returned `uploadUrl` before `expiresAt`. A repository Trunk does not know is created when `remoteUrls` is sent. Requires the **Upload test results** permission.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9A-Za-z]{8}$",
+              "description": "The collection's id: 8 alphanumeric characters.",
+              "example": "aB3xY9kQ"
+            },
+            "required": true,
+            "description": "The collection's id: 8 alphanumeric characters.",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTestUploadRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The upload, waiting for its bundle",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedTestUpload"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`INSUFFICIENT_PERMISSIONS`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`TEST_COLLECTION_NOT_FOUND`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/test-uploads/{id}": {
+      "get": {
+        "operationId": "testUploads.get",
+        "tags": ["testUploads"],
+        "summary": "Get a test-results upload",
+        "description": "Returns where an upload is (waiting for its bundle, received, ingested or skipped) and the problems ingestion found in it. Requires read access to the upload's test collection.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "The upload's id, as its create returned it.",
+              "example": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+            },
+            "required": true,
+            "description": "The upload's id, as its create returned it.",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The upload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestUpload"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`TEST_UPLOAD_NOT_FOUND`: no such upload in your organization, or it is more than 45 days old. A new upload also reads as not found until its record is written, usually within a second of the create, so a `404` shortly after the create means \"not visible yet\", not a failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/tests/{testId}/ticket": {
       "post": {
         "operationId": "tests.linkTicket",
@@ -9286,7 +10487,7 @@
             }
           },
           "409": {
-            "description": "`TICKETING_NOT_CONFIGURED` | `TICKETING_CREDENTIALS_INVALID` | `TICKET_LINK_CONFLICT`",
+            "description": "`TICKETING_NOT_CONFIGURED` | `TICKETING_CREDENTIALS_INVALID` | `TICKETING_SITE_REFUSED` | `TICKET_LINK_CONFLICT`",
             "content": {
               "application/json": {
                 "schema": {
