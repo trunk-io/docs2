@@ -1,0 +1,17 @@
+---
+title: "Merge Queue: Merge time estimates in the v2 API"
+description: "The Merge Queue v2 API can now tell you when a queued pull request is expected to merge."
+date: 2026-10-23
+category: Merge Queue
+type: new-feature
+---
+
+**See when a queued pull request will land, straight from the v2 API.**
+
+### New features
+
+- **Estimate when a pull request will merge.** The new [queue entry estimate](/merge-queue/reference/api-v2/pullrequests/estimate-when-a-queued-pull-request-will-merge) endpoint returns when a pull request is expected to merge, when it starts and finishes testing, and how many pull requests are ahead of it. For a pull request with a pending failure, it reports when that failure should resolve instead.
+
+### Updates
+
+- **Moving from v1?** The v1 `includeEstimatedTimeToMerge` option now maps to this endpoint. Values are camelCase, and unavailable estimates return `404 ESTIMATE_NOT_ENABLED` or `409 PR_NOT_IN_ACTIVE_STATE` instead of `status: unavailable`. See the [migration guide](/merge-queue/reference/api-v2/migrate-from-v1).

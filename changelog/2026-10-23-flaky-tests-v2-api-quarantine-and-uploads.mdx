@@ -1,0 +1,20 @@
+---
+title: "Flaky Tests: Quarantine and upload endpoints in the v2 API"
+description: "The Flaky Tests v2 API can now check quarantine status, upload test results, and track uploads for test collections."
+date: 2026-10-23
+category: Flaky Tests
+type: new-feature
+---
+
+**Build quarantining and test uploads on top of the v2 API.**
+
+### New features
+
+- **Check quarantine status for a CI run.** [Send a run's failing tests](/flaky-tests/reference/api-reference/v2/testcollections/get-quarantine-status-for-a-ci-run) to learn which are quarantined in a [test collection](/flaky-tests/test-collections), so your CI can ignore their failures.
+- **List every quarantined test.** [Fetch the full quarantined list](/flaky-tests/reference/api-reference/v2/testcollections/list-every-quarantined-test-for-a-ci-run) so your test runner can decide each failure as it happens.
+- **Upload test results.** [Start an upload](/flaky-tests/reference/api-reference/v2/testcollections/create-a-test-results-upload) to a collection and send your results bundle to the returned URL.
+- **Track an upload.** [Check an upload's progress](/flaky-tests/reference/api-reference/v2/testuploads/get-a-test-results-upload) and see any problems Trunk found while ingesting it.
+
+### Updates
+
+- **More detail on tests.** v2 [test responses](/flaky-tests/reference/api-reference/v2/tests/get-a-test) now include a `url` to the test's page in Trunk and a `ticket` summary with the linked ticket's key, link, and status.
