@@ -1,17 +1,15 @@
 ---
 title: "Caching"
-description: "The Trunk shared cache lets jobs reuse build results, so they finish faster."
-groups: ["firewatch"]
+description: "The shared cache lets jobs reuse build results, so they finish faster."
+groups:
+  - "firewatch"
 ---
 
 {/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
 
-Trunk Runners come with the Trunk shared cache. Jobs reuse build results across
-runs, so they finish faster. The cache is on by default.
+## What the Runner cache supports
 
-## What the cache supports
-
-Trunk sets up each supported tool for the job. You do not edit your workflows.
+Trunk Runners provides support for the following cache services. Caching is enabled for the entire org with the ability to overwrite cache behavior for each repo. 
 
 | Tool            | On by default | What Trunk does when it is on                                            |
 | --------------- | ------------- | ------------------------------------------------------------------------ |
@@ -20,8 +18,7 @@ Trunk sets up each supported tool for the job. You do not edit your workflows.
 | sccache         | No            | Builds Rust code through `sccache`, with the shared cache as storage.    |
 | Nix             | No            | Adds the shared cache as a Nix binary cache, and uploads what you build. |
 
-An admin turns each tool on or off, per repository or for the organization. See
-[Cache settings](/runners/cache/settings).
+Cache configuration requires admin priveleges. See [Cache settings](/runners/cache/settings)for more options.
 
 ### sccache
 
@@ -51,10 +48,9 @@ The default Trunk runner image does not include Nix. Install it with a
 - Trunk does not cache a single store path that is larger than 2 GiB.
 - A job that runs in a container (`container:`) does not get the Nix setup.
 
-## The cache option
+## Overriding cache behavior
 
-Add `cache` to the `runs-on` label to choose the cache for `actions/cache` in one
-job:
+Add `cache` to the `runs-on` label to override the default cache behavior for that repo:
 
 | Value          | Effect                                                               |
 | -------------- | -------------------------------------------------------------------- |
@@ -83,31 +79,10 @@ branches in the repository. See
   can write to the cache.
 </Info>
 
-## Storage limits
+## Cache Storage Policy
 
 - Trunk removes an entry that no job used for 7 days.
 - Each repository can keep up to 20 GiB for each tool. When a repository goes over
   that limit, Trunk removes the least recently used entries first.
 - Bazel's cache results and their outputs share one 20 GiB limit.
 - Trunk removes a Nix path only when no other path in the cache refers to it.
-- Each region has its own cache.
-
-## See what is cached
-
-GitHub's Caches page and `gh cache` do not show the Trunk shared cache. To see
-it, open the **Shared cache** tab on the **Runners** page of the Trunk web app,
-then click **See what is cached**.
-
-- The first page shows the cache usage of each repository. A member sees the
-  names of the repositories that they can read on GitHub. An organization admin
-  sees every name.
-- Open a repository to see its usage for each tool, its entries, its evictions,
-  and its purges. Choose a region to see the cache of that region.
-- To remove bad entries, filter the entries, then click **Purge matching…**. A
-  purge removes the entries that the filter shows.
-
-| Who                                                    | Can see the entries of | Can purge        |
-| ------------------------------------------------------ | ---------------------- | ---------------- |
-| An organization admin                                  | Every repository       | Every repository |
-| A member with write access to the repository on GitHub | That repository        | That repository  |
-| A member with read access to the repository on GitHub  | That repository        | No               |
