@@ -47,6 +47,13 @@ Regenerates the changelog nav across the sites it appears on from each
 - **`<Columns cols={n}>` accepts 1-4.** A larger value is not an error and does
   not fail the build; it just does not render that many across.
 
+## Runners and Workspaces pages
+
+`runners/` and `trunk-workspaces/` used to be generated from
+`apps/firewatch/docs` in `trunk-io/trunk-cloud`. That sync is removed, so these
+pages are edited here like any other. The `.sync.json` files and the
+"Generated in trunk-io/docs2" comments are leftovers of the sync.
+
 ## Gated sections
 
 Workspaces is restricted per page with `groups:` frontmatter (`["firewatch"]`).
