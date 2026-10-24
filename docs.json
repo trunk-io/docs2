@@ -815,8 +815,7 @@
             "pages": [
               "runners/actions/runs-on",
               "runners/actions/sizes",
-              "runners/actions/templates-and-regions",
-              "runners/actions/run-as"
+              "runners/actions/templates-and-regions"
             ]
           },
           {
@@ -829,15 +828,13 @@
           {
             "group": "Organization settings",
             "pages": [
-              "runners/settings/ci-defaults",
               "runners/settings/limits-and-priority"
             ]
           },
           {
             "group": "Reference",
             "pages": [
-              "runners/reference/runs-on-grammar",
-              "runners/roadmap"
+              "runners/reference/runs-on-grammar"
             ]
           }
         ]
