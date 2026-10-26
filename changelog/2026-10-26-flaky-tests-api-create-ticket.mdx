@@ -1,0 +1,17 @@
+---
+title: "Flaky Tests: Create tickets through the v2 API"
+description: "A new v2 endpoint files a ticket for a test in its collection's default ticketing integration and links it to the test."
+date: 2026-10-26
+category: Flaky Tests
+type: new-feature
+---
+
+**You can now create a ticket for a flaky or broken test from the v2 API, not only from the web app.**
+
+### New features
+
+- **Create a ticket for a test.** The new [Create a ticket for a test](/flaky-tests/reference/api-reference/v2/tests/create-a-ticket-for-a-test) endpoint files a ticket in the test collection's default ticketing integration and links it to the test. The ticket uses the field defaults saved on that integration, and any `fields` you pass override them.
+- **Generated title and description.** Leave out `title` or `description` and Trunk writes them the way the web app does: the test's location, failure rate, owners and most common failure reasons, with a link back to the test.
+- **One ticket per test.** If the test already has a ticket, the call is refused unless you set `replaceExisting`.
+
+See the [API reference](/flaky-tests/reference/api-reference) for all v2 endpoints.

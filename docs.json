@@ -414,7 +414,8 @@
                       "GET /v2/tests/{testId}",
                       "GET /v2/tests/{testId}/status-history",
                       "GET /v2/tests/{testId}/test-runs",
-                      "POST /v2/tests/{testId}/ticket"
+                      "POST /v2/tests/{testId}/ticket",
+                      "POST /v2/tests/{testId}/create-ticket"
                     ]
                   },
                   {
@@ -930,6 +931,7 @@
               {
                 "group": "October",
                 "pages": [
+                  "changelog/2026-10-26-flaky-tests-api-create-ticket",
                   "changelog/2026-10-26-flaky-tests-api-test-links-and-upload-status",
                   "changelog/2026-10-23-flaky-tests-extension-test-details-ga",
                   "changelog/2026-10-23-flaky-tests-swift-test-xml-uploads",
