@@ -1,7 +1,7 @@
 ---
 title: "Cache settings"
-description: "Choose which tools use the shared cache, and which branches a job uses cache from."
-groups: ["firewatch"]
+groups:
+  - "firewatch"
 ---
 
 {/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
@@ -20,29 +20,12 @@ repository override. To change a row, click **Edit**.
 | Organization default | The settings for every repository. |
 | Repository override  | The settings for one repository.   |
 
-A repository override can set each setting, or keep **Default** to use the
-organization's value. If the organization did not change a setting, the job uses
-the Trunk default.
+|  |  |  |
+| --- | --- | --- |
 
-## The settings
-
-| Setting             | Values                                | Trunk default                                      |
-| ------------------- | ------------------------------------- | -------------------------------------------------- |
-| **Shared cache**    | On, Off                               | On                                                 |
-| **Cache**, per tool | On, Off                               | `actions/cache` and Bazel on. sccache and Nix off. |
-| **Uses cache from** | This branch and default, All branches | This branch and default                            |
-
-**Shared cache** is the main switch. When it is off, no tool uses the shared cache.
-Trunk keeps the tool settings, and uses them again when you turn the cache back on.
-
-**Cache** turns one tool on or off. See
-[What the cache supports](/runners/cache/index#what-the-cache-supports). When a tool is
-off, Trunk does not set up that tool for the job.
+**Globally Disable Cache -** From the Shared Cache screen admins can disable all cache functionality for your Trunk Runners. 
 
 ## Which branches a job uses cache from
-
-**Uses cache from** is available for Bazel, sccache, and Nix. `actions/cache` always
-follows the GitHub rules.
 
 | Value                       | A job uses cache entries from                                                   |
 | --------------------------- | ------------------------------------------------------------------------------- |
@@ -52,33 +35,13 @@ follows the GitHub rules.
 With either value, a job writes only to its own branch. For Bazel, the setting
 applies to the action cache.
 
-With **All branches**, a job first looks in its own branch and in the default
-branch. It uses an entry from another branch only when those do not have one.
-
 <Warning>
   With All branches, a person who can push a branch can change what the default
   branch builds. Keep **This branch and default** for a repository that releases
   from its default branch. For Nix, keep it if you deploy from Nix builds.
 </Warning>
 
-A fork pull request never uses entries from other branches. In a repository where
-a tool uses **All branches**, a job that Trunk cannot confirm comes from the same
-repository gets read-only cache access.
-
-## Who can change the settings
-
-| Row                  | Who can change it                                                                    |
-| -------------------- | ------------------------------------------------------------------------------------ |
-| Organization default | An organization admin.                                                               |
-| Repository override  | An organization admin, or a person with the admin role on that repository on GitHub. |
-
 ## When a change applies
 
 Trunk reads the settings when a job starts. A job that already started keeps its
 settings until it ends.
-
-## Use the GitHub cache for one job
-
-To keep the shared cache on but use the GitHub cache for `actions/cache` in one job,
-add `cache=github` to the job's `runs-on` label. This changes only
-`actions/cache`. See [The cache option](/runners/cache/index#the-cache-option).

@@ -1,30 +1,19 @@
 ---
-title: "Limits and priority"
-description: "Your organization has a CPU limit for CI. Mark the branches that run first when CI is busy."
-groups: ["firewatch"]
+title: "Quota and runner priority"
+groups:
+  - "firewatch"
 ---
 
-{/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
+## Quota
 
-Two controls set how much CI your organization runs at once, and which jobs run
-first when CI is busy. Different people set them.
-
-| Control           | Who sets it                                          |
-| ----------------- | ---------------------------------------------------- |
-| CPU limit         | Trunk. Ask the Trunk team to change it.              |
-| Priority branches | An organization admin or owner, in your CI settings. |
-
-## CPU limit
-
-Your organization has a limit on the total CPUs that its CI jobs use at once.
+Your organization has a limit on the total CPUs that Trunk Runners can use at once.
 Trunk sets this limit for your organization.
 
 When your jobs reach the limit, Trunk holds each new job until CPUs become free. A
 held job is not lost. Trunk starts it when there is sufficient room.
 
 <Info>
-  An organization admin cannot change this limit. Ask the Trunk team to raise it
-  if your CI waits too frequently.
+  If you need additional quota please reach out to [support@trunk.io](mailto:support@trunk.io) or over slack. We can generally accomadate quota increases within hours.
 </Info>
 
 ## Priority branches
@@ -37,14 +26,8 @@ Trunk then gives a job on one of those branches two advantages:
   and continues to try the priority jobs. A priority job then gets CPUs as soon
   as they become free.
 
-Use priority for the branches that must stay fast, such as your default branch or
+Use priority for the branches that must stay fast, such as your default branch, merge queue branches or
 a release branch.
-
-<Warning>
-  **Priority does not give a job more CPUs, and it does not let a job pass the
-  CPU limit.** When your organization is at the limit, a priority job also
-  waits.
-</Warning>
 
 ## Branch patterns
 
@@ -59,16 +42,3 @@ rulesets.
 | `**` matches across `/`     | Use `trunk-merge/**/*` for a branch name with more levels.                |
 | An exclude pattern wins     | A branch that both lists match does not have priority.                    |
 | Patterns are case-sensitive | `Main` does not match `main`.                                             |
-
-Each list holds a maximum of 20 patterns. Each pattern holds a maximum of 200
-characters. Trunk does not support brace alternation, or the GitHub `~ALL` and
-`~DEFAULT_BRANCH` names.
-
-<Note>
-  Trunk refuses a pattern that matches all branches, such as `*` or `**`. An
-  error message on the CI settings page shows you the pattern that you must
-  correct.
-</Note>
-
-To turn priority off, clear the whole setting. No job then has priority. Trunk
-refuses a setting whose include list is empty.

@@ -409,6 +409,10 @@
                       "GET /v2/test-collections",
                       "POST /v2/test-collections",
                       "GET /v2/test-collections/{id}",
+                      "POST /v2/test-collections/{id}/quarantine-status",
+                      "GET /v2/test-collections/{id}/all-quarantined-tests",
+                      "POST /v2/test-collections/{id}/uploads",
+                      "GET /v2/test-uploads/{id}",
                       "GET /v2/tests",
                       "GET /v2/tests/{testId}",
                       "GET /v2/tests/{testId}/status-history",
@@ -810,8 +814,7 @@
             "pages": [
               "runners/actions/runs-on",
               "runners/actions/sizes",
-              "runners/actions/templates-and-regions",
-              "runners/actions/run-as"
+              "runners/actions/templates-and-regions"
             ]
           },
           {
@@ -824,15 +827,13 @@
           {
             "group": "Organization settings",
             "pages": [
-              "runners/settings/ci-defaults",
               "runners/settings/limits-and-priority"
             ]
           },
           {
             "group": "Reference",
             "pages": [
-              "runners/reference/runs-on-grammar",
-              "runners/roadmap"
+              "runners/reference/runs-on-grammar"
             ]
           }
         ]
@@ -883,7 +884,8 @@
                   "POST /v2/pull-requests/{id}/restart-tests",
                   "POST /v2/pull-requests/{id}/dequeue",
                   "GET /v2/pull-requests/{id}/queue-entry-history",
-                  "GET /v2/queue-entry-history"
+                  "GET /v2/queue-entry-history",
+                  "GET /v2/pull-requests/{id}/queue-entry-estimate"
                 ]
               },
               {
@@ -931,6 +933,8 @@
               {
                 "group": "October",
                 "pages": [
+                  "changelog/2026-10-23-flaky-tests-extension-test-details-ga",
+                  "changelog/2026-10-23-flaky-tests-swift-test-xml-uploads",
                   "changelog/2026-10-10-flaky-tests-jira-data-center-ticketing",
                   "changelog/2026-10-06-flaky-tests-mcp-test-collections-and-api-updates",
                   "changelog/2026-10-06-merge-queue-skip-redundant-bisection-tests"

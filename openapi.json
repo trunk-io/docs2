@@ -431,6 +431,10 @@
                   "includeTimeline": {
                     "type": "boolean",
                     "description": "When true, the response carries `timeline`: every state change the pull request went through, with timestamps and the details of each. Defaults to false."
+                  },
+                  "includeEstimatedTimeToMerge": {
+                    "type": "boolean",
+                    "description": "When true, the response carries `estimatedTimeToMerge`: when the pull request is expected to merge, computed from the queue ahead of it and the queue's recent test times. Defaults to false."
                   }
                 },
                 "required": [
@@ -626,9 +630,10 @@
                                 "enum": [
                                   "user_requested",
                                   "trunk_admin_requested",
-                                  "api_requested"
+                                  "api_requested",
+                                  "pr_pushed_to"
                                 ],
-                                "description": "How the pull request came to be submitted. New values are added as the queue grows new behavior; treat an unrecognized value as unknown rather than failing."
+                                "description": "Why the pull request is waiting to enter the queue — how it was submitted, or what sent it back to waiting after it had been admitted. New values are added as the queue grows new behavior; treat an unrecognized value as unknown rather than failing."
                               },
                               "actor": {
                                 "type": "object",
@@ -664,6 +669,7 @@
                                 "enum": [
                                   "manual_push_to_target_branch",
                                   "prerequisite_merge_item_cancelled",
+                                  "prerequisite_merge_item_returned_to_waiting",
                                   "prerequisite_merge_item_failed",
                                   "prerequisite_merge_item_manually_merged",
                                   "merge_item_now_ready",
@@ -1077,7 +1083,8 @@
                                   "stacked_pr_member_merged",
                                   "stacked_pr_member_base_branch_changed",
                                   "stacked_pr_stack_changed",
-                                  "stacked_pr_group_cancelled_at_merge_time"
+                                  "stacked_pr_group_cancelled_at_merge_time",
+                                  "pr_merged_into_other_branch"
                                 ],
                                 "description": "Why the pull request was removed from the queue. New values are added as the queue grows new behavior; treat an unrecognized value as unknown rather than failing."
                               },
@@ -1129,6 +1136,194 @@
                         "description": "One state change in a pull request's life in the merge queue, with the details of why it happened. At most one of the per-state detail objects is present, matching `state`. `testRun` is independent of those and accompanies any entry that refers to a test run — a `testing` entry, and a `failed` or `pending_failure` entry whose cause was a test."
                       },
                       "description": "Present only when the request set `includeTimeline`."
+                    },
+                    "estimatedTimeToMerge": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "const": "available"
+                            },
+                            "computedAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "description": "When the API received the estimate from the merge service; every other time is relative to it, as an RFC 3339 timestamp in UTC."
+                            },
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "merge",
+                                "pending_failure_resolution"
+                              ],
+                              "description": "What `estimatedAt` is the time of. `merge`: the pull request merges. `pending_failure_resolution`: its tests failed and it is waiting on the pull requests ahead of it, so this is when the outcome is known, an upper bound, not a merge. New values are added as the queue grows new behavior; treat an unrecognized value as unknown rather than failing."
+                            },
+                            "estimatedAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "description": "The estimated time, per `kind`, as an RFC 3339 timestamp in UTC."
+                            },
+                            "estimatedAtState": {
+                              "type": "string",
+                              "enum": [
+                                "on_track",
+                                "holding",
+                                "past_typical",
+                                "past_p95"
+                              ],
+                              "description": "How far to trust the time beside it. `on_track`: a forecast that moves earlier as time passes. `holding`: not counting down, because the queue is waiting on a step it treats as instant (such as a test run that can start now) or the time is under a 30-second floor; it does not mean the time is near. `past_typical`: held by a run, this pull request's or one ahead of it, that is past its typical time, so the time is likely an underestimate. `past_p95`: only on `testsFinishAtState`, this pull request's tests are running longer than 95% of the queue's recent passing runs. New values are added as the queue grows new behavior; treat an unrecognized value as unknown rather than failing."
+                            },
+                            "confidence": {
+                              "type": "string",
+                              "enum": [
+                                "low",
+                                "medium",
+                                "high"
+                              ],
+                              "description": "How much to rely on the estimate. Lower with little recent history, while the pull request waits (more so deep in the queue), and when it is behind a failure, in a bisection, or held by other runs."
+                            },
+                            "pullRequestsAhead": {
+                              "type": "integer",
+                              "description": "How many queued pull requests must merge before this one can."
+                            },
+                            "waitingForPullRequestNumbers": {
+                              "type": "array",
+                              "items": {
+                                "type": "integer"
+                              },
+                              "description": "For `pending_failure_resolution`, the pull requests ahead whose outcome this one is waiting on. Empty for `merge`."
+                            },
+                            "sampleSize": {
+                              "type": "integer",
+                              "description": "How many recent test runs of this queue the estimate is based on."
+                            },
+                            "startsTestingAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "description": "When the pull request's next test run is expected to start, as an RFC 3339 timestamp in UTC. Absent once it is testing."
+                            },
+                            "startsTestingAtState": {
+                              "type": "string",
+                              "enum": [
+                                "on_track",
+                                "holding",
+                                "past_typical",
+                                "past_p95"
+                              ],
+                              "description": "How far to trust `startsTestingAt`, with the values of `estimatedAtState`. Present exactly when `startsTestingAt` is. New values are added as the queue grows new behavior; treat an unrecognized value as unknown rather than failing."
+                            },
+                            "testsFinishAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "description": "When the pull request's current or next test run is expected to finish passing, including expected restarts, as an RFC 3339 timestamp in UTC."
+                            },
+                            "testsFinishAtState": {
+                              "type": "string",
+                              "enum": [
+                                "on_track",
+                                "holding",
+                                "past_typical",
+                                "past_p95"
+                              ],
+                              "description": "How far to trust `testsFinishAt`, with the values of `estimatedAtState`; `past_typical` here means this pull request's own run is past `typicalTestDurationSeconds`. Present exactly when `testsFinishAt` is. New values are added as the queue grows new behavior; treat an unrecognized value as unknown rather than failing."
+                            },
+                            "typicalTestDurationSeconds": {
+                              "type": "integer",
+                              "description": "The queue's typical test run duration: the median of its recent passing runs, in whole seconds rounded down."
+                            }
+                          },
+                          "required": [
+                            "status",
+                            "computedAt",
+                            "kind",
+                            "estimatedAt",
+                            "estimatedAtState",
+                            "confidence",
+                            "pullRequestsAhead",
+                            "waitingForPullRequestNumbers",
+                            "sampleSize"
+                          ],
+                          "title": "Available"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "const": "unavailable"
+                            },
+                            "computedAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "description": "When the API received the answer from the merge service, as an RFC 3339 timestamp in UTC."
+                            },
+                            "reason": {
+                              "type": "string",
+                              "enum": [
+                                "insufficient_history",
+                                "not_in_queue",
+                                "concluded",
+                                "queue_not_running",
+                                "unsupported_queue_state",
+                                "in_bisection",
+                                "estimate_failed",
+                                "not_enabled"
+                              ],
+                              "description": "Why there is no estimate. `insufficient_history`: the queue has too few recent test runs. `not_in_queue`: the pull request is waiting to be admitted. `concluded`: it has merged, failed or been cancelled. `queue_not_running`: the queue is paused or draining. `unsupported_queue_state`: the queue is in a shape the estimate does not model. `in_bisection`: it is in a bisection, and passing returns it to the queue rather than merging it, so only its tests have a time. `estimate_failed`: the estimate could not be computed. `not_enabled`: estimates are not enabled for this queue. New values are added as the queue grows new behavior; treat an unrecognized value as unknown rather than failing."
+                            },
+                            "sampleSize": {
+                              "type": "integer",
+                              "description": "For `insufficient_history` and `unsupported_queue_state`, how many recent test runs the queue has."
+                            },
+                            "samplesRequired": {
+                              "type": "integer",
+                              "description": "For `insufficient_history`, how many recent test runs an estimate needs."
+                            },
+                            "startsTestingAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "description": "When the pull request's next test run is expected to start, as an RFC 3339 timestamp in UTC. Absent once it is testing. Only for `in_bisection`."
+                            },
+                            "startsTestingAtState": {
+                              "type": "string",
+                              "enum": [
+                                "on_track",
+                                "holding",
+                                "past_typical",
+                                "past_p95"
+                              ],
+                              "description": "How far to trust `startsTestingAt`, with the values of `estimatedAtState`. Present exactly when `startsTestingAt` is. Only for `in_bisection`. New values are added as the queue grows new behavior; treat an unrecognized value as unknown rather than failing."
+                            },
+                            "testsFinishAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "description": "When the pull request's current or next test run is expected to finish passing, including expected restarts, as an RFC 3339 timestamp in UTC. Only for `in_bisection`."
+                            },
+                            "testsFinishAtState": {
+                              "type": "string",
+                              "enum": [
+                                "on_track",
+                                "holding",
+                                "past_typical",
+                                "past_p95"
+                              ],
+                              "description": "How far to trust `testsFinishAt`, with the values of `estimatedAtState`; `past_typical` here means this pull request's own run is past `typicalTestDurationSeconds`. Present exactly when `testsFinishAt` is. Only for `in_bisection`. New values are added as the queue grows new behavior; treat an unrecognized value as unknown rather than failing."
+                            },
+                            "typicalTestDurationSeconds": {
+                              "type": "integer",
+                              "description": "The queue's typical test run duration: the median of its recent passing runs, in whole seconds rounded down. Only for `in_bisection`."
+                            }
+                          },
+                          "required": [
+                            "status",
+                            "computedAt",
+                            "reason"
+                          ],
+                          "title": "Unavailable"
+                        }
+                      ],
+                      "description": "When the pull request is expected to merge. Only the median estimate is published. Present only when the request set `includeEstimatedTimeToMerge`."
                     },
                     "stateChangedAt": {
                       "type": "string"
@@ -1529,9 +1724,10 @@
                                       "enum": [
                                         "user_requested",
                                         "trunk_admin_requested",
-                                        "api_requested"
+                                        "api_requested",
+                                        "pr_pushed_to"
                                       ],
-                                      "description": "How the pull request came to be submitted. New values are added as the queue grows new behavior; treat an unrecognized value as unknown rather than failing."
+                                      "description": "Why the pull request is waiting to enter the queue — how it was submitted, or what sent it back to waiting after it had been admitted. New values are added as the queue grows new behavior; treat an unrecognized value as unknown rather than failing."
                                     },
                                     "actor": {
                                       "type": "object",
@@ -1567,6 +1763,7 @@
                                       "enum": [
                                         "manual_push_to_target_branch",
                                         "prerequisite_merge_item_cancelled",
+                                        "prerequisite_merge_item_returned_to_waiting",
                                         "prerequisite_merge_item_failed",
                                         "prerequisite_merge_item_manually_merged",
                                         "merge_item_now_ready",
@@ -1980,7 +2177,8 @@
                                         "stacked_pr_member_merged",
                                         "stacked_pr_member_base_branch_changed",
                                         "stacked_pr_stack_changed",
-                                        "stacked_pr_group_cancelled_at_merge_time"
+                                        "stacked_pr_group_cancelled_at_merge_time",
+                                        "pr_merged_into_other_branch"
                                       ],
                                       "description": "Why the pull request was removed from the queue. New values are added as the queue grows new behavior; treat an unrecognized value as unknown rather than failing."
                                     },
@@ -6574,7 +6772,8 @@
                       "STACKED_PR_MEMBER_BASE_BRANCH_CHANGED",
                       "NOT_READY_TIMEOUT_EXPIRED",
                       "STACKED_PR_STACK_CHANGED",
-                      "STACKED_PR_GROUP_CANCELLED_AT_MERGE_TIME"
+                      "STACKED_PR_GROUP_CANCELLED_AT_MERGE_TIME",
+                      "PR_MERGED_INTO_OTHER_BRANCH"
                     ],
                     "description": "The reason the batch was canceled"
                   },
@@ -7225,7 +7424,8 @@
                       "TESTS_RESTARTED_BY_API_REQUEST",
                       "SKIP_THE_LINE_INTERRUPTED",
                       "BISECTION_REQUIRED",
-                      "BISECTION_TEST_RUN_PASSED"
+                      "BISECTION_TEST_RUN_PASSED",
+                      "PREREQUISITE_MERGE_ITEM_RETURNED_TO_WAITING"
                     ],
                     "description": "The reason the batch was queued"
                   },
@@ -7374,7 +7574,8 @@
                     "enum": [
                       "USER_REQUESTED",
                       "TRUNK_ADMIN_REQUESTED",
-                      "API_REQUESTED"
+                      "API_REQUESTED",
+                      "PR_PUSHED_TO"
                     ],
                     "description": "The reason the batch was submitted"
                   },
@@ -7522,6 +7723,10 @@
                     "type": "boolean",
                     "description": "Whether this event is part of a bisection test run"
                   },
+                  "rerun": {
+                    "type": "boolean",
+                    "description": "Whether testing began because failed required checks were re-run on the same test branch"
+                  },
                   "type": {
                     "type": "string",
                     "const": "pull_request_batch.testing",
@@ -7612,6 +7817,7 @@
                 "test_branch_sha": "string",
                 "test_pr_number": 0,
                 "is_bisection": true,
+                "rerun": true,
                 "type": "pull_request_batch.testing",
                 "action": "testing",
                 "pr_numbers": [
@@ -7682,7 +7888,8 @@
                       "STACKED_PR_MEMBER_BASE_BRANCH_CHANGED",
                       "NOT_READY_TIMEOUT_EXPIRED",
                       "STACKED_PR_STACK_CHANGED",
-                      "STACKED_PR_GROUP_CANCELLED_AT_MERGE_TIME"
+                      "STACKED_PR_GROUP_CANCELLED_AT_MERGE_TIME",
+                      "PR_MERGED_INTO_OTHER_BRANCH"
                     ],
                     "description": "The reason the PR was canceled"
                   },
@@ -8393,7 +8600,8 @@
                       "TESTS_RESTARTED_BY_API_REQUEST",
                       "SKIP_THE_LINE_INTERRUPTED",
                       "BISECTION_REQUIRED",
-                      "BISECTION_TEST_RUN_PASSED"
+                      "BISECTION_TEST_RUN_PASSED",
+                      "PREREQUISITE_MERGE_ITEM_RETURNED_TO_WAITING"
                     ],
                     "description": "The reason the PR was queued"
                   },
@@ -8596,7 +8804,8 @@
                     "enum": [
                       "USER_REQUESTED",
                       "TRUNK_ADMIN_REQUESTED",
-                      "API_REQUESTED"
+                      "API_REQUESTED",
+                      "PR_PUSHED_TO"
                     ],
                     "description": "The reason the PR was submitted"
                   },
@@ -8768,6 +8977,10 @@
                     "type": "boolean",
                     "description": "Whether this event is part of a bisection test run"
                   },
+                  "rerun": {
+                    "type": "boolean",
+                    "description": "Whether testing began because failed required checks were re-run on the same test branch"
+                  },
                   "type": {
                     "type": "string",
                     "const": "pull_request.testing",
@@ -8854,6 +9067,7 @@
                 "test_pr_number": 0,
                 "batched": true,
                 "is_bisection": true,
+                "rerun": true,
                 "type": "pull_request.testing",
                 "action": "testing",
                 "author": "string",
