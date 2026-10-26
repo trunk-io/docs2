@@ -47,6 +47,18 @@ Regenerates the changelog nav across the sites it appears on from each
 - **`<Columns cols={n}>` accepts 1-4.** A larger value is not an error and does
   not fail the build; it just does not render that many across.
 
+## Hidden API pages
+
+The three v2 endpoints that Trunk's analytics-cli and test-runner plugins call
+are deliberately **not** in `docs.json`: `POST /v2/test-collections/{id}/uploads`,
+`POST /v2/test-collections/{id}/quarantine-status` and
+`GET /v2/test-collections/{id}/all-quarantined-tests`. Their shapes follow what
+the CLI needs and may change with it, so each has a page reachable only by URL:
+a `hidden: true` `.mdx` under `flaky-tests/reference/api-reference/v2-internal/`
+that renders the operation from `openapi-v2.json`. When a re-synced spec has
+operations no page lists, do not add these three to the sidebar. Their
+descriptions in the spec start with "**Internal.**", which marks them.
+
 ## Gated sections
 
 Workspaces is restricted per page with `groups:` frontmatter (`["firewatch"]`).
