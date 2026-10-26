@@ -1,0 +1,20 @@
+---
+title: "Flaky Tests: Test links, quarantine start times, and upload status in the v2 API"
+description: "The v2 API now returns each test's web app link and quarantine start time, and can report the status of a test-results upload."
+date: 2026-10-26
+category: Flaky Tests
+type: new-feature
+---
+
+**The v2 API now gives you more context on your tests and uploads.**
+
+### New features
+
+- **Check an upload's status.** The new [Get a test-results upload](/flaky-tests/reference/api-reference/v2/testuploads/get-a-test-results-upload) endpoint shows whether an upload is waiting for its bundle, received, ingested, or skipped. It also lists any problems Trunk found while ingesting it.
+
+### Updates
+
+- **Link to a test in the Trunk web app.** Tests returned by [Get a test](/flaky-tests/reference/api-reference/v2/tests/get-a-test) and [List and search tests](/flaky-tests/reference/api-reference/v2/tests/list-and-search-tests) now include a `url` field pointing to the test's page in Trunk.
+- **See when a quarantine began.** Tests now include `quarantinedSince`, the time the test's current quarantine started. It's `null` when the test isn't quarantined.
+
+See the [API reference](/flaky-tests/reference/api-reference) for all v2 endpoints.
