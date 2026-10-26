@@ -3,7 +3,7 @@
   "info": {
     "title": "Trunk API",
     "version": "2.0.0",
-    "description": "The Trunk public API. Every endpoint is scoped to a single organization and requires a credential.\n\n## Authentication\n\nFor automation, send an API key as `Authorization: Bearer <key>`. An organization admin creates one in the Trunk app under **Settings → Developer → API Keys**, and chooses the merge-queue permissions it holds. A key with no permissions can read merge queues but change nothing. Those permissions scope merge queue only: every key can use the Flaky Tests and Dynamic CI endpoints, including their writes, whatever permissions it holds.\n\nA short-lived first-party token in the `x-trunk-token` header is what the `trunk` CLI sends after `trunk auth login`.\n\nA GitHub Actions job can upload impacted targets with no Trunk secret: the `trunk-io/login` action exchanges the run's own GitHub credential (its OIDC token, or on a pull request from a fork its `GITHUB_TOKEN`) for a short-lived first-party token. That token is accepted only by `PUT /v2/impacted-targets`, for the run's own repository — and on a fork pull request, only for that pull request and its head sha.\n\n## Errors\n\nEvery 4xx and 5xx response is a `ErrorResponse`: `{ \"error\": { \"code\", \"message\" } }`. Switch on `code`, which is stable; `message` is prose and may change at any time.\n\n**An authorization denial on a read is reported as `404`, not `403`** — whether a resource exists must not leak across organizations, so a resource in another organization is indistinguishable from one that does not exist. `403 INSUFFICIENT_PERMISSIONS` means the credential is valid but is not permitted the action (or carries no organization).\n\nEvery response carries an `X-Request-Id` header. Quote it in support requests.\n\n## Rate limiting\n\nRequests are limited per organization (currently 100 requests/second). Exceeding it returns `429` with `RATE_LIMIT_EXCEEDED`; retry with backoff. Note that the limit is enforced at the edge, which does not yet wrap its `429` in the `ErrorResponse` envelope described above — treat any `429` as rate limiting regardless of body.\n\n## Compatibility\n\nWithin v2, Trunk may add: new endpoints, new **optional** response fields, new members to any enum (including new `code` values, new queue-entry states, and new providers), and new optional request parameters. **Clients must tolerate values and fields they do not recognize** rather than failing closed — a client that switches exhaustively over an enum will break when a member is added. Removals and semantic changes require a new major version.\n\n## Provider support\n\nMerge queues, verification runs and checks are **GitHub-only** today; `Check.provider` has a single member for that reason. Impacted-target uploads additionally require a `github.com` repository named `owner/repo`. The `Provider` enum lists values the repository index can store, not surfaces that are fully supported.\n\n## Not yet available\n\nA pull request's numeric **position** in its queue, and any wait estimate, are not exposed, and list responses are not ordered by queue position. `GET /v2/merge-queues/{id}/order` returns the order the engine will consider pull requests in, but an array index there is not a wait: use a pending entry's `directlyAhead` rather than counting. This API delivers no events of its own — poll it, or subscribe to [Merge Queue's webhooks](https://docs.trunk.io/merge-queue/webhooks). `Idempotency-Key` is not yet honored, so a mutation that times out must be reconciled by reading the resource back rather than blindly retried.",
+    "description": "The Trunk public API. Every endpoint is scoped to a single organization and requires a credential.\n\n## Authentication\n\nFor automation, send an API key as `Authorization: Bearer <key>`. An organization admin creates one in the Trunk app under **Settings → Developer → API Keys**, and chooses the merge-queue permissions it holds. A key with no permissions can read merge queues but change nothing. Those permissions scope merge queue only: every key can use the Flaky Tests and Dynamic CI endpoints, including their writes, whatever permissions it holds.\n\nA short-lived first-party token in the `x-trunk-token` header is what the `trunk` CLI sends after `trunk auth login`.\n\nA GitHub Actions job can upload impacted targets with no Trunk secret: the `trunk-io/login` action exchanges the run's own GitHub credential (its OIDC token, or on a pull request from a fork its `GITHUB_TOKEN`) for a short-lived first-party token. That token is accepted only by `PUT /v2/impacted-targets`, for the run's own repository — and on a fork pull request, only for that pull request and its head sha.\n\n## Errors\n\nEvery 4xx and 5xx response is a `ErrorResponse`: `{ \"error\": { \"code\", \"message\" } }`. Switch on `code`, which is stable; `message` is prose and may change at any time.\n\n**An authorization denial on a read is reported as `404`, not `403`** — whether a resource exists must not leak across organizations, so a resource in another organization is indistinguishable from one that does not exist. `403 INSUFFICIENT_PERMISSIONS` means the credential is valid but is not permitted the action (or carries no organization).\n\nEvery response carries an `X-Request-Id` header. Quote it in support requests.\n\n## Rate limiting\n\nRequests are limited per organization (currently 100 requests/second). Exceeding it returns `429` with `RATE_LIMIT_EXCEEDED`; retry with backoff. Note that the limit is enforced at the edge, which does not yet wrap its `429` in the `ErrorResponse` envelope described above — treat any `429` as rate limiting regardless of body.\n\n## Compatibility\n\nWithin v2, Trunk may add: new endpoints, new **optional** response fields, new members to any enum (including new `code` values, new queue-entry states, and new providers), and new optional request parameters. **Clients must tolerate values and fields they do not recognize** rather than failing closed — a client that switches exhaustively over an enum will break when a member is added. Removals and semantic changes require a new major version.\n\n## Provider support\n\nMerge queues, verification runs and checks are **GitHub-only** today; `Check.provider` has a single member for that reason. Impacted-target uploads additionally require a `github.com` repository named `owner/repo`. The `Provider` enum lists values the repository index can store, not surfaces that are fully supported.\n\n## Not yet available\n\nA pull request's numeric **position** in its queue is not exposed, and list responses are not ordered by queue position. `GET /v2/merge-queues/{id}/order` returns the order the engine will consider pull requests in, but an array index there is not a wait: use a pending entry's `directlyAhead` rather than counting, and `GET /v2/pull-requests/{id}/queue-entry-estimate` for when it is expected to merge (on queues that serve estimates). This API delivers no events of its own — poll it, or subscribe to [Merge Queue's webhooks](https://docs.trunk.io/merge-queue/webhooks). `Idempotency-Key` is not yet honored, so a mutation that times out must be reconciled by reading the resource back rather than blindly retried.",
     "contact": {
       "name": "Trunk Support",
       "url": "https://docs.trunk.io"
@@ -497,6 +497,10 @@
           "TICKETING_SITE_REFUSED",
           "TICKET_NOT_FOUND",
           "TICKET_LINK_CONFLICT",
+          "TEST_ALREADY_LINKED",
+          "TICKET_FIELDS_REJECTED",
+          "TICKET_CONTENT_UNAVAILABLE",
+          "TICKETING_CREATE_REFUSED",
           "RATE_LIMIT_EXCEEDED"
         ],
         "description": "Stable machine-readable error identifier. Switch on this, never on `message`. A shipped code's meaning never changes, but **new codes may be added within v2** — treat an unrecognized code as a generic failure of its HTTP status rather than failing closed.",
@@ -4515,6 +4519,38 @@
         },
         "required": ["externalTicketId"],
         "description": "The ticket to link to a test in a test collection."
+      },
+      "CreateTicketRequest": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 250,
+            "description": "The ticket's title. Defaults to the one the web app generates, such as `[Flaky Test] suite::test_case_name`.",
+            "example": "[Flaky Test] suite::test_case_name"
+          },
+          "description": {
+            "type": "string",
+            "description": "The ticket's body, in Markdown. Defaults to the one the web app generates: the test's location, failure rate, owners and most common failure reasons, with a link back to the test in Trunk.",
+            "example": "See all details on the [Trunk Test Detail page](https://app.trunk.io/acme/flaky-tests/collections/ab12cd34/tests/bfeebcf4-0000-8000-8000-000000000001)"
+          },
+          "fields": {
+            "type": "object",
+            "additionalProperties": {},
+            "description": "Provider fields to set on the ticket, keyed by the provider's field id (a Jira custom field id, `assignee`, a Linear project id), in the shape the provider takes. Merged over the default fields saved on the collection's ticketing connection; a field set here wins.",
+            "example": {
+              "assignee": "5b10ac8d82e05b22cc7d4ef5"
+            }
+          },
+          "replaceExisting": {
+            "type": "boolean",
+            "description": "Replace a ticket already linked to the test. When false or absent, a test that has a ticket is refused with `TEST_ALREADY_LINKED`.",
+            "example": false
+          }
+        },
+        "additionalProperties": false,
+        "description": "The ticket to create for a test in a test collection."
       },
       "RepositoryList": {
         "type": "object",
@@ -10498,6 +10534,140 @@
           },
           "422": {
             "description": "`TICKET_NOT_FOUND`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "`UPSTREAM_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/tests/{testId}/create-ticket": {
+      "post": {
+        "operationId": "tests.createTicket",
+        "tags": ["tests"],
+        "summary": "Create a ticket for a test",
+        "description": "Files a new ticket in the test collection's default ticketing connection and links it to a test, returning the ticket as Trunk now holds it. A collection with no default connection is refused with `TICKETING_NOT_CONFIGURED`.\n\nThe ticket gets the default fields saved on that connection, with `fields` merged over them. The provider may still refuse the ticket: a field it does not accept, or a required one neither sets, is `422 TICKET_FIELDS_REJECTED` with the provider's own message, and a connection the provider will not let create tickets (no access to its project, a missing scope, a plan limit) is `409 TICKETING_CREATE_REFUSED`.\n\nA `title` or `description` you leave out is generated the way the web app generates it: the test's location, failure rate, owners and most common failure reasons, with a link back to the test. Failure summaries are left out while your organization has AI features turned off. A test with no data to generate from is refused with `TICKET_CONTENT_UNAVAILABLE`; pass both to create its ticket anyway.\n\nA test carries at most one ticket. If one is already linked, the call is refused with `TEST_ALREADY_LINKED` and files nothing, unless `replaceExisting` is true.\n\n`Idempotency-Key` is not honored. The call files the ticket with the provider and answers `504` if that takes longer than five seconds; a `504` does not mean nothing was filed. Before retrying, read the test (`GET /v2/tests/{testId}`): if its `ticket` is set, the ticket was created and linked. A `502 UPSTREAM_ERROR` means the provider did not answer; when it was rate-limiting, `Retry-After` says how long to wait.\n\nA test in another organization is reported as `404`, not `403`, and so is a malformed id.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The test's globally unique id.",
+              "example": "bfeebcf4-0000-8000-8000-000000000001"
+            },
+            "required": true,
+            "description": "The test's globally unique id.",
+            "name": "testId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTicketRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The created and linked ticket",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ticket"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`INSUFFICIENT_PERMISSIONS`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`TEST_NOT_FOUND`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "`TICKETING_NOT_CONFIGURED` | `TICKETING_CREDENTIALS_INVALID` | `TICKETING_SITE_REFUSED` | `TEST_ALREADY_LINKED` | `TICKET_LINK_CONFLICT` | `TICKETING_CREATE_REFUSED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "`TICKET_FIELDS_REJECTED` | `TICKET_CONTENT_UNAVAILABLE`",
             "content": {
               "application/json": {
                 "schema": {
