@@ -24,6 +24,8 @@ Automation is configured per collection, so two collections sharing one integrat
 
 The collection's integration is a **default**, not a restriction. It decides where automatic tickets are filed, and which integration the create-ticket modal opens on — but when you create a ticket by hand you can file it into any integration connected to your organization.
 
+The [Create a ticket for a test](/flaky-tests/reference/api-reference/v2/tests/create-a-ticket-for-a-test) API always files into the collection's default integration, using the field defaults saved on it. A collection with no default integration can't create tickets through the API.
+
 The three toggles are independent — you can enable any combination:
 
 | Setting | Behavior |
