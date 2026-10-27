@@ -178,11 +178,7 @@ Drill down and range selection are currently available on the Conclusion count a
 
 ## Prometheus metrics endpoint
 
-Trunk exposes merge queue metrics in [Prometheus text exposition format](https://prometheus.io/docs/instrumenting/exposition_formats/) via a scrapable API endpoint. Use this to build custom Grafana dashboards, set up alerts, or integrate merge queue health into your existing observability stack.
-
-<Info>
-The Prometheus metrics endpoint is available to all Merge Queue users.
-</Info>
+Trunk exposes merge queue metrics in [Prometheus text format](https://prometheus.io/docs/instrumenting/exposition_formats/) for Grafana dashboards, alerts, or your existing observability stack. The endpoint is available to all Merge Queue users.
 
 ### Endpoint
 
@@ -191,11 +187,11 @@ The Prometheus metrics endpoint is available to all Merge Queue users.
 | [`GET https://api.trunk.io/v2/merge-queues/metrics`](/merge-queue/reference/api-v2/mergequeues/get-prometheus-metrics-for-every-merge-queue) | Every merge queue in your organization. Add `?repositoryId=<id>` for one repository's queues. |
 | [`GET https://api.trunk.io/v2/merge-queues/{id}/metrics`](/merge-queue/reference/api-v2/mergequeues/get-prometheus-metrics-for-a-merge-queue) | One merge queue. |
 
-Authenticate with an [API key](/merge-queue/reference/api-v2/authentication#api-keys), sent as `Authorization: Bearer <key>`. A key with no permissions is enough. To find a repository's or queue's ID, see [Finding IDs](/merge-queue/reference/api-v2#finding-ids).
+Authenticate with an [API key](/merge-queue/reference/api-v2/authentication#api-keys) as `Authorization: Bearer <key>`. It needs no permissions. To find a repository's or queue's ID, see [Finding IDs](/merge-queue/reference/api-v2#finding-ids).
 
 The metrics endpoints are limited to 5 requests per second per organization, so prefer one organization-wide scrape over one per queue.
 
-The response uses content type `text/plain; version=0.0.4; charset=utf-8` (standard Prometheus format).
+Responses use content type `text/plain; version=0.0.4; charset=utf-8`.
 
 ### Available metrics
 
@@ -272,7 +268,7 @@ For new dashboards, prefer `mq_pr_state_duration_1h_seconds`: one metric covers 
 
 ### Scrape configuration
 
-Configure your Prometheus instance to scrape the Trunk metrics endpoint:
+Add this job to your Prometheus configuration:
 
 ```yaml
 scrape_configs:
@@ -287,7 +283,7 @@ scrape_configs:
       credentials_file: /etc/prometheus/trunk-api-key
 ```
 
-This scrapes every queue in your organization. To scrape one repository's queues, add:
+This scrapes every queue in your organization. To scrape one repository's queues, add this to the job:
 
 ```yaml
     params:
@@ -296,9 +292,9 @@ This scrapes every queue in your organization. To scrape one repository's queues
 
 ### Datadog Agent configuration
 
-You can ingest Trunk merge queue metrics into Datadog using the Datadog Agent's built-in [OpenMetrics integration](https://docs.datadoghq.com/integrations/openmetrics/). This lets Datadog scrape the Prometheus endpoint directly without requiring a separate Prometheus server.
+The Datadog Agent's [OpenMetrics integration](https://docs.datadoghq.com/integrations/openmetrics/) can scrape the endpoint directly, with no Prometheus server.
 
-**1. Enable the OpenMetrics integration**
+#### 1. Enable the OpenMetrics integration
 
 Create or edit `/etc/datadog-agent/conf.d/openmetrics.d/conf.yaml`:
 
@@ -314,19 +310,19 @@ instances:
     send_distribution_buckets: true
 ```
 
-This collects every queue in your organization. To collect one repository's queues, add its ID:
+This collects every queue in your organization. To collect one repository's queues, append its ID to the endpoint:
 
 ```yaml
     openmetrics_endpoint: https://api.trunk.io/v2/merge-queues/metrics?repositoryId=<repository-id>
 ```
 
-**2. Restart the Datadog Agent**
+#### 2. Restart the Datadog Agent
 
 ```bash
 sudo systemctl restart datadog-agent
 ```
 
-**3. Validate**
+#### 3. Validate
 
 ```bash
 sudo -u dd-agent -- datadog-agent check openmetrics
