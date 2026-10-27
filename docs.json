@@ -153,45 +153,6 @@
               "merge-queue/reference/merge-queue-cli-reference",
               "merge-queue/webhooks",
               {
-                "group": "API reference (v1)",
-                "root": "merge-queue/reference/merge",
-                "openapi": {
-                  "source": "openapi.json",
-                  "directory": "/merge-queue/reference/merge"
-                },
-                "pages": [
-                  {
-                    "group": "Pull Request Endpoints",
-                    "pages": [
-                      "POST /cancelPullRequest",
-                      "POST /getSubmittedPullRequest",
-                      "POST /getSubmittedPullRequests",
-                      "POST /listPullRequests",
-                      "POST /restartTestsOnPullRequest",
-                      "POST /setImpactedTargets",
-                      "POST /submitPullRequest",
-                      "POST /getMergeQueueTestingDetails",
-                      "POST /listMergeQueueTestingResults"
-                    ]
-                  },
-                  {
-                    "group": "Metrics Endpoints",
-                    "pages": [
-                      "GET /getMergeQueueMetrics"
-                    ]
-                  },
-                  {
-                    "group": "Queue Endpoints",
-                    "pages": [
-                      "POST /createQueue",
-                      "POST /deleteQueue",
-                      "POST /getQueue",
-                      "POST /updateQueue"
-                    ]
-                  }
-                ]
-              },
-              {
                 "group": "API reference (v2)",
                 "root": "merge-queue/reference/api-v2",
                 "openapi": {
@@ -266,6 +227,45 @@
                     "pages": [
                       "GET /v2/repositories",
                       "GET /v2/repositories/{id}"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "API reference (v1)",
+                "root": "merge-queue/reference/merge",
+                "openapi": {
+                  "source": "openapi.json",
+                  "directory": "/merge-queue/reference/merge"
+                },
+                "pages": [
+                  {
+                    "group": "Pull Request Endpoints",
+                    "pages": [
+                      "POST /cancelPullRequest",
+                      "POST /getSubmittedPullRequest",
+                      "POST /getSubmittedPullRequests",
+                      "POST /listPullRequests",
+                      "POST /restartTestsOnPullRequest",
+                      "POST /setImpactedTargets",
+                      "POST /submitPullRequest",
+                      "POST /getMergeQueueTestingDetails",
+                      "POST /listMergeQueueTestingResults"
+                    ]
+                  },
+                  {
+                    "group": "Metrics Endpoints",
+                    "pages": [
+                      "GET /getMergeQueueMetrics"
+                    ]
+                  },
+                  {
+                    "group": "Queue Endpoints",
+                    "pages": [
+                      "POST /createQueue",
+                      "POST /deleteQueue",
+                      "POST /getQueue",
+                      "POST /updateQueue"
                     ]
                   }
                 ]

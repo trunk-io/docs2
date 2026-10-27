@@ -28,13 +28,13 @@ Only an organization admin can create an API key. In the [Trunk app](https://app
 1. Navigate to **Settings** → **Developer** → **API Keys** and click the **Create Key** button.
 2. Name the key after what will use it, such as `ci-submit` or `grafana`. Names must be unique among your organization's active keys.
 3. Tick the [permissions](#permissions) the key needs. A new key starts with none ticked.
-4. Copy the key and store it in your secret manager. It is shown only once: if you lose it, revoke it and create another.
+4. Copy the key and store it in your secret manager. It is shown only once: if you lose it, delete it and create another.
 
-Keys start with `trunk_v2_`, so you can add that prefix to your secret scanner. The **API Keys** list shows each key's name, the first characters of its value, when it was created, and when it was last used.
+Keys start with `trunk_v2_`, so you can add that prefix to your secret scanner. The **API Keys** list shows each key's name, the first characters of its value, who created it and when, and when it was last used.
 
 ### Permissions
 
-A key with no permissions can read everything in your organization's merge queues but change nothing, which is all a dashboard or a Prometheus scrape needs. Each permission adds writes:
+A key with no permissions can read everything in your organization's merge queues but change nothing in them, which is all a dashboard or a Prometheus scrape needs. Each permission adds writes:
 
 | Permission | Allows | Endpoints |
 | --- | --- | --- |
@@ -51,18 +51,18 @@ A request's permissions come from its body as well as its endpoint. For example,
 Permissions scope merge queues and test-results uploads only. Every API key can use the other Flaky Tests and Dynamic CI endpoints, including the ones that make changes, whatever permissions it holds.
 </Note>
 
-### Change or revoke a key
+### Change or delete a key
 
 An organization admin manages keys under **Settings** → **Developer** → **API Keys**:
 
 - **Change permissions** by opening the key and editing its permissions. The key's value doesn't change, so nothing using it needs updating. The change applies within a minute.
-- **Revoke** a key that is leaked or no longer used. Requests with a revoked key are refused from the next request on. Revoking can't be undone; create a new key to replace it.
+- **Delete** a key that is leaked or no longer used, from the key's menu. Requests with a deleted key are refused from the next request on. Deleting can't be undone; create a new key to replace it.
 
-To rotate a key, create its replacement, deploy it, confirm on the **API Keys** list that the old key's last use has stopped advancing, then revoke the old key. Last use is recorded up to an hour late, so wait at least that long before you rely on it.
+To rotate a key, create its replacement, deploy it, confirm on the **API Keys** list that the old key's last use has stopped advancing, then delete the old key. Last use is recorded up to an hour late, so wait at least that long before you rely on it.
 
 ### Rate limits
 
-Rate limits are per organization, not per key. Every key, user, and CLI session in an organization shares one limit of 100 requests per second, and the metrics endpoints have a separate limit of 5 per second. A busy integration can use up the limit for everything else in your organization, so resolve IDs once and store them rather than looking them up on every request. Over the limit, the API answers `429`; retry with backoff.
+Most of the rate limit is shared by your whole organization, not set per key, so a busy integration can use it up for everything else in your organization. See [Rate limits](/merge-queue/reference/api-v2#rate-limits).
 
 ## GitHub Actions
 
@@ -85,7 +85,7 @@ Trunk checks credentials at its edge, before a request reaches the API. So an au
 
 | Status | Means | What to do |
 | --- | --- | --- |
-| `401` | The credential is malformed, expired, revoked, or not a Trunk credential. | Check the key's value and that it hasn't been revoked. |
+| `401` | The credential is malformed, expired, deleted, or not a Trunk credential. | Check the key's value and that it hasn't been deleted. |
 | `403` with no error envelope | The request carries no credential. | Send `Authorization: Bearer <key>`. |
 | `403 INSUFFICIENT_PERMISSIONS` | The credential is valid, but not permitted to make this request. Nothing was changed. | Add the [permission](#permissions) to the key, or use a key that holds it. |
 | `404` | The resource doesn't exist, **or** it belongs to another organization. The API doesn't distinguish the two. | Check the ID, and that the key belongs to the organization that owns the resource. |

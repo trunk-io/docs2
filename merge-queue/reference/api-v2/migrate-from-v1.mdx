@@ -314,7 +314,7 @@ The same names appear under `config` when you read a queue. v2 also bounds value
 - **Timelines default to oldest first.** Send `direction=newest` for v1's order, where the current state comes first.
 - **A missing resource and another organization's resource are both `404`.** `403 INSUFFICIENT_PERMISSIONS` means the API key lacks a permission for that request.
 - **Retry by reading back.** v2 doesn't honor `Idempotency-Key` yet. If a write times out, read the resource before retrying.
-- **Rate limits.** Requests are limited to 100 per second per organization, and metrics to 5 per second. Store IDs rather than resolving them on every request.
+- **Rate limits.** Most requests share 100 per second per organization; pull request reads and metrics have limits of their own. See [Rate limits](/merge-queue/reference/api-v2#rate-limits). Store IDs rather than resolving them on every request.
 
 ### Finding a verification run
 
