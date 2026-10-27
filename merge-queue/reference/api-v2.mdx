@@ -71,7 +71,7 @@ Its `201` response is the pull request; keep its `id` for polling.
 To wait for a pull request to merge, poll [`GET /v2/pull-requests/{id}`](/merge-queue/reference/api-v2/pullrequests/get-a-pull-request) every 30 to 60 seconds until `queueEntry.state` is `merged`, `failed`, or `cancelled`, or subscribe to [Merge Queue webhooks](/merge-queue/webhooks). The API itself has no webhooks.
 
 - Read `queueEntry.state`, not the top-level `state`, which is the pull request's state on GitHub.
-- A resubmitted pull request reuses its entry, so if `queueEntry.state` goes back to `notReady`, it was submitted again after an earlier attempt ended.
+- `queueEntry.state` can go back to `notReady` before the entry ends. A push to the pull request sends a queued entry back to `notReady` to wait on the new commit, and a resubmitted pull request reuses its entry and starts again at `notReady`. Keep polling.
 - Stop if `queueEntry` disappears or its `mergeQueueId` changes, and report the outcome as unknown. This happens when a failed or cancelled pull request is submitted to another queue, or its queue is deleted.
 - Send the last response's `ETag` in `If-None-Match`. If nothing changed, you get `304` with no body.
 - Set a deadline of your own. A pull request can stay `notReady` for a long time; the queue cancels it only if its `notReadyTimeoutMinutes` [setting](/merge-queue/reference/api-v2/mergequeues/update-a-merge-queues-configuration) is set.
