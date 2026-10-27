@@ -33,7 +33,7 @@ $0.006 per minute, so a 10-minute job costs $0.06.
 ## Keeping costs down
 
 - Use `memory=low` for jobs that need CPUs but little memory.
-- Move setup steps into a [template](/runners/actions/templates-and-regions).
+- Move setup steps into a [template](/runners/actions/templates).
   Setup minutes are billed like any other minutes.
 - Cache storage stays bounded: unused entries expire after 7 days, and each
   repository keeps at most 20 GiB per tool. See

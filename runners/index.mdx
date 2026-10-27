@@ -8,6 +8,11 @@ Trunk Runners run your GitHub Actions jobs on Trunk's bare-metal fleet. Your
 workflows stay on GitHub. You change one line, the `runs-on` label, and Trunk
 starts a fresh VM for the job and removes it when the job ends.
 
+<Note>
+  Trunk Runners is in Beta. Contact [support@trunk.io](mailto:support@trunk.io)
+  to join.
+</Note>
+
 <CardGroup cols={3}>
   <Card title="Fast" icon="bolt">
     Bare-metal machines, prebuilt templates, and a cache next to the compute.
@@ -24,7 +29,7 @@ starts a fresh VM for the job and removes it when the job ends.
 
 - **Faster hardware.** Jobs run on bare metal, about 40% faster than comparable
   AWS machines.
-- **Templates.** Bake your setup steps into a [template](/runners/actions/templates-and-regions)
+- **Templates.** Bake your setup steps into a [template](/runners/actions/templates)
   so a job starts ready, instead of installing the same tools on every run.
 - **In-cluster cache.** `actions/cache`, Bazel, sccache, and Nix use a shared
   cache in the same cluster as your jobs, with no workflow changes.

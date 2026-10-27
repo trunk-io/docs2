@@ -35,7 +35,7 @@ A job that runs in a container (`container:`) does not get the Bazel setup.
 ### Nix
 
 The default Trunk runner image does not include Nix. Install it with a
-[template](/runners/actions/templates-and-regions), or with an installer step such as
+[template](/runners/actions/templates), or with an installer step such as
 `cachix/install-nix-action` or `DeterminateSystems/nix-installer-action`.
 
 - Nix uses the shared cache only when the runner user is a trusted Nix user. Both

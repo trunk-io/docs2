@@ -815,7 +815,7 @@
             "pages": [
               "runners/actions/runs-on",
               "runners/actions/sizes",
-              "runners/actions/templates-and-regions"
+              "runners/actions/templates"
             ]
           },
           {
@@ -1392,6 +1392,10 @@
     }
   },
   "redirects": [
+    {
+      "source": "/runners/actions/templates-and-regions",
+      "destination": "/runners/actions/templates"
+    },
     {
       "source": "/kiln",
       "destination": "/runners"
