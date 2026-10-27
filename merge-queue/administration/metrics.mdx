@@ -193,7 +193,7 @@ The metrics endpoints are limited to 5 requests per second per organization, so 
 
 The v1 `getMergeQueueMetrics` endpoint keeps working. To move a v1 scrape job, see [Migrate from the v1 API](/merge-queue/reference/api-v2/migrate-from-v1#build-dashboards).
 
-Responses use content type `text/plain; version=0.0.4; charset=utf-8`.
+Responses use content type `text/plain; version=0.0.4; charset=utf-8`. Label values stay in snake_case, such as `state="tests_passed"`, even though the API's own enum values are camelCase.
 
 ### Available metrics
 

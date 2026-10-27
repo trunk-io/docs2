@@ -10,7 +10,7 @@ The login can upload impacted targets only, and only for the run's own repositor
 ## Before you start
 
 - The Trunk GitHub App is installed on the repository, and the repository has a merge queue in `graph` mode ([**Parallel**](/merge-queue/optimizations/parallel-queues) in the app). Only those queues wait for impacted targets.
-- Your CI can list the build targets a pull request changes, one per line. The workflow below uses the changed top-level folders, which works in any repository; a build system such as Bazel or Nx gives more precise targets.
+- Your CI can list the build targets a pull request changes, one per line. The workflow below uses the changed top-level folders, which works in any repository but treats folders as independent, so changes that interact across folders may be tested separately. A build system such as Bazel or Nx gives dependency-aware targets.
 - The job runs on Linux (x64 or arm64) or macOS (arm64). Windows is not supported.
 - To accept uploads from fork pull requests, an admin must first [allow them](#allow-uploads-from-forks). Pull requests from the repository itself need no setup in Trunk.
 
@@ -21,6 +21,7 @@ Add a workflow file, for example `.github/workflows/impacted-targets.yaml`:
 ```yaml
 on:
   pull_request:
+    branches: [main] # the branches that have a merge queue in graph mode
 
 permissions:
   contents: read
@@ -56,21 +57,19 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }} # lets a long job on a fork pull request renew its login
 ```
 
-`trunk-io/login` installs the `trunk` CLI, puts it on `PATH`, and logs in. On a pull request, `trunk mergequeue upload-impacted-targets` takes the repository, pull request number, head commit, and target branch from the run.
+`trunk-io/login` installs the `trunk` CLI, puts it on `PATH`, and logs in. On a pull request, `trunk mergequeue upload-impacted-targets` takes the repository, pull request number, head commit, and target branch from the run. On other events, such as `push`, `merge_group`, or `workflow_dispatch`, the run doesn't name a pull request, so pass `--pr <number>`, `--sha <head commit>`, and `--target-branch <branch>` yourself.
 
-Impacted targets apply to one commit, so upload again on every push, or the queue keeps the pull request waiting. The `pull_request` trigger above does this.
+Impacted targets apply to one commit. Upload again on every push, or the queue keeps the pull request waiting. The `pull_request` trigger above does this.
 
-The upload answers `202`, and the queue picks the targets up shortly after. Once the pull request is in a queue, you can confirm it with an API key: read the pull request with [`GET /v2/pull-requests/{id}`](/merge-queue/reference/api-v2/pullrequests/get-a-pull-request) and check that `queueEntry.readiness.hasImpactedTargets` is `true`.
+The upload answers `202`, and the queue picks the targets up shortly after. To confirm, once the pull request is in a queue, read it with an API key through [`GET /v2/pull-requests/{id}`](/merge-queue/reference/api-v2/pullrequests/get-a-pull-request) and check that `queueEntry.readiness.hasImpactedTargets` is `true`.
 
-The actions on the [Bazel](/merge-queue/optimizations/parallel-queues/bazel) and [Nx](/merge-queue/optimizations/parallel-queues/nx) pages compute and upload in one step through the v1 API, with a stored Trunk token; the Nx action can also upload from fork pull requests through v1. To use the GitHub Actions login instead, write their targets to a file and upload it as above.
-
-On events other than a pull request, such as `push`, `merge_group`, or `workflow_dispatch`, the run doesn't name a pull request. Pass `--pr <number>`, `--sha <head commit>`, and `--target-branch <branch>` yourself.
+The actions on the [Bazel](/merge-queue/optimizations/parallel-queues/bazel) and [Nx](/merge-queue/optimizations/parallel-queues/nx) pages compute and upload in one step through the v1 API, with a stored Trunk token. The Nx action can also upload from fork pull requests through v1. Neither action outputs a targets file. To use the GitHub Actions login instead, compute the targets with your build tool, for example `bazel-diff` or `nx show projects --affected`, write them to a file, and upload it as above.
 
 Declare the pull request's impact with one of:
 
 | Option | Uploads |
 | --- | --- |
-| `--targets-file <file>` | The target names in the file, one per line. An empty file is refused, since it usually means the computation failed. If the pull request really impacts nothing, pass `--none`. |
+| `--targets-file <file>` | The target names in the file, one per line. An empty file is refused, since it usually means the computation failed. If the pull request really impacts nothing, use `--none`. |
 | `--none` | An empty list, for a pull request that impacts nothing. This still satisfies the queue's impacted-targets check. |
 | `--all` | The pull request impacts every target. |
 

@@ -18,7 +18,7 @@ Merge queues are GitHub-only.
 ## Concepts
 
 - **Queue entry**: a pull request's place in a merge queue, under `queueEntry` on a pull request. Its `id` differs from the pull request's `id`. Endpoints under `/v2/pull-requests/{id}` take the pull request's `id`.
-- **Queue entry state**: `notReady` (submitted, but waiting on a requirement such as passing checks or impacted targets), `pending` (ready, waiting to test), `testing`, `testsPassed`, and `pendingFailure`. The final states are `merged`, `failed`, and `cancelled`. `queueEntry.readiness` explains a `notReady` entry. A `pendingFailure` entry's tests failed, and the queue holds it to learn whether the failure is its own, for example while the pull requests ahead of it finish; see [Pending failure depth](/merge-queue/optimizations/pending-failure-depth).
+- **Queue entry state**: `notReady` (submitted, but waiting on a requirement such as passing checks or impacted targets), `pending` (ready, waiting to test), `testing`, `testsPassed`, and `pendingFailure`. The final states are `merged`, `failed`, and `cancelled`. `queueEntry.readiness` explains a `notReady` entry. A `pendingFailure` entry's tests failed, and the queue holds it to learn whether the failure is its own, for example while the pull requests ahead of it finish. See [Pending failure depth](/merge-queue/optimizations/pending-failure-depth).
 - **Verification run**: one CI run the queue started to test a pull request, or a [batch](/merge-queue/optimizations/batching) of them. When a batch fails, the queue splits it to find the culprit (**bisection**). Each split is its own verification run.
 - **Mode**: `queue` mode (**Single** in the app) puts pull requests in one line, each tested on top of the ones ahead of it, several at a time. `graph` mode (**Parallel** in the app) gives unrelated pull requests separate lines, based on the [impacted targets](/merge-queue/optimizations/parallel-queues) CI uploads for each.
 - **Priority**: lower `priorityValue` numbers test first. The names are `urgent` (0), `high` (10), `medium` (100), and `low` (200). Send a number as `priorityValue` or a name as `priorityName`. Without either, a pull request gets `medium` (100). **`urgent` (or `priorityValue: 0`) restarts lower-priority pull requests that are already testing**, so reserve it for emergencies. See [Priority merging](/merge-queue/optimizations/priority-merging).
@@ -42,7 +42,7 @@ A GitHub Actions job that uploads impacted targets can [authenticate without a k
 Endpoints address resources by `id`. Look IDs up once and store them:
 
 1. **Queue:** [`GET /v2/merge-queues`](/merge-queue/reference/api-v2/mergequeues/list-merge-queues) lists your organization's queues, each with its `id`, `repositoryId`, `repositoryUrl`, and `targetBranch`. To list one repository's queues, get its ID from [`GET /v2/repositories?providerUrl=https://github.com/<owner>/<repo>`](/merge-queue/reference/api-v2/repositories/resolve-a-repository-by-its-provider-url) (`.data[0].id`), then call `GET /v2/merge-queues?repositoryId=<id>&targetBranch=<branch>`.
-2. **Pull request:** [`GET /v2/pull-requests?repositoryId=…&number=…`](/merge-queue/reference/api-v2/pullrequests/resolve-pull-requests-by-repository-coordinates) resolves up to 50 comma-separated pull request numbers at once, or one head `branch`. It finds only pull requests Trunk's GitHub App has already seen, so one opened seconds ago may not appear yet; retry shortly.
+2. **Pull request:** [`GET /v2/pull-requests?repositoryId=…&number=…`](/merge-queue/reference/api-v2/pullrequests/resolve-pull-requests-by-repository-coordinates) resolves up to 50 comma-separated pull request numbers at once (set `limit=50`, since the default page is 25), or one head `branch`. It finds only pull requests Trunk's GitHub App has already seen. If you just opened one, retry shortly.
 
 ```bash
 curl "https://api.trunk.io/v2/pull-requests?repositoryId=7c9e6679-7425-40de-944b-e07fc1f90ae7&number=4901" \
@@ -62,16 +62,20 @@ curl -X POST https://api.trunk.io/v2/merge-queues/xK9mP2nQ/pull-requests \
 
 Its `201` response is the pull request; keep its `id` for polling.
 
-- If the pull request is already in this queue, submit returns `409 PR_ALREADY_ENQUEUED` and changes nothing. Look up its `id` instead.
-- If Trunk can't enqueue it, submit returns `422 PR_NOT_ENQUEUEABLE` with the reason in `message`. For example, the pull request doesn't exist, its base branch isn't the queue's branch (for a stacked pull request, its stack doesn't lead to it), a repository ruleset blocks it, or it's still in another of the repository's queues. In that last case, dequeue it there first.
+- If the pull request is already queued here (not yet merged, failed, or cancelled), submit returns `409 PR_ALREADY_ENQUEUED` and changes nothing. [Look up its `id`](#finding-ids) instead, using the queue's `repositoryId` from [`GET /v2/merge-queues/{id}`](/merge-queue/reference/api-v2/mergequeues/get-a-merge-queue).
+- If Trunk can't enqueue it, submit returns `422 PR_NOT_ENQUEUEABLE` with the reason in `message`. For example:
+  - The pull request doesn't exist.
+  - It targets a different branch from the queue's. A stacked pull request may target another pull request's branch, as long as the stack ends at the queue's branch.
+  - A repository ruleset blocks it.
+  - It's still in another of the repository's queues. Look up the pull request, read `queueEntry.mergeQueueId`, and dequeue it there first.
 - A closed pull request is accepted but stays `notReady`.
 
-The API has no webhooks of its own. To wait for a pull request to merge, poll [`GET /v2/pull-requests/{id}`](/merge-queue/reference/api-v2/pullrequests/get-a-pull-request) every 30 to 60 seconds until `queueEntry.state` is `merged`, `failed`, or `cancelled`, or use [Merge Queue webhooks](/merge-queue/webhooks).
+To wait for a pull request to merge, poll [`GET /v2/pull-requests/{id}`](/merge-queue/reference/api-v2/pullrequests/get-a-pull-request) every 30 to 60 seconds until `queueEntry.state` is `merged`, `failed`, or `cancelled`, or subscribe to [Merge Queue webhooks](/merge-queue/webhooks). The API itself has no webhooks.
 
 - Read `queueEntry.state`, not the top-level `state`, which is the pull request's state on GitHub.
-- Stop if `queueEntry` disappears. A failed or cancelled entry is removed if the pull request is submitted to another queue or its queue is deleted.
+- Stop if `queueEntry` disappears or its `mergeQueueId` changes, and report the outcome as unknown. This happens when a failed or cancelled pull request is submitted to another queue, or its queue is deleted.
 - Send the last response's `ETag` in `If-None-Match`. If nothing changed, you get `304` with no body.
-- Set a deadline of your own. A pull request can stay `notReady` for a long time; the queue cancels it only if it has a not-ready timeout configured.
+- Set a deadline of your own. A pull request can stay `notReady` for a long time; the queue cancels it only if its `notReadyTimeoutMinutes` [setting](/merge-queue/reference/api-v2/mergequeues/update-a-merge-queues-configuration) is set.
 - Don't stop when `ci.pollAfterSeconds` is `null`. It describes CI on the pull request's own head commit, not its place in the queue.
 
 To find out why a pull request failed, read the latest transition in its [queue-entry history](/merge-queue/reference/api-v2/pullrequests/list-a-pull-requests-queue-entry-state-history) (`direction=newest`). The [failure reason reference](/merge-queue/using-the-queue/handle-failed-pull-requests#failure-reason-reference) explains each `reason`. When a required check failed, `failed.failureCausingChecks` names the checks, and `verificationRunId` leads to the [verification run](/merge-queue/reference/api-v2/mergequeueverificationruns/get-a-verification-run) and its `checks`.
@@ -123,7 +127,7 @@ Most requests share one limit of 100 per second per organization, across every A
 - **Metrics** (`GET /v2/merge-queues/metrics` and `GET /v2/merge-queues/{id}/metrics`): 5 per second per organization.
 - **Impacted-target uploads from a [GitHub Actions login](/merge-queue/reference/api-v2/github-actions)**: 10 per second per repository, with a separate allowance for fork pull requests.
 
-Over a limit, you get `429`.
+A request over a limit gets `429`.
 
 ## Retrying
 

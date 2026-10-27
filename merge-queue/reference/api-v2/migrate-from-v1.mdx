@@ -5,7 +5,7 @@ og:title: "Migrate from the Trunk Merge Queue v1 API to v2"
 ---
 This guide moves [v1 API](/merge-queue/reference/merge) automation, such as submitting pull requests from CI, pausing queues, or building dashboards, to [v2](/merge-queue/reference/api-v2).
 
-Every v1 capability has a v2 equivalent, though a few take more requests. Most migrations are four changes: a new credential, a new base URL, IDs instead of repository coordinates, and camelCase enum values.
+Every v1 capability has a v2 equivalent, though a few take more requests. Most migrations come down to four changes, a new credential, a new base URL, IDs instead of repository coordinates, and camelCase enum values, plus updated response parsing.
 
 ## Migrate with an agent
 
@@ -15,7 +15,7 @@ To have a coding agent do the migration, run it from the repository that calls v
 Migrate this codebase's Trunk Merge Queue API calls from v1 (https://api.trunk.io/v1) to v2. v2 requests go to https://api.trunk.io, and every v2 path already starts with /v2, so never add /v2 to the host as well.
 
 1. Read the migration guide, https://docs.trunk.io/merge-queue/reference/api-v2/migrate-from-v1.md, and the API overview, https://docs.trunk.io/merge-queue/reference/api-v2.md, which covers errors, retrying, rate limits, and polling.
-2. Find every v1 call in this codebase. Look for api.trunk.io/v1, the x-api-token header, and the v1 endpoint names in the guide's endpoint map.
+2. Find every v1 Merge Queue call in this codebase. Look for api.trunk.io/v1, the x-api-token header, and the v1 endpoint names in the guide's endpoint map. Leave other v1 calls, such as /v1/flaky-tests/..., and the Trunk Analytics CLI's organization API token as they are: they aren't part of this migration.
 3. Port each call using the endpoint map. Before writing each v2 request, read that endpoint's reference page as Markdown for the exact parameters and response fields. For a link to docs.trunk.io, whether relative (/merge-queue/...) or absolute (https://docs.trunk.io/...), remove any #fragment, add .md unless the path already ends in .md, and fetch it from https://docs.trunk.io. A link that is only #… is a section of the page you're reading. Links to other hosts, such as app.trunk.io or github.com, aren't documentation, so don't fetch them. If a docs.trunk.io fetch doesn't return Markdown, the path is wrong.
 4. Port response parsing, not just requests. v1's flat pull request record is split in v2: pull request fields at the top level, queue fields under queueEntry, and id now identifies the pull request. Timelines and testing results also change shape. Use the guide's "Renamed values" section.
 5. Use the guide's tables for enum values and renamed fields. Never derive a v2 enum value by changing the case of a v1 value.
@@ -54,7 +54,7 @@ Grant the permissions your v1 calls need:
 | `direct` on a v2 submit or queue-entry update (new in v2) | **Merge PRs with direct to queue** |
 | `createQueue`, `updateQueue`, `deleteQueue` | **Update Merge Queue settings** |
 
-If CI only uploads impacted targets from GitHub Actions, it doesn't need a key: [log in with the run's own credential](/merge-queue/reference/api-v2/github-actions) instead, which also works on pull requests from forks.
+If CI only uploads impacted targets from GitHub Actions, it doesn't need a key. [Log in with the run's own credential](/merge-queue/reference/api-v2/github-actions) instead, which also works on fork pull requests.
 
 ## Step 2: Switch the credential and base URL
 
@@ -201,7 +201,7 @@ scrape_configs:
       credentials_file: /etc/prometheus/trunk-api-key
 ```
 
-**Completed testing over a time range.** Page through `testing-results` with `nextCursor`. Each row carries `pullRequestNumber`, `testingDurationMs`, `outcome`, and the `verificationRunId` for its details. A request covers at most 45 days, which is also how long results are kept:
+**Completed testing over a time range.** Page through `testing-results` with `nextCursor`. A request covers at most 45 days, which is also how long results are kept. Each row carries `pullRequestNumber`, `testingDurationMs`, `outcome`, and the `verificationRunId` for its details:
 
 ```bash
 curl "https://api.trunk.io/v2/merge-queues/$QUEUE_ID/testing-results?since=2026-09-01T00:00:00Z&until=2026-09-08T00:00:00Z&limit=100" \
@@ -217,7 +217,7 @@ curl "https://api.trunk.io/v2/merge-queues/$QUEUE_ID/pull-requests?state=merged,
 
 ## Renamed values
 
-v2 enum values are camelCase. Most follow mechanically from v1, but some drop or change words, so map them with these tables rather than by changing case.
+v2 enum values are camelCase. Some drop or change words, so map them with these tables, not by changing case.
 
 ### Queue entry states
 
@@ -260,7 +260,7 @@ The new `queueEntry.readiness.mergeabilityDetails.reasons[]` explains the mergea
 
 ### Timelines
 
-v1's `timeline` is now the [queue-entry history](/merge-queue/reference/api-v2/pullrequests/list-a-pull-requests-queue-entry-state-history). Its shape changes as well as its values, so update the parser field by field, not just the values:
+v1's `timeline` is now the [queue-entry history](/merge-queue/reference/api-v2/pullrequests/list-a-pull-requests-queue-entry-state-history). Its shape changes as well as its values, so update the parser field by field:
 
 | v1 | v2 |
 | --- | --- |
@@ -271,7 +271,7 @@ v1's `timeline` is now the [queue-entry history](/merge-queue/reference/api-v2/p
 | `failureCausingStatuses` | `failureCausingChecks` |
 | `notReady.noBatch` | `notReady.allowBatching` (inverted) |
 | `prNumber` and `prUrl` in `waitingFor`, `otherTestedPullRequests`, `prerequisitePullRequests`, `conflictCulprit` | `number` and `url`, plus the pull request's `pullRequestId` |
-| `blockReasons[].kind`: `behind_base`, `merge_conflict`, `failing_required_check`, `awaiting_required_check`, `review_required`, `changes_requested`, `stack_needs_rebase`, `undetermined` | `blockReasons[].code`: `behind`, `conflict`, `failingCheck`, `awaitingCheck`, `reviewRequired`, `changesRequested`, `stackNeedsRebase`, `other`. Each reason also has a `message`; v1's per-kind detail fields are gone |
+| `blockReasons[].kind`: `behind_base`, `merge_conflict`, `failing_required_check`, `awaiting_required_check`, `review_required`, `changes_requested`, `stack_needs_rebase`, `undetermined` | `blockReasons[].code`: `behind`, `conflict`, `failingCheck`, `awaitingCheck`, `reviewRequired`, `changesRequested`, `stackNeedsRebase`, `other`. Each reason also has a `message`. `have`, `need`, `check`, and `ontoPrNumber` keep their names; v1's `status` and `state` are gone |
 | `conflictCulprit.type`: `queue_pr`, `base_branch`, `stacked_pr` | `conflictCulprit.kind`: `queuePullRequest`, `baseBranch`, `stackedPullRequest` |
 | `testsPassed.successorMergeItemId` | `testsPassed.successorPullRequestId`, a pull request ID, not a queue entry ID |
 | `reason` values, lowercase (`prerequisite_merge_item_failed`) | Uppercase (`PREREQUISITE_MERGE_ITEM_FAILED`) |
@@ -322,13 +322,18 @@ The same names appear under `config` when you read a queue. v2 also bounds value
 
 - **Resubmitting doesn't update a queued pull request.** v1's `submitPullRequest` rewrote the priority and batching of a pull request already in the queue. v2 returns `409 PR_ALREADY_ENQUEUED` and changes nothing. Use [`POST /v2/pull-requests/{id}/reprioritize`](/merge-queue/reference/api-v2/pullrequests/reprioritize-a-queued-pull-request) or [`PATCH /v2/pull-requests/{id}/queue-entry`](/merge-queue/reference/api-v2/pullrequests/update-a-queued-pull-requests-entry) instead.
 - **`requiredStatuses: []` clears the list.** In v1 an empty list was ignored, and you cleared it with `deleteRequiredStatuses: true`.
-- **The queue's pull requests come in three lists.** v1's `getQueue` returned one `enqueuedPullRequests` array. `/order` returns `batches` (each with a verification run, a `state`, and its `pullRequests`), `pending` (admitted, in the order the queue will consider them, each holding its pull request in `pullRequest`), and `awaitingAdmission` (pull requests, truncated; `awaitingAdmissionTotal` is the full count). Take the pull requests from each, in that order, to rebuild v1's list. Pull requests that aren't ready yet are in none of them, as in v1.
+- **The queue's pull requests come in three lists.** v1's `getQueue` returned one `enqueuedPullRequests` array. `/order` returns:
+  - `batches`, each with a verification run, a `state`, and its `pullRequests`.
+  - `pending`, admitted entries in the order the queue will consider them, each holding its pull request in `pullRequest`.
+  - `awaitingAdmission`, pull requests, truncated. `awaitingAdmissionTotal` is the full count.
+
+  Take the pull requests from each, in that order, to rebuild v1's list. Pull requests that aren't ready yet are in none of them, as in v1.
 
   Each entry carries only the pull request's `id`, `number`, `title`, `sha`, and `url`. For state, priority, or author, match by `id` against [`GET /v2/merge-queues/{id}/pull-requests?state=pending,testing,testsPassed,pendingFailure`](/merge-queue/reference/api-v2/mergequeues/list-a-merge-queues-pull-requests).
 - **List order is not queue order.** `GET /v2/merge-queues/{id}/pull-requests` is ordered by when each pull request was first submitted, newest first. Use `/order` for queue position.
 - **Lookups don't tell you "not in this queue".** v1's `getSubmittedPullRequest` returned `404`, and `getSubmittedPullRequests` a `notFound` list, for pull requests never submitted to that queue. `GET /v2/pull-requests` finds any pull request Trunk knows in the repository. Treat a result with no `queueEntry`, or whose `queueEntry.mergeQueueId` is another queue, as not found. For a batch, also compare the numbers you sent with the ones returned.
 - **Timelines default to oldest first.** Send `direction=newest` for v1's order, where the current state comes first.
-- **Errors have one shape, but not every response has it.** Switch on `error.code` when the body has an `error` object. `401`, `403` for some credential problems, `429`, and `503` come from Trunk's edge, and the API answers `413` and `504` as plain text. These may lack it, so branch on the status code for those. `403 INSUFFICIENT_PERMISSIONS` means the key lacks a permission. See [Errors](/merge-queue/reference/api-v2#errors).
+- **Errors have one shape, but not every response has it.** Switch on `error.code` when the body has an `error` object. `401`, `403` for some credential problems, `429`, and `503` come from Trunk's edge, and the API answers `413` and `504` as plain text. These may lack the `error` object, so branch on their status code. `403 INSUFFICIENT_PERMISSIONS` means the key lacks a permission. See [Errors](/merge-queue/reference/api-v2#errors).
 - **Read back before retrying a write.** v2 doesn't honor `Idempotency-Key`, so a blind retry can, for example, restart a pull request's tests twice. Reads are safe to retry. See [Retrying](/merge-queue/reference/api-v2#retrying).
 - **Pull request reads have their own, lower limit.** `GET` requests on paths starting with `/v2/pull-requests` are limited to 5 per second per API key or user. Most other requests share 100 per second per organization. A v1 loop that polls many pull requests may need to slow down. See [Rate limits](/merge-queue/reference/api-v2#rate-limits).
 
@@ -343,7 +348,7 @@ A `testRunId` stored from v1 is the same ID in v2. If it ends in v1's `-bisectio
 ## Checklist
 
 - [ ] An API key exists with the [permissions](#step-1-create-an-api-key) your calls need, stored as a secret.
-- [ ] No request uses `api.trunk.io/v1` or the `x-api-token` header.
+- [ ] No Merge Queue request uses `api.trunk.io/v1` or the `x-api-token` header. Other v1 calls, such as Flaky Tests and test-result uploads, are unchanged.
 - [ ] Queue and pull request IDs are resolved once and stored, not looked up per request.
 - [ ] Every enum value comes from the tables above, including values stored in your own database or config.
 - [ ] Every list request sets `limit` and follows `nextCursor` until `hasMore` is `false`, with the other parameters unchanged, including batch lookups.
