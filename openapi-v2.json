@@ -497,6 +497,10 @@
           "TICKETING_SITE_REFUSED",
           "TICKET_NOT_FOUND",
           "TICKET_LINK_CONFLICT",
+          "TEST_ALREADY_LINKED",
+          "TICKET_FIELDS_REJECTED",
+          "TICKET_CONTENT_UNAVAILABLE",
+          "TICKETING_CREATE_REFUSED",
           "RATE_LIMIT_EXCEEDED"
         ],
         "description": "Stable machine-readable error identifier. Switch on this, never on `message`. A shipped code's meaning never changes, but **new codes may be added within v2** — treat an unrecognized code as a generic failure of its HTTP status rather than failing closed.",
@@ -4515,6 +4519,38 @@
         },
         "required": ["externalTicketId"],
         "description": "The ticket to link to a test in a test collection."
+      },
+      "CreateTicketRequest": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 250,
+            "description": "The ticket's title. Defaults to the one the web app generates, such as `[Flaky Test] suite::test_case_name`.",
+            "example": "[Flaky Test] suite::test_case_name"
+          },
+          "description": {
+            "type": "string",
+            "description": "The ticket's body, in Markdown. Defaults to the one the web app generates: the test's location, failure rate, owners and most common failure reasons, with a link back to the test in Trunk.",
+            "example": "See all details on the [Trunk Test Detail page](https://app.trunk.io/acme/flaky-tests/collections/ab12cd34/tests/bfeebcf4-0000-8000-8000-000000000001)"
+          },
+          "fields": {
+            "type": "object",
+            "additionalProperties": {},
+            "description": "Provider fields to set on the ticket, keyed by the provider's field id (a Jira custom field id, `assignee`, a Linear project id), in the shape the provider takes. Merged over the default fields saved on the collection's ticketing connection; a field set here wins.",
+            "example": {
+              "assignee": "5b10ac8d82e05b22cc7d4ef5"
+            }
+          },
+          "replaceExisting": {
+            "type": "boolean",
+            "description": "Replace a ticket already linked to the test. When false or absent, a test that has a ticket is refused with `TEST_ALREADY_LINKED`.",
+            "example": false
+          }
+        },
+        "additionalProperties": false,
+        "description": "The ticket to create for a test in a test collection."
       },
       "RepositoryList": {
         "type": "object",
@@ -9249,7 +9285,7 @@
         "operationId": "testCollections.getQuarantineStatus",
         "tags": ["testCollections"],
         "summary": "Get quarantine status for a CI run",
-        "description": "Reports which tests are quarantined in a collection for one repository, so a CI run can ignore their failures. Send the run's failing tests as `testIdentifiers` to get an answer for each. This is a read sent as `POST` because the identifier list can be large. Requires the **Upload test results** permission. Quarantine changes reach this response within a minute.",
+        "description": "**Internal.** This endpoint is intended for internal use by Trunk's analytics-cli and test-runner plugins. Use it at your own risk: it may change without notice.\n\nReports which tests are quarantined in a collection for one repository, so a CI run can ignore their failures. Send the run's failing tests as `testIdentifiers` to get an answer for each. This is a read sent as `POST` because the identifier list can be large. Requires the **Upload test results** permission. Quarantine changes reach this response within a minute.",
         "parameters": [
           {
             "schema": {
@@ -9353,7 +9389,7 @@
         "operationId": "testCollections.listAllQuarantinedTests",
         "tags": ["testCollections"],
         "summary": "List every quarantined test for a CI run",
-        "description": "Lists the `testId` of every quarantined test in a collection for one repository, in `testId` order, so a test runner can decide each failure itself as it happens. Take `repositoryId` and `testCollectionUuid` from `POST /v2/test-collections/{id}/quarantine-status`, which also reports `quarantineEnabled`; while quarantining is off this list is empty. A runner computes each test's `testId` from those two and its own test id, and matches on it. A page holds up to 25,000 tests. A `repositoryId` that is neither the nil UUID nor a repository in your organization is a `404`. Requires the **Upload test results** permission. Quarantine changes reach this list within a minute, so a test that joins or leaves the set while you page through it may be missed, or still listed, until your next pass.",
+        "description": "**Internal.** This endpoint is intended for internal use by Trunk's analytics-cli and test-runner plugins. Use it at your own risk: it may change without notice.\n\nLists the `testId` of every quarantined test in a collection for one repository, in `testId` order, so a test runner can decide each failure itself as it happens. Take `repositoryId` and `testCollectionUuid` from `POST /v2/test-collections/{id}/quarantine-status`, which also reports `quarantineEnabled`; while quarantining is off this list is empty. A runner computes each test's `testId` from those two and its own test id, and matches on it. A page holds up to 25,000 tests. A `repositoryId` that is neither the nil UUID nor a repository in your organization is a `404`. Requires the **Upload test results** permission. Quarantine changes reach this list within a minute, so a test that joins or leaves the set while you page through it may be missed, or still listed, until your next pass.",
         "parameters": [
           {
             "schema": {
@@ -10222,7 +10258,7 @@
         "operationId": "testCollections.createUpload",
         "tags": ["testCollections"],
         "summary": "Create a test-results upload",
-        "description": "Starts an upload of one CI run's test results to a collection. `PUT` the results bundle to the returned `uploadUrl` before `expiresAt`. A repository Trunk does not know is created when `remoteUrls` is sent. Requires the **Upload test results** permission.",
+        "description": "**Internal.** This endpoint is intended for internal use by Trunk's analytics-cli and test-runner plugins. Use it at your own risk: it may change without notice.\n\nStarts an upload of one CI run's test results to a collection. `PUT` the results bundle to the returned `uploadUrl` before `expiresAt`. A repository Trunk does not know is created when `remoteUrls` is sent. Requires the **Upload test results** permission.",
         "parameters": [
           {
             "schema": {
@@ -10498,6 +10534,140 @@
           },
           "422": {
             "description": "`TICKET_NOT_FOUND`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "`UPSTREAM_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/tests/{testId}/create-ticket": {
+      "post": {
+        "operationId": "tests.createTicket",
+        "tags": ["tests"],
+        "summary": "Create a ticket for a test",
+        "description": "Files a new ticket in the test collection's default ticketing connection and links it to a test, returning the ticket as Trunk now holds it. A collection with no default connection is refused with `TICKETING_NOT_CONFIGURED`.\n\nThe ticket gets the default fields saved on that connection, with `fields` merged over them. The provider may still refuse the ticket: a field it does not accept, or a required one neither sets, is `422 TICKET_FIELDS_REJECTED` with the provider's own message, and a connection the provider will not let create tickets (no access to its project, a missing scope, a plan limit) is `409 TICKETING_CREATE_REFUSED`.\n\nA `title` or `description` you leave out is generated the way the web app generates it: the test's location, failure rate, owners and most common failure reasons, with a link back to the test. Failure summaries are left out while your organization has AI features turned off. A test with no data to generate from is refused with `TICKET_CONTENT_UNAVAILABLE`; pass both to create its ticket anyway.\n\nA test carries at most one ticket. If one is already linked, the call is refused with `TEST_ALREADY_LINKED` and files nothing, unless `replaceExisting` is true.\n\n`Idempotency-Key` is not honored. The call files the ticket with the provider and answers `504` if that takes longer than five seconds; a `504` does not mean nothing was filed. Before retrying, read the test (`GET /v2/tests/{testId}`): if its `ticket` is set, the ticket was created and linked. A `502 UPSTREAM_ERROR` means the provider did not answer; when it was rate-limiting, `Retry-After` says how long to wait.\n\nA test in another organization is reported as `404`, not `403`, and so is a malformed id.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The test's globally unique id.",
+              "example": "bfeebcf4-0000-8000-8000-000000000001"
+            },
+            "required": true,
+            "description": "The test's globally unique id.",
+            "name": "testId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTicketRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The created and linked ticket",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ticket"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`INSUFFICIENT_PERMISSIONS`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`TEST_NOT_FOUND`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "`TICKETING_NOT_CONFIGURED` | `TICKETING_CREDENTIALS_INVALID` | `TICKETING_SITE_REFUSED` | `TEST_ALREADY_LINKED` | `TICKET_LINK_CONFLICT` | `TICKETING_CREATE_REFUSED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "`TICKET_FIELDS_REJECTED` | `TICKET_CONTENT_UNAVAILABLE`",
             "content": {
               "application/json": {
                 "schema": {

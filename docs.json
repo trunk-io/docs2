@@ -409,15 +409,13 @@
                       "GET /v2/test-collections",
                       "POST /v2/test-collections",
                       "GET /v2/test-collections/{id}",
-                      "POST /v2/test-collections/{id}/quarantine-status",
-                      "GET /v2/test-collections/{id}/all-quarantined-tests",
-                      "POST /v2/test-collections/{id}/uploads",
                       "GET /v2/test-uploads/{id}",
                       "GET /v2/tests",
                       "GET /v2/tests/{testId}",
                       "GET /v2/tests/{testId}/status-history",
                       "GET /v2/tests/{testId}/test-runs",
-                      "POST /v2/tests/{testId}/ticket"
+                      "POST /v2/tests/{testId}/ticket",
+                      "POST /v2/tests/{testId}/create-ticket"
                     ]
                   },
                   {
@@ -934,6 +932,8 @@
               {
                 "group": "October",
                 "pages": [
+                  "changelog/2026-10-26-flaky-tests-api-create-ticket",
+                  "changelog/2026-10-26-flaky-tests-api-test-links-and-upload-status",
                   "changelog/2026-10-23-flaky-tests-extension-test-details-ga",
                   "changelog/2026-10-23-flaky-tests-swift-test-xml-uploads",
                   "changelog/2026-10-10-flaky-tests-jira-data-center-ticketing",
