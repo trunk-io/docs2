@@ -23,13 +23,13 @@ Scoped to [test collections](/flaky-tests/test-collections), on `/v2`. Use these
   <Card title="Create a ticket for a test" href="/flaky-tests/reference/api-reference/v2/tests/create-a-ticket-for-a-test" />
 </Columns>
 
-Authenticate with an [API key](/merge-queue/reference/api-v2/authentication), sent as `Authorization: Bearer <key>`. The organization API token isn't supported with these endpoints. Switch on an error's `code`, not its `message`. Authentication failures and rate limiting come from Trunk's edge and may lack the error envelope, so branch on the status code for those.
+Authenticate with an [API key](/merge-queue/reference/api-v2/authentication), sent as `Authorization: Bearer <key>`. The organization API token works only with the v1 API. Switch on an error's `code`, not its `message`. Authentication failures and rate limiting come from Trunk's edge and may lack the error envelope, so branch on the status code for those.
 
 ## Repository endpoints
 
 Scoped to repositories, on `/v1`. Use these if your tests are still organized by repository.
 
-All requests must be [authenticated](../../setup-and-administration/apis/#authentication) with your organization API token, in the `x-api-token` header. This token is for the v1 endpoints only, and v2 API keys don't work with them.
+Authenticate these with your organization API token in the `x-api-token` header ([details](../../setup-and-administration/apis/#authentication)). v2 API keys don't work with v1.
 
 <Columns cols={2}>
   <Card

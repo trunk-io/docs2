@@ -11,13 +11,13 @@ Use v2 for new integrations. The [v1 API](/merge-queue/reference/merge) keeps wo
 
 ## Before you start
 
-Install the Trunk GitHub App on the repository, and create a merge queue for the branch you merge into. See [Install and create your queue](/merge-queue/getting-started/install-and-create-your-queue), or create the queue with the API.
+Install the Trunk GitHub App on the repository, and create a merge queue for the branch you merge into. See [Install and create your queue](/merge-queue/getting-started/install-and-create-your-queue), or [create the queue with the API](/merge-queue/reference/api-v2/mergequeues/create-a-merge-queue).
 
 Merge queues are GitHub-only.
 
 ## Concepts
 
-- **Queue entry**: a pull request's place in a merge queue, under `queueEntry` on a pull request. Its `id` differs from the pull request's `id`. Endpoints under `/v2/pull-requests/{id}` take the pull request's.
+- **Queue entry**: a pull request's place in a merge queue, under `queueEntry` on a pull request. Its `id` differs from the pull request's `id`. Endpoints under `/v2/pull-requests/{id}` take the pull request's `id`.
 - **Queue entry state**: `notReady` (submitted, but waiting on a requirement such as passing checks or impacted targets), `pending` (ready, waiting to test), `testing`, `testsPassed`, `pendingFailure` (its tests failed, and the queue is holding it, for example while the pull requests ahead of it finish, to learn whether the failure is its own; see [Pending failure depth](/merge-queue/optimizations/pending-failure-depth)). The final states are `merged`, `failed`, and `cancelled`. `queueEntry.readiness` explains a `notReady` entry.
 - **Verification run**: one CI run the queue started to test a pull request, or a [batch](/merge-queue/optimizations/batching) of them. When a batch fails, the queue splits it to find the culprit (**bisection**). Each split is its own verification run.
 - **Mode**: `queue` mode (**Single** in the app) puts pull requests in one line, each tested on top of the ones ahead of it, several at a time. `graph` mode (**Parallel** in the app) gives unrelated pull requests separate lines, based on the [impacted targets](/merge-queue/optimizations/parallel-queues) CI uploads for each.
@@ -33,7 +33,7 @@ curl https://api.trunk.io/v2/merge-queues \
   -H "Authorization: Bearer $TRUNK_API_KEY"
 ```
 
-An organization admin creates keys under **Settings** → **Developer** → **API Keys**. A key with no permissions can read merge queues but can't change them. Permissions don't restrict the Flaky Tests and Dynamic CI endpoints. The organization API token works only with the v1 API.
+An organization admin creates keys under **Settings** → **Developer** → **API Keys**. A key with no permissions can read merge queues but can't change them. The organization API token works only with the v1 API.
 
 A GitHub Actions job that uploads impacted targets can [authenticate without a key](/merge-queue/reference/api-v2/github-actions). See [Authentication](/merge-queue/reference/api-v2/authentication) for permissions, rotation, and errors.
 
@@ -42,7 +42,7 @@ A GitHub Actions job that uploads impacted targets can [authenticate without a k
 Endpoints address resources by `id`. Look IDs up once and store them:
 
 1. **Queue:** [`GET /v2/merge-queues`](/merge-queue/reference/api-v2/mergequeues/list-merge-queues) lists your organization's queues, each with its `id`, `repositoryId`, `repositoryUrl`, and `targetBranch`. To list one repository's queues, get its ID from [`GET /v2/repositories?providerUrl=https://github.com/<owner>/<repo>`](/merge-queue/reference/api-v2/repositories/resolve-a-repository-by-its-provider-url) (`.data[0].id`), then call `GET /v2/merge-queues?repositoryId=<id>&targetBranch=<branch>`.
-2. **Pull request:** [`GET /v2/pull-requests?repositoryId=…&number=…`](/merge-queue/reference/api-v2/pullrequests/resolve-pull-requests-by-repository-coordinates) resolves up to 50 pull request numbers at once, or a head `branch`. It finds only pull requests Trunk's GitHub App has already seen, so one opened seconds ago may not appear yet; retry shortly.
+2. **Pull request:** [`GET /v2/pull-requests?repositoryId=…&number=…`](/merge-queue/reference/api-v2/pullrequests/resolve-pull-requests-by-repository-coordinates) resolves up to 50 comma-separated pull request numbers at once, or one head `branch`. It finds only pull requests Trunk's GitHub App has already seen, so one opened seconds ago may not appear yet; retry shortly.
 
 ```bash
 curl "https://api.trunk.io/v2/pull-requests?repositoryId=7c9e6679-7425-40de-944b-e07fc1f90ae7&number=4901" \
@@ -51,8 +51,8 @@ curl "https://api.trunk.io/v2/pull-requests?repositoryId=7c9e6679-7425-40de-944b
 
 Submit takes the pull request's `number` in the body, so it needs only the queue's ID, and it has no lookup delay. Its `201` response is the pull request; keep its `id` for polling.
 
-- If the pull request is already queued, submit returns `409 PR_ALREADY_ENQUEUED` and changes nothing. Look up its `id` instead.
-- If Trunk can't enqueue it, for example because it doesn't exist, its base branch doesn't lead to the queue's branch, or a repository ruleset blocks it, submit returns `422 PR_NOT_ENQUEUEABLE` with the reason in `message`.
+- If the pull request is already in this queue, submit returns `409 PR_ALREADY_ENQUEUED` and changes nothing. Look up its `id` instead.
+- If Trunk can't enqueue it, submit returns `422 PR_NOT_ENQUEUEABLE` with the reason in `message`. For example, the pull request doesn't exist, its base branch isn't the queue's branch (for a stacked pull request, its stack doesn't lead to it), a repository ruleset blocks it, or it is still in another queue of the repository, so dequeue it there first.
 - A closed pull request is accepted but stays `notReady`.
 
 ```bash
@@ -76,7 +76,7 @@ Every list endpoint returns the same envelope:
 
 Pass `nextCursor` back verbatim as `cursor` to get the next page, until `hasMore` is `false`. Cursors are opaque, forward-only, and bound to the endpoint and filters they came from. `limit` sets the page size, from 1 to 100; the default is 25. `includeTotal=true` adds a `total` count at the cost of an extra query.
 
-**List order is not queue order.** A queue's pull request list is most recently enqueued first. For the order the queue will test pull requests in, use [`GET /v2/merge-queues/{id}/order`](/merge-queue/reference/api-v2/mergequeues/get-a-merge-queues-dispatch-order).
+**List order is not queue order.** A queue's pull request list is ordered by when each pull request was first submitted to the queue, newest first, and a resubmission doesn't move it. For the order the queue will test pull requests in, use [`GET /v2/merge-queues/{id}/order`](/merge-queue/reference/api-v2/mergequeues/get-a-merge-queues-dispatch-order).
 
 ## Errors
 
@@ -93,27 +93,28 @@ Every error the API itself returns has this shape:
 
 Switch on `code`, which is stable. `message` is for people and may change at any time.
 
-Some responses come from Trunk's edge instead, before the request reaches the API: `401`, `403` when the request has no credential, `429`, and gateway errors such as `503` and `504`. These may not have this shape. Read `error.code` only when the body is JSON with an `error` object, and otherwise branch on the status code. See [Authentication errors](/merge-queue/reference/api-v2/authentication#authentication-errors).
+Some responses don't have this shape. Trunk's edge answers `401`, `403` for some credential problems, `429`, and gateway errors such as `503` before the request reaches the API, and the API answers a body over 512 KB with `413` and a request that runs past its time limit (usually 5 seconds) with `504`, both as plain text. Read `error.code` only when the body is JSON with an `error` object, and otherwise branch on the status code. See [Authentication errors](/merge-queue/reference/api-v2/authentication#authentication-errors).
 
 - **`404` also means "not yours".** A read of a resource in another organization returns `404`, not `403`, so the API never reveals whether it exists.
 - **`403 INSUFFICIENT_PERMISSIONS`** means your credential is valid but not permitted to take that action.
-- **`422`** means the request can't succeed as sent. Retrying it unchanged gets the same answer.
+- **`422`** means the request can't succeed as sent. Retrying it unchanged gets the same answer until something about the pull request or repository changes.
 
 Every response from the API carries an `X-Request-Id` header; edge responses may not. Include it when you contact support.
 
 ## Rate limits
 
-Most requests share one limit of 100 per second per organization, across every API key, user, and CLI session in it. Two kinds of request have limits of their own, and don't count toward it:
+Most requests share one limit of 100 per second per organization, across every API key, user, and CLI session in it. Some requests have limits of their own and don't count toward it, including:
 
-- **Reads of pull requests** (`GET /v2/pull-requests…`): 5 per second for each API key or user.
+- **`GET` requests on paths that start with `/v2/pull-requests`**, such as `GET /v2/pull-requests/{id}` and its history: 5 per second for each API key or user. `GET /v2/merge-queues/{id}/pull-requests` uses the organization's limit.
 - **Metrics** (`GET /v2/merge-queues/metrics` and `GET /v2/merge-queues/{id}/metrics`): 5 per second per organization.
+- **Impacted-target uploads from a [GitHub Actions login](/merge-queue/reference/api-v2/github-actions)**: 10 per second per repository.
 
 Over a limit, you get `429`.
 
 ## Retrying
 
 - **Reads** are safe to retry on `429`, `500`, `502`, `503`, `504`, and network errors. Back off exponentially between attempts.
-- **Writes** don't honor `Idempotency-Key` yet. A write that times out or returns `500`, `502`, `503`, or `504` has an unknown outcome, so read the resource back before retrying. A blind retry can, for example, restart a pull request's tests twice. Each write's reference page describes how to reconcile it.
+- **Writes** don't honor `Idempotency-Key` yet. A write that times out or returns `500`, `502`, `503`, or `504` has an unknown outcome, so read the resource back before retrying. A blind retry can, for example, restart a pull request's tests twice. Some writes, such as `PATCH …/config` and `PUT /v2/impacted-targets`, set a value and are safe to repeat.
 
 ## Polling for a merge
 
@@ -126,11 +127,11 @@ The API has no webhooks of its own. To wait for a pull request to merge, poll [`
 
 The response's `ci.pollAfterSeconds` describes the CI on the pull request's own head commit, not its place in the queue, so don't stop polling when it is `null`.
 
-To find out why a pull request failed, read its [queue-entry history](/merge-queue/reference/api-v2/pullrequests/list-a-pull-requests-queue-entry-state-history) with `direction=newest`. The latest transition's `reason` says why it failed. When a required check failed, `failed.failureCausingChecks` names the checks, and `verificationRunId` leads to the [verification run](/merge-queue/reference/api-v2/mergequeueverificationruns/get-a-verification-run) and its `checks`.
+To find out why a pull request failed, read its [queue-entry history](/merge-queue/reference/api-v2/pullrequests/list-a-pull-requests-queue-entry-state-history) with `direction=newest`. The latest transition's `reason` says why it failed; see the [failure reason reference](/merge-queue/using-the-queue/handle-failed-pull-requests#failure-reason-reference) for what each means. When a required check failed, `failed.failureCausingChecks` names the checks, and `verificationRunId` leads to the [verification run](/merge-queue/reference/api-v2/mergequeueverificationruns/get-a-verification-run) and its `checks`.
 
 ## Compatibility
 
-Within v2, Trunk may add endpoints, optional request parameters, optional response fields, and new enum values, including error codes and queue-entry states. Enum values are camelCase, except error `code`s, a transition's `reason`, and a check's `providerStatus` and `providerConclusion`, which are uppercase. **Tolerate values and fields you don't recognize.** Removals and changes in meaning require a new major version.
+Within v2, Trunk may add endpoints, optional request parameters, optional response fields, and new enum values, including error codes and queue-entry states. Enum values are camelCase, except these, which are uppercase: error `code`s, a transition's `reason` and `pendingFailure.eventualFailureReason`, a check's `providerStatus` and `providerConclusion`, and `failureCausingChecks[].conclusion`. **Tolerate values and fields you don't recognize.** Removals and changes in meaning require a new major version.
 
 ## Endpoints
 
@@ -193,7 +194,7 @@ A queue in `graph` mode (**Parallel** in the app) waits for CI to upload the bui
 
 ### Metrics
 
-Prometheus text format, with the same metric names and labels as v1's [`getMergeQueueMetrics`](/merge-queue/reference/merge/get-prometheus-format-metrics-for-a-merge-queue), so an existing scrape config needs only a new URL, a new credential, and `repositoryId` in place of `repo`/`repoHost`. See [Prometheus metrics](/merge-queue/administration/metrics#prometheus-metrics-endpoint) for the metrics and example queries.
+These return Prometheus text format, with the same metric names and labels as v1's [`getMergeQueueMetrics`](/merge-queue/reference/merge/get-prometheus-format-metrics-for-a-merge-queue), so an existing scrape config needs only a new URL, a new credential, and `repositoryId` in place of `repo`/`repoHost`. See [Prometheus metrics](/merge-queue/administration/metrics#prometheus-metrics-endpoint) for the metrics and example queries.
 
 <Columns cols={2}>
   <Card title="Get Prometheus metrics for every merge queue" href="/merge-queue/reference/api-v2/mergequeues/get-prometheus-metrics-for-every-merge-queue" />

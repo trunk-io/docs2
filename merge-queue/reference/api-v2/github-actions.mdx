@@ -3,16 +3,16 @@ title: "Upload impacted targets from GitHub Actions"
 description: "Authenticate a GitHub Actions job to the v2 API with no Trunk secret, pull requests from forks included."
 og:title: "Upload impacted targets from GitHub Actions with the Trunk Merge Queue API"
 ---
-A GitHub Actions job can [upload a pull request's impacted targets](/merge-queue/reference/api-v2/impactedtargets/upload-a-pull-requests-impacted-targets) without a Trunk API key. The [`trunk-io/login`](https://github.com/trunk-io/login) action exchanges the run's own GitHub credential for a short-lived Trunk login, so there is no secret to create, store, or rotate. It also works on pull requests from forks, which get no repository secrets.
+A GitHub Actions job can [upload a pull request's impacted targets](/merge-queue/reference/api-v2/impactedtargets/upload-a-pull-requests-impacted-targets) without a Trunk API key. The [`trunk-io/login`](https://github.com/trunk-io/login) action exchanges the run's own GitHub credential for a short-lived Trunk login, so there is no secret to create, store, or rotate. It also works on fork pull requests, which get no repository secrets.
 
 The login can **only** upload impacted targets, and only for the repository the run belongs to. Every other endpoint refuses it. For anything else, use an [API key](/merge-queue/reference/api-v2/authentication#create-an-api-key).
 
 ## Before you start
 
 - The Trunk GitHub App is installed on the repository, and the repository has a merge queue in `graph` mode ([**Parallel**](/merge-queue/optimizations/parallel-queues) in the app). Only those queues wait for impacted targets.
-- Your CI can compute which build targets a pull request changes, for example with Bazel or Nx. The actions on the [Bazel](/merge-queue/optimizations/parallel-queues/bazel) and [Nx](/merge-queue/optimizations/parallel-queues/nx) pages compute and upload in one step with a stored secret, which fork pull requests can't read. To support forks, write the targets to a file and upload them as shown below.
+- Your CI can list the build targets a pull request changes, one per line. The workflow below uses one target per changed top-level folder, which works anywhere; a build system such as Bazel or Nx gives more precise targets. The actions on the [Bazel](/merge-queue/optimizations/parallel-queues/bazel) and [Nx](/merge-queue/optimizations/parallel-queues/nx) pages compute and upload in one step with a stored Trunk token, through the v1 API. To use the GitHub Actions login instead, write the targets to a file and upload them as shown below.
 - The job runs on Linux (x64 or arm64) or macOS (arm64). Windows is not supported.
-- To accept uploads from pull requests opened from forks, an admin [allows uploads from forks](#allow-uploads-from-forks) first. Pull requests from the repository itself need no setup in Trunk.
+- To accept uploads from fork pull requests, an admin must first [allow them](#allow-uploads-from-forks). Pull requests from the repository itself need no setup in Trunk.
 
 ## Set up the workflow
 
@@ -29,20 +29,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      # ... compute the impacted targets into targets.txt, one per line
-      #     (for example with Bazel or Nx) ...
+      # One target per top-level folder the pull request changes.
+      # Replace this with your build system's impacted targets.
+      - run: |
+          git diff --name-only "origin/${{ github.base_ref }}...HEAD" \
+            | cut -d/ -f1 | sort -u > targets.txt
 
       - uses: trunk-io/login@v1
 
       - run: trunk mergequeue upload-impacted-targets --targets-file targets.txt
         env:
-          GITHUB_TOKEN: ${{ github.token }} # lets a long fork-PR job renew its login
+          GITHUB_TOKEN: ${{ github.token }} # lets a long job on a fork pull request renew its login
 ```
 
 `trunk-io/login` installs the `trunk` CLI, puts it on `PATH`, and logs in. On a pull request, `trunk mergequeue upload-impacted-targets` takes the repository, pull request number, head commit, and target branch from the run.
 
-Impacted targets apply to one commit, so upload again on every push, or the queue keeps the pull request waiting. The `pull_request` trigger above does this.
+Impacted targets apply to one commit, so upload again on every push, or the queue keeps the pull request waiting. The `pull_request` trigger above does this. The upload answers `202`, and the queue picks the targets up shortly after. To check, read the pull request with [`GET /v2/pull-requests/{id}`](/merge-queue/reference/api-v2/pullrequests/get-a-pull-request): `queueEntry.readiness.hasImpactedTargets` turns `true`.
 
 On events other than a pull request, such as `push`, `merge_group`, or `workflow_dispatch`, the run doesn't name a pull request. Pass `--pr <number>`, `--sha <head commit>`, and `--target-branch <branch>` yourself.
 
@@ -63,24 +68,24 @@ The CLI picks the credential from the run.
 | `pull_request` from this repository, `merge_group`, `push`, `workflow_dispatch` | The run's GitHub OIDC token | `permissions: id-token: write` |
 | `pull_request` or `pull_request_target` from a fork | The job's `GITHUB_TOKEN`, bound to that pull request and its head commit | [Impacted targets from fork PRs](#allow-uploads-from-forks) turned on for the repository |
 
-- The CLI sends `GITHUB_TOKEN` to Trunk only on a pull request from a fork.
-- A `pull_request_target` run for a pull request from the repository itself is refused. Prefer `pull_request` for forks too: a `pull_request_target` job runs with the base repository's permissions and secrets, so never check out and run a fork's code in one.
-- Other events, such as `issue_comment`, `workflow_run`, and `schedule`, are refused: some of them let someone outside the repository run code with the repository's OIDC token.
+- The CLI sends `GITHUB_TOKEN` to Trunk only on a fork pull request.
+- A `pull_request_target` run for a pull request from the repository itself is refused. Prefer `pull_request` for forks too. A `pull_request_target` job runs with the base repository's permissions and secrets, so never check out and run a fork's code in one.
+- Other events, such as `issue_comment`, `workflow_run`, and `schedule`, are refused, because some of them let someone outside the repository run code with the repository's OIDC token.
 - GitHub may hold a first-time contributor's run until a maintainer approves it.
 
 ### Allow uploads from forks
 
-Uploads from fork pull requests are off until an organization admin who can change queue settings turns them on. In the Trunk app, navigate to the **Merge Queue** tab → **[any of the repository's queues]** → **Settings** → **GitHub** and toggle **Impacted targets from fork PRs** on.
+Uploads from fork pull requests are off until an organization admin who can change queue settings turns them on. In the Trunk app, open the **Merge Queue** tab, navigate to **[any of the repository's queues]** → **Settings** → **GitHub**, and toggle **Impacted targets from fork PRs** on.
 
-- The setting applies to every merge queue on the repository, and matters only for queues in `graph` mode ([**Parallel**](/merge-queue/optimizations/parallel-queues) in the app).
-- It is available only for public repositories. A private repository can't accept impacted targets from fork pull requests.
-- If it is off, the login fails on fork pull requests with `Trunk refused this run's GitHub credential`. The error calls this setting **Fork PR CI access**.
+- The setting applies to every merge queue on the repository, and matters only for `graph` mode queues.
+- It can be turned on only for public repositories.
+- If it is off, the login on a fork pull request fails with `Trunk refused this run's GitHub credential`. The error calls this setting **Fork PR CI access**.
 
 ## Security
 
-- Nothing is exported to the job's environment or to later steps. The login is saved to the CLI's credential file (mode `0600`) and used only by the upload.
+- The login isn't exported to the job's environment; the action only adds the CLI to `PATH`. The login is saved to the CLI's credential file (mode `0600`), which only the upload reads. Later steps running as the same user could read that file.
 - The login expires after at most 15 minutes. The CLI renews it when it is close to expiring. On a fork pull request, renewing needs `GITHUB_TOKEN` in the upload step's `env`, as in the example above.
-- Each login is tied to the run that made it, so a later job on a reused self-hosted runner does not pick it up.
+- Each login is tied to the workflow run that made it, so a job from a different run on a reused self-hosted runner doesn't pick it up.
 
 ## Action inputs
 
@@ -89,4 +94,4 @@ Uploads from fork pull requests are off until an organization admin who can chan
 | `api-url` | `https://api.trunk.io/v2` | The Trunk API root. Unlike the API's base URL, this includes `/v2`. |
 | `cli-version` | Pinned per release | The `trunk` CLI version to install. |
 | `cli-channel` | `prod` | The release channel `cli-version` is published on. |
-| `github-token` | `${{ github.token }}` | The job's GitHub token. Sent to Trunk only on a pull request from a fork. |
+| `github-token` | `${{ github.token }}` | The job's GitHub token. Sent to Trunk only on a fork pull request. |

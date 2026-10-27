@@ -20,12 +20,12 @@ curl https://api.trunk.io/v2/merge-queues \
 ```
 
 <Note>
-The organization API token (**Settings** → **Organization** → **General** → **API Token**) works only with the v1 API.
+The organization API token (**Settings** → **Organization** → **General** → **API Token**) works only with the v1 API. The Trunk Analytics CLI and `trunk-io/analytics-uploader` don't accept API keys yet, so keep using the [organization API token](/flaky-tests/get-started/ci-providers/otherci#trunk-organization-slug-and-token) with them.
 </Note>
 
 Keys belong to the organization, so they keep working after their creator leaves. There's no limit on how many you create. Give each integration its own key, with only the permissions it uses.
 
-Most of the rate limit is shared across your organization, so one busy key can get every other integration's requests rate-limited (`429`). See [Rate limits](/merge-queue/reference/api-v2#rate-limits).
+Separate keys don't get separate limits. Most requests share one organization-wide limit, so one busy key can push every other integration into `429`s. See [Rate limits](/merge-queue/reference/api-v2#rate-limits).
 
 ### Create an API key
 
@@ -36,7 +36,7 @@ Only an organization admin can create an API key. In the [Trunk app](https://app
 3. Select the [permissions](#permissions) the key needs. None are selected by default.
 4. Copy the key and store it in your secret manager. The key is shown only once. If you lose it, delete it and create a new one.
 
-Keys start with `trunk_v2_`, so you can add that prefix to your secret scanner. The **API Keys** list shows each key's first characters and who created it, which tells you which key a leaked value belongs to.
+Keys start with `trunk_v2_`, so you can add that prefix to your secret scanner. To trace a leaked value to its key, match its first characters in the **API Keys** list, which also shows who created each key.
 
 ### Permissions
 
@@ -53,8 +53,6 @@ Every key can read your organization's merge queues, so a dashboard or Prometheu
 
 A request's permissions come from its body as well as its endpoint. For example, a submit that sets a priority needs both **Merge and cancel PRs** and **Set priority on PRs**. A request that the key isn't permitted to make returns `403 INSUFFICIENT_PERMISSIONS` and changes nothing.
 
-The Trunk Analytics CLI and `trunk-io/analytics-uploader` don't use API keys yet. They still need the [organization API token](/flaky-tests/get-started/ci-providers/otherci#trunk-organization-slug-and-token).
-
 <Note>
 Permissions apply only to merge queues and test-results uploads. Any API key can call the other Flaky Tests and Dynamic CI endpoints, including writes.
 </Note>
@@ -64,9 +62,9 @@ Permissions apply only to merge queues and test-results uploads. Any API key can
 An organization admin manages keys under **Settings** → **Developer** → **API Keys**.
 
 - To change a key's permissions, open the key and edit them. Its value stays the same, and the change applies within a minute.
-- To delete a leaked or unused key, open the key's menu and click **Delete**. Requests with a deleted key are refused from the next request on. Deleting can't be undone.
+- To delete a leaked or unused key, open the key's menu and click **Delete**. Deletion takes effect on the next request. Deleting can't be undone.
 
-To rotate a key, create its replacement and deploy it. The **API Keys** list shows when each key was last used: once the old key's last use stops advancing, delete it. Last use is recorded up to an hour late, so wait at least that long before you rely on it.
+To rotate a key, create its replacement and deploy it. Once the old key's last-used time in the **API Keys** list stops advancing, delete it. Last use is recorded up to an hour late, so wait at least that long before you rely on it.
 
 ## GitHub Actions
 
@@ -83,8 +81,8 @@ Trunk checks credentials at its edge, so authentication failures may lack the AP
 | Status | Means | What to do |
 | --- | --- | --- |
 | `401` | The credential is malformed, expired, deleted, or not a Trunk credential. | Check the key's value and that it hasn't been deleted. |
-| `403` with no error envelope | The request carries no credential. | Send `Authorization: Bearer <key>`. |
+| `403` with no error envelope | The request carries no credential, a `trunk-io/login` login on an endpoint other than the impacted-targets upload, or an `x-trunk-token` with no organization selected. | Send an API key as `Authorization: Bearer <key>`. |
 | `403 INSUFFICIENT_PERMISSIONS` | The credential is valid, but not permitted to make this request. Nothing was changed. | Add the [permission](#permissions) to the key, or use a key that holds it. |
-| `404` | The resource doesn't exist, **or** it belongs to another organization. The API doesn't distinguish the two. | Check the ID, and that the key belongs to the organization that owns the resource. |
+| `404` | The resource doesn't exist, or it belongs to another organization. The API doesn't distinguish the two. | Check the ID, and that the key belongs to the organization that owns the resource. |
 
-Endpoint pages may show `401` with the codes `AUTHENTICATION_REQUIRED` or `INVALID_TOKEN` in the envelope. Treat those as examples of the status, not as the body you'll receive.
+Endpoint pages may show `401` with the codes `AUTHENTICATION_REQUIRED` or `INVALID_TOKEN` in the envelope. Treat those as examples of the status, not as the body you'll always receive.
