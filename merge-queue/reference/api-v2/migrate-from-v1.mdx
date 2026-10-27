@@ -31,7 +31,7 @@ You can also open this page in Claude or ChatGPT from the page menu, or copy it 
 | | v1 | v2 |
 | --- | --- | --- |
 | URLs | `https://api.trunk.io/v1/<endpoint>`, e.g. `/v1/getQueue` | `https://api.trunk.io` plus a path that already starts with `/v2`, e.g. `/v2/merge-queues/{id}` |
-| Credential | `x-api-token` header | An API key, sent as `Authorization: Bearer <key>` |
+| Credential | The organization API token, in the `x-api-token` header | An API key, sent as `Authorization: Bearer <key>`. The organization API token isn't supported with v2 |
 | Addressing | `repo` + `targetBranch` + `pr.number` in every request body | IDs in the path: a queue ID, a pull request ID |
 | Methods | `POST` for everything except metrics | `GET` to read, `POST`/`PATCH`/`PUT`/`DELETE` to change |
 | Pull request records | One flat record whose `id` is the queue entry | Pull request fields at the top level, whose `id` is the pull request; queue fields under `queueEntry` |
@@ -40,6 +40,8 @@ You can also open this page in Claude or ChatGPT from the page menu, or copy it 
 | Errors | Varies by endpoint | Always `{ "error": { "code", "message" } }` |
 
 ## Step 1: Create an API key
+
+v2 doesn't support the organization API token your v1 calls send, so every migration starts with a new credential.
 
 An organization admin creates API keys in the [Trunk app](https://app.trunk.io) under **Settings** → **Developer** → **API Keys** → **Create Key**. The key is shown once, so store it in your secret manager right away. See [Create an API key](/merge-queue/reference/api-v2/authentication#create-an-api-key) for details.
 

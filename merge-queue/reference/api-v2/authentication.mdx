@@ -19,6 +19,10 @@ curl https://api.trunk.io/v2/merge-queues \
   -H "Authorization: Bearer $TRUNK_API_KEY"
 ```
 
+<Warning>
+The organization API token (**Settings** → **Organization** → **General** → **API Token**) is for the v1 API only and isn't supported with v2. Use an API key.
+</Warning>
+
 A key belongs to your organization, not to the person who created it, so it keeps working after they leave. An organization can have as many keys as it needs: give each integration its own key, with only the permissions that integration uses.
 
 ### Create an API key

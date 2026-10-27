@@ -15,17 +15,17 @@ Trunk provides HTTP REST APIs for each of our features. The APIs use status code
 
 ## Authentication
 
-The v1 APIs authenticate with an API token, using the header `x-api-token`.
+The v1 APIs authenticate with your organization API token, using the header `x-api-token`. v2 API keys don't work with v1.
 
 <Note>
-The v2 APIs, including the [Merge Queue v2 API](/merge-queue/reference/api-v2) and the Flaky Tests test collection endpoints, use scoped API keys instead. See [Authentication](/merge-queue/reference/api-v2/authentication).
+The v2 APIs, including the [Merge Queue v2 API](/merge-queue/reference/api-v2) and the Flaky Tests test collection endpoints, use scoped API keys instead, and don't support the organization API token. See [Authentication](/merge-queue/reference/api-v2/authentication).
 </Note>
 
 ### Finding your API token
 
 You can find your API token in the [Trunk App](https://app.trunk.io) by navigating to **Settings** → **Organization** → **General** and scrolling to the **API** section. The **API Token** field displays your token.
 
-Click the **eye icon** to reveal the token, then the **copy icon** to copy it to your clipboard. Pass it in the `x-api-token` header on any request to Trunk's REST APIs.
+Click the **eye icon** to reveal the token, then the **copy icon** to copy it to your clipboard. Pass it in the `x-api-token` header on any request to Trunk's v1 REST APIs.
 
 **If you are an admin**, a **Rotate** button is available next to the API Token field. Rotating immediately invalidates the previous token, so any integrations using the old token will need to be updated.
 

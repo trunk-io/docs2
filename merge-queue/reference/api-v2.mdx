@@ -37,6 +37,8 @@ curl https://api.trunk.io/v2/merge-queues \
 
 An organization admin creates API keys under **Settings** → **Developer** → **API Keys** in the [Trunk app](https://app.trunk.io), and chooses the permissions each one holds. A key with no permissions can read merge queues but can't change them. Permissions don't restrict the Flaky Tests and Dynamic CI endpoints; see [Authentication](/merge-queue/reference/api-v2/authentication#permissions).
 
+The organization API token (**Settings** → **Organization** → **General** → **API Token**) is for the v1 API only and isn't supported with v2.
+
 To upload impacted targets from CI, you don't need an API key at all: a GitHub Actions job can [log in with the run's own GitHub credential](/merge-queue/reference/api-v2/github-actions), pull requests from forks included.
 
 See [Authentication](/merge-queue/reference/api-v2/authentication) for creating, scoping, rotating, and deleting keys, and which permission each endpoint needs.
