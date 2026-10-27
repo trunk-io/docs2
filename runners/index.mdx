@@ -4,18 +4,19 @@ sidebarTitle: "Runners"
 description: "Fast, reliable, affordable runners for GitHub Actions."
 ---
 
-Trunk Runners run your GitHub Actions jobs on Trunk's bare-metal fleet. Your
-workflows stay on GitHub. You change one line, the `runs-on` label, and Trunk
-starts a fresh VM for the job and removes it when the job ends.
+Trunk Runners give each GitHub Actions job its own VM, a fast SSD, and a cache
+near the runner. Your workflows stay on GitHub. You change one line, the
+`runs-on` label, and Trunk starts a fresh VM for the job and removes it when the
+job ends.
 
 <Note>
-  Trunk Runners is in Beta. Contact [support@trunk.io](mailto:support@trunk.io)
-  to join.
+  Trunk Runners is in private beta. Contact
+  [support@trunk.io](mailto:support@trunk.io) to join.
 </Note>
 
 <CardGroup cols={3}>
   <Card title="Fast" icon="bolt">
-    Bare-metal machines, prebuilt templates, and a cache next to the compute.
+    2x faster hardware, 4x faster caches, and templates that skip setup.
   </Card>
   <Card title="Reliable" icon="shield-check">
     A managed fleet, with priority for the branches that must stay fast.
@@ -27,21 +28,21 @@ starts a fresh VM for the job and removes it when the job ends.
 
 ## Fast
 
-- **Faster hardware.** Jobs run on bare metal, about 40% faster than comparable
-  AWS machines.
+- **Faster hardware.** Jobs run on bare metal with a local SSD: 2x faster than
+  GitHub-hosted runners, and 60% faster than self-hosted runners on AWS.
 - **Templates.** Bake your setup steps into a [template](/runners/actions/templates)
   so a job starts ready, instead of installing the same tools on every run.
 - **In-cluster cache.** `actions/cache`, Bazel, sccache, and Nix use a shared
-  cache in the same cluster as your jobs, with no workflow changes.
-  `actions/cache` runs at about 275 MiB/s, against about 110 MiB/s on GitHub.
-  See [Caching](/runners/cache/index).
+  cache in the same cluster as your jobs, with no workflow changes. Downloads
+  are 4x faster than the GitHub Actions cache. See
+  [Caching](/runners/cache/index).
 
 ## Reliable
 
-- **Managed for you.** Trunk runs the fleet, images, and caches. No self-hosted
-  runners to maintain.
-- **Priority branches.** Your default, release, and merge queue branches start
-  first when CI is busy. See
+- **No infrastructure to operate.** Trunk runs the fleet, images, and caches.
+  No self-hosted runners or controller to maintain.
+- **Priority branches.** Merge queue, default, and release branches start
+  first when CI is busy, so the queue does not wait behind pull request jobs. See
   [Quota and runner priority](/runners/settings/limits-and-priority).
 - **Nothing dropped.** At your CPU quota, new jobs wait and start as CPUs free
   up.
