@@ -25,7 +25,7 @@ The organization API token (**Settings** → **Organization** → **General** �
 
 Keys belong to the organization, so they keep working after their creator leaves. There's no limit on how many you create. Give each integration its own key, with only the permissions it uses.
 
-Most of the rate limit is shared across your organization, so one busy key can slow every other integration. See [Rate limits](/merge-queue/reference/api-v2#rate-limits).
+Most of the rate limit is shared across your organization, so one busy key can get every other integration's requests rate-limited (`429`). See [Rate limits](/merge-queue/reference/api-v2#rate-limits).
 
 ### Create an API key
 
@@ -36,7 +36,7 @@ Only an organization admin can create an API key. In the [Trunk app](https://app
 3. Select the [permissions](#permissions) the key needs. None are selected by default.
 4. Copy the key and store it in your secret manager. The key is shown only once. If you lose it, delete it and create a new one.
 
-Keys start with `trunk_v2_`, so you can add that prefix to your secret scanner.
+Keys start with `trunk_v2_`, so you can add that prefix to your secret scanner. The **API Keys** list shows each key's first characters and who created it, which tells you which key a leaked value belongs to.
 
 ### Permissions
 

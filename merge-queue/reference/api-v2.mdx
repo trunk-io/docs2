@@ -13,7 +13,7 @@ Use v2 for new integrations. The [v1 API](/merge-queue/reference/merge) keeps wo
 
 Install the Trunk GitHub App on the repository, and create a merge queue for the branch you merge into. See [Install and create your queue](/merge-queue/getting-started/install-and-create-your-queue), or create the queue with the API.
 
-Merge Queue and its API support GitHub only. Impacted-target uploads also need a `github.com` repository named `owner/repo`.
+Merge queues are GitHub-only.
 
 ## Concepts
 
@@ -52,7 +52,7 @@ curl "https://api.trunk.io/v2/pull-requests?repositoryId=7c9e6679-7425-40de-944b
 Submit takes the pull request's `number` in the body, so it needs only the queue's ID, and it has no lookup delay. Its `201` response is the pull request; keep its `id` for polling.
 
 - If the pull request is already queued, submit returns `409 PR_ALREADY_ENQUEUED` and changes nothing. Look up its `id` instead.
-- If Trunk can't enqueue it, because it doesn't exist, targets another branch, or a repository ruleset blocks it, submit returns `422 PR_NOT_ENQUEUEABLE` with the reason in `message`.
+- If Trunk can't enqueue it, for example because it doesn't exist, its base branch doesn't lead to the queue's branch, or a repository ruleset blocks it, submit returns `422 PR_NOT_ENQUEUEABLE` with the reason in `message`.
 - A closed pull request is accepted but stays `notReady`.
 
 ```bash
@@ -193,7 +193,7 @@ A queue in `graph` mode (**Parallel** in the app) waits for CI to upload the bui
 
 ### Metrics
 
-Prometheus text format, with the same metric names and labels as v1's [`getMergeQueueMetrics`](/merge-queue/reference/merge/get-prometheus-format-metrics-for-a-merge-queue), so an existing scrape config needs only a new URL and credential. See [Prometheus metrics](/merge-queue/administration/metrics#prometheus-metrics-endpoint) for the metrics and example queries.
+Prometheus text format, with the same metric names and labels as v1's [`getMergeQueueMetrics`](/merge-queue/reference/merge/get-prometheus-format-metrics-for-a-merge-queue), so an existing scrape config needs only a new URL, a new credential, and `repositoryId` in place of `repo`/`repoHost`. See [Prometheus metrics](/merge-queue/administration/metrics#prometheus-metrics-endpoint) for the metrics and example queries.
 
 <Columns cols={2}>
   <Card title="Get Prometheus metrics for every merge queue" href="/merge-queue/reference/api-v2/mergequeues/get-prometheus-metrics-for-every-merge-queue" />

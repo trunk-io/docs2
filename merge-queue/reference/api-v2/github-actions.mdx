@@ -10,7 +10,7 @@ The login can **only** upload impacted targets, and only for the repository the 
 ## Before you start
 
 - The Trunk GitHub App is installed on the repository, and the repository has a merge queue in `graph` mode ([**Parallel**](/merge-queue/optimizations/parallel-queues) in the app). Only those queues wait for impacted targets.
-- Your CI can compute which build targets a pull request changes. For Bazel and Nx, see [Bazel](/merge-queue/optimizations/parallel-queues/bazel) and [Nx](/merge-queue/optimizations/parallel-queues/nx).
+- Your CI can compute which build targets a pull request changes, for example with Bazel or Nx. The actions on the [Bazel](/merge-queue/optimizations/parallel-queues/bazel) and [Nx](/merge-queue/optimizations/parallel-queues/nx) pages compute and upload in one step with a stored secret, which fork pull requests can't read. To support forks, write the targets to a file and upload them as shown below.
 - The job runs on Linux (x64 or arm64) or macOS (arm64). Windows is not supported.
 - To accept uploads from pull requests opened from forks, an admin [allows uploads from forks](#allow-uploads-from-forks) first. Pull requests from the repository itself need no setup in Trunk.
 
@@ -50,7 +50,7 @@ Declare the pull request's impact with one of:
 
 | Option | Uploads |
 | --- | --- |
-| `--targets-file <file>` | The target names in the file, one per line. An empty file is refused, since it usually means the computation failed. Use `--none` instead. |
+| `--targets-file <file>` | The target names in the file, one per line. An empty file is refused, since it usually means the computation failed. If the pull request really impacts nothing, pass `--none`. |
 | `--none` | An empty list: the pull request impacts nothing. This still satisfies the queue's impacted-targets check. |
 | `--all` | The pull request impacts every target. |
 
@@ -86,7 +86,7 @@ Uploads from fork pull requests are off until an organization admin who can chan
 
 | Input | Default | Description |
 | --- | --- | --- |
-| `api-url` | `https://api.trunk.io/v2` | The Trunk API root, including `/v2`. |
+| `api-url` | `https://api.trunk.io/v2` | The Trunk API root. Unlike the API's base URL, this includes `/v2`. |
 | `cli-version` | Pinned per release | The `trunk` CLI version to install. |
 | `cli-channel` | `prod` | The release channel `cli-version` is published on. |
 | `github-token` | `${{ github.token }}` | The job's GitHub token. Sent to Trunk only on a pull request from a fork. |
