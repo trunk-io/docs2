@@ -493,6 +493,46 @@
         ]
       },
       {
+        "tab": "Runners",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "runners/index",
+              "runners/getting-started",
+              "runners/pricing"
+            ]
+          },
+          {
+            "group": "GitHub Actions",
+            "pages": [
+              "runners/actions/runs-on",
+              "runners/actions/sizes",
+              "runners/actions/templates"
+            ]
+          },
+          {
+            "group": "Caching",
+            "pages": [
+              "runners/cache/index",
+              "runners/cache/settings"
+            ]
+          },
+          {
+            "group": "Organization settings",
+            "pages": [
+              "runners/settings/limits-and-priority"
+            ]
+          },
+          {
+            "group": "Reference",
+            "pages": [
+              "runners/reference/runs-on-grammar"
+            ]
+          }
+        ]
+      },
+      {
         "tab": "Setup",
         "groups": [
           {
@@ -795,46 +835,6 @@
             "group": "Reference",
             "pages": [
               "trunk-workspaces/desktop-reference"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "Runners",
-        "groups": [
-          {
-            "group": "Overview",
-            "pages": [
-              "runners/index",
-              "runners/getting-started",
-              "runners/pricing"
-            ]
-          },
-          {
-            "group": "GitHub Actions",
-            "pages": [
-              "runners/actions/runs-on",
-              "runners/actions/sizes",
-              "runners/actions/templates"
-            ]
-          },
-          {
-            "group": "Caching",
-            "pages": [
-              "runners/cache/index",
-              "runners/cache/settings"
-            ]
-          },
-          {
-            "group": "Organization settings",
-            "pages": [
-              "runners/settings/limits-and-priority"
-            ]
-          },
-          {
-            "group": "Reference",
-            "pages": [
-              "runners/reference/runs-on-grammar"
             ]
           }
         ]
