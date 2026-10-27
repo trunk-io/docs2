@@ -7,6 +7,13 @@ A GitHub Actions job can [upload a pull request's impacted targets](/merge-queue
 
 The login can **only** upload impacted targets, and only for the repository the run belongs to. Every other endpoint refuses it. For anything else, use an [API key](/merge-queue/reference/api-v2/authentication#create-an-api-key).
 
+## Before you start
+
+- The Trunk GitHub App is installed on the repository, and the repository has a merge queue in [parallel mode](/merge-queue/optimizations/parallel-queues). Only parallel queues wait for impacted targets.
+- Your CI can compute which build targets a pull request changes. For Bazel and Nx, see [Bazel](/merge-queue/optimizations/parallel-queues/bazel) and [Nx](/merge-queue/optimizations/parallel-queues/nx).
+- The job runs on Linux (x64 or arm64) or macOS (arm64). Windows is not supported.
+- To accept uploads from pull requests opened from forks, an admin [allows uploads from forks](#allow-uploads-from-forks) first. Pull requests from the repository itself need no setup in Trunk.
+
 ## Set up the workflow
 
 ```yaml
@@ -23,7 +30,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # ... compute the impacted targets into targets.txt, one per line ...
+      # ... compute the impacted targets into targets.txt, one per line
+      #     (for example with Bazel or Nx) ...
 
       - uses: trunk-io/login@v1
 
@@ -33,6 +41,8 @@ jobs:
 ```
 
 `trunk-io/login` installs the `trunk` CLI, puts it on `PATH`, and logs in. On a pull request, `trunk mergequeue upload-impacted-targets` takes the repository, pull request number, head commit, and target branch from the run.
+
+Impacted targets belong to one commit. Each push to a pull request needs a new upload, or the queue keeps the pull request waiting for its targets. The `pull_request` trigger above runs on every push, so keep it.
 
 Declare the pull request's impact with one of:
 
@@ -49,10 +59,11 @@ The CLI picks the credential from the run.
 | Run | Credential | Needs |
 | --- | --- | --- |
 | `pull_request` from this repository, `merge_group`, `push`, `workflow_dispatch` | The run's GitHub OIDC token | `permissions: id-token: write` |
-| `pull_request` from a fork, `pull_request_target` | The job's `GITHUB_TOKEN`, bound to that pull request and its head commit | [Impacted targets from fork PRs](#allow-uploads-from-forks) turned on for the repository |
+| `pull_request` or `pull_request_target` from a fork | The job's `GITHUB_TOKEN`, bound to that pull request and its head commit | [Impacted targets from fork PRs](#allow-uploads-from-forks) turned on for the repository |
 
 - The CLI sends `GITHUB_TOKEN` to Trunk only on a pull request from a fork.
 - A fork pull request's login is bound to that pull request and its head commit, and can upload only for them.
+- A `pull_request_target` run for a pull request from the repository itself is refused.
 - Other events, such as `issue_comment`, `workflow_run`, and `schedule`, are refused: some of them let someone outside the repository run code with the repository's OIDC token.
 - GitHub may hold a first-time contributor's run until a maintainer approves it.
 
@@ -74,12 +85,7 @@ Runs from the repository itself need no setup in Trunk. Uploads from fork pull r
 
 | Input | Default | Description |
 | --- | --- | --- |
-| `api-url` | `https://api.trunk.io/v2` | The Trunk API root. |
+| `api-url` | `https://api.trunk.io/v2` | The Trunk API root, including `/v2`. |
 | `cli-version` | Pinned per release | The `trunk` CLI version to install. |
 | `cli-channel` | `prod` | The release channel `cli-version` is published on. |
 | `github-token` | `${{ github.token }}` | The job's GitHub token. Sent to Trunk only on a pull request from a fork. |
-
-## Requirements
-
-- Linux (x64 or arm64) or macOS (arm64) runners. Windows is not supported.
-- The repository is connected to Trunk: the Trunk GitHub App is installed on it.

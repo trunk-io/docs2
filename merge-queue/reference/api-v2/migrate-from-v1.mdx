@@ -12,7 +12,7 @@ Every v1 capability has a v2 equivalent. Most migrations are four changes: a new
 This page is written so a coding agent can do the migration for you. Give your agent this prompt from the repository that calls the v1 API:
 
 ```text
-Migrate this codebase's Trunk Merge Queue API calls from v1 (https://api.trunk.io/v1) to v2 (https://api.trunk.io/v2).
+Migrate this codebase's Trunk Merge Queue API calls from v1 (https://api.trunk.io/v1) to v2. v2 requests go to https://api.trunk.io, and every v2 path already starts with /v2, so never add /v2 to the host as well.
 
 1. Read the migration guide: https://docs.trunk.io/merge-queue/reference/api-v2/migrate-from-v1.md
 2. Find every v1 call in this codebase. Look for api.trunk.io/v1, the x-api-token header, and the v1 endpoint names in the guide's endpoint map.
@@ -30,7 +30,7 @@ You can also open this page in Claude or ChatGPT from the page menu, or copy it 
 
 | | v1 | v2 |
 | --- | --- | --- |
-| Base URL | `https://api.trunk.io/v1` | `https://api.trunk.io/v2` |
+| URLs | `https://api.trunk.io/v1/<endpoint>`, e.g. `/v1/getQueue` | `https://api.trunk.io` plus a path that already starts with `/v2`, e.g. `/v2/merge-queues/{id}` |
 | Credential | `x-api-token` header | An API key, sent as `Authorization: Bearer <key>` |
 | Addressing | `repo` + `targetBranch` + `pr.number` in every request body | IDs in the path: a queue ID, a pull request ID |
 | Methods | `POST` for everything except metrics | `GET` to read, `POST`/`PATCH`/`PUT`/`DELETE` to change |

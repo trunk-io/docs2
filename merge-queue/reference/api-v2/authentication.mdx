@@ -62,7 +62,7 @@ To rotate a key, create its replacement, deploy it, confirm on the **API Keys** 
 
 ### Rate limits
 
-Every key in an organization shares one rate limit: 100 requests per second, and 5 per second for the metrics endpoints. A busy integration can use up the limit for every other key, so resolve IDs once and store them rather than looking them up on every request. Over the limit, the API answers `429`; retry with backoff.
+Rate limits are per organization, not per key. Every key, user, and CLI session in an organization shares one limit of 100 requests per second, and the metrics endpoints have a separate limit of 5 per second. A busy integration can use up the limit for everything else in your organization, so resolve IDs once and store them rather than looking them up on every request. Over the limit, the API answers `429`; retry with backoff.
 
 ## GitHub Actions
 
@@ -81,11 +81,15 @@ Endpoint pages list a second credential, a short-lived Trunk token sent in the `
 
 ## Authentication errors
 
-| Status | Code | Means |
-| --- | --- | --- |
-| `401` | `AUTHENTICATION_REQUIRED` | The request carries no credential. |
-| `401` | `INVALID_TOKEN` | The credential is malformed, expired, revoked, or not a Trunk credential. |
-| `403` | `INSUFFICIENT_PERMISSIONS` | The credential is valid, but not permitted to make this request. Add the permission to the key, or use a key that holds it. |
-| `404` | Varies | The resource doesn't exist, **or** it belongs to another organization. The API doesn't distinguish the two. |
+Trunk checks credentials at its edge, before a request reaches the API. So an authentication failure is answered by the edge and may not have the API's [error envelope](/merge-queue/reference/api-v2#errors): branch on the status code, not the body.
 
-Every response carries an `X-Request-Id` header. Include it when you contact support.
+| Status | Means | What to do |
+| --- | --- | --- |
+| `401` | The credential is malformed, expired, revoked, or not a Trunk credential. | Check the key's value and that it hasn't been revoked. |
+| `403` with no error envelope | The request carries no credential. | Send `Authorization: Bearer <key>`. |
+| `403 INSUFFICIENT_PERMISSIONS` | The credential is valid, but not permitted to make this request. Nothing was changed. | Add the [permission](#permissions) to the key, or use a key that holds it. |
+| `404` | The resource doesn't exist, **or** it belongs to another organization. The API doesn't distinguish the two. | Check the ID, and that the key belongs to the organization that owns the resource. |
+
+Endpoint pages may show `401` with the codes `AUTHENTICATION_REQUIRED` or `INVALID_TOKEN` in the envelope. Treat those as examples of the status, not as the body you'll receive.
+
+Every response from the API carries an `X-Request-Id` header, but edge responses may not. Include it when you contact support.
