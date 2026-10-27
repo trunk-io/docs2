@@ -5,7 +5,7 @@ og:title: "Migrate from the Trunk Merge Queue v1 API to v2"
 ---
 This guide moves [v1 API](/merge-queue/reference/merge) automation, such as submitting pull requests from CI, pausing queues, or building dashboards, to [v2](/merge-queue/reference/api-v2).
 
-Every v1 capability has a v2 equivalent, though a few take more requests. Most migrations come down to four changes, a new credential, a new base URL, IDs instead of repository coordinates, and camelCase enum values, plus updated response parsing.
+Every v1 capability has a v2 equivalent, though a few take more requests. Most migrations come down to four changes: a new credential, a new base URL, IDs instead of repository coordinates, and camelCase enum values. Response parsing changes too.
 
 ## Migrate with an agent
 
@@ -15,8 +15,8 @@ To have a coding agent do the migration, run it from the repository that calls v
 Migrate this codebase's Trunk Merge Queue API calls from v1 (https://api.trunk.io/v1) to v2. v2 requests go to https://api.trunk.io, and every v2 path already starts with /v2, so never add /v2 to the host as well.
 
 1. Read the migration guide, https://docs.trunk.io/merge-queue/reference/api-v2/migrate-from-v1.md, and the API overview, https://docs.trunk.io/merge-queue/reference/api-v2.md, which covers errors, retrying, rate limits, and polling.
-2. Find every v1 Merge Queue call in this codebase. Look for api.trunk.io/v1, the x-api-token header, and the v1 endpoint names in the guide's endpoint map. Leave other v1 calls, such as /v1/flaky-tests/..., and the Trunk Analytics CLI's organization API token as they are: they aren't part of this migration.
-3. Port each call using the endpoint map. Before writing each v2 request, read that endpoint's reference page as Markdown for the exact parameters and response fields. For a link to docs.trunk.io, whether relative (/merge-queue/...) or absolute (https://docs.trunk.io/...), remove any #fragment, add .md unless the path already ends in .md, and fetch it from https://docs.trunk.io. A link that is only #… is a section of the page you're reading. Links to other hosts, such as app.trunk.io or github.com, aren't documentation, so don't fetch them. If a docs.trunk.io fetch doesn't return Markdown, the path is wrong.
+2. Find every v1 Merge Queue call in this codebase. Look for api.trunk.io/v1, the x-api-token header, and the v1 endpoint names in the guide's endpoint map. Leave other v1 calls, such as /v1/flaky-tests/..., and the Trunk Analytics CLI's organization API token as they are. They aren't part of this migration.
+3. Port each call using the endpoint map. Before writing each v2 request, read that endpoint's reference page as Markdown for the exact parameters and response fields. For a link to docs.trunk.io, whether relative (/merge-queue/...) or absolute (https://docs.trunk.io/...), remove any #fragment, add .md unless the path already ends in .md, and fetch it from https://docs.trunk.io. A link that is only #… is a section of the page you're reading. Links to other hosts, such as app.trunk.io or github.com, aren't documentation, so don't fetch them. If a docs.trunk.io fetch doesn't return Markdown with status 200, or returns "Page Not Found", the path is wrong.
 4. Port response parsing, not just requests. v1's flat pull request record is split in v2: pull request fields at the top level, queue fields under queueEntry, and id now identifies the pull request. Timelines and testing results also change shape. Use the guide's "Renamed values" section.
 5. Use the guide's tables for enum values and renamed fields. Never derive a v2 enum value by changing the case of a v1 value.
 6. Every v2 list is paginated with a default page size of 25. Set limit explicitly (up to 100) and follow nextCursor until hasMore is false, including for batch lookups of up to 50 IDs.
@@ -88,7 +88,7 @@ curl "https://api.trunk.io/v2/merge-queues?limit=100" \
 
 If `hasMore` is `true`, follow `nextCursor`, or narrow the list to one repository. Get its ID from [`GET /v2/repositories?providerUrl=https://github.com/acme/widgets`](/merge-queue/reference/api-v2/repositories/resolve-a-repository-by-its-provider-url) (`.data[0].id`), then call `GET /v2/merge-queues?repositoryId=<id>&targetBranch=main`.
 
-**Pull request ID.** Resolve one number, or up to 50 comma-separated numbers (set `limit` at least that high):
+**Pull request ID.** Resolve one number, or up to 50 comma-separated numbers (set `limit=50`):
 
 ```bash
 curl "https://api.trunk.io/v2/pull-requests?repositoryId=$REPOSITORY_ID&number=4901" \
@@ -240,7 +240,7 @@ State `switching_modes` becomes `switchingModes`; `running`, `paused`, and `drai
 
 ### Pull request records
 
-v1's `getSubmittedPullRequest` returned one flat record. v2 puts the pull request's fields at the top level, where `id` is the pull request's ID, and its place in the queue under `queueEntry`. `isCurrentlySubmittedToQueue` is unchanged. `state`, `stateChangedAt`, `priorityValue`, `priorityName`, `usedDefaultPriorityName`, and `readiness` move under `queueEntry`, with the renames below. `priorityValue` and `priorityName` are optional in v2.
+v1's pull request records (`getSubmittedPullRequest`, and the entries of `listPullRequests` and `getQueue`) were flat. v2 puts the pull request's fields at the top level, where `id` is the pull request's ID, and its place in the queue under `queueEntry`. `isCurrentlySubmittedToQueue` is unchanged. `state`, `stateChangedAt`, `priorityValue`, `priorityName`, `usedDefaultPriorityName`, and `readiness` move under `queueEntry`, with the renames below. `priorityValue` and `priorityName` are optional in v2. v2's top-level `state` is the pull request's state on GitHub, not its queue state.
 
 | v1 | v2 |
 | --- | --- |
@@ -339,7 +339,7 @@ The same names appear under `config` when you read a queue. v2 also bounds value
 
 ### Finding a verification run
 
-A `testRunId` stored from v1 is the same ID in v2. If it ends in v1's `-bisection` suffix, remove the suffix, which v2 doesn't accept. The remaining ID is that bisection run's own. Otherwise, take the ID from a response you already have:
+A `testRunId` stored from v1 is the same ID in v2. If it ends in v1's `-bisection` suffix, remove the suffix, which v2 doesn't accept. What remains is that bisection run's own ID. Otherwise, take the ID from a response you already have:
 
 - `verificationRunId` on a [testing result](/merge-queue/reference/api-v2/mergequeues/list-a-merge-queues-completed-testing), a queue-entry history transition, or a batch in `/order`
 - `queueEntry.verifiedByVerificationRunId` on a merged pull request

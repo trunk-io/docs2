@@ -64,7 +64,7 @@ An organization admin manages keys in the same **API Keys** list.
 - To change a key's permissions, open the key and edit them. Its value stays the same, and the change applies within a minute.
 - To delete a leaked or unused key, open the key's menu and click **Delete**. Deletion takes effect on the next request. Deleting can't be undone.
 
-To rotate a key, create its replacement and deploy it. Last use is recorded up to an hour late. Once the old key's last-used time in the **API Keys** list has stopped advancing for over an hour, delete it.
+To rotate a key, create its replacement and deploy it. Last use is updated at most once an hour, so it can trail a key's real last use by up to an hour. Once the old key's last-used time in the **API Keys** list has stopped advancing for over an hour, delete it.
 
 ## GitHub Actions
 
