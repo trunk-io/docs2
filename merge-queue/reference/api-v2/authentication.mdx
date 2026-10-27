@@ -49,7 +49,7 @@ Every key can read your organization's merge queues, so a dashboard or Prometheu
 | **Skip batching** | Opt a pull request out of batching so it gets a test run of its own. | A submit that sends `allowBatching: false`; a queue-entry update that sends `allowBatching` |
 | **Merge PRs with direct to queue** | Send a pull request to the queue before branch protection is satisfied. The queue's own tests still run and still gate the merge. | A submit that sends `direct: true`; a queue-entry update that sends `direct` |
 | **Update Merge Queue settings** | Change queue settings; pause, resume, or drain a queue; and create or delete queues. | [Create](/merge-queue/reference/api-v2/mergequeues/create-a-merge-queue), [delete](/merge-queue/reference/api-v2/mergequeues/delete-a-merge-queue), [update configuration](/merge-queue/reference/api-v2/mergequeues/update-a-merge-queues-configuration), [switch modes](/merge-queue/reference/api-v2/mergequeues/switch-a-merge-queues-mode), [pause](/merge-queue/reference/api-v2/mergequeues/pause-a-merge-queue), [resume](/merge-queue/reference/api-v2/mergequeues/resume-a-merge-queue), [drain](/merge-queue/reference/api-v2/mergequeues/drain-a-merge-queue) |
-| **Upload test results** (Flaky Tests) | Upload test results from CI, including looking up which tests are quarantined before the upload. | Test-results uploads |
+| **Upload test results** (Flaky Tests) | Upload test results from CI, including looking up which tests are quarantined before the upload. | Test-results uploads through the v2 API. The Trunk Analytics CLI and `trunk-io/analytics-uploader` don't use it yet |
 
 A request's permissions come from its body as well as its endpoint. For example, a submit that sets a priority needs both **Merge and cancel PRs** and **Set priority on PRs**. A request that the key isn't permitted to make returns `403 INSUFFICIENT_PERMISSIONS` and changes nothing.
 
@@ -59,12 +59,12 @@ Permissions apply only to merge queues and test-results uploads. Any API key can
 
 ### Change or delete a key
 
-An organization admin manages keys under **Settings** → **Developer** → **API Keys**.
+An organization admin manages keys in the same **API Keys** list.
 
 - To change a key's permissions, open the key and edit them. Its value stays the same, and the change applies within a minute.
 - To delete a leaked or unused key, open the key's menu and click **Delete**. Deletion takes effect on the next request. Deleting can't be undone.
 
-To rotate a key, create its replacement and deploy it. Once the old key's last-used time in the **API Keys** list stops advancing, delete it. Last use is recorded up to an hour late, so wait at least that long before you rely on it.
+To rotate a key, create its replacement and deploy it. Last use is recorded up to an hour late. Once the old key's last-used time in the **API Keys** list has stopped advancing for over an hour, delete it.
 
 ## GitHub Actions
 
@@ -72,7 +72,7 @@ A GitHub Actions job can [upload impacted targets](/merge-queue/reference/api-v2
 
 ## The `x-trunk-token` header
 
-Endpoint pages also list `x-trunk-token`. This header carries a short-lived Trunk login, which Trunk's own tools use: the `trunk` CLI after `trunk auth login`, and `trunk-io/login`. Use an API key instead, and never send both headers on one request.
+Endpoint pages also list `x-trunk-token`. This header carries a short-lived Trunk login that Trunk's own tools use: the `trunk` CLI after `trunk auth login`, and `trunk-io/login`. Use an API key instead, and never send both headers on one request.
 
 ## Authentication errors
 
