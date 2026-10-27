@@ -33,13 +33,13 @@ github.run_attempt }}` for `<run>`, so a job from a different workflow run
 
 The memory columns are the values of the `memory` option.
 
-| `size`   | CPUs | `low`  | `standard` (default with a `size`) | `high`                      |
-| -------- | ---- | ------ | ---------------------------------- | --------------------------- |
-| `xsmall` | 1    | 1 GiB  | 2 GiB                              | 4 GiB                       |
-| `small`  | 2    | 2 GiB  | 4 GiB                              | 8 GiB (the default machine) |
-| `medium` | 4    | 4 GiB  | 8 GiB                              | 16 GiB                      |
-| `large`  | 8    | 8 GiB  | 16 GiB                             | 32 GiB                      |
-| `xlarge` | 16   | 16 GiB | 32 GiB                             | 64 GiB                      |
+| `size`             | `low`  | `standard` | `high` |
+| ------------------ | ------ | ---------- | ------ |
+| `xsmall` (1 CPU)   | 1 GiB  | 2 GiB      | 4 GiB  |
+| `small` (2 CPUs)   | 2 GiB  | 4 GiB      | 8 GiB  |
+| `medium` (4 CPUs)  | 4 GiB  | 8 GiB      | 16 GiB |
+| `large` (8 CPUs)   | 8 GiB  | 16 GiB     | 32 GiB |
+| `xlarge` (16 CPUs) | 16 GiB | 32 GiB     | 64 GiB |
 
 ### Memory
 
