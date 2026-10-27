@@ -1,49 +1,62 @@
 ---
 title: "Trunk Runners"
 sidebarTitle: "Runners"
-description: "Run Faster and Run Less"
-groups: ["firewatch"]
+description: "Fast, reliable, affordable runners for GitHub Actions."
 ---
 
-{/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
+Trunk Runners give each GitHub Actions job its own VM, a fast SSD, and a cache
+near the runner. Your workflows stay on GitHub. You change one line, the
+`runs-on` label, and Trunk starts a fresh VM for the job and removes it when the
+job ends.
 
-## Why Trunk Runners
+<Note>
+  Trunk Runners is in private beta. Contact
+  [support@trunk.io](mailto:support@trunk.io) to join.
+</Note>
 
-<CardGroup cols={2}>
-  <Card title="Stop repeating setup every run" icon="server">
-    Custom templates allow you to bake in all the machine setup so you run less
-    with every job.
+<CardGroup cols={3}>
+  <Card title="Fast" icon="bolt">
+    2x faster hardware, 4x faster caches, and templates that skip setup.
   </Card>
-  <Card title="Tuned for your jobs" icon="gauge">
-    Mix-n-match CPU and memory to match your needs.
+  <Card title="Reliable" icon="shield-check">
+    A managed fleet, with priority for the branches that must stay fast.
   </Card>
-  <Card title="Caching" icon="bolt">
-    A shared in-cluster cache lets jobs reuse results across runs.
-  </Card>
-  <Card title="Observability" icon="sliders">
-    Monitor system usage to tune your jobs for the right balance of cost vs
-    performance.
+  <Card title="Affordable" icon="piggy-bank" href="/runners/pricing">
+    Pay per CPU and GB minute. Size each job to what it needs.
   </Card>
 </CardGroup>
 
-## How it works
+## Fast
 
-You keep your workflows on GitHub. You change one thing: the `runs-on` label of a
-job. That label tells Trunk to run the job. Trunk starts a VM, runs the job, and
-removes the VM when the job ends.
+- **Faster hardware.** Jobs run on bare metal with a local SSD: 2x faster than
+  GitHub-hosted runners, and 60% faster than self-hosted runners on AWS.
+- **Templates.** Bake your setup steps into a [template](/runners/actions/templates)
+  so a job starts ready, instead of installing the same tools on every run.
+- **In-cluster cache.** `actions/cache`, Bazel, sccache, and Nix use a shared
+  cache in the same cluster as your jobs, with no workflow changes. Downloads
+  are 4x faster than the GitHub Actions cache. See
+  [Caching](/runners/cache/index).
+
+## Reliable
+
+- **No infrastructure to operate.** Trunk runs the fleet, images, and caches.
+  No self-hosted runners or controller to maintain.
+- **Priority branches.** Merge queue, default, and release branches start
+  first when CI is busy, so the queue does not wait behind pull request jobs. See
+  [Quota and runner priority](/runners/settings/limits-and-priority).
+- **Nothing dropped.** At your CPU quota, new jobs wait and start as CPUs free
+  up.
+
+## Affordable
+
+- **Usage-based.** You pay for the CPUs and memory a job's machine has while
+  the job runs. The default machine costs $0.006 per minute. See
+  [Pricing](/runners/pricing).
+- **Right-sized.** Mix CPU and memory per job, so a lint job does not pay for a
+  build machine. See [Machine sizes](/runners/actions/sizes).
+- **Run less CI.** Pair with [Dynamic CI](/ci/dynamic-ci/index) to skip jobs a
+  change cannot affect.
 
 <Card title="Get started" icon="arrow-right" href="/runners/getting-started">
   Turn on Trunk Runners for your organization and run your first job.
 </Card>
-
-## What you can configure
-
-- **The runner** — the `runs-on` label sets the size you need and the template to
-  start on. See [The runs-on label](/runners/actions/runs-on).
-- **Caching** — choose which build tools use the shared cache, per repository or
-  for the whole organization, and see what is cached. See
-  [Caching](/runners/cache/index).
-- **Organization defaults** — set a default template. See
-  [Organization defaults](/runners/settings/ci-defaults).
-- **Limits and priority** — set a CPU limit for CI and mark priority branches.
-  See [Limits and priority](/runners/settings/limits-and-priority).

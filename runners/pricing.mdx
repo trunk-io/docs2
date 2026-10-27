@@ -1,0 +1,43 @@
+---
+title: "Pricing"
+description: "Usage-based pricing for compute, memory, and storage."
+---
+
+You pay for the CPUs and memory a job's machine has while the job runs, plus the
+cache and template storage your organization keeps. There is no plan to buy.
+
+| Resource         | Price                      |
+| ---------------- | -------------------------- |
+| Compute          | $0.001 per vCPU per minute |
+| Memory           | $0.0005 per GB per minute  |
+| Cache storage    | $0.50 per GB per month     |
+| Template storage | $0.50 per GB per month     |
+
+## Price per minute
+
+The columns are the values of the `memory` option. See
+[Machine sizes](/runners/actions/sizes).
+
+| Size               | `low`           | `standard`      | `high`          |
+| ------------------ | --------------- | --------------- | --------------- |
+| `xsmall` (1 CPU)   | $0.0015 (1 GiB) | $0.002 (2 GiB)  | $0.003 (4 GiB)  |
+| `small` (2 CPUs)   | $0.003 (2 GiB)  | $0.004 (4 GiB)  | $0.006 (8 GiB)  |
+| `medium` (4 CPUs)  | $0.006 (4 GiB)  | $0.008 (8 GiB)  | $0.012 (16 GiB) |
+| `large` (8 CPUs)   | $0.012 (8 GiB)  | $0.016 (16 GiB) | $0.024 (32 GiB) |
+| `xlarge` (16 CPUs) | $0.024 (16 GiB) | $0.032 (32 GiB) | $0.048 (64 GiB) |
+
+A job with no `size` runs on the
+[default machine](/runners/actions/sizes#the-default-machine) (2 CPUs, 8 GiB):
+$0.006 per minute, so a 10-minute job costs $0.06.
+
+## Keeping costs down
+
+- Use `memory=low` for jobs that need CPUs but little memory.
+- Move setup steps into a [template](/runners/actions/templates).
+  Setup minutes are billed like any other minutes.
+- Cache storage stays bounded: unused entries expire after 7 days, and each
+  repository keeps at most 20 GiB per tool. See
+  [Caching](/runners/cache/index#cache-storage-policy).
+- Use [Dynamic CI](/ci/dynamic-ci/index) to skip jobs a change cannot affect.
+
+Questions about volume pricing? Contact [sales@trunk.io](mailto:sales@trunk.io).

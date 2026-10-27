@@ -1,8 +1,6 @@
 ---
 title: "Caching"
 description: "The shared cache lets jobs reuse build results, so they finish faster."
-groups:
-  - "firewatch"
 ---
 
 {/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
@@ -18,7 +16,7 @@ Trunk Runners provides support for the following cache services. Caching is enab
 | sccache         | No            | Builds Rust code through `sccache`, with the shared cache as storage.    |
 | Nix             | No            | Adds the shared cache as a Nix binary cache, and uploads what you build. |
 
-Cache configuration requires admin priveleges. See [Cache settings](/runners/cache/settings)for more options.
+Cache configuration requires admin privileges. See [Cache settings](/runners/cache/settings) for more options.
 
 ### sccache
 
@@ -37,7 +35,7 @@ A job that runs in a container (`container:`) does not get the Bazel setup.
 ### Nix
 
 The default Trunk runner image does not include Nix. Install it with a
-[template](/runners/actions/templates-and-regions), or with an installer step such as
+[template](/runners/actions/templates), or with an installer step such as
 `cachix/install-nix-action` or `DeterminateSystems/nix-installer-action`.
 
 - Nix uses the shared cache only when the runner user is a trusted Nix user. Both
