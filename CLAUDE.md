@@ -60,7 +60,7 @@ pages are public; Workspaces pages stay gated (below).
 The three v2 endpoints that Trunk's analytics-cli and test-runner plugins call
 are deliberately **not** in `docs.json`: `POST /v2/test-collections/{id}/uploads`,
 `POST /v2/test-collections/{id}/quarantine-status` and
-`GET /v2/test-collections/{id}/all-quarantined-tests`. Their shapes follow what
+`POST /v2/test-collections/{id}/all-quarantined-tests`. Their shapes follow what
 the CLI needs and may change with it, so each has a page reachable only by URL:
 a `hidden: true` `.mdx` under `flaky-tests/reference/api-reference/v2-internal/`
 that renders the operation from `openapi-v2.json`. When a re-synced spec has
