@@ -10,11 +10,16 @@ Trunk provides HTTP REST APIs for each of our features. The APIs use status code
 ## Available APIs
 
 * [Flaky Tests](../../flaky-tests/reference/api-reference): for accessing information like quarantined tests in your repo.
-* [Merge API](../../merge-queue/reference/merge) : for controlling the Trunk Merge Queue.
+* [Merge Queue API (v2)](../../merge-queue/reference/api-v2): for managing merge queues, the pull requests in them, and their testing.
+* [Merge API (v1)](../../merge-queue/reference/merge): for controlling the Trunk Merge Queue.
 
 ## Authentication
 
-Authenticate to the API with an API token using the header `x-api-token`.
+The v1 APIs authenticate with an API token, using the header `x-api-token`.
+
+<Note>
+The v2 APIs, including the [Merge Queue v2 API](/merge-queue/reference/api-v2) and the Flaky Tests test collection endpoints, use scoped API keys instead. See [Authentication](/merge-queue/reference/api-v2/authentication).
+</Note>
 
 ### Finding your API token
 

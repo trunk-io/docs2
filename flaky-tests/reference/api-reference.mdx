@@ -23,7 +23,7 @@ Scoped to [test collections](/flaky-tests/test-collections), on `/v2`. Use these
   <Card title="Create a ticket for a test" href="/flaky-tests/reference/api-reference/v2/tests/create-a-ticket-for-a-test" />
 </Columns>
 
-Authenticate with **either** an organization API key as `Authorization: Bearer <key>`, **or** a short-lived first-party token in the `x-trunk-token` header. Existing v1 API tokens work unchanged as organization API keys. Every 4xx and 5xx response is an error envelope — switch on its `code`, which is stable, rather than its prose `message`.
+Authenticate with an API key, sent as `Authorization: Bearer <key>`. An organization admin creates one under **Settings** → **Developer** → **API Keys** in the Trunk app; see [Authentication](/merge-queue/reference/api-v2/authentication) for details. Every 4xx and 5xx response is an error envelope — switch on its `code`, which is stable, rather than its prose `message`.
 
 ## Repository endpoints
 

@@ -3457,10 +3457,12 @@
                 },
                 "name": {
                   "type": "string",
+                  "description": "Required without `id`.",
                   "example": "renders the checkout total"
                 },
                 "parentName": {
                   "type": "string",
+                  "description": "Required without `id`.",
                   "example": "CheckoutSuite"
                 },
                 "className": {
@@ -3469,7 +3471,15 @@
                   "example": "CheckoutSuiteTest"
                 }
               },
-              "required": ["name", "parentName"]
+              "description": "A test, by `id`, or by `name` and `parentName` when it has no `id`. Sending only `id` keeps the request small.",
+              "anyOf": [
+                {
+                  "required": ["id"]
+                },
+                {
+                  "required": ["name", "parentName"]
+                }
+              ]
             },
             "maxItems": 2000,
             "description": "The tests to report on, usually the run's failures. Each one gets an entry in `tests`, in this order."
@@ -3502,9 +3512,33 @@
             "type": "integer",
             "description": "Total rows matching the filter. Present only when the request set `includeTotal=true`.",
             "example": 1247
+          },
+          "testCollectionUuid": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The collection's internal UUID, which a test's `testId` is computed from. Use it only for that: everywhere else a collection is addressed by its `id`.",
+            "example": "204b6c93-1c51-4e0f-a13c-e07b9bc60688"
+          },
+          "repositoryId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The repository the tests are stored under. The nil UUID for an upload without a repository, or for a repository Trunk does not know.",
+            "example": "7a1f0e3d-2b4c-4d5e-8f90-123456789abc"
+          },
+          "quarantineEnabled": {
+            "type": "boolean",
+            "description": "Whether quarantining is on for the collection. When it is off, no test is quarantined.",
+            "example": true
           }
         },
-        "required": ["data", "nextCursor", "hasMore"]
+        "required": [
+          "data",
+          "nextCursor",
+          "hasMore",
+          "testCollectionUuid",
+          "repositoryId",
+          "quarantineEnabled"
+        ]
       },
       "QuarantinedTest": {
         "type": "object",
@@ -3512,7 +3546,7 @@
           "testId": {
             "type": "string",
             "format": "uuid",
-            "description": "The test's id, as `GET /v2/tests/{testId}` takes it. A test runner computes the same id for each test it runs from `testCollectionUuid`, `repositoryId` and its own test id (`gen_test_case_guid`), then checks it against this list.",
+            "description": "The test's id, as `GET /v2/tests/{testId}` takes it. A test runner computes the same id for each test it runs from the list's `testCollectionUuid` and `repositoryId` and its own test id (`gen_test_case_guid`), then checks it against this list.",
             "example": "bfeebcf4-72d1-887d-8bcd-788d0dec7f97"
           }
         },
@@ -4258,6 +4292,12 @@
             "description": "When `uploadUrl` stops accepting the bundle: at most an hour after `createdAt`, and at least 15 minutes.",
             "example": "2026-10-06T17:00:00.000Z"
           },
+          "testCollectionUuid": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The collection's internal UUID, which a test's `testId` is computed from (with `repositoryId` and the test's own id). Use it only for that: everywhere else a collection is addressed by its `id`.",
+            "example": "204b6c93-1c51-4e0f-a13c-e07b9bc60688"
+          },
           "repositoryId": {
             "type": "string",
             "format": "uuid",
@@ -4276,6 +4316,7 @@
           "status",
           "uploadUrl",
           "expiresAt",
+          "testCollectionUuid",
           "repositoryId",
           "createdAt"
         ],
@@ -9389,7 +9430,7 @@
         "operationId": "testCollections.listAllQuarantinedTests",
         "tags": ["testCollections"],
         "summary": "List every quarantined test for a CI run",
-        "description": "**Internal.** This endpoint is intended for internal use by Trunk's analytics-cli and test-runner plugins. Use it at your own risk: it may change without notice.\n\nLists the `testId` of every quarantined test in a collection for one repository, in `testId` order, so a test runner can decide each failure itself as it happens. Take `repositoryId` and `testCollectionUuid` from `POST /v2/test-collections/{id}/quarantine-status`, which also reports `quarantineEnabled`; while quarantining is off this list is empty. A runner computes each test's `testId` from those two and its own test id, and matches on it. A page holds up to 25,000 tests. A `repositoryId` that is neither the nil UUID nor a repository in your organization is a `404`. Requires the **Upload test results** permission. Quarantine changes reach this list within a minute, so a test that joins or leaves the set while you page through it may be missed, or still listed, until your next pass.",
+        "description": "**Internal.** This endpoint is intended for internal use by Trunk's analytics-cli and test-runner plugins. Use it at your own risk: it may change without notice.\n\nLists the `testId` of every quarantined test in a collection for one repository, in `testId` order, so a test runner can decide each failure itself as it happens. Name the repository the tests ran in with `repoHost`, `repoOwner` and `repoName`, or none of them for an upload without a repository (`--no-repo`). Every page also carries the collection's `testCollectionUuid`, the `repositoryId` the tests are stored under, and `quarantineEnabled`; while quarantining is off the list is empty. A runner computes each test's `testId` from `testCollectionUuid`, `repositoryId` and its own test id, and matches on it. A page holds up to 25,000 tests. Requires the **Upload test results** permission. Quarantine changes reach this list within a minute, so a test that joins or leaves the set while you page through it may be missed, or still listed, until your next pass.",
         "parameters": [
           {
             "schema": {
@@ -9443,13 +9484,37 @@
           {
             "schema": {
               "type": "string",
-              "format": "uuid",
-              "description": "The repository the tests are stored under, as `quarantine-status` returns it. The nil UUID for uploads without a repository.",
-              "example": "7a1f0e3d-2b4c-4d5e-8f90-123456789abc"
+              "minLength": 1,
+              "description": "The host of the repository the tests ran in, as the CLI reads it from git. Send it with `repoOwner` and `repoName`, or none of the three.",
+              "example": "github.com"
             },
-            "required": true,
-            "description": "The repository the tests are stored under, as `quarantine-status` returns it. The nil UUID for uploads without a repository.",
-            "name": "repositoryId",
+            "required": false,
+            "description": "The host of the repository the tests ran in, as the CLI reads it from git. Send it with `repoOwner` and `repoName`, or none of the three.",
+            "name": "repoHost",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The owner of the repository the tests ran in.",
+              "example": "acme"
+            },
+            "required": false,
+            "description": "The owner of the repository the tests ran in.",
+            "name": "repoOwner",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The name of the repository the tests ran in.",
+              "example": "web"
+            },
+            "required": false,
+            "description": "The name of the repository the tests ran in.",
+            "name": "repoName",
             "in": "query"
           }
         ],
@@ -9495,7 +9560,7 @@
             }
           },
           "404": {
-            "description": "`TEST_COLLECTION_NOT_FOUND` | `REPOSITORY_NOT_FOUND`",
+            "description": "`TEST_COLLECTION_NOT_FOUND`",
             "content": {
               "application/json": {
                 "schema": {
