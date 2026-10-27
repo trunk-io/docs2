@@ -52,7 +52,8 @@ Regenerates the changelog nav across the sites it appears on from each
 `runners/` and `trunk-workspaces/` used to be generated from
 `apps/firewatch/docs` in `trunk-io/trunk-cloud`. That sync is removed, so these
 pages are edited here like any other. The `.sync.json` files and the
-"Generated in trunk-io/docs2" comments are leftovers of the sync.
+"Generated in trunk-io/docs2" comments are leftovers of the sync. Runners
+pages are public; Workspaces pages stay gated (below).
 
 ## Gated sections
 
