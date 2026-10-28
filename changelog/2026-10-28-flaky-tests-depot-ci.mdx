@@ -1,0 +1,16 @@
+---
+title: "Flaky Tests: Depot CI support"
+description: "Upload test results from Depot CI workflows, with upload logs linked straight to the Depot CI job."
+date: 2026-10-28
+category: Flaky Tests
+type: new-feature
+---
+
+**You can now upload test results to Trunk Flaky Tests from Depot CI.**
+
+### New features
+
+- **Upload from Depot CI workflows.** Add `trunk-io/analytics-uploader@v2` to the workflows in `.depot/workflows/` and keep your token in a Depot CI secret. Every report format the action supports works the same as on GitHub Actions. See the [Depot CI guide](/flaky-tests/get-started/ci-providers/depot-ci).
+- **Automatic Depot CI detection.** Trunk Analytics CLI 0.16.2 recognizes Depot CI runs and links each upload's **Logs** to its Depot CI job. You don't need to set `JOB_URL`.
+
+Running `.github/workflows/` on GitHub Actions with Depot runners? Follow the [GitHub Actions guide](/flaky-tests/get-started/ci-providers/github-actions) instead.
