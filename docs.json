@@ -363,6 +363,7 @@
                       "flaky-tests/get-started/ci-providers/bitbucket-pipelines",
                       "flaky-tests/get-started/ci-providers/buildkite",
                       "flaky-tests/get-started/ci-providers/circleci",
+                      "flaky-tests/get-started/ci-providers/depot-ci",
                       "flaky-tests/get-started/ci-providers/droneci",
                       "flaky-tests/get-started/ci-providers/evergreen",
                       "flaky-tests/get-started/ci-providers/github-actions",

@@ -1,0 +1,97 @@
+---
+title: "Depot CI"
+description: "Configure Depot CI to upload test results to Trunk Flaky Tests"
+og:title: "Using Depot CI with Trunk Flaky Tests"
+---
+Trunk Flaky Tests integrates with [Depot CI](https://depot.dev/docs/ci/overview) by adding a step to your Depot CI workflow that uploads test results with the [Trunk Analytics CLI](../../reference/cli-reference). Depot CI runs GitHub Actions workflow syntax, so you use the same [Analytics Uploader Action](https://github.com/trunk-io/analytics-uploader) as on GitHub Actions.
+
+<Note>
+This page is for workflows in `.depot/workflows/` that Depot CI runs. If you run workflows from `.github/workflows/` on GitHub Actions with Depot runners (`runs-on: depot-ubuntu-...`), follow the [GitHub Actions](./github-actions) guide instead.
+</Note>
+
+Before you start these steps, see the [Test Frameworks](../frameworks/) docs for instructions on producing Trunk-compatible reports for your test framework.
+
+## Setup steps
+
+Work through the steps below in order. Once you've finished the last one, you're set up — navigate to [app.trunk.io](https://app.trunk.io) to see your results.
+
+<Steps>
+  <Step title={<a href="#trunk-organization-slug-and-token">Get your Trunk organization slug, token, and collection ID</a>} />
+  <Step title={<a href="#add-your-trunk-token-as-a-secret">Set your token as a secret in Depot CI</a>} />
+  <Step title={<a href="#upload-to-trunk">Configure Depot CI to upload to Trunk</a>} />
+  <Step title={<a href="#validate-your-uploads">Validate your uploads in Trunk</a>} />
+</Steps>
+
+## Trunk Organization Slug and Token
+
+Before setting up uploads to Trunk, you must sign in to [app.trunk.io](https://app.trunk.io/login?intent=flaky%20tests) and obtain your Trunk organization slug, your token, and the ID of the test collection to upload to.
+
+### Trunk Slug
+
+You can find your organization slug under **Settings** → **Organization** → **General**.
+
+### Trunk Token
+
+You can find your token under **Settings** → **Organization** → **General**, in the **API** section. Since this is a secret, do not leak it publicly. Ensure you get your _organization token_, not your project/repo token.
+
+### Test Collection ID
+
+Create a [test collection](/flaky-tests/test-collections) under **Flaky Tests** → **Collections**, or open an existing one, and copy its ID from the collection's page header. It is not a secret, so you can include it directly in your upload command.
+
+## Add Your Trunk Token as a Secret
+
+Store the Trunk API token as a [Depot CI secret](https://depot.dev/docs/ci/how-to-guides/manage-secrets-and-variables) named `TRUNK_API_TOKEN`. If you already store it as a GitHub secret, `depot ci migrate secrets-and-vars` imports it.
+
+## Upload to Trunk
+
+Add an `Upload Test Results` step after running tests in each of your Depot CI jobs that run tests. This should minimally include all jobs that run on pull requests, as well as jobs that run on your main or [stable branches](../../detection/), for example, `main`, `master`, or `develop`.
+
+<Tip>
+It is important to upload test results from CI runs on [**stable branches**](../../detection/), such as `main`, `master`, or `develop`. This will give you a stronger signal about the health of your code and tests.
+
+[Learn more about detection](../../detection/)
+</Tip>
+
+### Example Depot CI Workflow
+
+```yaml .depot/workflows/test.yml
+jobs:
+  test:
+    name: Upload Tests
+    runs-on: depot-ubuntu-latest
+
+    steps:
+      - name: Run Tests
+        run: ...
+
+      - name: Upload Test Results to Trunk.io
+        if: ${{ !cancelled() }} # Upload the results even if the tests fail
+        continue-on-error: true # don't fail this job if the upload fails
+        uses: trunk-io/analytics-uploader@v2
+        with:
+          junit-paths: "**/junit.xml"
+          org-slug: <TRUNK_ORG_URL_SLUG>
+          test-collection-id: <TRUNK_TEST_COLLECTION_ID>
+          token: ${{ secrets.TRUNK_API_TOKEN }}
+```
+
+The action accepts every report format the GitHub Actions guide shows (XCResult, Bazel BEP, Swift Test XUnit). See the [Analytics Uploader reference](https://github.com/trunk-io/analytics-uploader) for all available arguments.
+
+Trunk detects Depot CI from the `DEPOT_JOB_URL` environment variable and links each upload's **Logs** to the Depot CI job, so you don't need to set `JOB_URL`.
+
+### Enable quarantining
+
+Quarantining works the same way as on GitHub Actions: either add `continue-on-error: true` to your test step, or run your tests through the uploader's `run` input. See [Enable quarantining](./github-actions#enable-quarantining) in the GitHub Actions guide.
+
+### Stale files
+
+Ensure you report every test run in CI and **clean up stale files** produced by your test framework. If you're using a glob like `**/junit.xml` to upload tests, stale files not cleaned up will be included in the current test run, throwing off detection of flakiness.
+
+## Validate Your Uploads
+
+Once your workflow has run on a stable branch, navigate to [app.trunk.io](https://app.trunk.io) and confirm Trunk received your results.
+
+- The **Uploads** tab lists every report Trunk has ingested, with status and any warnings (missing file paths, malformed XML, and so on).
+- The **Tests** tab shows individual test cases once an upload has been processed.
+
+If a recent run isn't showing up, check the job logs in Depot for upload errors and confirm your `TRUNK_API_TOKEN` secret is available to the workflow and the collection ID is correct.
