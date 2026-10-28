@@ -59,6 +59,8 @@ We ship several pre-built solutions for popular build systems to automatically c
   />
 </Columns>
 
+To upload targets from GitHub Actions without storing a Trunk secret, including from fork pull requests, see [Upload impacted targets from GitHub Actions](/merge-queue/reference/api-v2/github-actions).
+
 **Enable Parallel Modes**\
 Merge can be swapped between `Single` and `Parallel` mode at any time. If there are no PRs in the merge queue when switching, the switch will be immediate. If there are PRs in the queue, then Merge will go into the `Switching Modes` state, where it'll wait for all currently testing PRs to merge before switching modes. During this time, PRs will not be able to enter the queue.
 

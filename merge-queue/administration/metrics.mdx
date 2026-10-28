@@ -178,28 +178,22 @@ Drill down and range selection are currently available on the Conclusion count a
 
 ## Prometheus metrics endpoint
 
-Trunk exposes merge queue metrics in [Prometheus text exposition format](https://prometheus.io/docs/instrumenting/exposition_formats/) via a scrapable API endpoint. Use this to build custom Grafana dashboards, set up alerts, or integrate merge queue health into your existing observability stack.
-
-<Info>
-The Prometheus metrics endpoint is available to all Merge Queue users.
-</Info>
+Trunk exposes merge queue metrics in [Prometheus text format](https://prometheus.io/docs/instrumenting/exposition_formats/) for Grafana dashboards, alerts, or your existing observability stack. The endpoints are available to all Merge Queue users.
 
 ### Endpoint
 
-```
-GET https://api.trunk.io/v1/getMergeQueueMetrics
-```
+| Endpoint | Returns |
+| --- | --- |
+| [`GET https://api.trunk.io/v2/merge-queues/metrics`](/merge-queue/reference/api-v2/mergequeues/get-prometheus-metrics-for-every-merge-queue) | Every merge queue in your organization. Add `?repositoryId=<id>` for one repository's queues. |
+| [`GET https://api.trunk.io/v2/merge-queues/{id}/metrics`](/merge-queue/reference/api-v2/mergequeues/get-prometheus-metrics-for-a-merge-queue) | One merge queue. |
 
-Authenticate with your [Trunk API token](../../setup-and-administration/apis/#authentication) using the `x-api-token` header.
+Authenticate with an [API key](/merge-queue/reference/api-v2/authentication#api-keys) as `Authorization: Bearer <key>`. It needs no permissions. To find a repository's or queue's ID, see [Finding IDs](/merge-queue/reference/api-v2#finding-ids).
 
-**Query parameters:**
+The metrics endpoints are limited to 5 requests per second per organization, so prefer one organization-wide scrape over one per queue.
 
-| Parameter | Required | Description |
-| --- | --- | --- |
-| `repo` | No | Repository in `owner/name` format (e.g., `my-org/my-repo`). If omitted, returns metrics for all repositories in the organization. Must be provided together with `repoHost`. |
-| `repoHost` | Conditional | Repository host (e.g., `github.com`). Required if `repo` is specified. |
+Responses use content type `text/plain; version=0.0.4; charset=utf-8`. Label values stay in snake_case, such as `state="tests_passed"`, even though the API's own enum values are camelCase.
 
-The response uses content type `text/plain; version=0.0.4; charset=utf-8` (standard Prometheus format).
+The v1 `getMergeQueueMetrics` endpoint keeps working. To move a v1 scrape job, see [Migrate from the v1 API](/merge-queue/reference/api-v2/migrate-from-v1#build-dashboards).
 
 ### Available metrics
 
@@ -276,7 +270,7 @@ For new dashboards, prefer `mq_pr_state_duration_1h_seconds`: one metric covers 
 
 ### Scrape configuration
 
-Configure your Prometheus instance to scrape the Trunk metrics endpoint:
+Add this job to your Prometheus configuration:
 
 ```yaml
 scrape_configs:
@@ -285,50 +279,52 @@ scrape_configs:
     scheme: https
     static_configs:
       - targets: ['api.trunk.io']
-    metrics_path: /v1/getMergeQueueMetrics
-    params:
-      repo: ['my-org/my-repo']
-      repoHost: ['github.com']
-    http_headers:
-      x-api-token:
-        values: ['<your-trunk-api-token>']
+    metrics_path: /v2/merge-queues/metrics
+    authorization:
+      type: Bearer
+      credentials_file: /etc/prometheus/trunk-api-key
 ```
 
-To scrape metrics for all repositories in your organization, omit both the `repo` and `repoHost` parameters.
+This scrapes every queue in your organization. To scrape one repository's queues, add this to the job:
+
+```yaml
+    params:
+      repositoryId: ['<repository-id>']
+```
 
 ### Datadog Agent configuration
 
-You can ingest Trunk merge queue metrics into Datadog using the Datadog Agent's built-in [OpenMetrics integration](https://docs.datadoghq.com/integrations/openmetrics/). This lets Datadog scrape the Prometheus endpoint directly without requiring a separate Prometheus server.
+The Datadog Agent's [OpenMetrics integration](https://docs.datadoghq.com/integrations/openmetrics/) can scrape the endpoint directly, with no Prometheus server.
 
-**1. Enable the OpenMetrics integration**
+#### 1. Enable the OpenMetrics integration
 
 Create or edit `/etc/datadog-agent/conf.d/openmetrics.d/conf.yaml`:
 
 ```yaml
 instances:
-  - openmetrics_endpoint: https://api.trunk.io/v1/getMergeQueueMetrics?repo=my-org/my-repo&repoHost=github.com
+  - openmetrics_endpoint: https://api.trunk.io/v2/merge-queues/metrics
     namespace: trunk_merge_queue
     metrics:
       - mq_.*
     headers:
-      x-api-token: <your-trunk-api-token>
+      Authorization: Bearer <your-trunk-api-key>
     min_collection_interval: 60
     send_distribution_buckets: true
 ```
 
-To collect metrics for all repositories in your organization, omit the query parameters:
+This collects every queue in your organization. To collect one repository's queues, append its ID to the endpoint:
 
 ```yaml
-    openmetrics_endpoint: https://api.trunk.io/v1/getMergeQueueMetrics
+    openmetrics_endpoint: https://api.trunk.io/v2/merge-queues/metrics?repositoryId=<repository-id>
 ```
 
-**2. Restart the Datadog Agent**
+#### 2. Restart the Datadog Agent
 
 ```bash
 sudo systemctl restart datadog-agent
 ```
 
-**3. Validate**
+#### 3. Validate
 
 ```bash
 sudo -u dd-agent -- datadog-agent check openmetrics

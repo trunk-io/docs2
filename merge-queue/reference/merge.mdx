@@ -1,13 +1,17 @@
 ---
-title: "API reference"
-description: "Public Trunk Merge Queue API. All requests should be authenticated."
-og:title: "Trunk Merge Queue API reference"
+title: "Merge Queue API (v1)"
+description: "The v1 Merge Queue API, authenticated with the organization API token. New integrations should use v2."
+og:title: "Trunk Merge Queue API v1 reference"
 ---
 The Trunk Merge Queue API lets you manage pull requests, configure queues, and monitor queue health programmatically. Use it to integrate merge queue operations into your CI/CD pipelines, build custom dashboards, or automate queue management across repositories.
 
 The API is an HTTP REST API hosted at `https://api.trunk.io/v1`. It returns JSON from all requests and uses standard HTTP response codes.
 
-All requests must be [authenticated](../../setup-and-administration/apis/#authentication) by providing the `x-api-token` header.
+Authenticate every request with your organization API token in the `x-api-token` header. See [Authentication](../../setup-and-administration/apis/#authentication). v2 API keys don't work with v1.
+
+<Tip>
+For new integrations, use the [Merge Queue API (v2)](/merge-queue/reference/api-v2), which authenticates with scoped API keys. To move existing v1 code, see [Migrate from the v1 API](/merge-queue/reference/api-v2/migrate-from-v1).
+</Tip>
 
 ## Endpoint summary
 
