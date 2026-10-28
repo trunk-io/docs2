@@ -1,0 +1,21 @@
+---
+title: "Merge Queue: v2 API with scoped API keys"
+description: "The Merge Queue v2 API is now public, with organization API keys scoped to the permissions each integration needs."
+date: 2026-10-28
+category: Merge Queue
+type: new-feature
+---
+
+**The Merge Queue v2 API is now available to everyone, with API keys you can scope to exactly what each integration does.**
+
+### New features
+
+- **Merge Queue API (v2).** Manage queues and the pull requests in them, read the order the queue will test them in, and inspect the CI runs it starts. Use v2 for new integrations. See the [v2 API reference](/merge-queue/reference/api-v2).
+- **Scoped API keys.** Organization admins create keys under **Settings** → **Developer** → **API Keys**. Every key can read merge queues. Writes such as submitting PRs, setting priority, or changing queue settings each need their own permission. See [Authentication](/merge-queue/reference/api-v2/authentication#permissions).
+- **Keys outlive their creators.** Keys belong to the organization, so they keep working after the person who created them leaves. Permission changes apply within a minute, and deleted keys stop working on the next request.
+- **No secret needed in GitHub Actions.** The [`trunk-io/login`](https://github.com/trunk-io/login) action lets a job upload impacted targets with the run's own GitHub credential, including on fork pull requests. See [Upload impacted targets from GitHub Actions](/merge-queue/reference/api-v2/github-actions).
+
+### Updates
+
+- **v1 keeps working.** The [v1 API](/merge-queue/reference/merge) and the organization API token are unchanged. When you're ready to move, follow [Migrate from the v1 API](/merge-queue/reference/api-v2/migrate-from-v1).
+- **Flaky Tests uploads.** API keys can carry an **Upload test results** permission for v2 test-results uploads. The Trunk Analytics CLI and `trunk-io/analytics-uploader` still use the organization API token.
