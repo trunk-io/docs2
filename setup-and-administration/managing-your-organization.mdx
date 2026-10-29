@@ -5,17 +5,24 @@ og:title: "Managing your Trunk organization"
 ---
 ## Organization Slug and Token
 
-The Trunk Analytics CLI uses your organization's slug and token. The v1 [APIs](./apis/), the Terraform provider, and the Trunk MCP server's token sign-in use the token. The v2 APIs use [API keys](/merge-queue/reference/api-v2/authentication) instead.
+The Trunk Analytics CLI and the v1 Flaky Tests [APIs](./apis/) use your organization's slug and token. The v1 Merge Queue APIs, the Terraform provider, and the Trunk MCP server's token sign-in use the token. The v2 APIs use [API keys](/merge-queue/reference/api-v2/authentication) instead.
 
-You can find your organization slug under **Settings** → **Organization** → **General**. Your token is under **Settings** → **Developer** → **API Keys**, in the **Organization API token (v1)** section.
+You can find your organization slug under **Settings** → **Organization** → **General**. Your token is under **Settings** → **Developer** → **API Keys**, in the **Organization API token (v1)** section. To reveal, rotate, or create it, see [Finding your API token](./apis/#finding-your-api-token).
 
+<Tabs>
+<Tab title="Slug">
 <Frame>
-![The General page, with the organization slug in the URL field](/assets/setup-and-administration/org-slug-and-token.png)
+<img className="block dark:hidden" src="/assets/flaky-tests/reference/org-slug-light.png" alt="The General page, with the organization slug in the URL field" />
+<img className="hidden dark:block" src="/assets/flaky-tests/reference/org-slug-dark.png" alt="The General page, with the organization slug in the URL field" />
 </Frame>
-
+</Tab>
+<Tab title="Token">
 <Frame>
-![The Organization API token (v1) section of the API Keys page](/assets/flaky-tests/reference/org-token-light.png)
+<img className="block dark:hidden" src="/assets/flaky-tests/reference/org-token-light.png" alt="The Organization API token (v1) section of the API Keys page" />
+<img className="hidden dark:block" src="/assets/flaky-tests/reference/org-token-dark.png" alt="The Organization API token (v1) section of the API Keys page" />
 </Frame>
+</Tab>
+</Tabs>
 
 ***
 

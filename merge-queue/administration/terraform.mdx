@@ -12,12 +12,12 @@ The provider currently supports the `trunk_merge_queue` resource for creating, u
 ## Prerequisites
 
 * [Terraform](https://developer.hashicorp.com/terraform/install) >= 1.0
-* An org-level API token from your Trunk organization. See [Finding your API token](/setup-and-administration/apis#finding-your-api-token) for where to find or create one.
+* Your organization API token. See [Finding your API token](/setup-and-administration/apis#finding-your-api-token) for where to find or create one.
 * A repository connected to Trunk
 
 ## Authentication
 
-Set your organization API token using the `TRUNK_API_KEY` environment variable. Despite the variable's name, this is the organization API token, not a v2 API key; the provider doesn't accept API keys yet:
+Set your organization API token in the `TRUNK_API_KEY` environment variable. Despite its name, the variable takes the organization API token; the provider doesn't accept v2 API keys yet:
 
 ```bash
 export TRUNK_API_KEY="your-org-api-token"
@@ -32,7 +32,7 @@ provider "trunk" {
 ```
 
 <Warning>
-Never commit your API key to version control. Use environment variables or a secrets manager to supply the `TRUNK_API_KEY` value.
+Never commit your organization API token to version control. Use environment variables or a secrets manager to supply the `TRUNK_API_KEY` value.
 </Warning>
 
 ***

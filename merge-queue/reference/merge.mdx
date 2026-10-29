@@ -10,7 +10,7 @@ The API is an HTTP REST API hosted at `https://api.trunk.io/v1`. It returns JSON
 Authenticate every request with your organization API token in the `x-api-token` header. See [Authentication](../../setup-and-administration/apis/#authentication). v2 API keys don't work with v1.
 
 <Warning>
-The v1 API will be deprecated soon. Use the [Merge Queue API (v2)](/merge-queue/reference/api-v2), which authenticates with scoped API keys. To move existing v1 code, see [Migrate from the v1 API](/merge-queue/reference/api-v2/migrate-from-v1). The Terraform provider still needs the organization API token.
+The v1 API will be deprecated soon. Use the [Merge Queue API (v2)](/merge-queue/reference/api-v2), which authenticates with scoped API keys. To move existing v1 code, see [Migrate from the v1 API](/merge-queue/reference/api-v2/migrate-from-v1). The Terraform provider doesn't accept API keys yet, so it still needs the organization API token.
 </Warning>
 
 ## Endpoint summary

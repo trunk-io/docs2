@@ -20,7 +20,7 @@ The v1 APIs authenticate with your organization API token, using the header `x-a
 The v2 APIs, including the [Merge Queue API (v2)](/merge-queue/reference/api-v2) and the Flaky Tests test collection endpoints, use scoped API keys instead. See [Authentication](/merge-queue/reference/api-v2/authentication).
 
 <Warning>
-The v1 APIs will be deprecated soon. To move to v2, see [Migrate from the v1 API](/merge-queue/reference/api-v2/migrate-from-v1) for Merge Queue, and the [test collection endpoints](/flaky-tests/reference/api-reference#test-collection-endpoints) for Flaky Tests. Tools that don't accept API keys yet, including the Trunk Analytics CLI, `trunk-io/analytics-uploader`, the Terraform provider, and the Trunk MCP server, still need the organization API token.
+The v1 APIs will be deprecated soon. To move to v2, see [Migrate from the v1 API](/merge-queue/reference/api-v2/migrate-from-v1) for Merge Queue, and the [test collection endpoints](/flaky-tests/reference/api-reference#test-collection-endpoints) for Flaky Tests. Tools that don't accept API keys yet, including the Trunk Analytics CLI, `trunk-io/analytics-uploader`, the Terraform provider, and the Trunk MCP server's token sign-in, still need the organization API token.
 </Warning>
 
 ### Finding your API token
