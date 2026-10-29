@@ -928,6 +928,7 @@
               {
                 "group": "October",
                 "pages": [
+                  "changelog/2026-10-29-merge-queue-bazel-nx-actions-github-auth",
                   "changelog/2026-10-28-flaky-tests-depot-ci",
                   "changelog/2026-10-26-flaky-tests-api-create-ticket",
                   "changelog/2026-10-26-flaky-tests-api-test-links-and-upload-status",
