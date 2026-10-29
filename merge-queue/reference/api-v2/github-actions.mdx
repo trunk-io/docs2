@@ -65,7 +65,7 @@ Impacted targets apply to one commit. Upload again on every push, or the queue k
 
 The upload answers `202`, and the queue picks the targets up shortly after. To confirm, once the pull request is in a queue, read it with an API key through [`GET /v2/pull-requests/{id}`](/merge-queue/reference/api-v2/pullrequests/get-a-pull-request) and check that `queueEntry.readiness.hasImpactedTargets` is `true`.
 
-For Bazel and Nx, the actions on the [Bazel](/merge-queue/optimizations/parallel-queues/bazel) and [Nx](/merge-queue/optimizations/parallel-queues/nx) pages compute the targets and upload them in one step. With `auth: github-actions`, they log in through `trunk-io/login` and upload through the v2 API, as above. For other build tools, compute the targets yourself, for example with your tool's affected-targets command, write them to a file, and upload it as above.
+The [Bazel](/merge-queue/optimizations/parallel-queues/bazel) and [Nx](/merge-queue/optimizations/parallel-queues/nx) actions compute the targets and upload them in one step. With `auth: github-actions`, they log in through `trunk-io/login` and upload through the v2 API. For other build tools, write the targets to a file and upload it as above.
 
 Declare the pull request's impact with one of:
 

@@ -68,7 +68,7 @@ To rotate a key, create its replacement and deploy it. Last use is updated at mo
 
 ## GitHub Actions
 
-A GitHub Actions job can [upload impacted targets](/merge-queue/reference/api-v2/impactedtargets/upload-a-pull-requests-impacted-targets) without an API key. The [`trunk-io/login`](https://github.com/trunk-io/login) action exchanges the run's GitHub credential for a short-lived Trunk login, which can upload impacted targets for that repository and nothing else. See [Upload impacted targets from GitHub Actions](/merge-queue/reference/api-v2/github-actions) for setup, forks, and security.
+A GitHub Actions job can [upload impacted targets](/merge-queue/reference/api-v2/impactedtargets/upload-a-pull-requests-impacted-targets) without an API key. The [`trunk-io/login`](https://github.com/trunk-io/login) action exchanges the run's GitHub credential for a short-lived Trunk login, which can upload impacted targets for that repository and nothing else. See [Upload impacted targets from GitHub Actions](/merge-queue/reference/api-v2/github-actions) for setup, forks, and security. The [Bazel](/merge-queue/optimizations/parallel-queues/bazel) and [Nx](/merge-queue/optimizations/parallel-queues/nx) actions use this login with `auth: github-actions`.
 
 ## The `x-trunk-token` header
 

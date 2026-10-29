@@ -54,7 +54,7 @@ Grant the permissions your v1 calls need:
 | `direct` on a v2 submit or queue-entry update (new in v2) | **Merge PRs with direct to queue** |
 | `createQueue`, `updateQueue`, `deleteQueue` | **Update Merge Queue settings** |
 
-If CI only uploads impacted targets from GitHub Actions, it doesn't need a key. [Log in with the run's own credential](/merge-queue/reference/api-v2/github-actions) instead, which also works on fork pull requests.
+If CI only uploads impacted targets from GitHub Actions, it doesn't need a key. [Log in with the run's own credential](/merge-queue/reference/api-v2/github-actions) instead, which also works on fork pull requests. With `trunk-io/bazel-action` or `trunk-io/nx-action`, replace `trunk-token` with `auth: github-actions` and grant `id-token: write`.
 
 ## Step 2: Switch the credential and base URL
 
