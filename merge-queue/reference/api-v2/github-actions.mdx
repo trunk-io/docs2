@@ -96,7 +96,7 @@ Uploads from fork pull requests are off until an organization admin who can chan
 
 - The setting applies to every merge queue on the repository, and matters only for queues in `graph` mode (**Parallel** in the app).
 - It can be turned on only for public repositories.
-- Once it is on, any contributor whose workflow run is approved can upload impacted targets for any open fork pull request in the repository.
+- Once it is on, any fork contributor whose workflow runs can upload impacted targets for any open fork pull request in the repository, not only their own.
 - If it is off, the login on a fork pull request fails with `Trunk refused this run's GitHub credential`. The error calls this setting **Fork PR CI access**.
 
 ## Security
