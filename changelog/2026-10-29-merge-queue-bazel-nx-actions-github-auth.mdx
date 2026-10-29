@@ -1,0 +1,21 @@
+---
+title: "Merge Queue: Upload impacted targets from Bazel and Nx without a stored token"
+description: "The Bazel and Nx actions can now log in with the workflow run's GitHub credential and upload impacted targets through the v2 API."
+date: 2026-10-29
+category: Merge Queue
+type: new-feature
+---
+
+**The Bazel and Nx actions for parallel queues no longer need a Trunk secret.**
+
+### New features
+
+- **`auth: github-actions` for Bazel and Nx.** `trunk-io/bazel-action` v1.1.0 and `trunk-io/nx-action` v1.3.0 log in to Trunk with the workflow run's own GitHub credential and upload impacted targets through the v2 API. Add `auth: github-actions` and grant `id-token: write`. The `v1` tag of each action already points at these releases. See the [Bazel](/merge-queue/optimizations/parallel-queues/bazel) and [Nx](/merge-queue/optimizations/parallel-queues/nx) guides.
+- **Fork pull requests on public repositories.** With `auth: github-actions`, fork pull requests can upload impacted targets once an admin [allows uploads from forks](/merge-queue/reference/api-v2/github-actions#allow-uploads-from-forks).
+
+### Updates
+
+- **Stored token still works.** Leaving out `auth` keeps the default `trunk-token` mode, which uploads your organization API token to the v1 API. The v1 endpoint will be deprecated soon, so we recommend switching.
+- **Supported runners.** The login runs on Linux (x64 or arm64) and macOS (arm64) runners. Use a stored token on other runners, including Windows.
+
+Moving off the v1 API? See [Migrate from v1](/merge-queue/reference/api-v2/migrate-from-v1).
