@@ -31,6 +31,10 @@ Scoped to repositories, on `/v1`. Use these if your tests are still organized by
 
 Authenticate these with your organization API token in the `x-api-token` header. See [Authentication](../../setup-and-administration/apis/#authentication). v2 API keys don't work with v1.
 
+<Warning>
+The v1 repository endpoints will be deprecated soon. To move to the test collection endpoints, see [Migrate to test collections](/flaky-tests/get-started/migrate-to-test-collections). The Trunk Analytics CLI and `trunk-io/analytics-uploader` still need the organization API token.
+</Warning>
+
 <Columns cols={2}>
   <Card
     title="Get the details of a test case"

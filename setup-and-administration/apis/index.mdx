@@ -17,14 +17,18 @@ Trunk provides HTTP REST APIs for each of our features. The APIs use status code
 
 The v1 APIs authenticate with your organization API token, using the header `x-api-token`. v2 API keys don't work with v1.
 
+<Warning>
+The v1 APIs will be deprecated soon. To move to v2, see [Migrate from the v1 API](/merge-queue/reference/api-v2/migrate-from-v1) for Merge Queue and [Migrate to test collections](/flaky-tests/get-started/migrate-to-test-collections) for Flaky Tests. The Trunk Analytics CLI, `trunk-io/analytics-uploader`, and the Terraform provider still need the organization API token.
+</Warning>
+
 The v2 APIs, including the [Merge Queue API (v2)](/merge-queue/reference/api-v2) and the Flaky Tests test collection endpoints, use scoped API keys instead. See [Authentication](/merge-queue/reference/api-v2/authentication).
 
 ### Finding your API token
 
-You can find your API token in the [Trunk App](https://app.trunk.io) by navigating to **Settings** → **Organization** → **General** and scrolling to the **API** section. The **API Token** field displays your token.
+You can find your API token in the [Trunk App](https://app.trunk.io/settings/developer/api-tokens) under **Settings** → **Developer** → **API Keys**, in the **Organization API token (v1)** section. The **Token** field displays your token.
 
 Click the **eye icon** to reveal the token, then the **copy icon** to copy it to your clipboard. Pass it in the `x-api-token` header on any request to Trunk's v1 REST APIs.
 
-**If you are an admin**, a **Rotate** button is available next to the API Token field. Rotating immediately invalidates the previous token, so any integrations using the old token will need to be updated.
+**If you are an admin**, click **Rotate** to replace the token. Rotating immediately invalidates the previous token, so any integrations using the old token will need to be updated. If your organization has no token yet, click **Create token**.
 
-**If you are not an admin**, the **Rotate** button is disabled. Only administrators can rotate the API token.
+**If you are not an admin**, the **Rotate** button is disabled. Only administrators can create or rotate the API token.

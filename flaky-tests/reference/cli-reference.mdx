@@ -73,7 +73,7 @@ chmod +x trunk-analytics-cli
 
 The CLI requires your Trunk organization slug, token, and test collection ID, passed through `--org-url-slug`, `--token`, and `--test-collection-id`, to upload results to the correct organization and collection. They can alternatively be set via environment variables, `TRUNK_ORG_URL_SLUG`, `TRUNK_API_TOKEN`, and `TRUNK_TEST_COLLECTION_ID`, respectively.
 
-You can find your organization slug and token by navigating to **Settings** → **Organization** → **General**. The collection ID is on the collection's page; see [Test Collections](#test-collections).
+You can find your organization slug under **Settings** → **Organization** → **General**, and your token under **Settings** → **Developer** → **API Keys**, in the **Organization API token (v1)** section. The collection ID is on the collection's page; see [Test Collections](#test-collections).
 
 <Info>
 Your organization slug is the tail of your dashboard URL (`app.trunk.io/<org-slug>`). It defaults to your organization name with spaces replaced by hyphens. To change it, contact [help@trunk.io](mailto:help@trunk.io).
@@ -307,7 +307,7 @@ The `upload` and `test` commands accept the following options:
 | `--swift-test-xunit-paths <PATHS>` | Comma-separated list of glob patterns to files written by `swift test --xunit-output`, resolved against the repository root like `--junit-paths`. This XML carries no file path, so each test is attributed to the file it is declared in, resolved from your checkout. Can also be set with the `TRUNK_SWIFT_TEST_XUNIT_PATHS` environment variable. See [Swift Testing](/flaky-tests/get-started/frameworks/swift-testing). |
 | `--use-experimental-xcresult-test-locations` | **Beta.** Take each `.xcresult` test's file from where it is declared rather than from the failure that surfaced it, which also gives passing tests a file. macOS only. See [XCTest](/flaky-tests/get-started/frameworks/xctest#attributing-tests-to-their-declaring-file). |
 | `--org-url-slug <ORG_URL_SLUG>` | Trunk Organization slug, from the Settings page. |
-| `--token <TOKEN>` | Trunk Organization (not repo) token, from the Settings page. Defaults to the `TRUNK_API_TOKEN` variable. |
+| `--token <TOKEN>` | Trunk Organization (not repo) token, from **Settings** → **Developer** → **API Keys**. Defaults to the `TRUNK_API_TOKEN` variable. |
 | `-h, --help` | Additional detailed description of the `upload` command. |
 | `--repo-root` | Path to the repository root. Defaults to the current directory. |
 | `--repo-url <REPO_URL>` | Value to override URL of repository. **Optional**. |
