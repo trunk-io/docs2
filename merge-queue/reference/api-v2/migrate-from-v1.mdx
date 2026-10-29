@@ -349,6 +349,7 @@ A `testRunId` stored from v1 is the same ID in v2. If it ends in v1's `-bisectio
 
 - [ ] If you call more than impacted-target uploads, an API key exists with the [permissions](#step-1-create-an-api-key) your calls need, stored as a secret.
 - [ ] No Merge Queue request uses `api.trunk.io/v1` or the `x-api-token` header, except impacted-target uploads that must stay on v1: fork uploads in a private repository, and the Bazel or Nx action on runners `trunk-io/login` doesn't support. Other v1 calls, such as Flaky Tests and test-result uploads, are unchanged.
+- [ ] If fork pull requests upload with the GitHub Actions login, an admin has turned on [**Impacted targets from fork PRs**](/merge-queue/reference/api-v2/github-actions#allow-uploads-from-forks).
 - [ ] Queue and pull request IDs are resolved once and stored, not looked up per request.
 - [ ] Every enum value comes from the tables above, including values stored in your own database or config.
 - [ ] Every list request sets `limit` and follows `nextCursor` until `hasMore` is `false`, with the other parameters unchanged, including batch lookups.

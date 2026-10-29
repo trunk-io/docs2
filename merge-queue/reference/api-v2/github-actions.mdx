@@ -1,6 +1,6 @@
 ---
 title: "Upload impacted targets from GitHub Actions"
-description: "Authenticate a GitHub Actions job to the v2 API with no Trunk secret, fork pull requests included."
+description: "Authenticate a GitHub Actions job to the v2 API with no Trunk secret, including fork pull requests in public repositories."
 og:title: "Upload impacted targets from GitHub Actions with the Trunk Merge Queue API"
 ---
 A GitHub Actions job can [upload a pull request's impacted targets](/merge-queue/reference/api-v2/impactedtargets/upload-a-pull-requests-impacted-targets) without a Trunk API key. The [`trunk-io/login`](https://github.com/trunk-io/login) action exchanges the run's own GitHub credential for a short-lived Trunk login, so there's no Trunk secret to manage. On a public repository it also works on fork pull requests, which get no repository secrets.
