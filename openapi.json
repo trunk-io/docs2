@@ -9095,7 +9095,8 @@
       "ApiKeyAuth": {
         "type": "apiKey",
         "in": "header",
-        "name": "x-api-token"
+        "name": "x-api-token",
+        "description": "Your organization API token. In the Trunk app, find it under **Settings** → **Developer** → **API Keys**, in the **Organization API token (v1)** section. v2 API keys don't work with the v1 API. The v1 API will be deprecated soon."
       }
     }
   }
