@@ -5,12 +5,16 @@ og:title: "Managing your Trunk organization"
 ---
 ## Organization Slug and Token
 
-The Trunk Analytics CLI, the v1 [APIs](./apis/), and the Terraform provider authenticate with your organization's slug and token. The v2 APIs use [API keys](/merge-queue/reference/api-v2/authentication) instead.
+The Trunk Analytics CLI uses your organization's slug and token. The v1 [APIs](./apis/), the Terraform provider, and the Trunk MCP server's token sign-in use the token. The v2 APIs use [API keys](/merge-queue/reference/api-v2/authentication) instead.
 
 You can find your organization slug under **Settings** → **Organization** → **General**. Your token is under **Settings** → **Developer** → **API Keys**, in the **Organization API token (v1)** section.
 
 <Frame>
-![](/assets/setup-and-administration/org-slug-and-token.png)
+![The General page, with the organization slug in the URL field](/assets/setup-and-administration/org-slug-and-token.png)
+</Frame>
+
+<Frame>
+![The Organization API token (v1) section of the API Keys page](/assets/flaky-tests/reference/org-token-light.png)
 </Frame>
 
 ***

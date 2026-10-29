@@ -20,7 +20,7 @@ curl https://api.trunk.io/v2/merge-queues \
 ```
 
 <Note>
-The organization API token, in the **Organization API token (v1)** section of the same **API Keys** page, works only with the v1 API. The Trunk Analytics CLI, `trunk-io/analytics-uploader`, and the Terraform provider don't accept API keys yet, so keep using the [organization API token](/flaky-tests/get-started/ci-providers/otherci#trunk-organization-slug-and-token) with them.
+The organization API token, in the **Organization API token (v1)** section of **Settings** → **Developer** → **API Keys**, works only with the v1 API. The Trunk Analytics CLI, `trunk-io/analytics-uploader`, the Terraform provider, and the Trunk MCP server's token sign-in don't accept API keys yet, so keep using the [organization API token](/setup-and-administration/apis#finding-your-api-token) with them.
 </Note>
 
 Keys belong to the organization, so they keep working after their creator leaves. There's no limit on how many you create. Give each integration its own key, with only the permissions it uses.
