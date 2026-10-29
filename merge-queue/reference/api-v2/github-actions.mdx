@@ -3,7 +3,7 @@ title: "Upload impacted targets from GitHub Actions"
 description: "Authenticate a GitHub Actions job to the v2 API with no Trunk secret, fork pull requests included."
 og:title: "Upload impacted targets from GitHub Actions with the Trunk Merge Queue API"
 ---
-A GitHub Actions job can [upload a pull request's impacted targets](/merge-queue/reference/api-v2/impactedtargets/upload-a-pull-requests-impacted-targets) without a Trunk API key. The [`trunk-io/login`](https://github.com/trunk-io/login) action exchanges the run's own GitHub credential for a short-lived Trunk login, so there's no Trunk secret to manage. It also works on fork pull requests, which get no repository secrets.
+A GitHub Actions job can [upload a pull request's impacted targets](/merge-queue/reference/api-v2/impactedtargets/upload-a-pull-requests-impacted-targets) without a Trunk API key. The [`trunk-io/login`](https://github.com/trunk-io/login) action exchanges the run's own GitHub credential for a short-lived Trunk login, so there's no Trunk secret to manage. On a public repository it also works on fork pull requests, which get no repository secrets.
 
 The login can upload impacted targets only, and only for the run's own repository. For anything else, use an [API key](/merge-queue/reference/api-v2/authentication#create-an-api-key).
 
@@ -12,7 +12,7 @@ The login can upload impacted targets only, and only for the run's own repositor
 - The Trunk GitHub App is installed on the repository, and the repository has a merge queue in `graph` mode ([**Parallel**](/merge-queue/optimizations/parallel-queues) in the app). Only those queues wait for impacted targets.
 - Your CI can list the build targets a pull request changes, one per line. The workflow below uses the changed top-level folders. This works in any repository but treats folders as independent, and changes that interact across folders may be tested separately. A build system such as Bazel or Nx gives dependency-aware targets.
 - The job runs on Linux (x64 or arm64) or macOS (arm64). Windows is not supported.
-- To accept uploads from fork pull requests, an admin must first [allow them](#allow-uploads-from-forks). Pull requests from the repository itself need no setup in Trunk.
+- To accept uploads from fork pull requests (public repositories only), an admin must first [allow them](#allow-uploads-from-forks). Pull requests from the repository itself need no setup in Trunk.
 
 ## Set up the workflow
 
@@ -94,7 +94,7 @@ The credential depends on the event that started the run:
 
 Uploads from fork pull requests are off until an organization admin who can change queue settings turns them on. In the Trunk app, open the **Merge Queue** tab, navigate to **[any of the repository's queues]** → **Settings** → **GitHub**, and toggle **Impacted targets from fork PRs** on.
 
-- The setting applies to every merge queue on the repository, and matters only for Parallel (`graph` mode) queues.
+- The setting applies to every merge queue on the repository, and matters only for queues in `graph` mode (**Parallel** in the app).
 - It can be turned on only for public repositories.
 - Once it is on, any contributor whose workflow run is approved can upload impacted targets for any open fork pull request in the repository.
 - If it is off, the login on a fork pull request fails with `Trunk refused this run's GitHub credential`. The error calls this setting **Fork PR CI access**.

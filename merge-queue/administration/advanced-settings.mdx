@@ -322,10 +322,10 @@ See [GitHub status check](../using-the-queue/monitor-queue-status#github-status-
 When enabled, CI on pull requests from forks can upload impacted targets with the job's GitHub token, without a Trunk secret. See [Upload impacted targets from GitHub Actions](../reference/api-v2/github-actions#allow-uploads-from-forks).
 
 * The setting applies to every merge queue on the repository, and matters only in [Parallel mode](../optimizations/parallel-queues).
-* Only an organization admin who can configure queues can change it.
+* Only an organization admin who can change queue settings can change it.
 * It can be turned on only for public repositories.
 * Once it is on, any contributor whose workflow run is approved can upload impacted targets for any open fork pull request in the repository.
-* While it is off, the login on a fork pull request fails, with an error that calls this setting **Fork PR CI access**.
+* While it is off, `trunk-io/login` fails on fork pull requests. The error calls this setting **Fork PR CI access**.
 
 ***
 
