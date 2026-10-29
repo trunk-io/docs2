@@ -5,9 +5,9 @@ og:title: "Managing your Trunk organization"
 ---
 ## Organization Slug and Token
 
-The Trunk Analytics CLI and most v1 Flaky Tests [APIs](./apis/) use your organization's slug and token. The v1 Merge Queue APIs, the Terraform provider, and the Trunk MCP server's token sign-in use the token. The v2 APIs use [API keys](/merge-queue/reference/api-v2/authentication) instead.
-
 You can find your organization slug under **Settings** → **Organization** → **General**. Your token is under **Settings** → **Developer** → **API Keys**, in the **Organization API token (v1)** section. To reveal, rotate, or create it, see [Finding your API token](./apis/#finding-your-api-token).
+
+The Trunk Analytics CLI and most v1 Flaky Tests [APIs](./apis/) use your organization's slug and token. The token also authenticates the v1 Merge Queue API and tools that don't accept API keys yet, including the Terraform provider and the Trunk MCP server's token sign-in. The v2 APIs use [API keys](/merge-queue/reference/api-v2/authentication) instead.
 
 <Tabs>
 <Tab title="Slug">
