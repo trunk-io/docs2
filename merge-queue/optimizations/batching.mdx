@@ -58,7 +58,7 @@ Add the `--no-batch` flag when submitting your PR:
 
 **Option 2: Using the API**
 
-Set `noBatch: true` when calling the [`/submitPullRequest`](/merge-queue/reference/merge/submit-a-pull-request-to-a-merge-queue) endpoint:
+Set `noBatch: true` when calling the v1 [`/submitPullRequest`](/merge-queue/reference/merge/submit-a-pull-request-to-a-merge-queue) endpoint:
 
 ```bash
 curl -X POST https://api.trunk.io/v1/submitPullRequest \
@@ -77,6 +77,8 @@ curl -X POST https://api.trunk.io/v1/submitPullRequest \
     "noBatch": true
   }'
 ```
+
+The v1 API will be deprecated soon. With the v2 API, set `"allowBatching": false` when you [submit a pull request](/merge-queue/reference/api-v2/mergequeues/submit-a-pull-request-to-a-merge-queue).
 
 ### How it works
 

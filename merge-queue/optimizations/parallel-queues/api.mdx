@@ -6,6 +6,10 @@ og:title: "Parallel queues API in Trunk Merge Queue"
 
 ## Uploading impacted targets
 
+<Warning>
+This section uses the v1 `setImpactedTargets` endpoint, which will be deprecated soon. New integrations should use [`PUT /v2/impacted-targets`](/merge-queue/reference/api-v2/impactedtargets/upload-a-pull-requests-impacted-targets) with an [API key](/merge-queue/reference/api-v2/authentication), or [log in from GitHub Actions](/merge-queue/reference/api-v2/github-actions) with no stored secret.
+</Warning>
+
 Impacted Targets should be computed for every PR. The list of impacted targets should be computed by comparing two different SHAs: the **head of the target branch**, and the **merge commit of the pr**.
 
 <Info>
