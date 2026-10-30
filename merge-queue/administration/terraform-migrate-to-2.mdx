@@ -3,7 +3,7 @@ title: "Migrate to Terraform provider 2.0"
 description: "Upgrade the trunk-io/trunk Terraform provider from 1.x to 2.0, and optionally move from the organization API token to an API key."
 og:title: "Migrate to Trunk Terraform provider 2.0"
 ---
-Provider 2.0 adds API keys, more merge queue settings, and fixes. Existing state loads as is, and the organization API token keeps working, so most configurations upgrade with no changes. Read [What changes](#what-changes) first: two behaviors differ from 1.x.
+Provider 2.0 adds API keys, more merge queue settings, and fixes. Existing state loads as is, and the organization API token keeps working, so most configurations upgrade with no changes. Read [What changes](#what-changes) first: some behaviors differ from 1.x.
 
 ## Upgrade
 
@@ -21,7 +21,7 @@ Provider 2.0 adds API keys, more merge queue settings, and fixes. Existing state
    ```
 
 2. Run `terraform init -upgrade`.
-3. Run `terraform plan`. For a configuration that sets `required_statuses`, or doesn't rely on leaving it out (see below), the plan is empty.
+3. Run `terraform plan`. If it fails on an index into `required_statuses`, see [`required_statuses` is a set](#required_statuses-is-a-set). The plan doesn't show the change to [leaving out `required_statuses`](#leaving-out-required_statuses-no-longer-removes-the-override), so check that yourself.
 
 ## What changes
 
@@ -41,7 +41,7 @@ required_statuses = []
 
 Order no longer matters. In 1.1.0, a list in any order but alphabetical failed the apply.
 
-If another part of your configuration indexes into it, such as `trunk_merge_queue.main.required_statuses[0]`, wrap it in `tolist()`.
+If another part of your configuration indexes into it, such as `trunk_merge_queue.main.required_statuses[0]`, wrap it in `tolist()`. `tolist()` returns the checks in alphabetical order, the order 1.1.0 required, so existing indexes point at the same check.
 
 ### `api_key` and `base_url` must be known when planning
 
@@ -57,7 +57,7 @@ Set it to the host, such as `https://api.trunk.io`. A value ending in `/v1`, as 
 * **New settings:** `test_branch_construction_mode` and `batching_rules`.
 * **New read-only attributes:** `queue_id` and `managed_state`, filled in when the provider uses an API key.
 * **Import by queue ID**, with an API key.
-* **Lower limits:**
+* **Zero values:**
   * `testing_timeout_minutes = 0` means no timeout.
   * With an API key, `batching_max_wait_time_minutes = 0` means don't wait.
 
@@ -67,11 +67,10 @@ See [Terraform Provider](./terraform) for the full reference.
 
 The organization API token uses the v1 API, which will be deprecated soon. To move to the v2 API:
 
-1. An organization admin creates an API key under **Settings** → **Developer** → **API Keys**, with the **Update Merge Queue settings** permission. See [Create an API key](/merge-queue/reference/api-v2/authentication#create-an-api-key).
-2. Replace the token with the key, in `TRUNK_API_KEY` or `api_key`.
-3. Run `terraform plan`. It's empty: nothing else in the configuration changes, and `queue_id` and `managed_state` fill in on the next refresh.
-
-The v2 API caps some values that v1 doesn't, for example `concurrency` at 1000 and `not_ready_timeout_hours` at 720. If your configuration sets a value above a cap, lower it before switching.
+1. [Create an API key](/merge-queue/reference/api-v2/authentication#create-an-api-key) with the **Update Merge Queue settings** permission.
+2. The v2 API caps some values that v1 doesn't (see [Settings](./terraform#settings)). Lower any value in your configuration above a cap.
+3. Replace the token with the key, in `TRUNK_API_KEY` or `api_key`.
+4. Run `terraform plan`. Nothing else in the configuration changes, and `queue_id` and `managed_state` fill in on the next refresh.
 
 ## Checklist
 
@@ -79,4 +78,5 @@ The v2 API caps some values that v1 doesn't, for example `concurrency` at 1000 a
 * [ ] `required_statuses = []` is set wherever you relied on leaving it out to clear an override.
 * [ ] References into `required_statuses` use `tolist()`.
 * [ ] `api_key` and `base_url` are known at plan time.
+* [ ] If you switched to an API key, no value is above a v2 cap.
 * [ ] `terraform plan` shows no unexpected changes.
