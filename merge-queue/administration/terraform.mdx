@@ -94,10 +94,10 @@ Values are lowercase, as written in the tables below. Uppercase values such as `
 
 | Attribute | Type | Description |
 | --- | --- | --- |
-| `repo.host` | string | Repository host, such as `github.com`.. |
-| `repo.owner` | string | Repository owner or organization.. |
-| `repo.name` | string | Repository name.. |
-| `target_branch` | string | Branch the merge queue targets, such as `main`.. |
+| `repo.host` | string | Repository host, such as `github.com`. |
+| `repo.owner` | string | Repository owner or organization. |
+| `repo.name` | string | Repository name. |
+| `target_branch` | string | Branch the merge queue targets, such as `main`. |
 
 Changing any of them deletes the queue and creates a new one.
 
@@ -133,9 +133,9 @@ An optional attribute you leave out keeps the queue's current value, or the defa
 
 ### Required statuses
 
-* **List the checks in alphabetical order**, or wrap the list in `sort()`. Trunk stores them sorted, and in 1.1.0 any other order fails the apply with **Provider produced inconsistent result after apply**.
-* **Leaving `required_statuses` out removes the override whenever an apply updates the queue**, so the queue uses `.trunk/trunk.yaml` or branch protection. That includes an override someone set in the Trunk app, and `terraform plan` doesn't show it. If the queue had an override, that apply removes it and then fails with **Provider produced inconsistent result after apply**. Set `required_statuses` in your configuration to keep an override.
-* To remove an override, delete `required_statuses` from your configuration and apply. Don't set it to `[]`: in 1.1.0 the API ignores the empty list.
+* **Wrap the list in `sort()`**, or list the checks in that order (uppercase before lowercase). Trunk stores them sorted, and in 1.1.0 any other order fails the apply with **Provider produced inconsistent result after apply**.
+* **Leaving `required_statuses` out removes the override on any apply that updates the queue**, including an override set in the Trunk app, and `terraform plan` doesn't show it. That apply then fails with **Provider produced inconsistent result after apply**. To keep an override, set `required_statuses`.
+* **To remove an override**, remove it in the Trunk app ([Required Status Checks](./advanced-settings#required-status-checks)) and delete `required_statuses` from your configuration. Don't set it to `[]`: in 1.1.0 the API ignores the empty list.
 
 ***
 
@@ -200,11 +200,11 @@ resource "trunk_merge_queue" "main" {
   merge_method     = "squash"
   commands_enabled = true
   comments_enabled = true
-  # In alphabetical order; see "Required statuses" above.
-  required_statuses = [
+  # Sorted; see "Required statuses" above.
+  required_statuses = sort([
     "ci/build",
     "ci/lint",
     "ci/test",
-  ]
+  ])
 }
 ```
