@@ -37,7 +37,7 @@ Never commit your organization API token to version control. Use environment var
 
 ***
 
-## Quick Start
+## Quick start
 
 ```hcl
 terraform {
@@ -64,15 +64,15 @@ resource "trunk_merge_queue" "main" {
 }
 ```
 
-Run `terraform plan` to preview changes and `terraform apply` to apply them.
+Run `terraform init`, then `terraform plan` to preview the changes and `terraform apply` to create the queue.
 
 If a merge queue already exists for the repository and branch, `terraform apply` fails with **Merge queue already exists**. [Import](#importing-existing-queues) the queue instead of creating it.
 
 ***
 
-## Importing Existing Queues
+## Importing existing queues
 
-Merge queues created through the UI or API can be imported into Terraform. This lets you start managing an existing queue as code without recreating it.
+Merge queues created in the Trunk app or through the API can be imported into Terraform. Add a `trunk_merge_queue` block for the queue to your configuration, then import it:
 
 ```bash
 terraform import trunk_merge_queue.main github.com/my-org/my-repo/main
@@ -80,28 +80,28 @@ terraform import trunk_merge_queue.main github.com/my-org/my-repo/main
 
 The import ID format is `{host}/{owner}/{name}/{target_branch}`. Branch names may contain slashes.
 
-After importing, run `terraform plan` to compare the Terraform configuration against the current queue settings. Resolve any differences before running `terraform apply`.
+After importing, run `terraform plan` to compare the configuration against the queue. Resolve any differences before running `terraform apply`.
+
+If the queue has required statuses set in the Trunk app, copy them into `required_statuses` before you apply. The plan doesn't show it, but leaving them out removes them; see [Required statuses](#required-statuses).
 
 ***
 
-## Resource Reference: `trunk_merge_queue`
+## Resource reference: `trunk_merge_queue`
 
 Values are lowercase, as written in the tables below. Uppercase values such as `"SQUASH"` fail validation.
 
-### Required Attributes
+### Required attributes
 
 | Attribute | Type | Description |
 | --- | --- | --- |
-| `repo.host` | string | Repository host (e.g., `github.com`). Changing this forces a new resource. |
-| `repo.owner` | string | Repository owner or organization. Changing this forces a new resource. |
-| `repo.name` | string | Repository name. Changing this forces a new resource. |
-| `target_branch` | string | Branch the merge queue targets (e.g., `main`). Changing this forces a new resource. |
+| `repo.host` | string | Repository host, such as `github.com`.. |
+| `repo.owner` | string | Repository owner or organization.. |
+| `repo.name` | string | Repository name.. |
+| `target_branch` | string | Branch the merge queue targets, such as `main`.. |
 
-<Note>
-The `repo` and `target_branch` attributes are immutable. Changing any of them will destroy the existing queue and create a new one.
-</Note>
+Changing any of them deletes the queue and creates a new one.
 
-### Optional Attributes
+### Optional attributes
 
 An optional attribute you leave out keeps the queue's current value, or the default for a new queue. `required_statuses` is the exception; see [Required statuses](#required-statuses).
 
@@ -115,7 +115,7 @@ An optional attribute you leave out keeps the queue's current value, or the defa
 | `can_optimistically_merge` | Boolean | Enable [optimistic merging](../optimizations/optimistic-merging). |
 | `batch` | Boolean | Enable [batching](../optimizations/batching). |
 | `batching_max_wait_time_minutes` | integer | Maximum minutes to wait for a batch to fill (minimum 1). |
-| `batching_min_size` | integer | Minimum number of PRs in a batch before testing begins. |
+| `batching_min_size` | integer | Target batch size: the most PRs tested in one batch. See [Batching](../optimizations/batching). |
 | `bisection_concurrency` | integer | Concurrency for bisection testing during batch failure isolation (minimum 1). See [Bisection Concurrency](./advanced-settings#bisection-concurrency). |
 | `optimization_mode` | string | `"off"` or `"bisection_skip_redundant_tests"`. See [Test caching during bisection](../optimizations/batching#test-caching-during-bisection). |
 | `merge_method` | string | How PRs are merged: `"merge_commit"`, `"squash"`, or `"rebase"`. See [Merge Method](./advanced-settings#merge-method). |
@@ -133,13 +133,13 @@ An optional attribute you leave out keeps the queue's current value, or the defa
 
 ### Required statuses
 
-* **List the checks in alphabetical order.** Trunk stores them sorted, and in 1.1.0 any other order fails the apply with **Provider produced inconsistent result after apply**.
-* **Leaving `required_statuses` out removes the override whenever an apply updates the queue**, so the queue uses `.trunk/trunk.yaml` or branch protection. That includes an override someone set in the Trunk app. Set `required_statuses` in your configuration to keep one.
-* Don't set `required_statuses = []`. An empty override isn't possible, and in 1.1.0 the API ignores the empty list.
+* **List the checks in alphabetical order**, or wrap the list in `sort()`. Trunk stores them sorted, and in 1.1.0 any other order fails the apply with **Provider produced inconsistent result after apply**.
+* **Leaving `required_statuses` out removes the override whenever an apply updates the queue**, so the queue uses `.trunk/trunk.yaml` or branch protection. That includes an override someone set in the Trunk app, and `terraform plan` doesn't show it. If the queue had an override, that apply removes it and then fails with **Provider produced inconsistent result after apply**. Set `required_statuses` in your configuration to keep an override.
+* To remove an override, delete `required_statuses` from your configuration and apply. Don't set it to `[]`: in 1.1.0 the API ignores the empty list.
 
 ***
 
-## Managing Drift
+## Managing drift
 
 When a merge queue is managed by Terraform, the Trunk UI displays a banner indicating that the queue is under Terraform management.
 
@@ -147,29 +147,19 @@ When a merge queue is managed by Terraform, the Trunk UI displays a banner indic
 ![](/assets/merge-queue/administration/terraform-in-sync.png)
 </Frame>
 
-Users can still adjust merge queue settings through the UI. However, any changes made in the UI will cause **drift** between the live configuration and your Terraform state. The UI highlights when drift exists so your team is aware of the discrepancy.
+Users can still change settings in the Trunk app, and the app then shows the queue as drifted.
 
 <Frame caption="Banner for Merge Queue settings showing that the Merge Queue is managed by Terraform but has since drifted due to settings being changed manually in the UI.">
 ![](/assets/merge-queue/administration/terraform-drift-mergequeue.png)
 </Frame>
 
-To detect drift, run:
-
-```bash
-terraform plan
-```
-
-This shows any differences between your Terraform configuration and the current queue state. Run `terraform apply` to reconcile the configuration back to what is defined in Terraform, or update your `.tf` files to match the desired state.
-
-<Tip>
-If your team adjusts settings through the UI, run `terraform plan` periodically to detect drift. Apply to reconcile, or update your Terraform configuration to match the desired state.
-</Tip>
+A change to a setting in your configuration shows up in the next `terraform plan`, and `terraform apply` reverts it. A change to a setting you left out is kept, except `required_statuses` (see [Required statuses](#required-statuses)).
 
 ***
 
-## Deleting a Queue
+## Deleting a queue
 
-A merge queue must be empty before it can be deleted. If the queue still has PRs in it, `terraform destroy` will fail.
+A merge queue must be empty before it can be deleted. If the queue still has PRs in it, `terraform destroy` fails.
 
 To empty a queue, set `state = "draining"`, apply, and wait for all in-flight PRs to finish testing and merge. Once the queue is empty, run `terraform destroy` or remove the resource from your configuration and apply.
 
@@ -177,7 +167,7 @@ To empty a queue, set `state = "draining"`, apply, and wait for all in-flight PR
 
 ## Examples
 
-### High-Throughput Queue With Batching
+### High-throughput queue with batching
 
 ```hcl
 resource "trunk_merge_queue" "main" {
@@ -196,7 +186,7 @@ resource "trunk_merge_queue" "main" {
 }
 ```
 
-### Queue With Explicit Required Statuses
+### Queue with explicit required statuses
 
 ```hcl
 resource "trunk_merge_queue" "main" {
