@@ -1,0 +1,82 @@
+---
+title: "Migrate to Terraform provider 2.0"
+description: "Upgrade the trunk-io/trunk Terraform provider from 1.x to 2.0, and optionally move from the organization API token to an API key."
+og:title: "Migrate to Trunk Terraform provider 2.0"
+---
+Provider 2.0 adds API keys, more merge queue settings, and fixes. Existing state loads as is, and the organization API token keeps working, so most configurations upgrade with no changes. Read [What changes](#what-changes) before you apply: some behaviors differ from 1.x.
+
+## Upgrade
+
+1. Change the version constraint:
+
+   ```hcl
+   terraform {
+     required_providers {
+       trunk = {
+         source  = "trunk-io/trunk"
+         version = "~> 2.0"
+       }
+     }
+   }
+   ```
+
+2. Run `terraform init -upgrade`.
+3. Run `terraform plan`. If it fails on an index into `required_statuses`, see [`required_statuses` is a set](#required_statuses-is-a-set). If your configuration leaves out `required_statuses`, read [Leaving out `required_statuses`](#leaving-out-required_statuses-no-longer-removes-the-override): the plan doesn't show that change.
+
+## What changes
+
+### Leaving out `required_statuses` no longer removes the override
+
+In 1.x, a configuration without `required_statuses` removed the queue's override whenever an apply updated the queue, including an override set in the Trunk app. In 2.0, leaving it out leaves the override alone.
+
+If you relied on that to keep the override cleared, set it explicitly:
+
+```hcl
+required_statuses = []
+```
+
+`[]` removes the override (see [Required statuses](./terraform#required-statuses)). In 1.x, `[]` did nothing.
+
+### `required_statuses` is a set
+
+Order no longer matters. In 1.1.0, a list not in sorted order failed the apply.
+
+If another part of your configuration indexes into it, such as `trunk_merge_queue.main.required_statuses[0]`, wrap it in `sort()`, such as `sort(trunk_merge_queue.main.required_statuses)[0]`. That returns the checks in the order 1.1.0 required, so existing indexes point at the same check.
+
+### `api_key` and `base_url` must be known when planning
+
+1.x fell back to the `TRUNK_API_KEY` and `TRUNK_BASE_URL` environment variables while these were unknown. 2.0 refuses an unknown value, because the credential decides which API the provider uses. If one comes from a resource not created yet, apply that resource first, for example with `-target`.
+
+### `base_url` is the API host
+
+If you set `base_url`, use the host, such as `https://api.trunk.io`. A value ending in `/v1`, as 1.x used, still works.
+
+## New in 2.0
+
+* **API keys.** See [Switch to an API key](#switch-to-an-api-key).
+* **New settings:** `test_branch_construction_mode` and `batching_rules`.
+* **New read-only attributes:** `queue_id` and `managed_state`, filled in when the provider uses an API key.
+* **Import by queue ID**, with an API key.
+* **Zero values:**
+  * `testing_timeout_minutes = 0` means no timeout.
+  * With an API key, `batching_max_wait_time_minutes = 0` means don't wait.
+
+See [Terraform Provider](./terraform) for the full reference.
+
+## Switch to an API key
+
+The organization API token uses the v1 API, which will be deprecated soon. To move to the v2 API:
+
+1. [Create an API key](/merge-queue/reference/api-v2/authentication#create-an-api-key) with the **Update Merge Queue settings** permission.
+2. The v2 API caps some values that v1 doesn't (see [Settings](./terraform#settings)). Lower any value in your configuration above a cap.
+3. Replace the token with the key, in `TRUNK_API_KEY` or `api_key`.
+4. Run `terraform plan`. It shows no changes, apart from any value you lowered in step 2. `queue_id` and `managed_state` fill in on your next `terraform apply`.
+
+## Checklist
+
+* [ ] The version constraint is `~> 2.0`, and `terraform init -upgrade` ran.
+* [ ] `required_statuses = []` is set wherever you relied on leaving it out to clear an override.
+* [ ] References into `required_statuses` use `sort()`.
+* [ ] `api_key` and `base_url` are known at plan time.
+* [ ] If you switched to an API key, no value is above a v2 cap.
+* [ ] `terraform plan` shows no unexpected changes.

@@ -5,25 +5,25 @@ og:title: "Manage Trunk Merge Queue with Terraform"
 ---
 The [trunk-io/trunk](https://registry.terraform.io/providers/trunk-io/trunk/latest) Terraform provider lets you manage merge queue configuration as infrastructure as code. Define your queue settings in Terraform, track changes in version control, and apply them consistently across repositories.
 
-The provider supports the `trunk_merge_queue` resource for creating, updating, importing, and deleting merge queues.
+The provider supports the `trunk_merge_queue` resource for creating, updating, importing, and deleting merge queues. The [Registry documentation](https://registry.terraform.io/providers/trunk-io/trunk/latest/docs/resources/merge_queue) lists every attribute.
 
-**Current version:** `1.1.0`
+**Current version:** `2.0.0`. Upgrading from 1.x? See [Migrate to provider 2.0](./terraform-migrate-to-2).
 
 ## Prerequisites
 
 * [Terraform](https://developer.hashicorp.com/terraform/install) >= 1.0
-* Your organization API token, from the **Organization API token (v1)** section of **Settings** → **Developer** → **API Keys** in the Trunk app. See [Finding your API token](/setup-and-administration/apis#finding-your-api-token).
+* A Trunk [API key](/merge-queue/reference/api-v2/authentication#create-an-api-key) with the **Update Merge Queue settings** permission. An organization admin creates one under **Settings** → **Developer** → **API Keys** in the Trunk app.
 * A repository connected to Trunk
 
 ## Authentication
 
-Set the `TRUNK_API_KEY` environment variable to your organization API token. Despite the variable's name, the provider doesn't accept v2 API keys yet.
+Set the API key in the `TRUNK_API_KEY` environment variable:
 
 ```bash
-export TRUNK_API_KEY="your-org-api-token"
+export TRUNK_API_KEY="trunk_v2_..."
 ```
 
-Alternatively, you can pass it directly in the provider block:
+Or pass it in the provider block:
 
 ```hcl
 provider "trunk" {
@@ -31,8 +31,14 @@ provider "trunk" {
 }
 ```
 
+The provider picks the API from the credential. An API key (starts with `trunk_v2_`) uses the [v2 API](/merge-queue/reference/api-v2). The organization API token, in the **Organization API token (v1)** section of **Settings** → **Developer** → **API Keys**, also works but uses the v1 API, which will be deprecated soon. With the token, `queue_id` and `managed_state` stay null, and importing by ID and `batching_max_wait_time_minutes = 0` aren't available.
+
+`base_url` (or `TRUNK_BASE_URL`) sets the API host. It defaults to `https://api.trunk.io`.
+
+`api_key` and `base_url` must be known when Terraform plans. If one comes from a resource that isn't created yet, apply that resource first, for example with `-target`.
+
 <Warning>
-Never commit your organization API token to version control. Use environment variables or a secrets manager to supply the `TRUNK_API_KEY` value.
+Never commit an API key or the organization API token to version control. Use environment variables or a secrets manager.
 </Warning>
 
 ***
@@ -46,7 +52,7 @@ terraform {
   required_providers {
     trunk = {
       source  = "trunk-io/trunk"
-      version = "~> 1.1"
+      version = "~> 2.0"
     }
   }
 }
@@ -61,6 +67,7 @@ resource "trunk_merge_queue" "main" {
   }
   target_branch = "main"
   concurrency   = 5
+  merge_method  = "squash"
 }
 ```
 
@@ -70,25 +77,35 @@ If a merge queue already exists for the repository and branch, `terraform apply`
 
 ***
 
+## What Terraform manages
+
+Only the settings in your configuration. A setting you leave out keeps whatever value the queue has, including one set in the Trunk app, or Trunk's default for a new queue.
+
+Not managed: Slack notifications, [impacted targets from fork PRs](./advanced-settings#impacted-targets-from-fork-prs), and which bots may submit pull requests (**Settings** → **Organization** → **Bots**). Set those in the Trunk app.
+
+***
+
 ## Importing existing queues
 
 Merge queues created in the Trunk app or through the API can be imported into Terraform. Add a `trunk_merge_queue` block for the queue to your configuration, then import it:
 
 ```bash
+# By repository and target branch. Branch names may contain slashes.
 terraform import trunk_merge_queue.main github.com/my-org/my-repo/main
+
+# Or, with an API key, by the queue's ID.
+terraform import trunk_merge_queue.main xK9mP2nQ
 ```
 
-The import ID format is `{host}/{owner}/{name}/{target_branch}`. Branch names may contain slashes.
+A queue's ID is the part after `merge-queue/` in its URL in the Trunk app (`app.trunk.io/<org>/merge-queue/<id>/queue`). Importing by ID records the repository as Trunk spells it; if your configuration's `repo` uses different capitals, import by path instead, or the plan replaces the queue.
 
 After importing, run `terraform plan` to compare the configuration against the queue. Resolve any differences before running `terraform apply`.
-
-If the queue has required statuses set in the Trunk app, copy them into `required_statuses` before you apply. The plan doesn't show it, but leaving them out removes them; see [Required statuses](#required-statuses).
 
 ***
 
 ## Resource reference: `trunk_merge_queue`
 
-Values are lowercase, as written in the tables below. Uppercase values such as `"SQUASH"` fail validation.
+Values are lowercase, as written below.
 
 ### Required attributes
 
@@ -97,45 +114,67 @@ Values are lowercase, as written in the tables below. Uppercase values such as `
 | `repo.host` | string | Repository host, such as `github.com`. |
 | `repo.owner` | string | Repository owner or organization. |
 | `repo.name` | string | Repository name. |
-| `target_branch` | string | Branch the merge queue targets, such as `main`. |
+| `target_branch` | string | Branch the queue merges into, such as `main`. |
 
-Changing any of them deletes the queue and creates a new one.
+Changing any of them replaces the queue.
 
-### Optional attributes
-
-An optional attribute you leave out keeps the queue's current value, or the default for a new queue. `required_statuses` is the exception; see [Required statuses](#required-statuses).
+### Settings
 
 | Attribute | Type | Description |
 | --- | --- | --- |
-| `mode` | string | `"single"` (default) or `"parallel"`. See [Merge Queue mode](./advanced-settings#merge-queue-mode). |
-| `concurrency` | integer | Number of PRs that can test simultaneously (minimum 1). See [Testing concurrency](./advanced-settings#testing-concurrency). |
+| `mode` | string | `"single"` (default) or `"parallel"`. Parallel mode needs impacted targets uploaded. Changing it starts a [mode switch](#switching-modes). See [Merge Queue mode](./advanced-settings#merge-queue-mode). |
 | `state` | string | `"running"` (default), `"paused"`, or `"draining"`. See [Merge Queue state](./advanced-settings#merge-queue-state). |
-| `testing_timeout_minutes` | integer | Maximum minutes to wait for tests before auto-cancellation (minimum 1). See [Timeout for tests to complete](./advanced-settings#timeout-for-tests-to-complete). |
-| `pending_failure_depth` | integer | Number of successor test runs to wait on before transitioning a failed group. See [Pending failure depth](../optimizations/pending-failure-depth). |
-| `can_optimistically_merge` | Boolean | Enable [optimistic merging](../optimizations/optimistic-merging). |
+| `concurrency` | integer | PRs tested at once (minimum 1). See [Testing concurrency](./advanced-settings#testing-concurrency). |
+| `testing_timeout_minutes` | integer | Minutes to wait for tests before failing them. `0` means no timeout. See [Timeout for tests to complete](./advanced-settings#timeout-for-tests-to-complete). |
+| `pending_failure_depth` | integer | See [Pending failure depth](../optimizations/pending-failure-depth). |
+| `can_optimistically_merge` | Boolean | See [optimistic merging](../optimizations/optimistic-merging). |
 | `batch` | Boolean | Enable [batching](../optimizations/batching). |
-| `batching_max_wait_time_minutes` | integer | Maximum minutes to wait for a batch to fill (minimum 1). |
-| `batching_min_size` | integer | Target batch size: the most PRs tested in one batch. See [Batching](../optimizations/batching). |
-| `bisection_concurrency` | integer | Concurrency for bisection testing during batch failure isolation (minimum 1). See [Bisection Concurrency](./advanced-settings#bisection-concurrency). |
+| `batching_min_size` | integer | Target batch size: the most PRs tested in one batch. |
+| `batching_max_wait_time_minutes` | integer | Minutes to wait for a batch to fill. `0` doesn't wait, and needs an API key. |
+| `bisection_concurrency` | integer | Tests bisection may run at once, separate from `concurrency` (minimum 1). See [Bisection Concurrency](./advanced-settings#bisection-concurrency). |
 | `optimization_mode` | string | `"off"` or `"bisection_skip_redundant_tests"`. See [Test caching during bisection](../optimizations/batching#test-caching-during-bisection). |
-| `merge_method` | string | How PRs are merged: `"merge_commit"`, `"squash"`, or `"rebase"`. See [Merge Method](./advanced-settings#merge-method). |
+| `batching_rules` | set of objects | Rules that change how PRs are batched by impacted target. See [Batching rules](#batching-rules). |
+| `merge_method` | string | `"merge_commit"`, `"squash"`, or `"rebase"`. See [Merge Method](./advanced-settings#merge-method). |
 | `direct_merge_mode` | string | `"off"` or `"always"`. See [Direct merge to main](../optimizations/direct-merge-to-main). |
-| `create_prs_for_testing_branches` | Boolean | Create draft PRs for testing branches. See [Draft pull request creation](./advanced-settings#draft-pull-request-creation). |
-| `comments_enabled` | Boolean | Whether Trunk posts status comments on PRs. See [GitHub comments](./advanced-settings#github-comments). |
-| `commands_enabled` | Boolean | Whether `/trunk` slash commands are enabled. See [GitHub commands](./advanced-settings#github-commands). |
-| `status_check_enabled` | Boolean | Whether Trunk posts a status check on PRs. See [GitHub Statuses](./advanced-settings#github-statuses). |
-| `label_commands_enabled` | Boolean | Whether a GitHub label can submit a PR. See [Label Commands](./advanced-settings#label-commands). |
-| `enqueueing_label` | string | The label that submits a PR when label commands are enabled. See [Enqueueing label](./advanced-settings#enqueueing-label). |
-| `state_labels_enabled` | Boolean | Whether Trunk labels PRs with their queue state. See [State Labels](./advanced-settings#state-labels). |
-| `extension_enabled` | Boolean | Whether the Trunk browser extension shows merge queue controls. See [Browser Extension](./advanced-settings#browser-extension). |
-| `not_ready_timeout_hours` | integer | Hours a submitted PR can wait to enter the queue before it is cancelled. `0` disables the timeout. |
-| `required_statuses` | list(string) | CI status checks that must pass, overriding branch protection and `.trunk/trunk.yaml`. See [Required statuses](#required-statuses) below. |
+| `create_prs_for_testing_branches` | Boolean | See [Draft pull request creation](./advanced-settings#draft-pull-request-creation). |
+| `test_branch_construction_mode` | string | `"rename_temp_branch"` or `"push_new_branch_from_temp"`. Use the second when a GitHub ruleset on `trunk-temp/` branches blocks renaming them. |
+| `comments_enabled` | Boolean | See [GitHub comments](./advanced-settings#github-comments). |
+| `commands_enabled` | Boolean | See [GitHub commands](./advanced-settings#github-commands). |
+| `status_check_enabled` | Boolean | See [GitHub Statuses](./advanced-settings#github-statuses). |
+| `label_commands_enabled` | Boolean | See [Label Commands](./advanced-settings#label-commands). |
+| `enqueueing_label` | string | See [Enqueueing label](./advanced-settings#enqueueing-label). |
+| `state_labels_enabled` | Boolean | See [State Labels](./advanced-settings#state-labels). |
+| `extension_enabled` | Boolean | See [Browser Extension](./advanced-settings#browser-extension). |
+| `not_ready_timeout_hours` | integer | Hours a submitted PR may wait to enter the queue before it's cancelled. `0` means no timeout. |
+| `required_statuses` | set of strings | Checks that must pass. See [Required statuses](#required-statuses). |
+
+With an API key, the v2 API caps some values: for example, `concurrency` at 1000 and `not_ready_timeout_hours` at 720. An apply above a cap fails. [Update a merge queue's configuration](/merge-queue/reference/api-v2/mergequeues/update-a-merge-queues-configuration) lists every limit.
+
+### Read-only attributes
+
+| Attribute | Description |
+| --- | --- |
+| `id` | `{host}/{owner}/{name}/{target_branch}`. |
+| `queue_id` | The queue's v2 ID. Null with the organization API token. |
+| `managed_state` | `"terraform"` when Terraform made the last change to the queue, `"terraform_with_drift"` when something else changed it since, and `"manual"` when Terraform never has. Null with the organization API token. |
 
 ### Required statuses
 
-* **Wrap the list in `sort()`**, or list the checks in that order (uppercase before lowercase). Trunk stores them sorted, and in 1.1.0 any other order fails the apply with **Provider produced inconsistent result after apply**.
-* **Leaving `required_statuses` out removes the override on any apply that updates the queue**, including an override set in the Trunk app, and `terraform plan` doesn't show it. That apply then fails with **Provider produced inconsistent result after apply**. To keep an override, set `required_statuses`.
-* **To remove an override**, remove it in the Trunk app ([Required Status Checks](./advanced-settings#required-status-checks)) and delete `required_statuses` from your configuration. Don't set it to `[]`: in 1.1.0 the API ignores the empty list.
+`required_statuses` overrides `.trunk/trunk.yaml` and branch protection.
+
+* Leave it out to leave the queue's override as it is, including one set in the Trunk app.
+* Set it to `[]` to remove the override, so the queue uses `.trunk/trunk.yaml` or branch protection again.
+* It's a set, so order doesn't matter.
+
+### Batching rules
+
+```hcl
+batching_rules = [
+  { target_pattern = "//db/migrations:*", policy = "isolate" },
+]
+```
+
+`target_pattern` matches an impacted target exactly, or as a prefix when it ends in `*`. `"isolate"` tests a matching PR on its own. Rules only apply in `"parallel"` mode with impacted targets uploaded. Set `batching_rules = []` to remove every rule.
 
 ***
 
@@ -147,13 +186,25 @@ When a merge queue is managed by Terraform, the Trunk UI displays a banner indic
 ![](/assets/merge-queue/administration/terraform-in-sync.png)
 </Frame>
 
-Users can still change settings in the Trunk app, and the app then shows the queue as drifted.
+Users can still change settings in the Trunk app. A change to a setting in your configuration shows up in the next `terraform plan`, and `terraform apply` reverts it. A change to a setting you left out is kept.
 
 <Frame caption="Banner for Merge Queue settings showing that the Merge Queue is managed by Terraform but has since drifted due to settings being changed manually in the UI.">
 ![](/assets/merge-queue/administration/terraform-drift-mergequeue.png)
 </Frame>
 
-A change to a setting in your configuration shows up in the next `terraform plan`, and `terraform apply` reverts it. A change to a setting you left out is kept, except `required_statuses` (see [Required statuses](#required-statuses)).
+Either way, the queue stays marked as drifted, and with an API key `managed_state` reads `"terraform_with_drift"`, until an apply next changes the queue.
+
+***
+
+## Switching modes
+
+Changing `mode` on an existing queue starts a switch: the queue drains (new PRs wait) and switches once it's empty. Until it switches, `terraform plan` shows no change for `mode`, and an apply that changes anything else on the queue fails; apply that change after the switch. To cancel the switch, click **Cancel** next to **Switching to … Mode** in the queue's settings in the Trunk app, then set `mode` back in your configuration, or the next apply starts the switch again.
+
+***
+
+## If creating a queue fails partway
+
+Creating a queue takes more than one request. If a later one fails, the queue exists but isn't fully set up, and Terraform marks it tainted. If the error came from your configuration, such as a value above a cap, fix it first. Then apply: Terraform deletes and recreates the queue. To keep the queue instead, run `terraform untaint trunk_merge_queue.<name>` before you apply.
 
 ***
 
@@ -161,7 +212,7 @@ A change to a setting in your configuration shows up in the next `terraform plan
 
 A merge queue must be empty before it can be deleted. If the queue still has PRs in it, `terraform destroy` fails.
 
-To empty a queue, set `state = "draining"`, apply, and wait for all in-flight PRs to finish testing and merge. Once the queue is empty, run `terraform destroy` or remove the resource from your configuration and apply.
+To empty a queue, set `state = "draining"`, apply, and wait for in-flight PRs to finish. Then run `terraform destroy`, or remove the resource from your configuration and apply.
 
 ***
 
@@ -183,6 +234,9 @@ resource "trunk_merge_queue" "main" {
   batching_min_size              = 4
   batching_max_wait_time_minutes = 5
   can_optimistically_merge       = true
+  batching_rules = [
+    { target_pattern = "//db/migrations:*", policy = "isolate" },
+  ]
 }
 ```
 
@@ -195,16 +249,9 @@ resource "trunk_merge_queue" "main" {
     owner = "my-org"
     name  = "my-repo"
   }
-  target_branch    = "main"
-  concurrency      = 3
-  merge_method     = "squash"
-  commands_enabled = true
-  comments_enabled = true
-  # Sorted; see "Required statuses" above.
-  required_statuses = sort([
-    "ci/build",
-    "ci/lint",
-    "ci/test",
-  ])
+  target_branch     = "main"
+  concurrency       = 3
+  merge_method      = "squash"
+  required_statuses = ["ci/test", "ci/build", "ci/lint"]
 }
 ```
