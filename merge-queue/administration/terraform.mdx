@@ -31,7 +31,7 @@ provider "trunk" {
 }
 ```
 
-The provider picks the API from the credential. An API key (starts with `trunk_v2_`) uses the [v2 API](/merge-queue/reference/api-v2). The organization API token, in the **Organization API token (v1)** section of the same page, also works but uses the v1 API, which will be deprecated soon. With the token, `queue_id` and `managed_state` stay null, and importing by ID and `batching_max_wait_time_minutes = 0` aren't available.
+The provider picks the API from the credential. An API key (starts with `trunk_v2_`) uses the [v2 API](/merge-queue/reference/api-v2). The organization API token, in the **Organization API token (v1)** section of **Settings** → **Developer** → **API Keys**, also works but uses the v1 API, which will be deprecated soon. With the token, `queue_id` and `managed_state` stay null, and importing by ID and `batching_max_wait_time_minutes = 0` aren't available.
 
 `base_url` (or `TRUNK_BASE_URL`) sets the API host. It defaults to `https://api.trunk.io`.
 

@@ -70,7 +70,7 @@ The organization API token uses the v1 API, which will be deprecated soon. To mo
 1. [Create an API key](/merge-queue/reference/api-v2/authentication#create-an-api-key) with the **Update Merge Queue settings** permission.
 2. The v2 API caps some values that v1 doesn't (see [Settings](./terraform#settings)). Lower any value in your configuration above a cap.
 3. Replace the token with the key, in `TRUNK_API_KEY` or `api_key`.
-4. Run `terraform plan`. It shows no changes. `queue_id` and `managed_state` fill in on the next refresh.
+4. Run `terraform plan`. It shows no changes, apart from any value you lowered in step 2. `queue_id` and `managed_state` fill in on your next `terraform apply`.
 
 ## Checklist
 
