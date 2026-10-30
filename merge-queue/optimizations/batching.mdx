@@ -238,7 +238,7 @@ Test caching does **not** apply to:
 
 ### Enabling it
 
-Test caching is off unless you turn it on. In the **Merge Queue** tab, select your queue, click **Settings**, and enable **Skip Redundant Bisection Tests** under **Batching**. You can also set it with `optimizationMode: bisectionSkipRedundantTests` when you [update a queue through the API](/merge-queue/reference/api-v2/mergequeues/update-a-merge-queues-configuration), or with `optimization_mode = "BISECTION_SKIP_REDUNDANT_TESTS"` in [Terraform](../administration/terraform).
+Test caching is off unless you turn it on. In the **Merge Queue** tab, select your queue, click **Settings**, and enable **Skip Redundant Bisection Tests** under **Batching**. You can also set it with `optimizationMode: bisectionSkipRedundantTests` when you [update a queue through the API](/merge-queue/reference/api-v2/mergequeues/update-a-merge-queues-configuration), or with `optimization_mode = "bisection_skip_redundant_tests"` in [Terraform](../administration/terraform).
 
 <Warning>
 A reused failure isn't re-run. Most PRs covered by a reused failure are just split and re-tested, but when it singles out one PR, that PR is removed from the queue without failing a test of its own. If the original failure was flaky, that PR is removed even though nothing is wrong with it. If your queue sees a lot of flaky failures, consider leaving this setting off, or pair it with [Anti-flake protection](./anti-flake-protection).
