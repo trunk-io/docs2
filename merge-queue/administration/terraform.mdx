@@ -5,14 +5,14 @@ og:title: "Manage Trunk Merge Queue with Terraform"
 ---
 The [trunk-io/trunk](https://registry.terraform.io/providers/trunk-io/trunk/latest) Terraform provider lets you manage merge queue configuration as infrastructure as code. Define your queue settings in Terraform, track changes in version control, and apply them consistently across repositories.
 
-The provider currently supports the `trunk_merge_queue` resource for creating, updating, importing, and deleting merge queues.
+The provider supports the `trunk_merge_queue` resource for creating, updating, importing, and deleting merge queues.
 
-**Current version:** `0.1.3`
+**Current version:** `1.1.0`
 
 ## Prerequisites
 
 * [Terraform](https://developer.hashicorp.com/terraform/install) >= 1.0
-* Your organization API token. See [Finding your API token](/setup-and-administration/apis#finding-your-api-token) for where to find or create one.
+* Your organization API token, from the **Organization API token (v1)** section of **Settings** → **Developer** → **API Keys** in the Trunk app. See [Finding your API token](/setup-and-administration/apis#finding-your-api-token).
 * A repository connected to Trunk
 
 ## Authentication
@@ -46,7 +46,7 @@ terraform {
   required_providers {
     trunk = {
       source  = "trunk-io/trunk"
-      version = "0.1.3"
+      version = "~> 1.1"
     }
   }
 }
@@ -64,7 +64,9 @@ resource "trunk_merge_queue" "main" {
 }
 ```
 
-Run `terraform plan` to preview changes and `terraform apply` to apply them. If a merge queue already exists for the specified repository and branch, the provider will import it automatically rather than creating a duplicate.
+Run `terraform plan` to preview changes and `terraform apply` to apply them.
+
+If a merge queue already exists for the repository and branch, `terraform apply` fails with **Merge queue already exists**. [Import](#importing-existing-queues) the queue instead of creating it.
 
 ***
 
@@ -76,13 +78,15 @@ Merge queues created through the UI or API can be imported into Terraform. This 
 terraform import trunk_merge_queue.main github.com/my-org/my-repo/main
 ```
 
-The import ID format is `{host}/{owner}/{name}/{target_branch}`.
+The import ID format is `{host}/{owner}/{name}/{target_branch}`. Branch names may contain slashes.
 
 After importing, run `terraform plan` to compare the Terraform configuration against the current queue settings. Resolve any differences before running `terraform apply`.
 
 ***
 
 ## Resource Reference: `trunk_merge_queue`
+
+Values are lowercase, as written in the tables below. Uppercase values such as `"SQUASH"` fail validation.
 
 ### Required Attributes
 
@@ -97,35 +101,41 @@ After importing, run `terraform plan` to compare the Terraform configuration aga
 The `repo` and `target_branch` attributes are immutable. Changing any of them will destroy the existing queue and create a new one.
 </Note>
 
-### Optional Attributes With API Defaults
+### Optional Attributes
 
-These attributes are computed by the API if not specified. You only need to set them if you want to override the defaults.
-
-| Attribute | Type | Default | Description |
-| --- | --- | --- | --- |
-| `mode` | string | `"single"` | Queue mode: `"single"` or `"parallel"`. See [Merge Queue mode](./advanced-settings#merge-queue-mode). |
-| `concurrency` | integer | API default | Number of PRs that can test simultaneously (minimum 1). See [Testing concurrency](./advanced-settings#testing-concurrency). |
-| `state` | string | `"RUNNING"` | Queue state: `"RUNNING"`, `"PAUSED"`, or `"DRAINING"`. See [Merge Queue state](./advanced-settings#merge-queue-state). |
-
-### Other Optional Attributes
+An optional attribute you leave out keeps the queue's current value, or the default for a new queue. `required_statuses` is the exception; see [Required statuses](#required-statuses).
 
 | Attribute | Type | Description |
 | --- | --- | --- |
-| `testing_timeout_minutes` | integer | Maximum minutes to wait for tests before auto-cancellation. See [Timeout for tests to complete](./advanced-settings#timeout-for-tests-to-complete). |
+| `mode` | string | `"single"` (default) or `"parallel"`. See [Merge Queue mode](./advanced-settings#merge-queue-mode). |
+| `concurrency` | integer | Number of PRs that can test simultaneously (minimum 1). See [Testing concurrency](./advanced-settings#testing-concurrency). |
+| `state` | string | `"running"` (default), `"paused"`, or `"draining"`. See [Merge Queue state](./advanced-settings#merge-queue-state). |
+| `testing_timeout_minutes` | integer | Maximum minutes to wait for tests before auto-cancellation (minimum 1). See [Timeout for tests to complete](./advanced-settings#timeout-for-tests-to-complete). |
 | `pending_failure_depth` | integer | Number of successor test runs to wait on before transitioning a failed group. See [Pending failure depth](../optimizations/pending-failure-depth). |
 | `can_optimistically_merge` | Boolean | Enable [optimistic merging](../optimizations/optimistic-merging). |
 | `batch` | Boolean | Enable [batching](../optimizations/batching). |
-| `batching_max_wait_time_minutes` | integer | Maximum minutes to wait for a batch to fill. `0` means no wait. |
+| `batching_max_wait_time_minutes` | integer | Maximum minutes to wait for a batch to fill (minimum 1). |
 | `batching_min_size` | integer | Minimum number of PRs in a batch before testing begins. |
-| `merge_method` | string | How PRs are merged: `"MERGE_COMMIT"`, `"SQUASH"`, or `"REBASE"`. See [Merge Method](./advanced-settings#merge-method). |
+| `bisection_concurrency` | integer | Concurrency for bisection testing during batch failure isolation (minimum 1). See [Bisection Concurrency](./advanced-settings#bisection-concurrency). |
+| `optimization_mode` | string | `"off"` or `"bisection_skip_redundant_tests"`. See [Test caching during bisection](../optimizations/batching#test-caching-during-bisection). |
+| `merge_method` | string | How PRs are merged: `"merge_commit"`, `"squash"`, or `"rebase"`. See [Merge Method](./advanced-settings#merge-method). |
+| `direct_merge_mode` | string | `"off"` or `"always"`. See [Direct merge to main](../optimizations/direct-merge-to-main). |
+| `create_prs_for_testing_branches` | Boolean | Create draft PRs for testing branches. See [Draft pull request creation](./advanced-settings#draft-pull-request-creation). |
 | `comments_enabled` | Boolean | Whether Trunk posts status comments on PRs. See [GitHub comments](./advanced-settings#github-comments). |
 | `commands_enabled` | Boolean | Whether `/trunk` slash commands are enabled. See [GitHub commands](./advanced-settings#github-commands). |
-| `create_prs_for_testing_branches` | Boolean | Create draft PRs for testing branches. See [Draft pull request creation](./advanced-settings#draft-pull-request-creation). |
-| `status_check_enabled` | Boolean | Whether Trunk posts a status check on PRs. |
-| `direct_merge_mode` | string | `"OFF"` or `"ALWAYS"`. See [Direct merge to main](../optimizations/direct-merge-to-main). |
-| `optimization_mode` | string | `"OFF"` or `"BISECTION_SKIP_REDUNDANT_TESTS"`. |
-| `bisection_concurrency` | integer | Concurrency for bisection testing during batch failure isolation. See [Bisection Concurrency](./advanced-settings#bisection-concurrency). |
-| `required_statuses` | list(string) | CI status checks that must pass. Set to `null` to use branch protection defaults. Set to `[]` to explicitly require no statuses. See [Required Status Checks](./advanced-settings#required-status-checks). |
+| `status_check_enabled` | Boolean | Whether Trunk posts a status check on PRs. See [GitHub Statuses](./advanced-settings#github-statuses). |
+| `label_commands_enabled` | Boolean | Whether a GitHub label can submit a PR. See [Label Commands](./advanced-settings#label-commands). |
+| `enqueueing_label` | string | The label that submits a PR when label commands are enabled. See [Enqueueing label](./advanced-settings#enqueueing-label). |
+| `state_labels_enabled` | Boolean | Whether Trunk labels PRs with their queue state. See [State Labels](./advanced-settings#state-labels). |
+| `extension_enabled` | Boolean | Whether the Trunk browser extension shows merge queue controls. See [Browser Extension](./advanced-settings#browser-extension). |
+| `not_ready_timeout_hours` | integer | Hours a submitted PR can wait to enter the queue before it is cancelled. `0` disables the timeout. |
+| `required_statuses` | list(string) | CI status checks that must pass, overriding branch protection and `.trunk/trunk.yaml`. See [Required statuses](#required-statuses) below. |
+
+### Required statuses
+
+* **List the checks in alphabetical order.** Trunk stores them sorted, and in 1.1.0 any other order fails the apply with **Provider produced inconsistent result after apply**.
+* **Leaving `required_statuses` out removes the override whenever an apply updates the queue**, so the queue uses `.trunk/trunk.yaml` or branch protection. That includes an override someone set in the Trunk app. Set `required_statuses` in your configuration to keep one.
+* Don't set `required_statuses = []`. An empty override isn't possible, and in 1.1.0 the API ignores the empty list.
 
 ***
 
@@ -161,11 +171,7 @@ If your team adjusts settings through the UI, run `terraform plan` periodically 
 
 A merge queue must be empty before it can be deleted. If the queue still has PRs in it, `terraform destroy` will fail.
 
-To empty a queue, you can set `state = "DRAINING"` and wait for all in-flight PRs to finish testing and merge. Once the queue is empty, run `terraform destroy` or remove the resource from your configuration and apply.
-
-<Note>
-Terraform will fail to delete a queue that still has PRs in it. Ensure the queue is empty before destroying the resource.
-</Note>
+To empty a queue, set `state = "draining"`, apply, and wait for all in-flight PRs to finish testing and merge. Once the queue is empty, run `terraform destroy` or remove the resource from your configuration and apply.
 
 ***
 
@@ -201,13 +207,14 @@ resource "trunk_merge_queue" "main" {
   }
   target_branch    = "main"
   concurrency      = 3
-  merge_method     = "SQUASH"
+  merge_method     = "squash"
   commands_enabled = true
   comments_enabled = true
+  # In alphabetical order; see "Required statuses" above.
   required_statuses = [
     "ci/build",
-    "ci/test",
     "ci/lint",
+    "ci/test",
   ]
 }
 ```
