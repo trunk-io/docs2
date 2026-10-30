@@ -105,7 +105,7 @@ After importing, run `terraform plan` to compare the configuration against the q
 
 ## Resource reference: `trunk_merge_queue`
 
-Values are lowercase, as written below. The [Registry documentation](https://registry.terraform.io/providers/trunk-io/trunk/latest/docs/resources/merge_queue) has the full description of each attribute.
+Values are lowercase, as written below.
 
 ### Required attributes
 
@@ -163,7 +163,7 @@ With an API key, the v2 API caps some values: for example, `concurrency` at 1000
 `required_statuses` overrides `.trunk/trunk.yaml` and branch protection.
 
 * Leave it out to leave the queue's override as it is, including one set in the Trunk app.
-* Set it to `[]` to remove the override, so the queue uses `.trunk/trunk.yaml` or branch protection again. An override can't be empty.
+* Set it to `[]` to remove the override, so the queue uses `.trunk/trunk.yaml` or branch protection again.
 * It's a set, so order doesn't matter.
 
 ### Batching rules
@@ -186,25 +186,25 @@ When a merge queue is managed by Terraform, the Trunk UI displays a banner indic
 ![](/assets/merge-queue/administration/terraform-in-sync.png)
 </Frame>
 
-Users can still change settings in the Trunk app. A change to a setting in your configuration shows up in the next `terraform plan`, and `terraform apply` reverts it. A change to a setting you left out is kept. Either way, the app shows the queue as drifted.
+Users can still change settings in the Trunk app. A change to a setting in your configuration shows up in the next `terraform plan`, and `terraform apply` reverts it. A change to a setting you left out is kept.
 
 <Frame caption="Banner for Merge Queue settings showing that the Merge Queue is managed by Terraform but has since drifted due to settings being changed manually in the UI.">
 ![](/assets/merge-queue/administration/terraform-drift-mergequeue.png)
 </Frame>
 
-The queue stays marked as drifted, and with an API key `managed_state` reads `"terraform_with_drift"`, until an apply next changes the queue.
+Either way, the queue stays marked as drifted, and with an API key `managed_state` reads `"terraform_with_drift"`, until an apply next changes the queue.
 
 ***
 
 ## Switching modes
 
-Changing `mode` on an existing queue starts a switch: the queue drains (new PRs wait) and switches once it's empty. Until then, `terraform plan` shows the new mode, and an apply that changes anything else on the queue fails. To cancel the switch, click **Cancel** next to **Switching to … Mode** in the queue's settings in the Trunk app, then set `mode` back in your configuration, or the next apply starts the switch again.
+Changing `mode` on an existing queue starts a switch: the queue drains (new PRs wait) and switches once it's empty. Until it switches, `terraform plan` shows no change for `mode`, and an apply that changes anything else on the queue fails; apply that change after the switch. To cancel the switch, click **Cancel** next to **Switching to … Mode** in the queue's settings in the Trunk app, then set `mode` back in your configuration, or the next apply starts the switch again.
 
 ***
 
-## If a create fails partway
+## If creating a queue fails partway
 
-Creating a queue takes more than one request. If a later one fails, the queue exists but isn't fully set up. Terraform records it as tainted, so the next apply deletes and recreates it. To keep the queue and finish setting it up instead, run `terraform untaint trunk_merge_queue.<name>`, then apply. Either way, fix the error first if it came from your configuration, such as a value above a cap.
+Creating a queue takes more than one request. If a later one fails, the queue exists but isn't fully set up, and Terraform marks it tainted. If the error came from your configuration, such as a value above a cap, fix it first. Then apply: Terraform deletes and recreates the queue. To keep the queue instead, run `terraform untaint trunk_merge_queue.<name>` before you apply.
 
 ***
 
