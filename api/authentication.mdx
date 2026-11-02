@@ -20,20 +20,16 @@ curl https://api.trunk.io/v2/merge-queues \
   -H "Authorization: Bearer $TRUNK_API_KEY"
 ```
 
-API keys belong to the organization, not to the user who created them, so they keep working after their creator leaves. There's no limit on how many keys you create. Give each integration its own key, with only the permissions it uses.
-
 Separate keys don't get separate limits. Most requests share one organization-wide limit, so one busy key can cause `429`s for every other integration. See [Rate limits](/api/rate-limits).
 
 ### Create an API key
 
-Only an organization admin can create an API key. In the [Trunk app](https://app.trunk.io):
-
-1. Navigate to **Settings** → **Developer** → **API Keys** and click the **Create Key** button.
+1. In the [Trunk app](https://app.trunk.io), navigate to **Settings** → **Developer** → **API Keys** and click the **Create Key** button.
 2. Name the key after what will use it, such as `ci-submit` or `grafana`. Names must be unique among your organization's active keys.
 3. Select the [permissions](#permissions) the key needs. None are selected by default.
 4. Copy the key and store it in your secret manager. The key is shown only once. If you lose it, delete it and create a new one.
 
-Keys start with `trunk_v2_`, so you can add that prefix to your secret scanner. To trace a leaked value to its key, match its first characters in the **API Keys** list, which also shows who created each key.
+Keys start with `trunk_v2_`, so you can add that prefix to your secret scanner. To trace a value to its key, match its first characters in the **API Keys** list, which also shows who created each key.
 
 ### Permissions
 
@@ -54,15 +50,6 @@ Each permission adds writes:
 | **Upload test results** (Flaky Tests) | Upload test results from CI, including looking up which tests are quarantined before the upload. | Test-results uploads through the API. The Trunk Analytics CLI and `trunk-io/analytics-uploader` don't use it yet |
 
 A request's permissions come from its body as well as its endpoint. For example, a submit that sets a priority needs both **Merge and cancel PRs** and **Set priority on PRs**. If the key doesn't have a permission that the request needs, the API returns `403 INSUFFICIENT_PERMISSIONS` and changes nothing.
-
-### Change or delete a key
-
-An organization admin manages keys in the same **API Keys** list.
-
-- To change a key's permissions, open the key and edit them. Its value stays the same, and the change applies within a minute.
-- To delete a leaked or unused key, open the key's menu and click **Delete**. Deletion takes effect on the next request. You can't undo a deletion.
-
-To rotate a key, create its replacement and deploy it. Then wait until the old key's last-used time in the **API Keys** list stops changing for more than an hour, and delete the old key. The last-used time changes at most once an hour, so it can be up to an hour behind the key's real last use.
 
 ## GitHub Actions
 
@@ -86,10 +73,6 @@ The login has these limits:
 
 For the workflow, fork setup, and security details, see [Upload impacted targets from GitHub Actions](/merge-queue/optimizations/parallel-queues/github-actions). The [Bazel](/merge-queue/optimizations/parallel-queues/bazel) and [Nx](/merge-queue/optimizations/parallel-queues/nx) actions use this login when you set `auth: github-actions`.
 
-## The `x-trunk-token` header
-
-Endpoint pages also list `x-trunk-token`. This header carries a short-lived Trunk login that Trunk's own tools use: the `trunk` CLI after `trunk auth login`, and `trunk-io/login`. Use an API key instead, and never send both headers on one request.
-
 ## Authentication errors
 
 Trunk checks credentials at its edge, so some authentication failures don't have the [error envelope](/api/errors#error-envelope). Branch on the status code:
@@ -97,7 +80,7 @@ Trunk checks credentials at its edge, so some authentication failures don't have
 | Status | Means | What to do |
 | --- | --- | --- |
 | `401` | The credential is malformed, expired, deleted, or not a Trunk credential. | Check the key's value and that it hasn't been deleted. |
-| `403` with no error envelope | The request has no credential, a GitHub Actions login on an endpoint other than the impacted-targets upload, or an `x-trunk-token` with no organization selected. | Send an API key as `Authorization: Bearer <key>`. |
+| `403` with no error envelope | The request has no credential, or a GitHub Actions login on an endpoint other than the impacted-targets upload. | Send an API key as `Authorization: Bearer <key>`. |
 | `403 INSUFFICIENT_PERMISSIONS` | The credential is valid, but not permitted to make this request. Nothing was changed. | Add the [permission](#permissions) to the key, or use a key that holds it. |
 | `404` | The resource doesn't exist, or it belongs to another organization. The API doesn't distinguish the two. | Check the ID, and that the key belongs to the organization that owns the resource. |
 
