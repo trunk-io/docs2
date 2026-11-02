@@ -1,0 +1,15 @@
+---
+title: "Merge Queue: Fork PR login error names the right setting"
+description: "The trunk-io/login error for a refused fork pull request now names the Impacted targets from fork PRs setting, matching the Trunk app."
+date: 2026-11-02
+category: Merge Queue
+type: fix
+---
+
+**The fork pull request login error now uses the same setting name as the Trunk app.**
+
+### Bug fixes
+
+- **Consistent setting name.** When Trunk refuses a fork pull request's login, the error now points you to **Impacted targets from fork PRs**. Previously it used an older name, **Fork PR CI access**, which didn't match the toggle in the app. The fix ships in Trunk CLI 0.0.13, which `trunk-io/login@v1` (v1.0.1) installs by default. You don't need to change your workflow.
+
+To accept impacted target uploads from forks, turn the setting on under **Merge Queue** → **Settings** → **GitHub**. See [Allow uploads from forks](/merge-queue/reference/api-v2/github-actions#allow-uploads-from-forks) and [Impacted targets from fork PRs](/merge-queue/administration/advanced-settings#impacted-targets-from-fork-prs).
