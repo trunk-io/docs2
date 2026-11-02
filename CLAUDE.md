@@ -77,7 +77,9 @@ descriptions in the spec start with "**Internal.**", which marks them.
   break shows only when you are signed out. `public: true` does not help.
 - To redirect to a directory page, serve it from `<dir>.mdx` beside `<dir>/`:
   the URL stays the same. Relative links resolve against the **file**, so a
-  moved file's relative links must change (write them absolute).
+  moved file's relative links must change (write them absolute). Do not add a
+  `/<dir>/index` → `/<dir>` redirect: Mintlify reads that source as `/<dir>`, so
+  the page redirects to itself.
 - `python3 scripts/check-redirects.py` enforces this in CI. `--live <url>`
   requests every source signed out; a daily job runs it against docs.trunk.io,
   because a change on Mintlify's side would pass the static check.
