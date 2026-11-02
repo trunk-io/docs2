@@ -82,6 +82,6 @@ Trunk checks credentials at its edge, so some authentication failures don't have
 | `401` | The credential is malformed, expired, deleted, or not a Trunk credential. | Check the key's value and that it hasn't been deleted. |
 | `403` with no error envelope | The request has no credential, or a GitHub Actions login on an endpoint other than the impacted-targets upload. | Send an API key as `Authorization: Bearer <key>`. |
 | `403 INSUFFICIENT_PERMISSIONS` | The credential is valid, but not permitted to make this request. Nothing was changed. | Add the [permission](#permissions) to the key, or use a key that holds it. |
-| `404` | The resource doesn't exist, or it belongs to another organization. The API doesn't distinguish the two. | Check the ID, and that the key belongs to the organization that owns the resource. |
+| `404` | The resource doesn't exist. | Check the ID. |
 
 Endpoint pages may show `401` with the codes `AUTHENTICATION_REQUIRED` or `INVALID_TOKEN` in the envelope. Treat those as examples of the status, not as the body you'll always receive.

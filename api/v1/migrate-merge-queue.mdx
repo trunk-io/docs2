@@ -358,4 +358,4 @@ A `testRunId` stored from v1 is the same ID in v2. If it ends in v1's `-bisectio
 - [ ] `notReadyTimeoutHours` values are converted to minutes.
 - [ ] Code that resubmitted a queued pull request to change its priority now calls `reprioritize` or `PATCH …/queue-entry`.
 - [ ] Code that sent `requiredStatuses: []` meant to clear the list.
-- [ ] Error handling switches on `error.code` when the body has an `error` object, otherwise on the status code, and treats `404` as possibly "not yours".
+- [ ] Error handling switches on `error.code` when the body has an `error` object, otherwise on the status code.

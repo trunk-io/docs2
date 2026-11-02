@@ -21,14 +21,12 @@ The Trunk API uses conventional HTTP status codes to show whether a request succ
 | `400 Bad Request` | The request isn't valid. For example, a parameter is missing or has the wrong type. |
 | `401 Unauthorized` | The credential is missing, malformed, expired, or deleted. See [Authentication errors](/api/authentication#authentication-errors). |
 | `403 Forbidden` | The credential is valid, but it isn't permitted to make this request. |
-| `404 Not Found` | The resource doesn't exist, **or it belongs to another organization**. |
+| `404 Not Found` | The resource doesn't exist. |
 | `409 Conflict` | The request conflicts with the resource's current state. For example, the pull request is already in the queue. |
 | `413 Content Too Large` | The request body is larger than 512 KB. |
 | `422 Unprocessable Content` | The request is valid, but Trunk can't do it in the current state. If you send it again with no change, you get the same response. |
 | `429 Too Many Requests` | The request is over a [rate limit](/api/rate-limits). |
 | `500`, `502`, `503`, `504` | An error occurred at Trunk, or the request took longer than its time limit, usually 5 seconds. |
-
-**A `404` can mean "not yours".** If a resource is in another organization, a read returns `404`, not `403`. So the API never shows that a resource exists in another organization.
 
 ## Error envelope
 
@@ -71,14 +69,14 @@ Read `error.code` only when the body is JSON with an `error` object. Otherwise, 
 | `401` | `INVALID_TOKEN` | The credential isn't valid. |
 | `403` | `INSUFFICIENT_PERMISSIONS` | The credential isn't permitted to make this request. See [Permissions](/api/authentication#permissions). |
 | `404` | `NOT_FOUND` | The path or resource doesn't exist. |
-| `404` | `REPOSITORY_NOT_FOUND`, `PROVIDER_URL_NOT_FOUND` | Trunk doesn't know the repository, or it isn't yours. |
-| `404` | `MERGE_QUEUE_NOT_FOUND` | The merge queue doesn't exist, or it isn't yours. |
-| `404` | `PR_NOT_FOUND` | The pull request doesn't exist, or it isn't yours. |
-| `404` | `VERIFICATION_RUN_NOT_FOUND` | The verification run doesn't exist, or it isn't yours. |
+| `404` | `REPOSITORY_NOT_FOUND`, `PROVIDER_URL_NOT_FOUND` | Trunk doesn't know the repository. |
+| `404` | `MERGE_QUEUE_NOT_FOUND` | The merge queue doesn't exist. |
+| `404` | `PR_NOT_FOUND` | The pull request doesn't exist. |
+| `404` | `VERIFICATION_RUN_NOT_FOUND` | The verification run doesn't exist. |
 | `404` | `ESTIMATE_NOT_ENABLED` | The queue doesn't give merge estimates. |
-| `404` | `TEST_COLLECTION_NOT_FOUND` | The test collection doesn't exist, or it isn't yours. |
-| `404` | `TEST_NOT_FOUND` | The test doesn't exist, or it isn't yours. |
-| `404` | `TEST_UPLOAD_NOT_FOUND` | The test upload doesn't exist, or it isn't yours. |
+| `404` | `TEST_COLLECTION_NOT_FOUND` | The test collection doesn't exist. |
+| `404` | `TEST_NOT_FOUND` | The test doesn't exist. |
+| `404` | `TEST_UPLOAD_NOT_FOUND` | The test upload doesn't exist. |
 | `409` | `PR_ALREADY_ENQUEUED` | The pull request is already in this queue. Nothing changed. |
 | `409` | `PR_NOT_IN_ACTIVE_STATE` | The pull request isn't in an active queue state. |
 | `409` | `QUEUE_ALREADY_EXISTS` | A merge queue already exists for this repository and branch. |
