@@ -1,0 +1,23 @@
+---
+title: "Merge Queue: Terraform Provider 2.0 and Keyless Impacted-Target Uploads"
+description: "The Terraform provider now accepts API keys and manages more settings, and the Bazel and Nx actions can upload impacted targets without a Trunk secret."
+date: 2026-11-02
+category: Merge Queue
+type: new-feature
+---
+
+**Manage queues with API keys in Terraform, and upload impacted targets without storing a token.**
+
+### New features
+
+- **Terraform provider 2.0.** The `trunk-io/trunk` provider now authenticates with [API keys](/merge-queue/reference/api-v2/authentication). It also manages `test_branch_construction_mode` and `batching_rules`, and with an API key you can import a queue by its ID. Most configurations upgrade unchanged. Check the [migration guide](/merge-queue/administration/terraform-migrate-to-2) first, because leaving out `required_statuses` no longer removes a queue's override. See [Terraform](/merge-queue/administration/terraform).
+- **Bazel and Nx uploads without a Trunk secret.** `trunk-io/bazel-action@v1` and `trunk-io/nx-action@v1` accept `auth: github-actions`. The job signs in with its own GitHub credential and uploads through the v2 API. On public repositories, fork pull requests can upload too once an admin turns on **Fork PR CI access**. See the [Bazel](/merge-queue/optimizations/parallel-queues/bazel) and [Nx](/merge-queue/optimizations/parallel-queues/nx) guides.
+
+### Updates
+
+- **Organization API token moved.** Find it under **Settings** → **Developer** → **API Keys**, in the **Organization API token (v1)** section. The v1 API will be deprecated soon. See [Finding your API token](/setup-and-administration/apis#finding-your-api-token) and [Migrate from the v1 API](/merge-queue/reference/api-v2/migrate-from-v1).
+
+### Bug fixes
+
+- **Terraform keeps queues in state on bad credentials.** A wrong or revoked organization API token, or an unknown repository, now fails the refresh instead of removing the queue from state.
+- **Terraform no longer writes to GitHub Enterprise queues during refresh with the organization API token.** It warns instead. Use an API key to update those queues.
