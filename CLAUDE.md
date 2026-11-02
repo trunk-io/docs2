@@ -58,7 +58,7 @@ pages are public; Workspaces pages stay gated (below).
 ## API reference
 
 All API pages are in the **API Reference** tab, under `/api`. The sidebar is
-ordered by resource, not by product: Getting started (`api/*.mdx`), then one
+ordered by resource, not by product: Getting started (`api.mdx`, `api/*.mdx`), then one
 group per v2 OpenAPI tag, then the legacy v1 group. The v2 endpoint groups
 generate their pages from `openapi-v2.json` into `/api/<tag>/<slug>`, and the v1
 group from `openapi.json` into `/api/v1/<slug>`. Product guides that use the API,
@@ -105,3 +105,11 @@ gh api repos/trunk-io/docs2/deployments/$id/statuses --jq '.[0].environment_url'
 The sidebar renders client-side, so curl will not show it. When checking an
 image, read its `naturalWidth` — a broken image is present in the DOM and
 reports 0.
+
+## Redirects
+
+A redirect whose destination is a page served from an `index.mdx` (such as
+`/runners`) does not work: Mintlify answers it as a missing page, which sends
+the visitor to the login gate. Give a redirect target its own file
+(`api.mdx` next to `api/`, not `api/index.mdx`), or point the redirect at a
+page that is not an `index.mdx`.

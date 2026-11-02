@@ -718,7 +718,7 @@
         "groups": [
           {
             "group": "Getting started",
-            "root": "api/index",
+            "root": "api",
             "pages": [
               "api/authentication",
               "api/errors",
@@ -856,7 +856,7 @@
           },
           {
             "group": "v1 API (legacy)",
-            "root": "api/v1/index",
+            "root": "api/v1",
             "openapi": {
               "source": "/openapi.json",
               "directory": "/api/v1"
