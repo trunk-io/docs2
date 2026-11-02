@@ -67,6 +67,24 @@ that renders the operation from `openapi-v2.json`. When a re-synced spec has
 operations no page lists, do not add these three to the sidebar. Their
 descriptions in the spec start with "**Internal.**", which marks them.
 
+## Redirects
+
+- A redirect's `destination` must be a plain `<page>.mdx` (or `/`), never a
+  directory page (`<dir>/index.mdx`), in any spelling: `/<dir>`, `/<dir>/` and
+  `/<dir>/index` all fail. Mintlify's auth proxy treats such a destination as
+  gated and sends a signed-out reader to `app.trunk.io/mintlify-login`, though
+  the page itself is public. Signed-in readers are redirected normally, so the
+  break shows only when you are signed out. `public: true` does not help.
+- To redirect to a directory page, serve it from `<dir>.mdx` beside `<dir>/`:
+  the URL stays the same. Relative links resolve against the **file**, so a
+  moved file's relative links must change (write them absolute). Do not add a
+  `/<dir>/index` → `/<dir>` redirect: Mintlify reads that source as `/<dir>`, so
+  the page redirects to itself.
+- `python3 scripts/check-redirects.py` enforces this in CI. `--live <url>`
+  requests every source signed out; a daily job runs it against docs.trunk.io,
+  because a change on Mintlify's side would pass the static check.
+- The site root is `/`; there is no `/welcome`.
+
 ## Gated sections
 
 Workspaces is restricted per page with `groups:` frontmatter (`["firewatch"]`).
