@@ -15,7 +15,7 @@ The `lint` section of `.trunk/trunk.yaml` represents the configuration of all li
 
 `bazel`: bazel configuration
 
-* `paths` locations to look for Bazel binary. [Example](../../../../linters/supported/clang-tidy#using-bazel).
+* `paths` locations to look for Bazel binary. [Example](/code-quality/overview/linters/supported/clang-tidy#using-bazel).
 
 ### `comment_formats`
 
@@ -45,15 +45,15 @@ lint:
 
 ### `definitions`
 
-`definitions`: Where you define or override linter settings. See [Linter Definition Config](./definitions).
+`definitions`: Where you define or override linter settings. See [Linter Definition Config](/code-quality/overview/cli/getting-started/configuration/lint/definitions).
 
 ### `disabled`
 
-`disabled`: The list of linters to disable. Adding a linter here will prevent trunk from suggesting it as a new linter each time you upgrade. Linter names can be in the form of `<name>` or `<name>@<version>`, the same format as the [enabled](./#enabled) property.
+`disabled`: The list of linters to disable. Adding a linter here will prevent trunk from suggesting it as a new linter each time you upgrade. Linter names can be in the form of `<name>` or `<name>@<version>`, the same format as the [enabled](/code-quality/overview/cli/getting-started/configuration/lint#enabled) property.
 
 ### `downloads`
 
-`downloads`: Locations to download binary artifacts from. Using [tool definitions](../tools) instead is preferred.
+`downloads`: Locations to download binary artifacts from. Using [tool definitions](/code-quality/overview/cli/getting-started/configuration/tools) instead is preferred.
 
 ### `enabled`
 
@@ -70,7 +70,7 @@ lint:
 
 ### `exported_configs`
 
-`exported_configs`: Linter configs to export when another project is [importing this plugin](../../../../linters/shared-configs)
+`exported_configs`: Linter configs to export when another project is [importing this plugin](/code-quality/overview/linters/shared-configs)
 
 ### `extra_compilation_flags`
 
@@ -84,7 +84,7 @@ Every linter must define the set of filetypes it applies to in the `lint.files` 
 
 New filetypes are defined with the name and extensions properties. They may also include the comments properties to describe what style of comments are used in these files.
 
-This is how the C++ source filetype is defined. See also [Files and Caching](./files-and-caching).
+This is how the C++ source filetype is defined. See also [Files and Caching](/code-quality/overview/cli/getting-started/configuration/lint/files-and-caching).
 
 ```yaml
 lint:
@@ -110,7 +110,7 @@ lint:
 
 ### `runtimes`
 
-`runtimes`: Node, python, cargo, etc. Used to define or override a runtime environment for package management. [See Runtimes](../runtimes).
+`runtimes`: Node, python, cargo, etc. Used to define or override a runtime environment for package management. [See Runtimes](/code-quality/overview/cli/getting-started/configuration/runtimes).
 
 ### `skip_missing_compile_command`
 
@@ -118,7 +118,7 @@ lint:
 
 ### `threshold`
 
-`threshold`: where you specify the blocking behavior of linters. The [threshold](../../../../linters/configure-linters#blocking-thresholds) for whether an error from a linter should block commits or not.
+`threshold`: where you specify the blocking behavior of linters. The [threshold](/code-quality/overview/linters/configure-linters#blocking-thresholds) for whether an error from a linter should block commits or not.
 
 ### `upstream_mode`
 

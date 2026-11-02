@@ -3,11 +3,11 @@ title: "Code Quality CLI"
 ---
 Trunk provides command-line tools for different products. Choose your product below:
 
-* [Trunk Launcher Install](./install): Trunk uses a launcher to automatically install the appropriate CLI for your platform
-* [Trunk Code Quality CLI](./commands-reference/): commands reference
-* [Trunk Code Quality CLI Configuration](./configuration/): the Trunk CLI has its top-level config defined in `.trunk/trunk.yaml`
-* [Trunk Tools CLI](./tools): manage tools used by your repo
-* [Trunk Actions](./actions/): local workflow automation and githooks manager
+* [Trunk Launcher Install](/code-quality/overview/cli/getting-started/install): Trunk uses a launcher to automatically install the appropriate CLI for your platform
+* [Trunk Code Quality CLI](/code-quality/overview/cli/getting-started/commands-reference): commands reference
+* [Trunk Code Quality CLI Configuration](/code-quality/overview/cli/getting-started/configuration): the Trunk CLI has its top-level config defined in `.trunk/trunk.yaml`
+* [Trunk Tools CLI](/code-quality/overview/cli/getting-started/tools): manage tools used by your repo
+* [Trunk Actions](/code-quality/overview/cli/getting-started/actions): local workflow automation and githooks manager
 
 ## Initializing Trunk in a git repo is as simple as running:
 
@@ -15,10 +15,10 @@ Trunk provides command-line tools for different products. Choose your product be
 trunk init
 ```
 
-This will scan your repository and create a `.trunk/trunk.yaml` file which enables all the linters, formatters, and security analyzers that [Trunk C](./code-quality)[ode Quality ](./code-quality)recommends.
+This will scan your repository and create a `.trunk/trunk.yaml` file which enables all the linters, formatters, and security analyzers that [Trunk C](/code-quality/overview/cli/getting-started/code-quality)[ode Quality ](/code-quality/overview/cli/getting-started/code-quality)recommends.
 
 <Info>
-Security-conscious users may want to also record the signature of the CLI, which the [Trunk Launcher](./install#the-trunk-launcher) will use to verify the CLI's provenance:
+Security-conscious users may want to also record the signature of the CLI, which the [Trunk Launcher](/code-quality/overview/cli/getting-started/install#the-trunk-launcher) will use to verify the CLI's provenance:
 
 ```
 trunk init --lock
@@ -29,7 +29,7 @@ trunk init --lock
 
 Trunk is completely controlled through the `trunk.yaml` file. If for example you are not using the `check` tool you can safely remove the `lint` section from the file.
 
-[Learn more about CLI configuration](./configuration/)
+[Learn more about CLI configuration](/code-quality/overview/cli/getting-started/configuration)
 
 ### Single-player mode
 

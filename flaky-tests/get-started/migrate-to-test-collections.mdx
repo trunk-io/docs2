@@ -128,7 +128,7 @@ Leave it off until your consumer is ready and nothing reaches it in the meantime
 
 ## AI agents and the MCP server
 
-The [Trunk MCP server](../reference/mcp-reference/index) reads the same places the Trunk app shows you:
+The [Trunk MCP server](../reference/mcp-reference) reads the same places the Trunk app shows you:
 
 - **While you are migrating**, [`search-test`](../reference/mcp-reference/search-test) and [`investigate-ci-failure`](../reference/mcp-reference/investigate-ci-failure) read both your repositories and your collections. A test can appear once in each, under two different IDs.
 - **Once you have fully migrated**, they read only your collections, and [`fix-flaky-test`](../reference/mcp-reference/fix-flaky-test) is not available yet, because it works only with repository test IDs.
