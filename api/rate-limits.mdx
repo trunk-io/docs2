@@ -1,0 +1,20 @@
+---
+title: "Rate limits"
+og:title: "Trunk API rate limits"
+---
+Trunk limits how many requests your organization can send to the API. A request over a limit gets `429 Too Many Requests`.
+
+## Limits
+
+Most requests share one limit of **100 requests per second per organization**. Separate API keys don't get separate limits, so one busy integration can cause `429`s for all the others.
+
+Some requests have limits of their own and don't count toward the organization limit:
+
+| Requests | Limit |
+| --- | --- |
+| `GET` requests on paths that start with `/v2/pull-requests`, such as `GET /v2/pull-requests/{id}` and its history | 5 per second per API key or user |
+| Merge Queue metrics: `GET /v2/merge-queues/metrics` and `GET /v2/merge-queues/{id}/metrics` | 5 per second per organization |
+| Impacted-target uploads from a [GitHub Actions login](/api/authentication#github-actions) | 10 per second per repository, with a separate limit for fork pull requests |
+
+`GET /v2/merge-queues/{id}/pull-requests` uses the organization limit, not the pull-request limit.
+

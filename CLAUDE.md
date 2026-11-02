@@ -55,6 +55,20 @@ pages are edited here like any other. The `.sync.json` files and the
 "Generated in trunk-io/docs2" comments are leftovers of the sync. Runners
 pages are public; Workspaces pages stay gated (below).
 
+## API reference
+
+All API pages are in the **API Reference** tab, under `/api`. The tab has two
+top-level groups: **Getting started** (`api.mdx`, `api/*.mdx`) and
+**Resources**, which nests one collapsed group per v2 OpenAPI tag, then
+Webhooks and the **Legacy API** group. Nest new resources inside Resources: a
+top-level group renders with a separator, and the resources are meant to read
+as one list. The v2 endpoint groups generate their pages from `openapi-v2.json`
+into `/api/<tag>/<slug>`, and the legacy group from `openapi.json` into
+`/api/v1/<slug>`. In page text, v2 is "the API" and v1 is "the legacy API".
+Product guides that use the API, such as `merge-queue/using-the-queue/api`,
+stay in their product's tab. The old product URLs redirect to `/api` in
+`docs.json`.
+
 ## Hidden API pages
 
 The three v2 endpoints that Trunk's analytics-cli and test-runner plugins call
@@ -84,6 +98,9 @@ descriptions in the spec start with "**Internal.**", which marks them.
   requests every source signed out; a daily job runs it against docs.trunk.io,
   because a change on Mintlify's side would pass the static check.
 - The site root is `/`; there is no `/welcome`.
+- A destination inside an OpenAPI `directory` that `docs.json` names (such as
+  `/api/v1/...`) is a generated endpoint page with no `.mdx` file. The check
+  accepts it without looking for a file.
 
 ## Gated sections
 

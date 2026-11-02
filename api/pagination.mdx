@@ -1,0 +1,59 @@
+---
+title: "Pagination"
+description: "Page through list endpoints with opaque, forward-only cursors."
+og:title: "Trunk API pagination"
+---
+Every endpoint that returns a list is paginated with cursors. All of them take the same parameters and return the same envelope.
+
+## Parameters
+
+| Parameter | Default | Description |
+| --- | --- | --- |
+| `limit` | `25` | The number of items on a page, from 1 to 100. |
+| `cursor` | None | The `nextCursor` value from the previous page. Leave it out to get the first page. |
+| `includeTotal` | `false` | Set to `true` to add a `total` count to the response. Counting costs an extra query, so ask for it only when you need it. |
+
+## Response
+
+```json
+{
+  "data": [],
+  "nextCursor": "AQEKZm9vYmFy",
+  "hasMore": true
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `data` | The items on this page. |
+| `hasMore` | `true` if there is at least one more page. |
+| `nextCursor` | The cursor for the next page. It is `null` on the last page. |
+| `total` | The number of items across all pages. Present only when you send `includeTotal=true`. |
+
+## Get every page
+
+Send `nextCursor` back as `cursor`, and keep the other parameters the same. Stop when `hasMore` is `false`:
+
+```bash
+cursor=""
+while :; do
+  page=$(curl -s "https://api.trunk.io/v2/merge-queues?limit=100${cursor:+&cursor=$cursor}" \
+    -H "Authorization: Bearer $TRUNK_API_KEY")
+  echo "$page" | jq -c '.data[]'
+  [ "$(echo "$page" | jq -r '.hasMore')" = "true" ] || break
+  cursor=$(echo "$page" | jq -r '.nextCursor')
+done
+```
+
+## Cursor rules
+
+- **Cursors are opaque.** Don't parse, change, or build a cursor. Its format can change at any time.
+- **Cursors go forward only.** There is no cursor for the previous page. To go back, start again from the first page.
+- **A cursor works only with the request it came from.** Send it to the same endpoint, with the same filters and sort order. If you change a filter or send the cursor to a different endpoint, you get `400 INVALID_CURSOR`. Only `limit` can change between pages.
+- **Cursors don't expire.** A long export can continue where it stopped. Items deleted between two requests don't appear on later pages.
+
+`400 INVALID_CURSOR` has the same message for every cause, so it doesn't tell you which rule the request broke. Start again from the first page without a cursor.
+
+## Ordering
+
+Each endpoint documents its sort order on its reference page. Some endpoints take `sort` and `direction` parameters. A list endpoint's order is not always the order you expect from the product. For example, a merge queue's pull request list isn't in the order the queue tests them. See [Queue order](/merge-queue/using-the-queue/api#queue-order).

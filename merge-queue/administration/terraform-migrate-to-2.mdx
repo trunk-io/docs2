@@ -59,7 +59,7 @@ Set it to the host, such as `https://api.trunk.io`; a value ending in `/v1` stil
 
 The v1 API, which the organization API token uses, will be deprecated soon. To move to v2:
 
-1. [Create an API key](/merge-queue/reference/api-v2/authentication#create-an-api-key) with the **Update Merge Queue settings** permission.
+1. [Create an API key](/api/authentication#create-an-api-key) with the **Update Merge Queue settings** permission.
 2. Lower any value above a [v2 cap](./terraform#settings).
 3. Replace the token with the key, in `TRUNK_API_KEY` or `api_key`.
 4. Run `terraform apply`. It changes only values you lowered, and records `queue_id` and `managed_state`.

@@ -1,0 +1,52 @@
+---
+title: "Introduction"
+og:title: "Trunk API reference"
+---
+The Trunk API is a REST API for interacting with Trunk services. It accepts and returns JSON, and uses standard HTTP status codes.
+
+The base URL is `https://api.trunk.io`, followed by the version (`/v2` for example).
+
+```bash
+curl https://api.trunk.io/v2/merge-queues \
+  -H "Authorization: Bearer $TRUNK_API_KEY"
+```
+
+## Getting started
+
+<Columns cols={2}>
+  <Card title="Authentication" href="/api/authentication">
+    API keys, permissions, and GitHub Actions logins.
+  </Card>
+  <Card title="Status codes and errors" href="/api/errors">
+    What each status code means, the error envelope, and when to retry.
+  </Card>
+  <Card title="Pagination" href="/api/pagination">
+    Page through lists with cursors.
+  </Card>
+  <Card title="Rate limits" href="/api/rate-limits">
+    The request limits, and how to handle `429`.
+  </Card>
+</Columns>
+
+## Request IDs
+
+Every response from the API has an `X-Request-Id` header. Include it when you contact support about a request. Responses from Trunk's edge, such as some `401` and `429` responses, may not have it.
+
+## Compatibility
+
+On an API version, additions are not considered breaking changes:
+
+- New endpoints.
+- New optional request parameters.
+- New optional response fields.
+- New values in any enum, including new error codes.
+
+A removal or a change in meaning needs a new major version. **Your client must accept fields and values that it doesn't know.** For example, a client that fails on an unknown enum value will break when a new value is added.
+
+## Markdown for agents
+
+Add `.md` to the URL of any page in this reference to get it as Markdown. An endpoint's Markdown page includes its OpenAPI definition.
+
+## Support
+
+Ask us in [Slack](https://slack.trunk.io) or email [support@trunk.io](mailto:support@trunk.io).

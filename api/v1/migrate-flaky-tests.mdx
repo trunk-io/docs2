@@ -1,0 +1,34 @@
+---
+title: "Migrate Flaky Tests from the legacy API"
+description: "Move Flaky Tests integrations from the v1 repository endpoints to the v2 test collection endpoints."
+og:title: "Migrate from the Trunk Flaky Tests v1 API to v2"
+---
+The Flaky Tests v1 endpoints are scoped to a repository. The v2 endpoints are scoped to a [test collection](/flaky-tests/test-collections). If your tests are still organized by repository, first [move them into test collections](/flaky-tests/get-started/migrate-to-test-collections).
+
+The two scopes are separate APIs, not two versions of one API. So not every v1 endpoint has a v2 equivalent with the same shape.
+
+## What changes
+
+- **Credential.** v1 uses the organization API token in `x-api-token`. v2 uses an [API key](/api/authentication#api-keys) in `Authorization: Bearer <key>`. Any API key can call the Flaky Tests endpoints. They need no [permission](/api/authentication#permissions).
+- **Base URL.** v1 paths go after `https://api.trunk.io/v1`. v2 paths already start with `/v2`, so they go after `https://api.trunk.io`.
+- **Method.** v1 endpoints are `POST` with a JSON body. v2 reads are `GET` with query parameters.
+- **Lists.** v2 lists are [paginated](/api/pagination) with cursors.
+- **Errors.** v2 errors use the [error envelope](/api/errors#error-envelope). Switch on `error.code`.
+
+## Endpoint map
+
+| If you want to | Repository endpoint | Collection endpoint |
+|---|---|---|
+| Read one test | [Get the details of a test case](/api/v1/get-the-details-of-a-test-case) | [Get a test](/api/tests/get-a-test) |
+| Find unhealthy tests | [Get a list of unhealthy tests](/api/v1/get-a-list-of-unhealthy-tests) | [List and search tests](/api/tests/list-and-search-tests), filtered by status |
+| Find quarantined tests | [Get a list of quarantined tests](/api/v1/get-a-list-of-quarantined-tests) | [List and search tests](/api/tests/list-and-search-tests), filtered by quarantine state |
+| Find recent failures | [Get a list of distinct tests that failed](/api/v1/get-a-list-of-distinct-tests-that-failed-in-the-given-time-range) | [List a test's runs](/api/tests/list-a-tests-runs) |
+| Link a ticket to a test | [Link a ticket to a test case](/api/v1/link-a-ticket-to-a-test-case) | [Link a ticket to a test](/api/tests/link-a-ticket-to-a-test) |
+| File a new ticket for a test | *Not applicable* | [Create a ticket for a test](/api/tests/create-a-ticket-for-a-test) |
+| List or create collections | *Not applicable* | [List](/api/testcollections/list-test-collections) / [Create a test collection](/api/testcollections/create-a-test-collection) |
+
+<Note>
+A test's ID is not the same value in both scopes, so an ID read from a repository endpoint can't be passed to a collection endpoint or vice versa. The repository's `repository.id` is the only identifier the two share.
+</Note>
+
+Tools that don't accept API keys yet, including the Trunk Analytics CLI, `trunk-io/analytics-uploader`, and the Trunk MCP server's token sign-in, still need the organization API token.

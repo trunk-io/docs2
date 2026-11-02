@@ -27,6 +27,29 @@ def page_exists(path: str) -> bool:
     return (ROOT / f"{path}.mdx").is_file()
 
 
+def openapi_directories(node: object) -> set[str]:
+    """The directories Mintlify writes generated endpoint pages to, from docs.json."""
+    found: set[str] = set()
+    if isinstance(node, dict):
+        spec = node.get("openapi")
+        if isinstance(spec, dict) and isinstance(spec.get("directory"), str):
+            found.add(spec["directory"].strip("/"))
+        for value in node.values():
+            found |= openapi_directories(value)
+    elif isinstance(node, list):
+        for value in node:
+            found |= openapi_directories(value)
+    return found
+
+
+GENERATED_DIRS = openapi_directories(json.loads(DOCS_JSON.read_text())["navigation"])
+
+
+def generated_page(path: str) -> bool:
+    """A page Mintlify generates from an OpenAPI operation has no .mdx file."""
+    return any(path.startswith(f"{directory}/") for directory in GENERATED_DIRS)
+
+
 def gated(path: str) -> bool:
     page = ROOT / f"{path}.mdx"
     if not page.is_file():
@@ -45,7 +68,7 @@ def destination_problem(destination: str) -> str | None:
         if not any((ROOT / prefix).glob("**/*.mdx")):
             return f"is a wildcard over {prefix}/, which holds no pages"
         return None
-    if page_exists(path):
+    if page_exists(path) or generated_page(path):
         return None
     if page_exists(f"{path}/index"):
         return f"is a directory page; serve it from {path}.mdx"

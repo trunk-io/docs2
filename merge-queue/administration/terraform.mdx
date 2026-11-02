@@ -10,7 +10,7 @@ The [trunk-io/trunk](https://registry.terraform.io/providers/trunk-io/trunk/late
 ## Prerequisites
 
 * [Terraform](https://developer.hashicorp.com/terraform/install) >= 1.0
-* A Trunk [API key](/merge-queue/reference/api-v2/authentication#create-an-api-key) with the **Update Merge Queue settings** permission, created by an organization admin
+* A Trunk [API key](/api/authentication#create-an-api-key) with the **Update Merge Queue settings** permission, created by an organization admin
 * A repository connected to Trunk
 
 ## Authentication
@@ -138,7 +138,7 @@ Changing any of them replaces the queue.
 | `not_ready_timeout_hours` | integer | Hours a submitted PR may wait to enter the queue before it's cancelled. `0` means no timeout. |
 | `required_statuses` | set of strings | Checks that must pass. See [Required statuses](#required-statuses). |
 
-With an API key, an apply above a v2 cap fails, such as `concurrency` over 1000 or `not_ready_timeout_hours` over 720 ([all limits](/merge-queue/reference/api-v2/mergequeues/update-a-merge-queues-configuration)).
+With an API key, an apply above a v2 cap fails, such as `concurrency` over 1000 or `not_ready_timeout_hours` over 720 ([all limits](/api/mergequeues/update-a-merge-queues-configuration)).
 
 ### Read-only attributes
 

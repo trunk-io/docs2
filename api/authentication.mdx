@@ -1,0 +1,87 @@
+---
+title: "Authentication"
+og:title: "Authenticate to the Trunk API"
+---
+Every request to the Trunk API needs a credential. Choose one by where the request comes from:
+
+| From | Use |
+| --- | --- |
+| Scripts, services, dashboards, bots, or CI on any provider | An [API key](#api-keys), with only the [permissions](#permissions) it needs |
+| A GitHub Actions job that uploads impacted targets | A [GitHub Actions login](#github-actions), with no secret to store |
+
+To call the legacy API, see [Legacy API authentication](/api/authentication/legacy).
+
+## API keys
+
+Send an API key as a bearer token:
+
+```bash
+curl https://api.trunk.io/v2/merge-queues \
+  -H "Authorization: Bearer $TRUNK_API_KEY"
+```
+
+Separate keys don't get separate limits. Most requests share one organization-wide limit, so one busy key can cause `429`s for every other integration. See [Rate limits](/api/rate-limits).
+
+### Create an API key
+
+1. In the [Trunk app](https://app.trunk.io), navigate to **Settings** → **Developer** → **API Keys** and click the **Create Key** button.
+2. Name the key after what will use it, such as `ci-submit` or `grafana`. Names must be unique among your organization's active keys.
+3. Select the [permissions](#permissions) the key needs. None are selected by default.
+4. Copy the key and store it in your secret manager. The key is shown only once. If you lose it, delete it and create a new one.
+
+Keys start with `trunk_v2_`, so you can add that prefix to your secret scanner. To trace a value to its key, match its first characters in the **API Keys** list, which also shows who created each key.
+
+### Permissions
+
+Permissions are the scopes of an API key. A key without permissions can still:
+
+- Read your organization's merge queues, pull requests, and repositories. So a dashboard or a Prometheus scrape needs no permissions.
+- Call every Flaky Tests endpoint in this reference, including writes, such as creating a test collection or a ticket.
+
+Each permission adds writes:
+
+| Permission | Allows | Endpoints |
+| --- | --- | --- |
+| **Merge and cancel PRs** | Submit pull requests to the queue, restart their tests, remove any entry from it, and upload impacted targets from CI. | [Submit](/api/mergequeues/submit-a-pull-request-to-a-merge-queue), [restart tests](/api/pullrequests/restart-a-queued-pull-requests-tests), [dequeue](/api/pullrequests/dequeue-a-pull-request), [upload impacted targets](/api/impactedtargets/upload-a-pull-requests-impacted-targets) |
+| **Set priority on PRs** | Move a pull request ahead of others in the queue. | [Reprioritize](/api/pullrequests/reprioritize-a-queued-pull-request); a submit or [queue-entry update](/api/pullrequests/update-a-queued-pull-requests-entry) that sends `priorityValue` or `priorityName` |
+| **Skip batching** | Opt a pull request out of batching so it gets a test run of its own. | A submit that sends `allowBatching: false`; a queue-entry update that sends `allowBatching` |
+| **Merge PRs with direct to queue** | Send a pull request to the queue before branch protection is satisfied. The queue's own tests still run and still gate the merge. | A submit that sends `direct: true`; a queue-entry update that sends `direct` |
+| **Update Merge Queue settings** | Change queue settings; pause, resume, or drain a queue; and create or delete queues. | [Create](/api/mergequeues/create-a-merge-queue), [delete](/api/mergequeues/delete-a-merge-queue), [update configuration](/api/mergequeues/update-a-merge-queues-configuration), [switch modes](/api/mergequeues/switch-a-merge-queues-mode), [pause](/api/mergequeues/pause-a-merge-queue), [resume](/api/mergequeues/resume-a-merge-queue), [drain](/api/mergequeues/drain-a-merge-queue) |
+| **Upload test results** (Flaky Tests) | Upload test results from CI, including looking up which tests are quarantined before the upload. | Test-results uploads through the API. The Trunk Analytics CLI and `trunk-io/analytics-uploader` don't use it yet |
+
+A request's permissions come from its body as well as its endpoint. For example, a submit that sets a priority needs both **Merge and cancel PRs** and **Set priority on PRs**. If the key doesn't have a permission that the request needs, the API returns `403 INSUFFICIENT_PERMISSIONS` and changes nothing.
+
+## GitHub Actions
+
+A GitHub Actions job can [upload impacted targets](/api/impactedtargets/upload-a-pull-requests-impacted-targets) without an API key. The [`trunk-io/login`](https://github.com/trunk-io/login) action exchanges the run's own GitHub credential for a short-lived Trunk login. So there's no Trunk secret to store, and on a public repository it also works on fork pull requests, which get no repository secrets.
+
+The credential that the action exchanges depends on the event that started the run:
+
+| Run | Credential | Needs |
+| --- | --- | --- |
+| `pull_request` from this repository, `merge_group`, `push`, `workflow_dispatch` | The run's GitHub OIDC token | `permissions: id-token: write` in the workflow |
+| `pull_request` or `pull_request_target` from a fork | The job's `GITHUB_TOKEN`, bound to that pull request and its head commit | **Impacted targets from fork PRs** turned on for the repository |
+
+Other events, such as `issue_comment`, `workflow_run`, and `schedule`, are refused.
+
+The login has these limits:
+
+- It can upload impacted targets only (`PUT /v2/impacted-targets`), and only for the run's own repository. For all other requests, use an API key.
+- On a fork pull request, it is good only for that pull request and its current head commit.
+- It expires after at most 15 minutes. The `trunk` CLI renews it when necessary.
+- It has its own [rate limit](/api/rate-limits), separate from the organization's.
+
+For the workflow, fork setup, and security details, see [Upload impacted targets from GitHub Actions](/merge-queue/optimizations/parallel-queues/github-actions). The [Bazel](/merge-queue/optimizations/parallel-queues/bazel) and [Nx](/merge-queue/optimizations/parallel-queues/nx) actions use this login when you set `auth: github-actions`.
+
+## Authentication errors
+
+Trunk checks credentials at its edge, so some authentication failures don't have the [error envelope](/api/errors#error-envelope). Branch on the status code:
+
+| Status | Means | What to do |
+| --- | --- | --- |
+| `401` | The credential is malformed, expired, deleted, or not a Trunk credential. | Check the key's value and that it hasn't been deleted. |
+| `403` with no error envelope | The request has no credential, or a GitHub Actions login on an endpoint other than the impacted-targets upload. | Send an API key as `Authorization: Bearer <key>`. |
+| `403 INSUFFICIENT_PERMISSIONS` | The credential is valid, but not permitted to make this request. Nothing was changed. | Add the [permission](#permissions) to the key, or use a key that holds it. |
+| `404` | The resource doesn't exist. | Check the ID. |
+
+Endpoint pages may show `401` with the codes `AUTHENTICATION_REQUIRED` or `INVALID_TOKEN` in the envelope. Treat those as examples of the status, not as the body you'll always receive.
