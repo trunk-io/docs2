@@ -60,6 +60,11 @@ def check(redirects: list[dict[str, str]]) -> int:
         for r in redirects
         if (problem := destination_problem(r["destination"]))
     ]
+    problems += [
+        (r["source"], r["destination"], "redirects to itself; Mintlify drops /index")
+        for r in redirects
+        if r["source"].removesuffix("/index") == r["destination"]
+    ]
     for source, destination, problem in problems:
         print(f"{source} -> {destination}: {problem}")
     if problems:
