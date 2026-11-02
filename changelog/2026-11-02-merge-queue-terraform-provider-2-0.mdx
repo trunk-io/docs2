@@ -1,0 +1,32 @@
+---
+title: "Merge Queue: Terraform provider 2.0"
+description: "The Trunk Terraform provider 2.0 adds API key support, new queue settings, import by queue ID, and safer refreshes."
+date: 2026-11-02
+category: Merge Queue
+type: new-feature
+---
+
+**Manage your merge queues with API keys and more settings in Terraform provider 2.0.**
+
+Most configurations upgrade unchanged. Review the [migration guide](/merge-queue/administration/terraform-migrate-to-2) before you upgrade.
+
+### New features
+
+- **API key support.** Authenticate with an [API key](/merge-queue/reference/api-v2/authentication#create-an-api-key) that has the **Update Merge Queue settings** permission. API keys use the v2 API and can update queues on GitHub Enterprise and other hosts. See [Authentication](/merge-queue/administration/terraform#authentication).
+- **New settings.** Configure `test_branch_construction_mode` and `batching_rules`. See [Settings](/merge-queue/administration/terraform#settings).
+- **Import by queue ID.** With an API key, import a queue by the ID in its Trunk app URL. See [Importing existing queues](/merge-queue/administration/terraform#importing-existing-queues).
+- **Drift tracking.** With an API key, the provider records `queue_id` and `managed_state`, so you can see when someone changes a queue outside Terraform. See [Managing drift](/merge-queue/administration/terraform#managing-drift).
+
+### Updates
+
+- **Clearing `required_statuses`.** Leaving `required_statuses` out no longer removes the queue's override. Set `required_statuses = []` to clear it.
+- **`required_statuses` is a set.** Order no longer matters.
+- **Zero values.** `testing_timeout_minutes = 0` means no timeout. With an API key, `batching_max_wait_time_minutes = 0` means don't wait.
+- **`base_url` is the API host.** Set it to a host such as `https://api.trunk.io`. Values ending in `/v1` still work.
+
+### Bug fixes
+
+- **Credential errors no longer drop queues from state.** A wrong or revoked organization API token, or an unknown repository, now fails the refresh instead.
+- **No writes to non-`github.com` queues on refresh.** With the organization API token, refreshes now warn instead of writing to queues on other hosts.
+
+The organization API token uses the v1 API, which will be deprecated soon. [Switch to an API key](/merge-queue/administration/terraform-migrate-to-2#switch-to-an-api-key) to keep your setup current.
