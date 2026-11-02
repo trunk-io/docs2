@@ -1,0 +1,30 @@
+---
+title: "Merge Queue: v2 API, API keys, and Terraform provider 2.0"
+description: "The Merge Queue v2 API is public with scoped API keys, Terraform provider 2.0 supports those keys, and the Bazel and Nx actions can upload impacted targets without a stored secret."
+date: 2026-11-02
+category: Merge Queue
+type: new-feature
+---
+
+**Automate your merge queue with scoped API keys, the public v2 API, and Terraform provider 2.0.**
+
+### New features
+
+- **Merge Queue API v2 is public.** Manage queues and their pull requests, read the queue's test order, and inspect the CI runs it starts. Use v2 for new integrations. The v1 API keeps working. See the [v2 API reference](/merge-queue/reference/api-v2) and [Migrate from the v1 API](/merge-queue/reference/api-v2/migrate-from-v1).
+- **Scoped API keys.** Organization admins create keys under **Settings** → **Developer** → **API Keys** and grant each key only the permissions it needs. Keys belong to the organization, so they keep working after their creator leaves. See [Authentication](/merge-queue/reference/api-v2/authentication).
+- **Terraform provider 2.0.** The `trunk-io/trunk` provider accepts API keys, adds the `test_branch_construction_mode` and `batching_rules` settings, and can import a queue by its ID. Setting `testing_timeout_minutes = 0` now means no timeout. See [Terraform provider](/merge-queue/administration/terraform).
+- **Bazel and Nx uploads with no Trunk secret.** `trunk-io/bazel-action` v1.1.0 and `trunk-io/nx-action` v1.3.0 accept `auth: github-actions`. The action signs in with the run's own GitHub credential and uploads impacted targets through the v2 API. See [Bazel](/merge-queue/optimizations/parallel-queues/bazel) and [Nx](/merge-queue/optimizations/parallel-queues/nx).
+- **Per-PR merge method in the v1 API.** When a queue has `mergeMethodOverrideEnabled` on, `submitPullRequest` accepts a `mergeMethod` for that pull request. See the [v1 API reference](/merge-queue/reference/merge).
+
+### Updates
+
+- **Organization API token has moved.** Find it under **Settings** → **Developer** → **API Keys** → **Organization API token (v1)**. See [Finding your API token](/setup-and-administration/apis#finding-your-api-token).
+- **Uploads from fork PRs.** Turn on [Impacted targets from fork PRs](/merge-queue/administration/advanced-settings#impacted-targets-from-fork-prs) to let CI on public-repository fork PRs upload impacted targets without a Trunk secret.
+- **Approve bots in settings only.** `allowedBotSubmitters` is removed from the v1 `getQueue` and `updateQueue` endpoints and from the v2 queue configuration. A v2 config update that includes it is refused with `ALLOWED_BOT_SUBMITTERS_FROZEN`. Approve bots under **Settings** → **Organization** → **Bots**.
+- **More v1 API fields.** Pull request endpoints and webhooks return `forge` and `forgeLogin`. `setImpactedTargets` accepts `repoId` instead of `repo`.
+- **Terraform 2.0 behavior changes.** Leaving out `required_statuses` no longer removes a queue's override. Set `required_statuses = []` to clear it. Read [Migrate to provider 2.0](/merge-queue/administration/terraform-migrate-to-2) before you upgrade.
+
+### Bug fixes
+
+- **Terraform keeps queues in state on refresh errors.** A wrong or revoked token, or an unknown repository, now fails the refresh instead of removing the queue from state.
+- **Terraform no longer writes to non-github.com queues on refresh.** With the organization API token, the provider warns instead. Use an API key to update those queues.
