@@ -1,0 +1,65 @@
+---
+title: "Migrate to Terraform provider 2.0"
+description: "Upgrade the trunk-io/trunk Terraform provider from 1.x to 2.0, and optionally move from the organization API token to an API key."
+og:title: "Migrate to Trunk Terraform provider 2.0"
+---
+Provider 2.0 adds API keys, more settings and fixes. Most configurations upgrade unchanged, but read [What changes](#what-changes) first.
+
+## Upgrade
+
+1. Change the version constraint:
+
+   ```hcl
+   terraform {
+     required_providers {
+       trunk = {
+         source  = "trunk-io/trunk"
+         version = "~> 2.0"
+       }
+     }
+   }
+   ```
+
+2. Run `terraform init -upgrade`.
+3. Run `terraform plan`.
+
+A refresh may list newly tracked settings, such as `batching_rules`, as changed outside Terraform; that's harmless. To roll back, pin `~> 1.1` and run `terraform init -upgrade`.
+
+## What changes
+
+### Leaving out `required_statuses` no longer removes the override
+
+In 1.x, leaving it out removed the queue's override on every apply; 2.0 leaves the override alone, and `plan` doesn't flag this. To clear an override, set `required_statuses = []`, which did nothing in 1.x.
+
+### `required_statuses` is a set
+
+Order no longer matters. Wrap an index into it in `sort()`, such as `sort(trunk_merge_queue.main.required_statuses)[0]`, to get the same check as in 1.x.
+
+### `api_key` and `base_url` must be known when planning
+
+1.x fell back to `TRUNK_API_KEY` and `TRUNK_BASE_URL` while they were unknown; 2.0 fails, so apply anything they depend on first.
+
+### `base_url` is the API host
+
+Set it to the host, such as `https://api.trunk.io`; a value ending in `/v1` still works.
+
+## New in 2.0
+
+* **API keys.** See [Switch to an API key](#switch-to-an-api-key).
+* **New settings:** `test_branch_construction_mode` and `batching_rules`.
+* **With an API key:** `queue_id` and `managed_state`, import by queue ID, and `batching_max_wait_time_minutes = 0` (don't wait).
+* `testing_timeout_minutes = 0` means no timeout.
+
+## Fixed in 2.0
+
+* A wrong or revoked organization API token, or an unknown repository, now fails the refresh instead of removing the queue from state.
+* With the organization API token, a refresh no longer writes to queues on hosts other than `github.com`; it warns instead. Use an API key to update those queues.
+
+## Switch to an API key
+
+The v1 API, which the organization API token uses, will be deprecated soon. To move to v2:
+
+1. [Create an API key](/merge-queue/reference/api-v2/authentication#create-an-api-key) with the **Update Merge Queue settings** permission.
+2. Lower any value above a [v2 cap](./terraform#settings).
+3. Replace the token with the key, in `TRUNK_API_KEY` or `api_key`.
+4. Run `terraform apply`. It changes only values you lowered, and records `queue_id` and `managed_state`.

@@ -276,6 +276,7 @@
                 "pages": [
                   "merge-queue/administration/advanced-settings",
                   "merge-queue/administration/terraform",
+                  "merge-queue/administration/terraform-migrate-to-2",
                   "merge-queue/administration/metrics"
                 ]
               },
