@@ -970,6 +970,12 @@
             "group": "2026",
             "pages": [
               {
+                "group": "November",
+                "pages": [
+                  "changelog/2026-11-02-merge-queue-api-terraform-2-and-secretless-uploads"
+                ]
+              },
+              {
                 "group": "October",
                 "pages": [
                   "changelog/2026-10-28-flaky-tests-depot-ci",
