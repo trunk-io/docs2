@@ -109,7 +109,6 @@ reports 0.
 ## Redirects
 
 A redirect whose destination is a page served from an `index.mdx` (such as
-`/runners`) does not work: Mintlify answers it as a missing page, which sends
-the visitor to the login gate. Give a redirect target its own file
-(`api.mdx` next to `api/`, not `api/index.mdx`), or point the redirect at a
-page that is not an `index.mdx`.
+`/runners`) sends a signed-out visitor through the Trunk sign-in page first.
+To make a redirect go straight to a public page, give the target its own file
+(`api.mdx` next to `api/`, not `api/index.mdx`).
