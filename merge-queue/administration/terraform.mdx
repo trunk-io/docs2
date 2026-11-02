@@ -3,16 +3,14 @@ title: "Terraform Provider"
 description: "Manage Trunk Merge Queue configuration as code using the trunk-io/trunk Terraform provider."
 og:title: "Manage Trunk Merge Queue with Terraform"
 ---
-The [trunk-io/trunk](https://registry.terraform.io/providers/trunk-io/trunk/latest) Terraform provider lets you manage merge queue configuration as infrastructure as code. Define your queue settings in Terraform, track changes in version control, and apply them consistently across repositories.
-
-The provider supports the `trunk_merge_queue` resource for creating, updating, importing, and deleting merge queues. The [Registry documentation](https://registry.terraform.io/providers/trunk-io/trunk/latest/docs/resources/merge_queue) lists every attribute.
+The [trunk-io/trunk](https://registry.terraform.io/providers/trunk-io/trunk/latest) Terraform provider manages merge queues as code with the `trunk_merge_queue` resource. The [Registry documentation](https://registry.terraform.io/providers/trunk-io/trunk/latest/docs/resources/merge_queue) lists every attribute.
 
 **Current version:** `2.0.0`. Upgrading from 1.x? See [Migrate to provider 2.0](./terraform-migrate-to-2).
 
 ## Prerequisites
 
 * [Terraform](https://developer.hashicorp.com/terraform/install) >= 1.0
-* A Trunk [API key](/merge-queue/reference/api-v2/authentication#create-an-api-key) with the **Update Merge Queue settings** permission. An organization admin creates one under **Settings** → **Developer** → **API Keys** in the Trunk app.
+* A Trunk [API key](/merge-queue/reference/api-v2/authentication#create-an-api-key) with the **Update Merge Queue settings** permission, created by an organization admin
 * A repository connected to Trunk
 
 ## Authentication
@@ -31,11 +29,9 @@ provider "trunk" {
 }
 ```
 
-The provider picks the API from the credential. An API key (starts with `trunk_v2_`) uses the [v2 API](/merge-queue/reference/api-v2). The organization API token, in the **Organization API token (v1)** section of **Settings** → **Developer** → **API Keys**, also works but uses the v1 API, which will be deprecated soon. With the token, `queue_id` and `managed_state` stay null, and importing by ID and `batching_max_wait_time_minutes = 0` aren't available. The token also can't read queues on hosts other than `github.com`, such as GitHub Enterprise: a refresh keeps the state unchanged and warns, and an apply that changes such a queue fails. Use an API key for those repositories.
+The organization API token (**Organization API token (v1)** under **Settings** → **Developer** → **API Keys**) also works, but uses the v1 API, which will be deprecated soon, and doesn't support `queue_id`, `managed_state`, import by ID, `batching_max_wait_time_minutes = 0`, or updating queues on hosts other than `github.com`, such as GitHub Enterprise.
 
-`base_url` (or `TRUNK_BASE_URL`) sets the API host. It defaults to `https://api.trunk.io`.
-
-`api_key` and `base_url` must be known when Terraform plans. If one comes from a resource that isn't created yet, apply that resource first, for example with `-target`.
+`base_url` (or `TRUNK_BASE_URL`) sets the API host, `https://api.trunk.io` by default. `api_key` and `base_url` must be known at plan time, so apply anything they depend on first.
 
 <Warning>
 Never commit an API key or the organization API token to version control. Use environment variables or a secrets manager.
@@ -71,23 +67,19 @@ resource "trunk_merge_queue" "main" {
 }
 ```
 
-Run `terraform init`, then `terraform plan` to preview the changes and `terraform apply` to create the queue.
-
-If a merge queue already exists for the repository and branch, `terraform apply` fails with **Merge queue already exists**. [Import](#importing-existing-queues) the queue instead of creating it.
+Run `terraform init`, `terraform plan` and `terraform apply`. If the queue already exists, apply fails with **Merge queue already exists**; [import](#importing-existing-queues) it instead.
 
 ***
 
 ## What Terraform manages
 
-Only the settings in your configuration. A setting you leave out keeps whatever value the queue has, including one set in the Trunk app, or Trunk's default for a new queue.
-
-Not managed: Slack notifications, [impacted targets from fork PRs](./advanced-settings#impacted-targets-from-fork-prs), and which bots may submit pull requests (**Settings** → **Organization** → **Bots**). Set those in the Trunk app.
+Only the settings in your configuration; others keep their current value, or Trunk's default for a new queue. Set Slack notifications, [impacted targets from fork PRs](./advanced-settings#impacted-targets-from-fork-prs) and bot approvals (**Settings** → **Organization** → **Bots**) in the Trunk app.
 
 ***
 
 ## Importing existing queues
 
-Merge queues created in the Trunk app or through the API can be imported into Terraform. Add a `trunk_merge_queue` block for the queue to your configuration, then import it:
+Add a `trunk_merge_queue` block for the queue, then import it:
 
 ```bash
 # By repository and target branch. Branch names may contain slashes.
@@ -97,9 +89,7 @@ terraform import trunk_merge_queue.main github.com/my-org/my-repo/main
 terraform import trunk_merge_queue.main a3e06cc2-798d-4907-a021-7966dd00b555
 ```
 
-A queue's ID is the part after `merge-queue/` in its URL in the Trunk app (`app.trunk.io/<org>/merge-queue/<id>/queue`), or `queue_id` in `terraform state show` for a queue already in state. Importing by ID records the repository as Trunk spells it; if your configuration's `repo` uses different capitals, the plan updates it in place.
-
-After importing, run `terraform plan` to compare the configuration against the queue. Resolve any differences before running `terraform apply`.
+The ID is the part after `merge-queue/` in the queue's Trunk app URL, or `queue_id` in `terraform state show`. After importing, resolve any differences `terraform plan` shows before you apply.
 
 ***
 
@@ -148,7 +138,7 @@ Changing any of them replaces the queue.
 | `not_ready_timeout_hours` | integer | Hours a submitted PR may wait to enter the queue before it's cancelled. `0` means no timeout. |
 | `required_statuses` | set of strings | Checks that must pass. See [Required statuses](#required-statuses). |
 
-With an API key, the v2 API caps some values: for example, `concurrency` at 1000 and `not_ready_timeout_hours` at 720. An apply above a cap fails. [Update a merge queue's configuration](/merge-queue/reference/api-v2/mergequeues/update-a-merge-queues-configuration) lists every limit.
+With an API key, an apply above a v2 cap fails, such as `concurrency` over 1000 or `not_ready_timeout_hours` over 720 ([all limits](/merge-queue/reference/api-v2/mergequeues/update-a-merge-queues-configuration)).
 
 ### Read-only attributes
 
@@ -160,11 +150,7 @@ With an API key, the v2 API caps some values: for example, `concurrency` at 1000
 
 ### Required statuses
 
-`required_statuses` overrides `.trunk/trunk.yaml` and branch protection.
-
-* Leave it out to leave the queue's override as it is, including one set in the Trunk app.
-* Set it to `[]` to remove the override, so the queue uses `.trunk/trunk.yaml` or branch protection again.
-* It's a set, so order doesn't matter.
+`required_statuses` overrides `.trunk/trunk.yaml` and branch protection. Leave it out to keep the current override, or set `[]` to remove it. Order doesn't matter.
 
 ### Batching rules
 
@@ -174,49 +160,45 @@ batching_rules = [
 ]
 ```
 
-`target_pattern` matches an impacted target exactly, or as a prefix when it ends in `*`. `"isolate"` tests a matching PR on its own. Rules only apply in `"parallel"` mode with impacted targets uploaded. Set `batching_rules = []` to remove every rule.
+`target_pattern` matches an impacted target exactly, or as a prefix when it ends in `*`; `"isolate"` tests a matching PR on its own. Rules apply only in `"parallel"` mode, and `[]` removes them all.
 
 ***
 
 ## Managing drift
 
-When a merge queue is managed by Terraform, the Trunk UI displays a banner indicating that the queue is under Terraform management.
+The Trunk app shows a banner on queues Terraform manages.
 
 <Frame caption="Banner for Merge Queue settings showing that the Merge Queue is managed by Terraform.">
 ![](/assets/merge-queue/administration/terraform-in-sync.png)
 </Frame>
 
-Users can still change settings in the Trunk app. A change to a setting in your configuration shows up in the next `terraform plan`, and `terraform apply` reverts it. A change to a setting you left out is kept.
+Changes made in the app to settings in your configuration show in the next plan, and apply reverts them; changes to other settings are kept.
 
 <Frame caption="Banner for Merge Queue settings showing that the Merge Queue is managed by Terraform but has since drifted due to settings being changed manually in the UI.">
 ![](/assets/merge-queue/administration/terraform-drift-mergequeue.png)
 </Frame>
 
-Either way, the queue stays marked as drifted, and with an API key `managed_state` reads `"terraform_with_drift"`, until an apply next changes the queue.
+Either way, the queue shows as drifted (`managed_state = "terraform_with_drift"`) until an apply next changes it.
 
-With an API key, once `queue_id` is recorded, a queue deleted and recreated outside Terraform isn't taken over: the next refresh drops the old queue from state, and the plan proposes creating one, which fails with **Merge queue already exists**. [Import](#importing-existing-queues) the new queue instead.
-
-A revoked or invalid credential fails the refresh with an error, and the queue stays in state. So does a repository Trunk can't find, unless `queue_id` is recorded. Once it is, an API key from another organization can't see the queue, so a refresh drops it from state.
+With an API key, once `queue_id` is recorded, Terraform doesn't take over a queue recreated outside it; [import](#importing-existing-queues) the new one.
 
 ***
 
 ## Switching modes
 
-Changing `mode` on an existing queue starts a switch: the queue drains (new PRs wait) and switches once it's empty. Until it switches, `terraform plan` shows no change for `mode`, and an apply that changes anything else on the queue fails; apply that change after the switch. To cancel the switch, click **Cancel** next to **Switching to … Mode** in the queue's settings in the Trunk app, then set `mode` back in your configuration, or the next apply starts the switch again.
+Changing `mode` drains the queue and switches once it's empty; until then, other changes to the queue fail. To cancel, click **Cancel** next to **Switching to … Mode** in the queue's settings, then set `mode` back.
 
 ***
 
 ## If creating a queue fails partway
 
-Creating a queue takes more than one request. If a later one fails, the queue exists but isn't fully set up, and Terraform marks it tainted. If the error came from your configuration, such as a value above a cap, fix it first. Then apply: Terraform deletes and recreates the queue. To keep the queue instead, run `terraform untaint trunk_merge_queue.<name>` before you apply.
+Terraform marks the half-created queue tainted, so the next apply recreates it; run `terraform untaint trunk_merge_queue.<name>` first to keep it instead.
 
 ***
 
 ## Deleting a queue
 
-A merge queue must be empty before it can be deleted. If the queue still has PRs in it, `terraform destroy` fails.
-
-To empty a queue, set `state = "draining"`, apply, and wait for in-flight PRs to finish. Then run `terraform destroy`, or remove the resource from your configuration and apply.
+Only an empty queue can be deleted: set `state = "draining"`, apply, wait for in-flight PRs to finish, then run `terraform destroy`.
 
 ***
 
