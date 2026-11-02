@@ -1,0 +1,30 @@
+---
+title: "Legacy API"
+og:title: "Authenticate to the Trunk legacy API"
+---
+The [legacy API](/api/v1) uses your organization API token, sent in the `x-api-token` header:
+
+```bash
+curl -X POST https://api.trunk.io/v1/getQueue \
+  -H "x-api-token: $TRUNK_ORG_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{ "repo": { "host": "github.com", "owner": "my-org", "name": "my-repo" }, "targetBranch": "main" }'
+```
+
+The organization API token works only with the legacy API. [API keys](/api/authentication#api-keys) don't work with the legacy API. The token can do everything in your organization, so it has no [permissions](/api/authentication#permissions) to choose.
+
+Some tools don't accept API keys yet. Keep using the organization API token with them:
+
+- The Trunk Analytics CLI and `trunk-io/analytics-uploader`.
+- The Terraform provider.
+- The Trunk MCP server's token sign-in.
+
+## Find your organization API token
+
+In the Trunk app, navigate to [**Settings** → **Developer** → **API Keys**](https://app.trunk.io/settings/developer/api-tokens). The token is in the **Token** field of the **Organization API token (v1)** section. Click the **eye icon** to show the token, then the **copy icon** to copy it.
+
+## Rotate the token
+
+**If you are an admin**, click **Rotate**, then **Yes, rotate token**, to replace the token. Rotation immediately stops the old token from working, so update every integration that uses it. If your organization has no token yet, click **Create token**.
+
+**If you are not an admin**, the **Rotate** button is disabled. If your organization has no token yet, ask an administrator to create one.

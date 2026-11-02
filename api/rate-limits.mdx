@@ -1,9 +1,9 @@
 ---
 title: "Rate limits"
-description: "The v2 API's request limits, and how to handle 429 responses."
+description: "The API's request limits, and how to handle 429 responses."
 og:title: "Trunk API rate limits"
 ---
-Trunk limits how many requests your organization can send to the v2 API. A request over a limit gets `429 Too Many Requests`.
+Trunk limits how many requests your organization can send to the API. A request over a limit gets `429 Too Many Requests`.
 
 ## Limits
 
@@ -18,8 +18,6 @@ Some requests have limits of their own and don't count toward the organization l
 | Impacted-target uploads from a [GitHub Actions login](/api/authentication#github-actions) | 10 per second per repository, with a separate limit for fork pull requests |
 
 `GET /v2/merge-queues/{id}/pull-requests` uses the organization limit, not the pull-request limit.
-
-The v1 API has its own limits, which are not described here.
 
 ## Handle a 429
 

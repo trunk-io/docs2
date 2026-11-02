@@ -720,187 +720,193 @@
             "group": "Getting started",
             "root": "api",
             "pages": [
-              "api/authentication",
+              {
+                "group": "Authentication",
+                "root": "api/authentication",
+                "pages": [
+                  "api/authentication/legacy"
+                ]
+              },
               "api/errors",
               "api/pagination",
               "api/rate-limits"
             ]
           },
           {
-            "group": "Repositories",
-            "openapi": {
-              "source": "/openapi-v2.json",
-              "directory": "/api"
-            },
+            "group": "Resources",
             "pages": [
-              "GET /v2/repositories",
-              "GET /v2/repositories/{id}"
-            ]
-          },
-          {
-            "group": "Merge queues",
-            "openapi": {
-              "source": "/openapi-v2.json",
-              "directory": "/api"
-            },
-            "pages": [
-              "GET /v2/merge-queues",
-              "POST /v2/merge-queues",
-              "GET /v2/merge-queues/{id}",
-              "PATCH /v2/merge-queues/{id}/config",
-              "POST /v2/merge-queues/{id}/switch-modes",
-              "POST /v2/merge-queues/{id}/pause",
-              "POST /v2/merge-queues/{id}/resume",
-              "POST /v2/merge-queues/{id}/drain",
-              "DELETE /v2/merge-queues/{id}"
-            ]
-          },
-          {
-            "group": "Queue order",
-            "openapi": {
-              "source": "/openapi-v2.json",
-              "directory": "/api"
-            },
-            "pages": [
-              "GET /v2/merge-queues/{id}/order",
-              "GET /v2/merge-queues/{id}/graph"
-            ]
-          },
-          {
-            "group": "Pull requests",
-            "openapi": {
-              "source": "/openapi-v2.json",
-              "directory": "/api"
-            },
-            "pages": [
-              "POST /v2/merge-queues/{id}/pull-requests",
-              "GET /v2/merge-queues/{id}/pull-requests",
-              "GET /v2/pull-requests",
-              "GET /v2/pull-requests/{id}",
-              "POST /v2/pull-requests/{id}/reprioritize",
-              "PATCH /v2/pull-requests/{id}/queue-entry",
-              "POST /v2/pull-requests/{id}/restart-tests",
-              "POST /v2/pull-requests/{id}/dequeue",
-              "GET /v2/pull-requests/{id}/queue-entry-history",
-              "GET /v2/queue-entry-history",
-              "GET /v2/pull-requests/{id}/queue-entry-estimate"
-            ]
-          },
-          {
-            "group": "Verification runs",
-            "openapi": {
-              "source": "/openapi-v2.json",
-              "directory": "/api"
-            },
-            "pages": [
-              "GET /v2/merge-queues/{id}/verification-runs",
-              "GET /v2/pull-requests/{id}/verification-runs",
-              "GET /v2/merge-queue-verification-runs/{id}",
-              "GET /v2/merge-queues/{id}/testing-results"
-            ]
-          },
-          {
-            "group": "Impacted targets",
-            "openapi": {
-              "source": "/openapi-v2.json",
-              "directory": "/api"
-            },
-            "pages": [
-              "PUT /v2/impacted-targets"
-            ]
-          },
-          {
-            "group": "Merge queue metrics",
-            "openapi": {
-              "source": "/openapi-v2.json",
-              "directory": "/api"
-            },
-            "pages": [
-              "GET /v2/merge-queues/metrics",
-              "GET /v2/merge-queues/{id}/metrics"
-            ]
-          },
-          {
-            "group": "Test collections",
-            "openapi": {
-              "source": "/openapi-v2.json",
-              "directory": "/api"
-            },
-            "pages": [
-              "GET /v2/test-collections",
-              "POST /v2/test-collections",
-              "GET /v2/test-collections/{id}",
-              "GET /v2/test-uploads/{id}"
-            ]
-          },
-          {
-            "group": "Tests",
-            "openapi": {
-              "source": "/openapi-v2.json",
-              "directory": "/api"
-            },
-            "pages": [
-              "GET /v2/tests",
-              "GET /v2/tests/{testId}",
-              "GET /v2/tests/{testId}/status-history",
-              "GET /v2/tests/{testId}/test-runs",
-              "POST /v2/tests/{testId}/ticket",
-              "POST /v2/tests/{testId}/create-ticket"
-            ]
-          },
-          {
-            "group": "Webhooks",
-            "pages": [
-              "api/webhooks"
-            ]
-          },
-          {
-            "group": "v1 API (legacy)",
-            "root": "api/v1",
-            "openapi": {
-              "source": "/openapi.json",
-              "directory": "/api/v1"
-            },
-            "pages": [
-              "api/v1/migrate-merge-queue",
-              "api/v1/migrate-flaky-tests",
               {
-                "group": "Pull requests",
+                "group": "Repositories",
+                "openapi": {
+                  "source": "/openapi-v2.json",
+                  "directory": "/api"
+                },
                 "pages": [
-                  "POST /cancelPullRequest",
-                  "POST /getSubmittedPullRequest",
-                  "POST /getSubmittedPullRequests",
-                  "POST /listPullRequests",
-                  "POST /restartTestsOnPullRequest",
-                  "POST /setImpactedTargets",
-                  "POST /submitPullRequest",
-                  "POST /getMergeQueueTestingDetails",
-                  "POST /listMergeQueueTestingResults"
+                  "GET /v2/repositories",
+                  "GET /v2/repositories/{id}"
                 ]
               },
               {
                 "group": "Merge queues",
+                "openapi": {
+                  "source": "/openapi-v2.json",
+                  "directory": "/api"
+                },
                 "pages": [
-                  "POST /createQueue",
-                  "POST /deleteQueue",
-                  "POST /getQueue",
-                  "POST /updateQueue"
+                  "GET /v2/merge-queues",
+                  "POST /v2/merge-queues",
+                  "GET /v2/merge-queues/{id}",
+                  "PATCH /v2/merge-queues/{id}/config",
+                  "POST /v2/merge-queues/{id}/switch-modes",
+                  "POST /v2/merge-queues/{id}/pause",
+                  "POST /v2/merge-queues/{id}/resume",
+                  "POST /v2/merge-queues/{id}/drain",
+                  "DELETE /v2/merge-queues/{id}"
+                ]
+              },
+              {
+                "group": "Queue order",
+                "openapi": {
+                  "source": "/openapi-v2.json",
+                  "directory": "/api"
+                },
+                "pages": [
+                  "GET /v2/merge-queues/{id}/order",
+                  "GET /v2/merge-queues/{id}/graph"
+                ]
+              },
+              {
+                "group": "Pull requests",
+                "openapi": {
+                  "source": "/openapi-v2.json",
+                  "directory": "/api"
+                },
+                "pages": [
+                  "POST /v2/merge-queues/{id}/pull-requests",
+                  "GET /v2/merge-queues/{id}/pull-requests",
+                  "GET /v2/pull-requests",
+                  "GET /v2/pull-requests/{id}",
+                  "POST /v2/pull-requests/{id}/reprioritize",
+                  "PATCH /v2/pull-requests/{id}/queue-entry",
+                  "POST /v2/pull-requests/{id}/restart-tests",
+                  "POST /v2/pull-requests/{id}/dequeue",
+                  "GET /v2/pull-requests/{id}/queue-entry-history",
+                  "GET /v2/queue-entry-history",
+                  "GET /v2/pull-requests/{id}/queue-entry-estimate"
+                ]
+              },
+              {
+                "group": "Verification runs",
+                "openapi": {
+                  "source": "/openapi-v2.json",
+                  "directory": "/api"
+                },
+                "pages": [
+                  "GET /v2/merge-queues/{id}/verification-runs",
+                  "GET /v2/pull-requests/{id}/verification-runs",
+                  "GET /v2/merge-queue-verification-runs/{id}",
+                  "GET /v2/merge-queues/{id}/testing-results"
+                ]
+              },
+              {
+                "group": "Impacted targets",
+                "openapi": {
+                  "source": "/openapi-v2.json",
+                  "directory": "/api"
+                },
+                "pages": [
+                  "PUT /v2/impacted-targets"
                 ]
               },
               {
                 "group": "Merge queue metrics",
+                "openapi": {
+                  "source": "/openapi-v2.json",
+                  "directory": "/api"
+                },
                 "pages": [
-                  "GET /getMergeQueueMetrics"
+                  "GET /v2/merge-queues/metrics",
+                  "GET /v2/merge-queues/{id}/metrics"
+                ]
+              },
+              {
+                "group": "Test collections",
+                "openapi": {
+                  "source": "/openapi-v2.json",
+                  "directory": "/api"
+                },
+                "pages": [
+                  "GET /v2/test-collections",
+                  "POST /v2/test-collections",
+                  "GET /v2/test-collections/{id}",
+                  "GET /v2/test-uploads/{id}"
                 ]
               },
               {
                 "group": "Tests",
+                "openapi": {
+                  "source": "/openapi-v2.json",
+                  "directory": "/api"
+                },
                 "pages": [
-                  "POST /flaky-tests/get-test-details",
-                  "POST /flaky-tests/link-ticket-to-test-case",
-                  "POST /flaky-tests/list-failing-tests",
-                  "POST /flaky-tests/list-unhealthy-tests",
-                  "POST /flaky-tests/list-quarantined-tests"
+                  "GET /v2/tests",
+                  "GET /v2/tests/{testId}",
+                  "GET /v2/tests/{testId}/status-history",
+                  "GET /v2/tests/{testId}/test-runs",
+                  "POST /v2/tests/{testId}/ticket",
+                  "POST /v2/tests/{testId}/create-ticket"
+                ]
+              },
+              "api/webhooks",
+              {
+                "group": "Legacy API",
+                "root": "api/v1",
+                "openapi": {
+                  "source": "/openapi.json",
+                  "directory": "/api/v1"
+                },
+                "pages": [
+                  "api/v1/migrate-merge-queue",
+                  "api/v1/migrate-flaky-tests",
+                  {
+                    "group": "Pull requests",
+                    "pages": [
+                      "POST /cancelPullRequest",
+                      "POST /getSubmittedPullRequest",
+                      "POST /getSubmittedPullRequests",
+                      "POST /listPullRequests",
+                      "POST /restartTestsOnPullRequest",
+                      "POST /setImpactedTargets",
+                      "POST /submitPullRequest",
+                      "POST /getMergeQueueTestingDetails",
+                      "POST /listMergeQueueTestingResults"
+                    ]
+                  },
+                  {
+                    "group": "Merge queues",
+                    "pages": [
+                      "POST /createQueue",
+                      "POST /deleteQueue",
+                      "POST /getQueue",
+                      "POST /updateQueue"
+                    ]
+                  },
+                  {
+                    "group": "Merge queue metrics",
+                    "pages": [
+                      "GET /getMergeQueueMetrics"
+                    ]
+                  },
+                  {
+                    "group": "Tests",
+                    "pages": [
+                      "POST /flaky-tests/get-test-details",
+                      "POST /flaky-tests/link-ticket-to-test-case",
+                      "POST /flaky-tests/list-failing-tests",
+                      "POST /flaky-tests/list-unhealthy-tests",
+                      "POST /flaky-tests/list-quarantined-tests"
+                    ]
+                  }
                 ]
               }
             ]

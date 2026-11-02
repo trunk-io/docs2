@@ -1,20 +1,15 @@
 ---
 title: "Introduction"
-description: "The Trunk REST API: base URL, versions, and the rules every endpoint follows."
 og:title: "Trunk API reference"
 ---
-The Trunk API is a REST API for Merge Queue, Flaky Tests, and the repositories they use. It accepts and returns JSON, and uses standard HTTP status codes.
+The Trunk API is a REST API for interacting with Trunk services. It accepts and returns JSON, and uses standard HTTP status codes.
 
-The base URL is `https://api.trunk.io`. Every endpoint path already includes its version (for example, `/v2/merge-queues`), so don't add the version to the base URL.
+The base URL is `https://api.trunk.io`, followed by the version (`/v2` for example).
 
 ```bash
 curl https://api.trunk.io/v2/merge-queues \
   -H "Authorization: Bearer $TRUNK_API_KEY"
 ```
-
-## Versions
-
-Use v2 for all new integrations. The [v1 API](/api/v1) keeps working, but it will be deprecated. v1 uses the organization API token, and v2 uses API keys. Each credential works only with its own version. See [Authentication](/api/authentication#v1-and-v2).
 
 ## Getting started
 
@@ -39,16 +34,14 @@ Every response from the API has an `X-Request-Id` header. Include it when you co
 
 ## Compatibility
 
-Within v2, Trunk can add:
+On an API version, additions are not considered breaking changes:
 
 - New endpoints.
 - New optional request parameters.
 - New optional response fields.
 - New values in any enum, including new error codes.
 
-A removal or a change in meaning needs a new major version. **Your client must accept fields and values that it doesn't know.** For example, a client that fails on an unknown enum value will break when Trunk adds a value.
-
-Most enum values are camelCase. Error `code`s are uppercase, and so are some Merge Queue values copied from GitHub or from v1. Each endpoint page shows the exact values.
+A removal or a change in meaning needs a new major version. **Your client must accept fields and values that it doesn't know.** For example, a client that fails on an unknown enum value will break when a new value is added.
 
 ## Markdown for agents
 

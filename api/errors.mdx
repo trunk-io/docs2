@@ -48,7 +48,7 @@ Every error that the API returns has this shape:
 | `code` | A stable, machine-readable code. Switch on this value. |
 | `message` | A description for people. It can change at any time, so don't parse it. |
 
-Trunk can add new codes within v2. If you get a code that you don't know, handle it as a general failure for its status code.
+Trunk can add new codes at any time. If you get a code that you don't know, handle it as a general failure for its status code.
 
 ### Responses without the envelope
 
