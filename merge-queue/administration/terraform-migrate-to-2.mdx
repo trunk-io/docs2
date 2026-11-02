@@ -7,15 +7,7 @@ Provider 2.0 adds API keys, more merge queue settings, and fixes. Existing state
 
 ## Upgrade
 
-1. Back up your state:
-
-   ```bash
-   terraform state pull > trunk-state-backup.tfstate
-   ```
-
-   Once 2.0 writes state, it holds attributes 1.x doesn't know, and 1.x can't read it. To roll back, pin `~> 1.1`, run `terraform init -upgrade`, and restore the backup with `terraform state push trunk-state-backup.tfstate`.
-
-2. Change the version constraint:
+1. Change the version constraint:
 
    ```hcl
    terraform {
@@ -28,10 +20,12 @@ Provider 2.0 adds API keys, more merge queue settings, and fixes. Existing state
    }
    ```
 
-3. Run `terraform init -upgrade`.
-4. Run `terraform plan`. If it fails on an index into `required_statuses`, see [`required_statuses` is a set](#required_statuses-is-a-set). If your configuration leaves out `required_statuses`, read [Leaving out `required_statuses`](#leaving-out-required_statuses-no-longer-removes-the-override): the plan doesn't show that change.
+2. Run `terraform init -upgrade`.
+3. Run `terraform plan`. If it fails on an index into `required_statuses`, see [`required_statuses` is a set](#required_statuses-is-a-set). If your configuration leaves out `required_statuses`, read [Leaving out `required_statuses`](#leaving-out-required_statuses-no-longer-removes-the-override): the plan doesn't show that change.
 
-The first refresh reads settings 1.x didn't track, so `terraform plan -refresh-only` lists `batching_rules`, `not_ready_timeout_hours` and `test_branch_construction_mode` under **Objects have changed outside of Terraform**. That changes nothing on the queue.
+The first refresh reads settings 1.x didn't track, so `terraform plan -refresh-only` lists `batching_rules` and `test_branch_construction_mode` (and `not_ready_timeout_hours`, if your state predates 1.1) under **Objects have changed outside of Terraform**. That changes nothing on the queue.
+
+To roll back, pin `~> 1.1` and run `terraform init -upgrade`. 1.x ignores the attributes 2.0 added to state.
 
 ## What changes
 
@@ -77,7 +71,7 @@ See [Terraform Provider](./terraform) for the full reference.
 
 * A refresh with a wrong or revoked organization API token, or for a repository Trunk can't find, removed the queue from state. It now fails with an error.
 * With an API key, a refresh no longer takes over a queue deleted and recreated outside Terraform. Import the new queue instead.
-* With the organization API token, a refresh of a queue on a host other than `github.com`, such as GitHub Enterprise, keeps the state and warns, since the v1 API can't read it. Use an API key for those repositories.
+* With the organization API token, a refresh of a queue on a host other than `github.com`, such as GitHub Enterprise, keeps the state and warns, since the v1 API can't read it. An apply that changes such a queue fails. Use an API key for those repositories.
 
 ## Switch to an API key
 
@@ -86,11 +80,10 @@ The organization API token uses the v1 API, which will be deprecated soon. To mo
 1. [Create an API key](/merge-queue/reference/api-v2/authentication#create-an-api-key) with the **Update Merge Queue settings** permission.
 2. The v2 API caps some values that v1 doesn't (see [Settings](./terraform#settings)). Lower any value in your configuration above a cap.
 3. Replace the token with the key, in `TRUNK_API_KEY` or `api_key`.
-4. Run `terraform plan`. It shows no changes, apart from any value you lowered in step 2. To record `queue_id` and `managed_state` in state, run `terraform apply -refresh-only`, or they're recorded on your next apply that changes the queue.
+4. Run `terraform plan`. It shows no changes, apart from any value you lowered in step 2. To record `queue_id` and `managed_state` in state, run `terraform apply -refresh-only` or any `terraform apply`.
 
 ## Checklist
 
-* [ ] State is backed up with `terraform state pull`.
 * [ ] The version constraint is `~> 2.0`, and `terraform init -upgrade` ran.
 * [ ] `required_statuses = []` is set wherever you relied on leaving it out to clear an override.
 * [ ] References into `required_statuses` use `sort()`.
