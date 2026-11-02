@@ -10,11 +10,11 @@ type: new-feature
 
 ### New features
 
-- **Check an upload's status.** The new [Get a test-results upload](/flaky-tests/reference/api-reference/v2/testuploads/get-a-test-results-upload) endpoint shows whether an upload is waiting for its bundle, received, ingested, or skipped. It also lists any problems Trunk found while ingesting it.
+- **Check an upload's status.** The new [Get a test-results upload](/api/testuploads/get-a-test-results-upload) endpoint shows whether an upload is waiting for its bundle, received, ingested, or skipped. It also lists any problems Trunk found while ingesting it.
 
 ### Updates
 
-- **Link to a test in the Trunk web app.** Tests returned by [Get a test](/flaky-tests/reference/api-reference/v2/tests/get-a-test) and [List and search tests](/flaky-tests/reference/api-reference/v2/tests/list-and-search-tests) now include a `url` field pointing to the test's page in Trunk.
+- **Link to a test in the Trunk web app.** Tests returned by [Get a test](/api/tests/get-a-test) and [List and search tests](/api/tests/list-and-search-tests) now include a `url` field pointing to the test's page in Trunk.
 - **See when a quarantine began.** Tests now include `quarantinedSince`, the time the test's current quarantine started. It's `null` when the test isn't quarantined.
 
-See the [API reference](/flaky-tests/reference/api-reference) for all v2 endpoints.
+See the [API reference](/api) for all v2 endpoints.

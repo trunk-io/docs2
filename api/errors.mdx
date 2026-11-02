@@ -1,0 +1,113 @@
+---
+title: "Status codes and errors"
+description: "The HTTP status codes the Trunk API returns, the error envelope, every error code, and when to retry."
+og:title: "Trunk API status codes and errors"
+---
+The Trunk API uses conventional HTTP status codes to show whether a request succeeded or failed. In general:
+
+- Codes in the `2xx` range mean that the request succeeded.
+- Codes in the `4xx` range mean that the request failed because of the information it sent. For example, a required parameter is missing, the credential doesn't have a permission, or the pull request is already in the queue. Most of these responses have an [error code](#error-codes) that tells you what went wrong.
+- Codes in the `5xx` range mean that an error occurred on Trunk's servers. These are rare.
+
+## HTTP status codes
+
+| Status | Meaning |
+| --- | --- |
+| `200 OK` | The request succeeded. |
+| `201 Created` | The request created a resource, which is in the response body. |
+| `202 Accepted` | The request was accepted, and Trunk will process it soon. |
+| `204 No Content` | The request succeeded, and there is no response body. |
+| `304 Not Modified` | The resource didn't change since the `ETag` you sent in `If-None-Match`. There is no response body. |
+| `400 Bad Request` | The request isn't valid. For example, a parameter is missing or has the wrong type. |
+| `401 Unauthorized` | The credential is missing, malformed, expired, or deleted. See [Authentication errors](/api/authentication#authentication-errors). |
+| `403 Forbidden` | The credential is valid, but it isn't permitted to make this request. |
+| `404 Not Found` | The resource doesn't exist, **or it belongs to another organization**. |
+| `409 Conflict` | The request conflicts with the resource's current state. For example, the pull request is already in the queue. |
+| `413 Content Too Large` | The request body is larger than 512 KB. |
+| `422 Unprocessable Content` | The request is valid, but Trunk can't do it in the current state. If you send it again with no change, you get the same response. |
+| `429 Too Many Requests` | The request is over a [rate limit](/api/rate-limits). |
+| `500`, `502`, `503`, `504` | An error occurred at Trunk, or the request took longer than its time limit, usually 5 seconds. |
+
+**A `404` can mean "not yours".** If a resource is in another organization, a read returns `404`, not `403`. So the API never shows that a resource exists in another organization.
+
+## Error envelope
+
+Every error that the API returns has this shape:
+
+```json
+{
+  "error": {
+    "code": "MERGE_QUEUE_NOT_FOUND",
+    "message": "No merge queue found with ID xK9mP2nQ"
+  }
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `code` | A stable, machine-readable code. Switch on this value. |
+| `message` | A description for people. It can change at any time, so don't parse it. |
+
+Trunk can add new codes within v2. If you get a code that you don't know, handle it as a general failure for its status code.
+
+### Responses without the envelope
+
+Some responses come from Trunk's edge or from the HTTP server, before the request gets to the API. These don't have the envelope:
+
+- `401`, and `403` for some credential problems. See [Authentication errors](/api/authentication#authentication-errors).
+- `429` from the rate limiter.
+- `413` and `504`, as plain text.
+- Gateway errors, such as `503`.
+
+Read `error.code` only when the body is JSON with an `error` object. Otherwise, branch on the status code.
+
+## Error codes
+
+| Status | Code | Meaning |
+| --- | --- | --- |
+| `400` | `VALIDATION_FAILED` | A parameter or the request body isn't valid. `message` tells you which field. |
+| `400` | `INVALID_CURSOR` | The `cursor` isn't valid for this request. See [Pagination](/api/pagination#cursor-rules). |
+| `401` | `AUTHENTICATION_REQUIRED` | The request has no credential. |
+| `401` | `INVALID_TOKEN` | The credential isn't valid. |
+| `403` | `INSUFFICIENT_PERMISSIONS` | The credential isn't permitted to make this request. See [Permissions](/api/authentication#permissions). |
+| `404` | `NOT_FOUND` | The path or resource doesn't exist. |
+| `404` | `REPOSITORY_NOT_FOUND`, `PROVIDER_URL_NOT_FOUND` | Trunk doesn't know the repository, or it isn't yours. |
+| `404` | `MERGE_QUEUE_NOT_FOUND` | The merge queue doesn't exist, or it isn't yours. |
+| `404` | `PR_NOT_FOUND` | The pull request doesn't exist, or it isn't yours. |
+| `404` | `VERIFICATION_RUN_NOT_FOUND` | The verification run doesn't exist, or it isn't yours. |
+| `404` | `ESTIMATE_NOT_ENABLED` | The queue doesn't give merge estimates. |
+| `404` | `TEST_COLLECTION_NOT_FOUND` | The test collection doesn't exist, or it isn't yours. |
+| `404` | `TEST_NOT_FOUND` | The test doesn't exist, or it isn't yours. |
+| `404` | `TEST_UPLOAD_NOT_FOUND` | The test upload doesn't exist, or it isn't yours. |
+| `409` | `PR_ALREADY_ENQUEUED` | The pull request is already in this queue. Nothing changed. |
+| `409` | `PR_NOT_IN_ACTIVE_STATE` | The pull request isn't in an active queue state. |
+| `409` | `QUEUE_ALREADY_EXISTS` | A merge queue already exists for this repository and branch. |
+| `409` | `QUEUE_HAS_ACTIVE_ENTRIES` | The queue still has active pull requests. Drain or dequeue them first. |
+| `409` | `MODE_CHANGE_IN_PROGRESS` | The queue is switching modes. Retry when the switch is complete. |
+| `409` | `TICKETING_NOT_CONFIGURED` | The test collection has no default ticketing integration. |
+| `409` | `TICKETING_CREDENTIALS_INVALID` | The ticketing integration's credentials are no longer valid. Rotate them in its settings. |
+| `409` | `TICKETING_SITE_REFUSED` | Trunk can't connect to the ticketing integration's site. Check its URL. |
+| `409` | `TICKETING_CREATE_REFUSED` | The ticketing integration isn't allowed to create this ticket. |
+| `409` | `TEST_ALREADY_LINKED` | The test already has a linked ticket. To replace it, set `replaceExisting`. |
+| `409` | `TICKET_LINK_CONFLICT` | Another request linked a ticket first. Read the test again, then retry. |
+| `422` | `PR_NOT_ENQUEUEABLE` | Trunk can't put the pull request in the queue. `message` tells you why. |
+| `422` | `PR_TESTS_NOT_RESTARTABLE` | The pull request's tests can't restart in its current state. |
+| `422` | `MERGE_QUEUE_NOT_CREATABLE` | Trunk can't create a merge queue for this repository and branch. For example, the branch doesn't exist. |
+| `422` | `IMPACTED_TARGETS_UNSUPPORTED` | The repository's provider doesn't support impacted targets. |
+| `422` | `ALLOWED_BOT_SUBMITTERS_FROZEN` | The request sends `allowedBotSubmitters`, which is removed. Approve bots on the **Bots** page of your organization's settings. |
+| `422` | `TICKET_NOT_FOUND` | The ticketing system has no ticket with that ID. |
+| `422` | `TICKET_FIELDS_REJECTED` | The ticketing system refused the ticket's fields. |
+| `422` | `TICKET_CONTENT_UNAVAILABLE` | Trunk has no data to write the ticket from. Send a `title` and `description`. |
+| `429` | `RATE_LIMIT_EXCEEDED` | The request is over a rate limit. Today, `429` responses come from the edge without the envelope. |
+| `500` | `INTERNAL_ERROR` | An error occurred at Trunk. |
+| `502` | `UPSTREAM_ERROR` | A service that Trunk depends on didn't respond. |
+
+Each endpoint page shows the codes that the endpoint can return.
+
+## Retrying
+
+- **Reads** are safe to retry after `429`, `500`, `502`, `503`, `504`, and network errors. Wait longer before each attempt (exponential backoff).
+- **Writes** don't honor `Idempotency-Key` yet. If a write times out or returns `500`, `502`, `503`, or `504`, you don't know if it was done. So read the resource back before you retry it. Writes that set a value, such as `PATCH /v2/merge-queues/{id}/config` and `PUT /v2/impacted-targets`, are safe to repeat.
+- **Don't retry `4xx` responses unchanged**, except `429`. A `422` gets the same response until something about the resource changes.
+
+When you contact support about a failed request, include its `X-Request-Id` header.

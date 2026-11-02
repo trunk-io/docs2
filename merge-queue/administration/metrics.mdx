@@ -184,16 +184,16 @@ Trunk exposes merge queue metrics in [Prometheus text format](https://prometheus
 
 | Endpoint | Returns |
 | --- | --- |
-| [`GET https://api.trunk.io/v2/merge-queues/metrics`](/merge-queue/reference/api-v2/mergequeues/get-prometheus-metrics-for-every-merge-queue) | Every merge queue in your organization. Add `?repositoryId=<id>` for one repository's queues. |
-| [`GET https://api.trunk.io/v2/merge-queues/{id}/metrics`](/merge-queue/reference/api-v2/mergequeues/get-prometheus-metrics-for-a-merge-queue) | One merge queue. |
+| [`GET https://api.trunk.io/v2/merge-queues/metrics`](/api/mergequeues/get-prometheus-metrics-for-every-merge-queue) | Every merge queue in your organization. Add `?repositoryId=<id>` for one repository's queues. |
+| [`GET https://api.trunk.io/v2/merge-queues/{id}/metrics`](/api/mergequeues/get-prometheus-metrics-for-a-merge-queue) | One merge queue. |
 
-Authenticate with an [API key](/merge-queue/reference/api-v2/authentication#api-keys) as `Authorization: Bearer <key>`. It needs no permissions. To find a repository's or queue's ID, see [Finding IDs](/merge-queue/reference/api-v2#finding-ids).
+Authenticate with an [API key](/api/authentication#api-keys) as `Authorization: Bearer <key>`. It needs no permissions. To find a repository's or queue's ID, see [Finding IDs](/merge-queue/using-the-queue/api#finding-ids).
 
 The metrics endpoints are limited to 5 requests per second per organization, so prefer one organization-wide scrape over one per queue.
 
 Responses use content type `text/plain; version=0.0.4; charset=utf-8`. Label values stay in snake_case, such as `state="tests_passed"`, even though the API's own enum values are camelCase.
 
-The v1 `getMergeQueueMetrics` endpoint keeps working. To move a v1 scrape job, see [Migrate from the v1 API](/merge-queue/reference/api-v2/migrate-from-v1#build-dashboards).
+The v1 `getMergeQueueMetrics` endpoint keeps working. To move a v1 scrape job, see [Migrate from the v1 API](/api/v1/migrate-merge-queue#build-dashboards).
 
 ### Available metrics
 

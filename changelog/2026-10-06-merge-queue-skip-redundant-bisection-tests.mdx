@@ -12,6 +12,6 @@ With **Skip Redundant Bisection Tests** enabled, Trunk won't re-test a set of PR
 
 - **Immediate re-splits.** Skipped groups are split and re-tested right away, alongside the rest of the bisection, instead of waiting on the tests ahead of them.
 - **Only failures are reused.** A cached result never marks a PR as passed. Trunk discards a reused failure if the base changes or the bisection restarts.
-- **Opt-in.** Turn it on in your queue's **Settings** under **Batching**, through the [API](/merge-queue/reference/api-v2/mergequeues/update-a-merge-queues-configuration), or with [Terraform](/merge-queue/administration/terraform).
+- **Opt-in.** Turn it on in your queue's **Settings** under **Batching**, through the [API](/api/mergequeues/update-a-merge-queues-configuration), or with [Terraform](/merge-queue/administration/terraform).
 
 If your queue sees many flaky failures, pair this with [Anti-flake protection](/merge-queue/optimizations/anti-flake-protection). See [Test caching during bisection](/merge-queue/optimizations/batching#test-caching-during-bisection) for details.

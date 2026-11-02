@@ -55,6 +55,16 @@ pages are edited here like any other. The `.sync.json` files and the
 "Generated in trunk-io/docs2" comments are leftovers of the sync. Runners
 pages are public; Workspaces pages stay gated (below).
 
+## API reference
+
+All API pages are in the **API Reference** tab, under `/api`. The sidebar is
+ordered by resource, not by product: Getting started (`api/*.mdx`), then one
+group per v2 OpenAPI tag, then the legacy v1 group. The v2 endpoint groups
+generate their pages from `openapi-v2.json` into `/api/<tag>/<slug>`, and the v1
+group from `openapi.json` into `/api/v1/<slug>`. Product guides that use the API,
+such as `merge-queue/using-the-queue/api`, stay in their product's tab. The
+old product URLs redirect to `/api` in `docs.json`.
+
 ## Hidden API pages
 
 The three v2 endpoints that Trunk's analytics-cli and test-runner plugins call

@@ -3,9 +3,9 @@ title: "Upload impacted targets from GitHub Actions"
 description: "Authenticate a GitHub Actions job to the v2 API with no Trunk secret, including fork pull requests in public repositories."
 og:title: "Upload impacted targets from GitHub Actions with the Trunk Merge Queue API"
 ---
-A GitHub Actions job can [upload a pull request's impacted targets](/merge-queue/reference/api-v2/impactedtargets/upload-a-pull-requests-impacted-targets) without a Trunk API key. The [`trunk-io/login`](https://github.com/trunk-io/login) action exchanges the run's own GitHub credential for a short-lived Trunk login, so there's no Trunk secret to manage. On a public repository it also works on fork pull requests, which get no repository secrets.
+A GitHub Actions job can [upload a pull request's impacted targets](/api/impactedtargets/upload-a-pull-requests-impacted-targets) without a Trunk API key. The [`trunk-io/login`](https://github.com/trunk-io/login) action exchanges the run's own GitHub credential for a short-lived Trunk login, so there's no Trunk secret to manage. On a public repository it also works on fork pull requests, which get no repository secrets.
 
-The login can upload impacted targets only, and only for the run's own repository. For anything else, use an [API key](/merge-queue/reference/api-v2/authentication#create-an-api-key).
+The login can upload impacted targets only, and only for the run's own repository. For anything else, use an [API key](/api/authentication#create-an-api-key).
 
 ## Before you start
 
@@ -63,7 +63,7 @@ The `branches:` filter skips a stacked pull request that targets another pull re
 
 Impacted targets apply to one commit. Upload again on every push, or the queue keeps the pull request waiting. The `pull_request` trigger above does this.
 
-The upload answers `202`, and the queue picks the targets up shortly after. To confirm, once the pull request is in a queue, read it with an API key through [`GET /v2/pull-requests/{id}`](/merge-queue/reference/api-v2/pullrequests/get-a-pull-request) and check that `queueEntry.readiness.hasImpactedTargets` is `true`.
+The upload answers `202`, and the queue picks the targets up shortly after. To confirm, once the pull request is in a queue, read it with an API key through [`GET /v2/pull-requests/{id}`](/api/pullrequests/get-a-pull-request) and check that `queueEntry.readiness.hasImpactedTargets` is `true`.
 
 The [Bazel](/merge-queue/optimizations/parallel-queues/bazel) and [Nx](/merge-queue/optimizations/parallel-queues/nx) actions compute the targets and upload them in one step. With `auth: github-actions`, they log in through `trunk-io/login` and upload through the v2 API. For other build tools, write the targets to a file and upload it as above.
 

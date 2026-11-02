@@ -1,0 +1,59 @@
+---
+title: "Introduction"
+description: "The Trunk REST API: base URL, versions, and the rules every endpoint follows."
+og:title: "Trunk API reference"
+---
+The Trunk API is a REST API for Merge Queue, Flaky Tests, and the repositories they use. It accepts and returns JSON, and uses standard HTTP status codes.
+
+The base URL is `https://api.trunk.io`. Every endpoint path already includes its version (for example, `/v2/merge-queues`), so don't add the version to the base URL.
+
+```bash
+curl https://api.trunk.io/v2/merge-queues \
+  -H "Authorization: Bearer $TRUNK_API_KEY"
+```
+
+## Versions
+
+Use v2 for all new integrations. The [v1 API](/api/v1) keeps working, but it will be deprecated. v1 uses the organization API token, and v2 uses API keys. Each credential works only with its own version. See [Authentication](/api/authentication#v1-and-v2).
+
+## Getting started
+
+<Columns cols={2}>
+  <Card title="Authentication" href="/api/authentication">
+    API keys, permissions, and GitHub Actions logins.
+  </Card>
+  <Card title="Status codes and errors" href="/api/errors">
+    What each status code means, the error envelope, and when to retry.
+  </Card>
+  <Card title="Pagination" href="/api/pagination">
+    Page through lists with cursors.
+  </Card>
+  <Card title="Rate limits" href="/api/rate-limits">
+    The request limits, and how to handle `429`.
+  </Card>
+</Columns>
+
+## Request IDs
+
+Every response from the API has an `X-Request-Id` header. Include it when you contact support about a request. Responses from Trunk's edge, such as some `401` and `429` responses, may not have it.
+
+## Compatibility
+
+Within v2, Trunk can add:
+
+- New endpoints.
+- New optional request parameters.
+- New optional response fields.
+- New values in any enum, including new error codes.
+
+A removal or a change in meaning needs a new major version. **Your client must accept fields and values that it doesn't know.** For example, a client that fails on an unknown enum value will break when Trunk adds a value.
+
+Most enum values are camelCase. Error `code`s are uppercase, and so are some Merge Queue values copied from GitHub or from v1. Each endpoint page shows the exact values.
+
+## Markdown for agents
+
+Add `.md` to the URL of any page in this reference to get it as Markdown. An endpoint's Markdown page includes its OpenAPI definition.
+
+## Support
+
+Ask us in [Slack](https://slack.trunk.io) or email [support@trunk.io](mailto:support@trunk.io).

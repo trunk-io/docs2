@@ -1,0 +1,37 @@
+---
+title: "Rate limits"
+description: "The v2 API's request limits, and how to handle 429 responses."
+og:title: "Trunk API rate limits"
+---
+Trunk limits how many requests your organization can send to the v2 API. A request over a limit gets `429 Too Many Requests`.
+
+## Limits
+
+Most requests share one limit of **100 requests per second per organization**. This limit is shared by every API key, user, and CLI session in the organization. Separate API keys don't get separate limits, so one busy integration can cause `429`s for all the others.
+
+Some requests have limits of their own and don't count toward the organization limit:
+
+| Requests | Limit |
+| --- | --- |
+| `GET` requests on paths that start with `/v2/pull-requests`, such as `GET /v2/pull-requests/{id}` and its history | 5 per second per API key or user |
+| Merge Queue metrics: `GET /v2/merge-queues/metrics` and `GET /v2/merge-queues/{id}/metrics` | 5 per second per organization |
+| Impacted-target uploads from a [GitHub Actions login](/api/authentication#github-actions) | 10 per second per repository, with a separate limit for fork pull requests |
+
+`GET /v2/merge-queues/{id}/pull-requests` uses the organization limit, not the pull-request limit.
+
+The v1 API has its own limits, which are not described here.
+
+## Handle a 429
+
+- **Retry with exponential backoff.** Wait longer after each `429`, and add random jitter so that clients don't retry at the same time.
+- **Treat every `429` as a rate limit, whatever its body.** Trunk enforces the limits at its edge, before the request gets to the API. So a `429` doesn't always have the API's [error envelope](/api/errors#error-envelope).
+- **Don't wait for rate-limit headers.** The API doesn't send `Retry-After` or `X-RateLimit-*` headers yet.
+
+A `429` means that the request was not processed, so all requests are safe to retry after a `429`. For other failures, see [Retrying](/api/errors#retrying).
+
+## Send fewer requests
+
+- **Poll less often.** For example, poll a pull request in a merge queue every 30 to 60 seconds, not every second.
+- **Use `If-None-Match`.** Some endpoints, such as `GET /v2/pull-requests/{id}`, send an `ETag`. Send it back in `If-None-Match`. If nothing changed, you get `304` with no body.
+- **Get more per request.** Set `limit=100` on list endpoints, and use batch lookups where an endpoint has them.
+- **Use webhooks.** To learn when something changes, subscribe to [webhooks](/api/webhooks) instead of polling.

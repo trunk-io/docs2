@@ -10,8 +10,8 @@ type: new-feature
 
 ### New features
 
-- **Create a ticket for a test.** The new [Create a ticket for a test](/flaky-tests/reference/api-reference/v2/tests/create-a-ticket-for-a-test) endpoint files a ticket in the test collection's default ticketing integration and links it to the test. The ticket uses the field defaults saved on that integration, and any `fields` you pass override them.
+- **Create a ticket for a test.** The new [Create a ticket for a test](/api/tests/create-a-ticket-for-a-test) endpoint files a ticket in the test collection's default ticketing integration and links it to the test. The ticket uses the field defaults saved on that integration, and any `fields` you pass override them.
 - **Generated title and description.** Leave out `title` or `description` and Trunk writes them the way the web app does: the test's location, failure rate, owners and most common failure reasons, with a link back to the test.
 - **One ticket per test.** If the test already has a ticket, the call is refused unless you set `replaceExisting`.
 
-See the [API reference](/flaky-tests/reference/api-reference) for all v2 endpoints.
+See the [API reference](/api) for all v2 endpoints.
