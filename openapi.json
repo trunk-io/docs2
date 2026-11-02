@@ -79,6 +79,18 @@
                   },
                   "noBatch": {
                     "type": "boolean"
+                  },
+                  "mergeMethod": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "enum": [
+                      "merge_commit",
+                      "squash",
+                      "rebase"
+                    ],
+                    "description": "The merge method for this pull request, when the queue allows choosing one. null clears an earlier choice, so the queue's merge method applies."
                   }
                 },
                 "required": [
@@ -645,6 +657,18 @@
                                   "trunkUserId": {
                                     "type": "string",
                                     "description": "The Trunk user ID of the person who caused the change, when they have one."
+                                  },
+                                  "forge": {
+                                    "type": "string",
+                                    "enum": [
+                                      "github",
+                                      "gitlab"
+                                    ],
+                                    "description": "The Git hosting service whose account `forgeLogin` names."
+                                  },
+                                  "forgeLogin": {
+                                    "type": "string",
+                                    "description": "The login (not the display name) of the person who caused the change, on `forge`. Equals `gitHubLogin` for a GitHub account."
                                   }
                                 },
                                 "description": "Who caused this state change. Absent when the queue itself caused it rather than a person."
@@ -691,6 +715,18 @@
                                   "trunkUserId": {
                                     "type": "string",
                                     "description": "The Trunk user ID of the person who caused the change, when they have one."
+                                  },
+                                  "forge": {
+                                    "type": "string",
+                                    "enum": [
+                                      "github",
+                                      "gitlab"
+                                    ],
+                                    "description": "The Git hosting service whose account `forgeLogin` names."
+                                  },
+                                  "forgeLogin": {
+                                    "type": "string",
+                                    "description": "The login (not the display name) of the person who caused the change, on `forge`. Equals `gitHubLogin` for a GitHub account."
                                   }
                                 },
                                 "description": "Who caused this state change. Absent when the queue itself caused it rather than a person."
@@ -1098,6 +1134,18 @@
                                   "trunkUserId": {
                                     "type": "string",
                                     "description": "The Trunk user ID of the person who caused the change, when they have one."
+                                  },
+                                  "forge": {
+                                    "type": "string",
+                                    "enum": [
+                                      "github",
+                                      "gitlab"
+                                    ],
+                                    "description": "The Git hosting service whose account `forgeLogin` names."
+                                  },
+                                  "forgeLogin": {
+                                    "type": "string",
+                                    "description": "The login (not the display name) of the person who caused the change, on `forge`. Equals `gitHubLogin` for a GitHub account."
                                   }
                                 },
                                 "description": "Who caused this state change. Absent when the queue itself caused it rather than a person."
@@ -1126,6 +1174,18 @@
                                   "trunkUserId": {
                                     "type": "string",
                                     "description": "The Trunk user ID of the person who caused the change, when they have one."
+                                  },
+                                  "forge": {
+                                    "type": "string",
+                                    "enum": [
+                                      "github",
+                                      "gitlab"
+                                    ],
+                                    "description": "The Git hosting service whose account `forgeLogin` names."
+                                  },
+                                  "forgeLogin": {
+                                    "type": "string",
+                                    "description": "The login (not the display name) of the person who caused the change, on `forge`. Equals `gitHubLogin` for a GitHub account."
                                   }
                                 },
                                 "description": "Who caused this state change. Absent when the queue itself caused it rather than a person."
@@ -1739,6 +1799,18 @@
                                         "trunkUserId": {
                                           "type": "string",
                                           "description": "The Trunk user ID of the person who caused the change, when they have one."
+                                        },
+                                        "forge": {
+                                          "type": "string",
+                                          "enum": [
+                                            "github",
+                                            "gitlab"
+                                          ],
+                                          "description": "The Git hosting service whose account `forgeLogin` names."
+                                        },
+                                        "forgeLogin": {
+                                          "type": "string",
+                                          "description": "The login (not the display name) of the person who caused the change, on `forge`. Equals `gitHubLogin` for a GitHub account."
                                         }
                                       },
                                       "description": "Who caused this state change. Absent when the queue itself caused it rather than a person."
@@ -1785,6 +1857,18 @@
                                         "trunkUserId": {
                                           "type": "string",
                                           "description": "The Trunk user ID of the person who caused the change, when they have one."
+                                        },
+                                        "forge": {
+                                          "type": "string",
+                                          "enum": [
+                                            "github",
+                                            "gitlab"
+                                          ],
+                                          "description": "The Git hosting service whose account `forgeLogin` names."
+                                        },
+                                        "forgeLogin": {
+                                          "type": "string",
+                                          "description": "The login (not the display name) of the person who caused the change, on `forge`. Equals `gitHubLogin` for a GitHub account."
                                         }
                                       },
                                       "description": "Who caused this state change. Absent when the queue itself caused it rather than a person."
@@ -2192,6 +2276,18 @@
                                         "trunkUserId": {
                                           "type": "string",
                                           "description": "The Trunk user ID of the person who caused the change, when they have one."
+                                        },
+                                        "forge": {
+                                          "type": "string",
+                                          "enum": [
+                                            "github",
+                                            "gitlab"
+                                          ],
+                                          "description": "The Git hosting service whose account `forgeLogin` names."
+                                        },
+                                        "forgeLogin": {
+                                          "type": "string",
+                                          "description": "The login (not the display name) of the person who caused the change, on `forge`. Equals `gitHubLogin` for a GitHub account."
                                         }
                                       },
                                       "description": "Who caused this state change. Absent when the queue itself caused it rather than a person."
@@ -2220,6 +2316,18 @@
                                         "trunkUserId": {
                                           "type": "string",
                                           "description": "The Trunk user ID of the person who caused the change, when they have one."
+                                        },
+                                        "forge": {
+                                          "type": "string",
+                                          "enum": [
+                                            "github",
+                                            "gitlab"
+                                          ],
+                                          "description": "The Git hosting service whose account `forgeLogin` names."
+                                        },
+                                        "forgeLogin": {
+                                          "type": "string",
+                                          "description": "The login (not the display name) of the person who caused the change, on `forge`. Equals `gitHubLogin` for a GitHub account."
                                         }
                                       },
                                       "description": "Who caused this state change. Absent when the queue itself caused it rather than a person."
@@ -2745,6 +2853,10 @@
                       "type": "boolean",
                       "description": "Whether the Trunk Merge Queue browser extension is enabled (shown) for this repository."
                     },
+                    "mergeMethodOverrideEnabled": {
+                      "type": "boolean",
+                      "description": "Whether a submitter may choose a merge method for a pull request. When false, every pull request uses mergeMethod."
+                    },
                     "bisectionConcurrency": {
                       "type": "number"
                     },
@@ -2753,13 +2865,6 @@
                       "items": {
                         "type": "string"
                       }
-                    },
-                    "allowedBotSubmitters": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "description": "The GitHub logins of bot/app accounts (e.g. `dependabot[bot]`) whose PRs are allowed to be submitted to the merge queue."
                     },
                     "batchingRules": {
                       "type": "array",
@@ -2922,9 +3027,9 @@
                     "commandsEnabled",
                     "statusCheckEnabled",
                     "extensionEnabled",
+                    "mergeMethodOverrideEnabled",
                     "bisectionConcurrency",
                     "requiredStatuses",
-                    "allowedBotSubmitters",
                     "batchingRules",
                     "directMergeMode",
                     "optimizationMode",
@@ -3134,6 +3239,10 @@
                     "type": "boolean",
                     "description": "Whether the Trunk Merge Queue browser extension is enabled (shown) for this repository."
                   },
+                  "mergeMethodOverrideEnabled": {
+                    "type": "boolean",
+                    "description": "Whether a submitter may choose a merge method for a pull request. When false, every pull request uses mergeMethod."
+                  },
                   "requiredStatuses": {
                     "type": "array",
                     "items": {
@@ -3144,13 +3253,6 @@
                   "deleteRequiredStatuses": {
                     "type": "boolean",
                     "description": "Removes a manually specified set of required statuses. After this, the statuses that must pass when the merge queue performs testing will be pulled from either GitHub branch protection settings or your `.trunk/trunk.yaml`."
-                  },
-                  "allowedBotSubmitters": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    },
-                    "description": "Sets the GitHub logins of bot/app accounts (e.g. `dependabot[bot]`) whose PRs are allowed to be submitted to the merge queue. This replaces the existing set. Pass an empty list to clear all allowed bot submitters."
                   },
                   "batchingRules": {
                     "type": "array",
@@ -3271,6 +3373,10 @@
                       "type": "boolean",
                       "description": "Whether the Trunk Merge Queue browser extension is enabled (shown) for this repository."
                     },
+                    "mergeMethodOverrideEnabled": {
+                      "type": "boolean",
+                      "description": "Whether a submitter may choose a merge method for a pull request. When false, every pull request uses mergeMethod."
+                    },
                     "bisectionConcurrency": {
                       "type": "number"
                     },
@@ -3279,13 +3385,6 @@
                       "items": {
                         "type": "string"
                       }
-                    },
-                    "allowedBotSubmitters": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "description": "The GitHub logins of bot/app accounts (e.g. `dependabot[bot]`) whose PRs are allowed to be submitted to the merge queue."
                     },
                     "batchingRules": {
                       "type": "array",
@@ -3378,9 +3477,9 @@
                     "commandsEnabled",
                     "statusCheckEnabled",
                     "extensionEnabled",
+                    "mergeMethodOverrideEnabled",
                     "bisectionConcurrency",
                     "requiredStatuses",
-                    "allowedBotSubmitters",
                     "batchingRules",
                     "directMergeMode",
                     "optimizationMode",
@@ -4241,6 +4340,11 @@
                       "name"
                     ]
                   },
+                  "repoId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "The Trunk repository ID, in place of `repo`. Send exactly one of the two."
+                  },
                   "pr": {
                     "type": "object",
                     "properties": {
@@ -4278,7 +4382,6 @@
                   }
                 },
                 "required": [
-                  "repo",
                   "pr",
                   "targetBranch",
                   "impactedTargets"
@@ -6821,12 +6924,21 @@
                       "name": {
                         "type": "string",
                         "description": "The user or organization that owns the repository"
+                      },
+                      "forge": {
+                        "type": "string",
+                        "enum": [
+                          "github",
+                          "gitlab"
+                        ],
+                        "description": "The forge hosting the repository"
                       }
                     },
                     "required": [
                       "host",
                       "owner",
-                      "name"
+                      "name",
+                      "forge"
                     ],
                     "description": "The repository that the webhook event occurred in"
                   },
@@ -6883,7 +6995,8 @@
                 "repository": {
                   "host": "string",
                   "owner": "string",
-                  "name": "string"
+                  "name": "string",
+                  "forge": "github"
                 },
                 "status": "canceled",
                 "submitters": [
@@ -6994,12 +7107,21 @@
                       "name": {
                         "type": "string",
                         "description": "The user or organization that owns the repository"
+                      },
+                      "forge": {
+                        "type": "string",
+                        "enum": [
+                          "github",
+                          "gitlab"
+                        ],
+                        "description": "The forge hosting the repository"
                       }
                     },
                     "required": [
                       "host",
                       "owner",
-                      "name"
+                      "name",
+                      "forge"
                     ],
                     "description": "The repository that the webhook event occurred in"
                   },
@@ -7056,7 +7178,8 @@
                 "repository": {
                   "host": "string",
                   "owner": "string",
-                  "name": "string"
+                  "name": "string",
+                  "forge": "github"
                 },
                 "status": "failed",
                 "submitters": [
@@ -7145,12 +7268,21 @@
                       "name": {
                         "type": "string",
                         "description": "The user or organization that owns the repository"
+                      },
+                      "forge": {
+                        "type": "string",
+                        "enum": [
+                          "github",
+                          "gitlab"
+                        ],
+                        "description": "The forge hosting the repository"
                       }
                     },
                     "required": [
                       "host",
                       "owner",
-                      "name"
+                      "name",
+                      "forge"
                     ],
                     "description": "The repository that the webhook event occurred in"
                   },
@@ -7205,7 +7337,8 @@
                 "repository": {
                   "host": "string",
                   "owner": "string",
-                  "name": "string"
+                  "name": "string",
+                  "forge": "github"
                 },
                 "status": "merged",
                 "submitters": [
@@ -7312,12 +7445,21 @@
                       "name": {
                         "type": "string",
                         "description": "The user or organization that owns the repository"
+                      },
+                      "forge": {
+                        "type": "string",
+                        "enum": [
+                          "github",
+                          "gitlab"
+                        ],
+                        "description": "The forge hosting the repository"
                       }
                     },
                     "required": [
                       "host",
                       "owner",
-                      "name"
+                      "name",
+                      "forge"
                     ],
                     "description": "The repository that the webhook event occurred in"
                   },
@@ -7372,7 +7514,8 @@
                 "repository": {
                   "host": "string",
                   "owner": "string",
-                  "name": "string"
+                  "name": "string",
+                  "forge": "github"
                 },
                 "status": "pending_failure",
                 "submitters": [
@@ -7469,12 +7612,21 @@
                       "name": {
                         "type": "string",
                         "description": "The user or organization that owns the repository"
+                      },
+                      "forge": {
+                        "type": "string",
+                        "enum": [
+                          "github",
+                          "gitlab"
+                        ],
+                        "description": "The forge hosting the repository"
                       }
                     },
                     "required": [
                       "host",
                       "owner",
-                      "name"
+                      "name",
+                      "forge"
                     ],
                     "description": "The repository that the webhook event occurred in"
                   },
@@ -7529,7 +7681,8 @@
                 "repository": {
                   "host": "string",
                   "owner": "string",
-                  "name": "string"
+                  "name": "string",
+                  "forge": "github"
                 },
                 "status": "queued",
                 "submitters": [
@@ -7619,12 +7772,21 @@
                       "name": {
                         "type": "string",
                         "description": "The user or organization that owns the repository"
+                      },
+                      "forge": {
+                        "type": "string",
+                        "enum": [
+                          "github",
+                          "gitlab"
+                        ],
+                        "description": "The forge hosting the repository"
                       }
                     },
                     "required": [
                       "host",
                       "owner",
-                      "name"
+                      "name",
+                      "forge"
                     ],
                     "description": "The repository that the webhook event occurred in"
                   },
@@ -7679,7 +7841,8 @@
                 "repository": {
                   "host": "string",
                   "owner": "string",
-                  "name": "string"
+                  "name": "string",
+                  "forge": "github"
                 },
                 "status": "submitted",
                 "submitters": [
@@ -7767,12 +7930,21 @@
                       "name": {
                         "type": "string",
                         "description": "The user or organization that owns the repository"
+                      },
+                      "forge": {
+                        "type": "string",
+                        "enum": [
+                          "github",
+                          "gitlab"
+                        ],
+                        "description": "The forge hosting the repository"
                       }
                     },
                     "required": [
                       "host",
                       "owner",
-                      "name"
+                      "name",
+                      "forge"
                     ],
                     "description": "The repository that the webhook event occurred in"
                   },
@@ -7829,7 +8001,8 @@
                 "repository": {
                   "host": "string",
                   "owner": "string",
-                  "name": "string"
+                  "name": "string",
+                  "forge": "github"
                 },
                 "status": "testing",
                 "submitters": [
@@ -7935,12 +8108,21 @@
                       "name": {
                         "type": "string",
                         "description": "The user or organization that owns the repository"
+                      },
+                      "forge": {
+                        "type": "string",
+                        "enum": [
+                          "github",
+                          "gitlab"
+                        ],
+                        "description": "The forge hosting the repository"
                       }
                     },
                     "required": [
                       "host",
                       "owner",
-                      "name"
+                      "name",
+                      "forge"
                     ],
                     "description": "The repository that the webhook event occurred in"
                   },
@@ -7992,7 +8174,8 @@
                 "repository": {
                   "host": "string",
                   "owner": "string",
-                  "name": "string"
+                  "name": "string",
+                  "forge": "github"
                 },
                 "status": "canceled",
                 "submitter": "string",
@@ -8128,12 +8311,21 @@
                       "name": {
                         "type": "string",
                         "description": "The user or organization that owns the repository"
+                      },
+                      "forge": {
+                        "type": "string",
+                        "enum": [
+                          "github",
+                          "gitlab"
+                        ],
+                        "description": "The forge hosting the repository"
                       }
                     },
                     "required": [
                       "host",
                       "owner",
-                      "name"
+                      "name",
+                      "forge"
                     ],
                     "description": "The repository that the webhook event occurred in"
                   },
@@ -8192,7 +8384,8 @@
                 "repository": {
                   "host": "string",
                   "owner": "string",
-                  "name": "string"
+                  "name": "string",
+                  "forge": "github"
                 },
                 "status": "failed",
                 "submitter": "string",
@@ -8281,12 +8474,21 @@
                       "name": {
                         "type": "string",
                         "description": "The user or organization that owns the repository"
+                      },
+                      "forge": {
+                        "type": "string",
+                        "enum": [
+                          "github",
+                          "gitlab"
+                        ],
+                        "description": "The forge hosting the repository"
                       }
                     },
                     "required": [
                       "host",
                       "owner",
-                      "name"
+                      "name",
+                      "forge"
                     ],
                     "description": "The repository that the webhook event occurred in"
                   },
@@ -8336,7 +8538,8 @@
                 "repository": {
                   "host": "string",
                   "owner": "string",
-                  "name": "string"
+                  "name": "string",
+                  "forge": "github"
                 },
                 "status": "merged",
                 "submitter": "string",
@@ -8494,12 +8697,21 @@
                       "name": {
                         "type": "string",
                         "description": "The user or organization that owns the repository"
+                      },
+                      "forge": {
+                        "type": "string",
+                        "enum": [
+                          "github",
+                          "gitlab"
+                        ],
+                        "description": "The forge hosting the repository"
                       }
                     },
                     "required": [
                       "host",
                       "owner",
-                      "name"
+                      "name",
+                      "forge"
                     ],
                     "description": "The repository that the webhook event occurred in"
                   },
@@ -8563,7 +8775,8 @@
                 "repository": {
                   "host": "string",
                   "owner": "string",
-                  "name": "string"
+                  "name": "string",
+                  "forge": "github"
                 },
                 "status": "pending_failure",
                 "submitter": "string",
@@ -8705,12 +8918,21 @@
                       "name": {
                         "type": "string",
                         "description": "The user or organization that owns the repository"
+                      },
+                      "forge": {
+                        "type": "string",
+                        "enum": [
+                          "github",
+                          "gitlab"
+                        ],
+                        "description": "The forge hosting the repository"
                       }
                     },
                     "required": [
                       "host",
                       "owner",
-                      "name"
+                      "name",
+                      "forge"
                     ],
                     "description": "The repository that the webhook event occurred in"
                   },
@@ -8774,7 +8996,8 @@
                 "repository": {
                   "host": "string",
                   "owner": "string",
-                  "name": "string"
+                  "name": "string",
+                  "forge": "github"
                 },
                 "status": "queued",
                 "submitter": "string",
@@ -8873,12 +9096,21 @@
                       "name": {
                         "type": "string",
                         "description": "The user or organization that owns the repository"
+                      },
+                      "forge": {
+                        "type": "string",
+                        "enum": [
+                          "github",
+                          "gitlab"
+                        ],
+                        "description": "The forge hosting the repository"
                       }
                     },
                     "required": [
                       "host",
                       "owner",
-                      "name"
+                      "name",
+                      "forge"
                     ],
                     "description": "The repository that the webhook event occurred in"
                   },
@@ -8931,7 +9163,8 @@
                 "repository": {
                   "host": "string",
                   "owner": "string",
-                  "name": "string"
+                  "name": "string",
+                  "forge": "github"
                 },
                 "status": "submitted",
                 "submitter": "string",
@@ -9019,12 +9252,21 @@
                       "name": {
                         "type": "string",
                         "description": "The user or organization that owns the repository"
+                      },
+                      "forge": {
+                        "type": "string",
+                        "enum": [
+                          "github",
+                          "gitlab"
+                        ],
+                        "description": "The forge hosting the repository"
                       }
                     },
                     "required": [
                       "host",
                       "owner",
-                      "name"
+                      "name",
+                      "forge"
                     ],
                     "description": "The repository that the webhook event occurred in"
                   },
@@ -9076,7 +9318,8 @@
                 "repository": {
                   "host": "string",
                   "owner": "string",
-                  "name": "string"
+                  "name": "string",
+                  "forge": "github"
                 },
                 "status": "testing",
                 "submitter": "string",

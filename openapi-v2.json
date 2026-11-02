@@ -3,7 +3,7 @@
   "info": {
     "title": "Trunk API",
     "version": "2.0.0",
-    "description": "The Trunk public API. Every endpoint is scoped to a single organization and requires a credential.\n\n## Authentication\n\nFor automation, send an API key as `Authorization: Bearer <key>`. An organization admin creates one in the Trunk app under **Settings → Developer → API Keys**, and chooses the merge-queue permissions it holds. A key with no permissions can read merge queues but change nothing. Those permissions scope merge queue only: every key can use the Flaky Tests and Dynamic CI endpoints, including their writes, whatever permissions it holds.\n\nA short-lived first-party token in the `x-trunk-token` header is what the `trunk` CLI sends after `trunk auth login`.\n\nA GitHub Actions job can upload impacted targets with no Trunk secret: the `trunk-io/login` action exchanges the run's own GitHub credential (its OIDC token, or on a pull request from a fork its `GITHUB_TOKEN`) for a short-lived first-party token. That token is accepted only by `PUT /v2/impacted-targets`, for the run's own repository — and on a fork pull request, only for that pull request and its head sha.\n\n## Errors\n\nEvery 4xx and 5xx response is a `ErrorResponse`: `{ \"error\": { \"code\", \"message\" } }`. Switch on `code`, which is stable; `message` is prose and may change at any time.\n\n**An authorization denial on a read is reported as `404`, not `403`** — whether a resource exists must not leak across organizations, so a resource in another organization is indistinguishable from one that does not exist. `403 INSUFFICIENT_PERMISSIONS` means the credential is valid but is not permitted the action (or carries no organization).\n\nEvery response carries an `X-Request-Id` header. Quote it in support requests.\n\n## Rate limiting\n\nRequests are limited per organization (currently 100 requests/second). Exceeding it returns `429` with `RATE_LIMIT_EXCEEDED`; retry with backoff. Note that the limit is enforced at the edge, which does not yet wrap its `429` in the `ErrorResponse` envelope described above — treat any `429` as rate limiting regardless of body.\n\n## Compatibility\n\nWithin v2, Trunk may add: new endpoints, new **optional** response fields, new members to any enum (including new `code` values, new queue-entry states, and new providers), and new optional request parameters. **Clients must tolerate values and fields they do not recognize** rather than failing closed — a client that switches exhaustively over an enum will break when a member is added. Removals and semantic changes require a new major version.\n\n## Provider support\n\nMerge queues, verification runs and checks are **GitHub-only** today; `Check.provider` has a single member for that reason. Impacted-target uploads additionally require a `github.com` repository named `owner/repo`. The `Provider` enum lists values the repository index can store, not surfaces that are fully supported.\n\n## Not yet available\n\nA pull request's numeric **position** in its queue is not exposed, and list responses are not ordered by queue position. `GET /v2/merge-queues/{id}/order` returns the order the engine will consider pull requests in, but an array index there is not a wait: use a pending entry's `directlyAhead` rather than counting, and `GET /v2/pull-requests/{id}/queue-entry-estimate` for when it is expected to merge (on queues that serve estimates). This API delivers no events of its own — poll it, or subscribe to [Merge Queue's webhooks](https://docs.trunk.io/merge-queue/webhooks). `Idempotency-Key` is not yet honored, so a mutation that times out must be reconciled by reading the resource back rather than blindly retried.",
+    "description": "The Trunk public API. Every endpoint is scoped to a single organization and requires a credential.\n\n## Authentication\n\nFor automation, send an API key as `Authorization: Bearer <key>`. An organization admin creates one in the Trunk app under **Settings → Developer → API Keys**, and chooses the permissions it holds. A key with no permissions can read merge queues but change nothing in them. Each write's description names the permission it needs, if any. Permissions cover merge queues and test-result uploads, including the quarantine lookups a CI run makes before it uploads; any key can call the other Flaky Tests and Dynamic CI endpoints, including their writes.\n\nA short-lived token in the `x-trunk-token` header is what Trunk's own tools send, such as the `trunk` CLI after `trunk auth login`. Your own integrations should use an API key.\n\nA GitHub Actions job can upload impacted targets with no Trunk secret: the `trunk-io/login` action exchanges the run's own GitHub credential (its OIDC token, or on a pull request from a fork its `GITHUB_TOKEN`) for a short-lived first-party token. That token is accepted only by `PUT /v2/impacted-targets`, for the run's own repository — and on a fork pull request, only for that pull request and its head sha.\n\n## Errors\n\nErrors from the API are an `ErrorResponse`: `{ \"error\": { \"code\", \"message\" } }`. Switch on `code`, which is stable; `message` is prose and may change at any time.\n\nSome responses don't have this shape. Trunk's edge answers `401`, `403` for some credential problems (including a request with no credential), `429`, and gateway errors such as `503` before the request reaches the API. The API itself answers `413` for a body over 512 KB and `504` for a request that runs past its time limit (usually 5 seconds), both as plain text. Read `error.code` only when the body is JSON with an `error` object, and otherwise branch on the status code.\n\n**An authorization denial on a read is reported as `404`, not `403`** — whether a resource exists must not leak across organizations, so a resource in another organization is indistinguishable from one that does not exist. `403 INSUFFICIENT_PERMISSIONS` means the credential is valid but is not permitted the action (or carries no organization).\n\nEvery response from the API carries an `X-Request-Id` header; edge responses may not. Quote it in support requests.\n\n## Rate limiting\n\nMost requests share one limit per organization (currently 100 requests per second), across every API key, user, and CLI session in it. Some requests have limits of their own and don't count toward it: `GET` requests on paths that start with `/v2/pull-requests`, `/v2/ci-jobs`, `/v2/ci-workflow-runs`, or `/v2/ci-failure-clusters` (5 per second per API key or user); the merge queue metrics endpoints (5 per second per organization); impacted-target uploads from a GitHub Actions login (10 per second per repository, and separately for its fork pull requests); test-result uploads (1000 per second per organization) and quarantine lookups (250 per second per organization). Exceeding a limit returns `429`; retry with backoff. The limit is enforced at the edge, which does not yet wrap its `429` in the `ErrorResponse` envelope or send `Retry-After`, so treat any `429` as rate limiting regardless of body.\n\n## Compatibility\n\nWithin v2, Trunk may add: new endpoints, new **optional** response fields, new members to any enum (including new `code` values, new queue-entry states, and new providers), and new optional request parameters. **Clients must tolerate values and fields they do not recognize** rather than failing closed — a client that switches exhaustively over an enum will break when a member is added. Removals and semantic changes require a new major version.\n\n## Provider support\n\nMerge queues, verification runs and checks are **GitHub-only** today; `Check.provider` has a single member for that reason. `PUT /v2/impacted-targets` accepts GitHub and GitLab repositories. A GitHub Actions login (the `trunk-io/login` action, or `trunk auth login --github-actions`) uploads only for its own GitHub repository. The `Provider` enum lists values the repository index can store, not surfaces that are fully supported.\n\n## Not yet available\n\nA pull request's numeric **position** in its queue is not exposed, and list responses are not ordered by queue position. `GET /v2/merge-queues/{id}/order` returns the order the engine will consider pull requests in, but an array index there is not a wait: use a pending entry's `directlyAhead` rather than counting, and `GET /v2/pull-requests/{id}/queue-entry-estimate` for when it is expected to merge (on queues that serve estimates). This API delivers no events of its own — poll it, or subscribe to [Merge Queue's webhooks](https://docs.trunk.io/merge-queue/webhooks). `Idempotency-Key` is not yet honored, so a mutation that times out must be reconciled by reading the resource back rather than blindly retried.",
     "contact": {
       "name": "Trunk Support",
       "url": "https://docs.trunk.io"
@@ -71,6 +71,10 @@
     {
       "name": "testUploads",
       "x-group": "Test Uploads"
+    },
+    {
+      "name": "detectionEvents",
+      "x-group": "Detection Events"
     }
   ],
   "components": {
@@ -78,13 +82,13 @@
       "apiKey": {
         "type": "http",
         "scheme": "bearer",
-        "description": "An API key, sent as `Authorization: Bearer <key>`. An organization admin creates one in the Trunk app under **Settings → Developer → API Keys** and chooses the merge-queue permissions it holds; a key with none can read merge queues but change nothing. Those permissions scope merge queue only: every key can use the Flaky Tests and Dynamic CI endpoints, including their writes, whatever permissions it holds."
+        "description": "An API key, sent as `Authorization: Bearer <key>`. An organization admin creates one in the Trunk app under **Settings → Developer → API Keys** and chooses the permissions it holds. A key with none can read merge queues but change nothing in them. Permissions cover merge queues and test-result uploads, including the quarantine lookups a CI run makes before it uploads; any key can call the other Flaky Tests and Dynamic CI endpoints, including their writes."
       },
       "trunkToken": {
         "type": "apiKey",
         "in": "header",
         "name": "x-trunk-token",
-        "description": "A short-lived first-party token, sent in the `x-trunk-token` header. The `trunk` CLI sends one after `trunk auth login`, and the `trunk-io/login` action obtains one for a GitHub Actions run.\n\n**A token from a GitHub Actions run can only upload impacted targets** (`PUT /v2/impacted-targets`), for the repository the run belongs to; every other endpoint refuses it."
+        "description": "A short-lived token that Trunk's own tools send in the `x-trunk-token` header: the `trunk` CLI after `trunk auth login`, and the `trunk-io/login` action in a GitHub Actions run. Your own integrations should use an API key instead. Never send `Authorization` and `x-trunk-token` on the same request.\n\n**A token from a GitHub Actions run can only upload impacted targets** (`PUT /v2/impacted-targets`), for the repository the run belongs to; every other endpoint refuses it."
       }
     },
     "schemas": {
@@ -245,7 +249,7 @@
           },
           "pendingFailureDepth": {
             "type": "integer",
-            "description": "How many entries behind a failing entry are pre-emptively marked `pendingFailure` rather than continuing to test against a state that is expected to fail. `0` disables this.",
+            "description": "How many test runs behind an entry in `pendingFailure` may keep testing while it waits; a passing run behind it shows the failure was not its own. Applies with `canOptimisticallyMerge`. `0` means nothing behind a pending failure tests until it resolves.",
             "example": 3
           },
           "canOptimisticallyMerge": {
@@ -320,17 +324,8 @@
               "type": "string"
             },
             "maxItems": 100,
-            "description": "The provider check names that must pass for an entry to be considered verified. **Empty means the queue gates on nothing** — an entry passes verification without any check succeeding. Security-relevant: this is the queue's merge gate.",
+            "description": "The provider check names that must pass for an entry to be considered verified. Empty means the queue takes required statuses from `.trunk/trunk.yaml`, then from the branch's protection rules. If `.trunk/trunk.yaml` doesn't set them and the branch requires no checks, the entry fails with `START_TEST_RUN_NO_REQUIRED_STATUSES`; an explicit empty list in `.trunk/trunk.yaml` gates on nothing. Security-relevant: this is the queue's merge gate.",
             "example": ["build", "lint"]
-          },
-          "allowedBotSubmitters": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "maxItems": 100,
-            "description": "Bot accounts permitted to submit to this queue in addition to human users. Empty means no bots may submit. Security-relevant: this is who may enqueue.",
-            "example": ["dependabot"]
           },
           "batchingRules": {
             "type": "array",
@@ -382,7 +377,6 @@
           "areLabelCommandsEnabled",
           "areStateLabelsEnabled",
           "requiredStatuses",
-          "allowedBotSubmitters",
           "batchingRules",
           "directMergeMode",
           "optimizationMode",
@@ -390,7 +384,7 @@
           "testBranchConstructionMode",
           "enqueueingLabel"
         ],
-        "description": "A queue's full configuration. Two fields are merge-protection controls rather than tuning knobs — `requiredStatuses` (what must pass) and `allowedBotSubmitters` (who may enqueue) — so treat write access to this object as security-relevant."
+        "description": "A queue's full configuration. `requiredStatuses` (what must pass) is a merge-protection control rather than a tuning knob, so treat write access to this object as security-relevant."
       },
       "BatchingRule": {
         "type": "object",
@@ -456,7 +450,7 @@
           }
         },
         "required": ["error"],
-        "description": "The uniform error envelope. Every 4xx and 5xx response in this API has this shape."
+        "description": "The error envelope. Every error this API itself returns has this shape, except a `413` for a body over 512 KB and a `504` for a request that runs past its time limit, which are plain text. Responses from Trunk's edge, such as a `401`, a `403` for a missing credential, a `429` or a `503`, can arrive before the request reaches the API and may not have it, so read `error.code` only when the body is JSON with an `error` object."
       },
       "ErrorCode": {
         "type": "string",
@@ -492,6 +486,7 @@
           "TEST_COLLECTION_NOT_FOUND",
           "TEST_NOT_FOUND",
           "TEST_UPLOAD_NOT_FOUND",
+          "OUT_OF_RANGE",
           "TICKETING_NOT_CONFIGURED",
           "TICKETING_CREDENTIALS_INVALID",
           "TICKETING_SITE_REFUSED",
@@ -511,34 +506,40 @@
         "properties": {
           "repositoryId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "The repository to create the queue for. Resolve it with `GET /v2/repositories?providerUrl=…`."
           },
           "targetBranch": {
             "type": "string",
-            "minLength": 1
+            "minLength": 1,
+            "description": "The branch the queue merges into. At most one queue exists per repository and target branch."
           },
           "mode": {
             "type": "string",
-            "enum": ["queue", "graph"]
+            "enum": ["queue", "graph"],
+            "description": "`queue` (shown as Single in the app) or `graph` (Parallel). Omitted, `queue`."
           },
           "concurrency": {
             "type": "integer",
             "minimum": 1,
-            "maximum": 1000
+            "maximum": 1000,
+            "description": "How many entries the queue may verify at once. Higher values merge faster and cost more CI."
           },
           "bisectionConcurrency": {
             "type": "integer",
             "minimum": 0,
-            "maximum": 1000
+            "maximum": 1000,
+            "description": "How many verification runs the engine may use in parallel when bisecting a failed batch. `0` means bisection gets no dedicated capacity and shares `concurrency`."
           },
           "enqueueingLabel": {
             "type": "string",
-            "minLength": 1
+            "minLength": 1,
+            "description": "The label that submits a pull request to this queue when `areLabelCommandsEnabled` is true. May not collide with a Trunk-reserved `trunk-*` state label."
           }
         },
         "required": ["repositoryId", "targetBranch"],
         "additionalProperties": false,
-        "description": "Omitting `mode` or `concurrency` applies the merge service's own defaults rather than a schema default, because what an omission means belongs to that service."
+        "description": "Omitting `mode` creates a `queue`-mode queue, and omitting `concurrency` sets it to 5."
       },
       "PrometheusExposition": {
         "type": "string",
@@ -657,7 +658,7 @@
           "cancelled",
           "pendingFailure"
         ],
-        "description": "Where a pull request sits in its queue's lifecycle.\n\n| Value | Meaning |\n| --- | --- |\n| `notReady` | Enqueued but not yet eligible to test — a readiness condition is unmet (see `QueueEntry.readiness`). |\n| `pending` | Ready and waiting for a test slot, or waiting on an earlier entry. |\n| `testing` | A verification run is in flight for this entry. |\n| `testsPassed` | Verification succeeded; waiting to merge. |\n| `merged` | Terminal — merged into the target branch. |\n| `failed` | Terminal — verification or the merge itself failed. |\n| `cancelled` | Terminal — removed from the queue (dequeued, or cancelled by the engine). |\n| `pendingFailure` | A failure is expected because an entry ahead failed, but this entry has not been re-tested yet. Not terminal: it usually returns to `pending` or `testing`. |\n\nNew members may be added within v2.",
+        "description": "Where a pull request sits in its queue's lifecycle.\n\n| Value | Meaning |\n| --- | --- |\n| `notReady` | Enqueued but not yet eligible to test — a readiness condition is unmet (see `QueueEntry.readiness`). |\n| `pending` | Ready and waiting for a test slot, or waiting on an earlier entry. |\n| `testing` | A verification run is in flight for this entry. |\n| `testsPassed` | Verification succeeded; waiting to merge. |\n| `merged` | Terminal — merged into the target branch. |\n| `failed` | Terminal — verification or the merge itself failed. |\n| `cancelled` | Terminal — removed from the queue (dequeued, or cancelled by the engine). |\n| `pendingFailure` | This entry's tests failed, and the queue is holding it to learn whether the failure is its own: it waits for the entries ahead of it to finish, and a passing run behind it can vouch for it. Not terminal: it can still pass and merge, return to `pending` or `testing`, or end `failed`. |\n\nNew members may be added within v2.",
         "example": "testing"
       },
       "QueuedPullRequest": {
@@ -1129,7 +1130,7 @@
           "createdAt",
           "updatedAt"
         ],
-        "description": "A pull request's queue membership. There is at most one ever — re-submitting the same pull request mutates this record rather than adding another."
+        "description": "A pull request's queue membership. A pull request has at most one at a time, and resubmitting it to the same queue reuses this record. An entry the queue tears down is replaced, so a later submission can carry a different `id` and `mergeQueueId`."
       },
       "Readiness": {
         "type": "object",
@@ -1358,7 +1359,7 @@
           "priorityValue": {
             "type": "integer",
             "minimum": 0,
-            "maximum": 32767
+            "maximum": 255
           },
           "priorityName": {
             "type": "string",
@@ -1442,64 +1443,80 @@
           "concurrency": {
             "type": "integer",
             "minimum": 1,
-            "maximum": 1000
+            "maximum": 1000,
+            "description": "How many entries the queue may verify at once. Higher values merge faster and cost more CI."
           },
           "bisectionConcurrency": {
             "type": "integer",
             "minimum": 0,
-            "maximum": 1000
+            "maximum": 1000,
+            "description": "How many verification runs the engine may use in parallel when bisecting a failed batch. `0` means bisection gets no dedicated capacity and shares `concurrency`."
           },
           "pendingFailureDepth": {
             "type": "integer",
             "minimum": 0,
-            "maximum": 1000
+            "maximum": 1000,
+            "description": "How many test runs behind an entry in `pendingFailure` may keep testing while it waits; a passing run behind it shows the failure was not its own. Applies with `canOptimisticallyMerge`. `0` means nothing behind a pending failure tests until it resolves."
           },
           "canOptimisticallyMerge": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether an entry whose own verification passed may merge before every entry ahead of it has merged, when the engine can prove the result still holds."
           },
           "allowBatching": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether the queue may verify several entries together in one run. Batching is cheaper but a failure must then be attributed by bisection. An individual entry can opt out at submit time; the queue setting is the ceiling, so an entry cannot batch when this is `false`."
           },
           "batchingMaxWaitTimeMinutes": {
             "type": "integer",
             "minimum": 0,
-            "maximum": 10080
+            "maximum": 10080,
+            "description": "How long the queue waits for more entries before starting a batch smaller than `batchingMinSize`. `0` means never wait — start as soon as there is anything to test."
           },
           "batchingMinSize": {
             "type": "integer",
             "minimum": 1,
-            "maximum": 1000
+            "maximum": 1000,
+            "description": "The batch size the queue prefers before starting a run, subject to `batchingMaxWaitTimeMinutes`. At least 1."
           },
           "testingTimeoutMinutes": {
             "type": "integer",
             "minimum": 0,
-            "maximum": 10080
+            "maximum": 10080,
+            "description": "How long a verification run may take before the queue abandons it and fails the entry. **`0` means no timeout** — a stuck run will hold its slot indefinitely."
           },
           "notReadyTimeoutMinutes": {
             "type": "integer",
             "minimum": 0,
-            "maximum": 43200
+            "maximum": 43200,
+            "description": "How long an entry may sit `notReady` before the queue cancels it (`NOT_READY_TIMEOUT_EXPIRED`). **`0` means no timeout.** Stored as whole hours, so this must be a multiple of 60."
           },
           "createsPrsForTestingBranches": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether the queue opens a provider pull request for each testing branch it creates. Makes runs visible in the provider UI at the cost of extra pull-request noise."
           },
           "areCommentsEnabled": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether the queue posts status comments on pull requests it processes."
           },
           "areCommandsEnabled": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether the queue acts on comment commands (e.g. a comment asking to enqueue or dequeue)."
           },
           "isStatusCheckEnabled": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether the queue publishes its own status check onto each pull request, so its state is visible in the provider's merge box."
           },
           "isExtensionEnabled": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether Trunk's browser extension surfaces queue controls on this repository's pull requests."
           },
           "areLabelCommandsEnabled": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether applying `enqueueingLabel` to a pull request submits it to this queue."
           },
           "areStateLabelsEnabled": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether the queue maintains labels reflecting each entry's state. Trunk owns labels prefixed `trunk-`, which is why `enqueueingLabel` may not collide with that prefix."
           },
           "requiredStatuses": {
             "type": "array",
@@ -1507,15 +1524,8 @@
               "type": "string",
               "minLength": 1
             },
-            "maxItems": 100
-          },
-          "allowedBotSubmitters": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "minLength": 1
-            },
-            "maxItems": 100
+            "maxItems": 100,
+            "description": "The provider check names that must pass for an entry to be considered verified. Empty means the queue takes required statuses from `.trunk/trunk.yaml`, then from the branch's protection rules. If `.trunk/trunk.yaml` doesn't set them and the branch requires no checks, the entry fails with `START_TEST_RUN_NO_REQUIRED_STATUSES`; an explicit empty list in `.trunk/trunk.yaml` gates on nothing. Security-relevant: this is the queue's merge gate."
           },
           "batchingRules": {
             "type": "array",
@@ -1532,31 +1542,37 @@
               },
               "required": ["targetPattern", "policy"]
             },
-            "maxItems": 100
+            "maxItems": 100,
+            "description": "Rules changing how pull requests are batched based on the build targets they impact. Empty means every entry batches normally. Applies to queues in `graph` mode that upload impacted targets."
           },
           "directMergeMode": {
             "type": "string",
-            "enum": ["off", "always"]
+            "enum": ["off", "always"],
+            "description": "One of `off` or `always`. See the `DirectMergeMode` schema."
           },
           "optimizationMode": {
             "type": "string",
-            "enum": ["off", "bisectionSkipRedundantTests"]
+            "enum": ["off", "bisectionSkipRedundantTests"],
+            "description": "One of `off` or `bisectionSkipRedundantTests`. See the `OptimizationMode` schema."
           },
           "mergeMethod": {
             "type": "string",
-            "enum": ["mergeCommit", "squash", "rebase"]
+            "enum": ["mergeCommit", "squash", "rebase"],
+            "description": "One of `mergeCommit`, `squash`, or `rebase`. See the `MergeMethod` schema."
           },
           "testBranchConstructionMode": {
             "type": "string",
-            "enum": ["renameTempBranch", "pushNewBranchFromTemp"]
+            "enum": ["renameTempBranch", "pushNewBranchFromTemp"],
+            "description": "One of `renameTempBranch` or `pushNewBranchFromTemp`. See the `TestBranchConstructionMode` schema."
           },
           "enqueueingLabel": {
             "type": "string",
-            "minLength": 1
+            "minLength": 1,
+            "description": "The label that submits a pull request to this queue when `areLabelCommandsEnabled` is true. May not collide with a Trunk-reserved `trunk-*` state label."
           }
         },
         "additionalProperties": false,
-        "description": "A JSON Merge Patch: an absent key leaves that setting unchanged, and an unknown key is rejected rather than dropped. `requiredStatuses: []`, `allowedBotSubmitters: []` and `batchingRules: []` clear those lists. A `batchingRules` write replaces the whole set. `notReadyTimeoutMinutes` must be a whole number of hours."
+        "description": "A JSON Merge Patch: an absent key leaves that setting unchanged, and an unknown key is rejected rather than dropped. `requiredStatuses: []` and `batchingRules: []` clear those lists. A `batchingRules` write replaces the whole set. `notReadyTimeoutMinutes` must be a whole number of hours."
       },
       "UploadImpactedTargetsRequest": {
         "type": "object",
@@ -2032,7 +2048,7 @@
           },
           "reason": {
             "type": ["string", "null"],
-            "description": "Why the entry entered this state. `null` for `testing` and `pendingFailure`, which carry no reason.\n\nThe values below are the vocabulary in use today, grouped by the state they accompany. **This is an open set** — it is the engine's own vocabulary and new values may appear within v2, so match on the values you care about and treat anything else as unclassified rather than failing closed.\n\n**Why an entry is waiting (`notReady`)** — `USER_REQUESTED`, `TRUNK_ADMIN_REQUESTED`, `API_REQUESTED`.\n\n**Why an entry (re)entered the line (`pending`)** — these are what distinguish a restart's cause:\n\n| Value | Meaning |\n| --- | --- |\n| `TESTS_RESTARTED_BY_USER` | A person restarted the tests. |\n| `TESTS_RESTARTED_BY_API_REQUEST` | Restarted through the API — e.g. `pullRequests.restartTests`. |\n| `MERGE_ITEM_NOW_READY` | A readiness condition became satisfied. |\n| `MANUAL_PUSH_TO_TARGET_BRANCH` | Someone pushed to the target branch, invalidating the tested state. |\n| `PREREQUISITE_MERGE_ITEM_FAILED` | An entry ahead of this one failed, so this one must re-test. |\n| `PREREQUISITE_MERGE_ITEM_CANCELLED` | An entry ahead was removed. |\n| `PREREQUISITE_MERGE_ITEM_MANUALLY_MERGED` | An entry ahead was merged outside the queue. |\n| `SKIP_THE_LINE_INTERRUPTED` | A higher-priority entry preempted this one. |\n| `BISECTION_REQUIRED` | A batch failed and the engine is bisecting to find the culprit. |\n| `BISECTION_TEST_RUN_PASSED` | A bisection run cleared this entry. |\n\n**Why verification passed (`testsPassed`)** — `TEST_RUN_PASSED`, `SUCCESSOR_TEST_RUN_PASSED`, `PASSED_BY_OPTIMIZATION`.\n\n**Why an entry failed (`failed`)** — `TEST_RUN_REQUIRED_STATUS_FAILED`, `TEST_RUN_TIMEOUT`, `TEST_RUN_FAILED_BY_OPTIMIZATION`, `START_TEST_RUN_MERGE_CONFLICT`, `START_TEST_RUN_RETRY_EXHAUSTED`, `START_TEST_RUN_DRAFT_PRS_NOT_ALLOWED`, `START_TEST_RUN_PERMISSIONS_BLOCK_TEST_BRANCH`, `START_TEST_RUN_NO_REQUIRED_STATUSES`, `START_TEST_RUN_CONFIG_NOT_FOUND`, `START_TEST_RUN_CONFIG_PARSING_FAILURE`, `START_TEST_RUN_CONFIG_BAD_VERSION`, `START_TEST_RUN_CONFIG_BAD_REQUIRED_STATUSES`, `START_TEST_RUN_CONFIG_MISSING_REQUIRED_STATUSES`, `START_TEST_RUN_INVALID_EVENT`, `PR_UPDATED_AT_MERGE_TIME`, `GITHUB_API_MERGE_PR_FAILED`, `GITHUB_API_DIRECT_MERGE_PR_FAILED`, `GITHUB_API_BRANCH_PROTECTION_UNMET`, `GITHUB_API_MERGE_ALREADY_IN_PROGRESS`, `GITHUB_API_RATE_LIMIT_EXCEEDED`, `GITHUB_API_REPEATED_SERVER_ERRORS`.\n\n**Why an entry was removed (`cancelled`)** — `USER_REQUESTED`, `TRUNK_ADMIN_REQUESTED`, `PR_CLOSED`, `PR_MERGED_INTO_OTHER_BRANCH`, `PR_PUSHED_TO`, `PR_BASE_BRANCH_CHANGED`, `PR_CONVERTED_TO_DRAFT`, `NOT_READY_TIMEOUT_EXPIRED`, `STACKED_PR_MEMBER_PUSHED_TO`, `STACKED_PR_MEMBER_CLOSED`, `STACKED_PR_MEMBER_MERGED`, `STACKED_PR_MEMBER_BASE_BRANCH_CHANGED`, `STACKED_PR_STACK_CHANGED`, `STACKED_PR_GROUP_CANCELLED_AT_MERGE_TIME`.\n\n**Why an entry merged (`merged`)** — `MERGE_GRAPH_MERGE`, `MERGE_GRAPH_DIRECT_MERGE`, `MANUAL_MERGE`.",
+            "description": "Why the entry entered this state. `null` for `testing` and `pendingFailure`, which carry no reason.\n\nThe values below are the vocabulary in use today, grouped by the state they accompany. **This is an open set** — it is the engine's own vocabulary and new values may appear within v2, so match on the values you care about and treat anything else as unclassified rather than failing closed.\n\n**Why an entry is waiting (`notReady`)** — `USER_REQUESTED`, `TRUNK_ADMIN_REQUESTED`, `API_REQUESTED`, `PR_PUSHED_TO` (a push to the pull request sent it back to wait on the new commit).\n\n**Why an entry (re)entered the line (`pending`)** — these are what distinguish a restart's cause:\n\n| Value | Meaning |\n| --- | --- |\n| `TESTS_RESTARTED_BY_USER` | A person restarted the tests. |\n| `TESTS_RESTARTED_BY_API_REQUEST` | Restarted through the API — e.g. `pullRequests.restartTests`. |\n| `MERGE_ITEM_NOW_READY` | A readiness condition became satisfied. |\n| `MANUAL_PUSH_TO_TARGET_BRANCH` | Someone pushed to the target branch, invalidating the tested state. |\n| `PREREQUISITE_MERGE_ITEM_FAILED` | An entry ahead of this one failed, so this one must re-test. |\n| `PREREQUISITE_MERGE_ITEM_CANCELLED` | An entry ahead was removed. |\n| `PREREQUISITE_MERGE_ITEM_MANUALLY_MERGED` | An entry ahead was merged outside the queue. |\n| `SKIP_THE_LINE_INTERRUPTED` | A higher-priority entry preempted this one. |\n| `BISECTION_REQUIRED` | A batch failed and the engine is bisecting to find the culprit. |\n| `BISECTION_TEST_RUN_PASSED` | A bisection run cleared this entry. |\n\n**Why verification passed (`testsPassed`)** — `TEST_RUN_PASSED`, `SUCCESSOR_TEST_RUN_PASSED`, `PASSED_BY_OPTIMIZATION`.\n\n**Why an entry failed (`failed`)** — `TEST_RUN_REQUIRED_STATUS_FAILED`, `TEST_RUN_TIMEOUT`, `TEST_RUN_FAILED_BY_OPTIMIZATION`, `START_TEST_RUN_MERGE_CONFLICT`, `START_TEST_RUN_RETRY_EXHAUSTED`, `START_TEST_RUN_DRAFT_PRS_NOT_ALLOWED`, `START_TEST_RUN_PERMISSIONS_BLOCK_TEST_BRANCH`, `START_TEST_RUN_NO_REQUIRED_STATUSES`, `START_TEST_RUN_CONFIG_NOT_FOUND`, `START_TEST_RUN_CONFIG_PARSING_FAILURE`, `START_TEST_RUN_CONFIG_BAD_VERSION`, `START_TEST_RUN_CONFIG_BAD_REQUIRED_STATUSES`, `START_TEST_RUN_CONFIG_MISSING_REQUIRED_STATUSES`, `START_TEST_RUN_INVALID_EVENT`, `PR_UPDATED_AT_MERGE_TIME`, `GITHUB_API_MERGE_PR_FAILED`, `GITHUB_API_DIRECT_MERGE_PR_FAILED`, `GITHUB_API_BRANCH_PROTECTION_UNMET`, `GITHUB_API_MERGE_ALREADY_IN_PROGRESS`, `GITHUB_API_RATE_LIMIT_EXCEEDED`, `GITHUB_API_REPEATED_SERVER_ERRORS`.\n\n**Why an entry was removed (`cancelled`)** — `USER_REQUESTED`, `TRUNK_ADMIN_REQUESTED`, `PR_CLOSED`, `PR_MERGED_INTO_OTHER_BRANCH`, `PR_PUSHED_TO` (older entries only; a push now returns an entry to `notReady`), `PR_BASE_BRANCH_CHANGED`, `PR_CONVERTED_TO_DRAFT`, `NOT_READY_TIMEOUT_EXPIRED`, `STACKED_PR_MEMBER_PUSHED_TO`, `STACKED_PR_MEMBER_CLOSED`, `STACKED_PR_MEMBER_MERGED`, `STACKED_PR_MEMBER_BASE_BRANCH_CHANGED`, `STACKED_PR_STACK_CHANGED`, `STACKED_PR_GROUP_CANCELLED_AT_MERGE_TIME`.\n\n**Why an entry merged (`merged`)** — `MERGE_GRAPH_MERGE`, `MERGE_GRAPH_DIRECT_MERGE`, `MANUAL_MERGE`.",
             "example": "TEST_RUN_REQUIRED_STATUS_FAILED"
           },
           "verificationRunId": {
@@ -2593,7 +2609,7 @@
           "priorityValue": {
             "type": "integer",
             "minimum": 0,
-            "maximum": 32767
+            "maximum": 255
           },
           "priorityName": {
             "type": "string",
@@ -2617,7 +2633,7 @@
           "priorityValue": {
             "type": "integer",
             "minimum": 0,
-            "maximum": 32767
+            "maximum": 255
           },
           "priorityName": {
             "type": "string",
@@ -4294,6 +4310,247 @@
         },
         "required": ["number"]
       },
+      "DetectionEventList": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DetectionEvent"
+            },
+            "maxItems": 100
+          },
+          "nextCursor": {
+            "type": ["string", "null"],
+            "description": "Opaque cursor for the next page, or null on the last page. Pass it back verbatim as `cursor`; do not construct or inspect one.",
+            "example": "AQEKZm9vYmFy"
+          },
+          "hasMore": {
+            "type": "boolean",
+            "description": "True when another page is available.",
+            "example": true
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total rows matching the filter. Present only when the request set `includeTotal=true`.",
+            "example": 1247
+          }
+        },
+        "required": ["data", "nextCursor", "hasMore"]
+      },
+      "DetectionEvent": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "5d6e7f80-91a2-4b3c-8d4e-5f6071829304"
+          },
+          "testCollectionId": {
+            "type": "string",
+            "description": "The id of the test collection the test belongs to.",
+            "example": "aB3xY9kQ"
+          },
+          "monitorId": {
+            "type": "string",
+            "example": "1a2b3c4d-5e6f-4a1b-8c9d-0e1f2a3b4c5d"
+          },
+          "monitorType": {
+            "$ref": "#/components/schemas/MonitorType"
+          },
+          "monitorStatus": {
+            "$ref": "#/components/schemas/MonitorStatus"
+          },
+          "testId": {
+            "type": "string",
+            "description": "The test's globally unique id.",
+            "example": "bfeebcf4-0000-8000-8000-000000000001"
+          },
+          "classification": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TestStatus"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The status the event's classify action names. Null when the event has no classify action, or when its classify action names a status this API does not report; `isClassificationEvent` is still `true` then."
+          },
+          "isClassificationEvent": {
+            "type": "boolean",
+            "description": "True when the event carries a classify action. It does not mean the test's status changed: several monitors can be active on one test, and `/tests/{testId}/status-history` records the changes.",
+            "example": true
+          },
+          "deactivationReason": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DeactivationReason"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Set when the monitor became inactive because it was disabled or deleted. Null for a detection, and for a test that recovered."
+          },
+          "detectedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-06-02T10:00:00.000Z"
+          },
+          "monitorKey": {
+            "type": ["string", "null"],
+            "description": "The detection pipeline's key for the event. Null for an event that a change to the monitor caused.",
+            "example": "7a1f0e3d-2b4c-4d5e-8f90-123456789abc:9c8b7a6f-5e4d-4c3b-8a2f-1b2c3d4e5f60:1a2b3c4d-5e6f-4a1b-8c9d-0e1f2a3b4c5d:recovered"
+          },
+          "sha": {
+            "type": ["string", "null"],
+            "description": "The commit the detection was made on, when it has one.",
+            "example": "9c58bf40e5c1a2b3d4e5f60718293a4b5c6d7e8f"
+          },
+          "actions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DetectionEventAction"
+            },
+            "maxItems": 100,
+            "description": "The actions the monitor was configured to take when the event was recorded."
+          },
+          "actor": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DetectionEventActor"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The person who disabled or deleted the monitor. Null for an event the detection pipeline made, and for a change made with an API token."
+          }
+        },
+        "required": [
+          "id",
+          "testCollectionId",
+          "monitorId",
+          "monitorType",
+          "monitorStatus",
+          "testId",
+          "classification",
+          "isClassificationEvent",
+          "deactivationReason",
+          "detectedAt",
+          "monitorKey",
+          "sha",
+          "actions",
+          "actor"
+        ]
+      },
+      "MonitorType": {
+        "type": "string",
+        "enum": [
+          "failureRate",
+          "passOnRetry",
+          "failureCount",
+          "newTest",
+          "skippedTest",
+          "slowTest",
+          "timeoutInflation"
+        ],
+        "description": "A monitor's type. The 'flag as flaky' mark is not a monitor, so `manual` is not one of them.",
+        "example": "failureRate"
+      },
+      "MonitorStatus": {
+        "type": "string",
+        "enum": ["active", "inactive"],
+        "description": "A monitor's verdict on one test: `active` when it detected the condition it watches for, `inactive` when the test recovered or the monitor stopped watching.",
+        "example": "active"
+      },
+      "DeactivationReason": {
+        "type": "string",
+        "enum": ["monitorDisabled", "monitorDeleted"],
+        "description": "Why a monitor stopped being active on a test because of a change to the monitor itself.",
+        "example": "monitorDisabled"
+      },
+      "DetectionEventAction": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/DetectionEventClassifyAction"
+          },
+          {
+            "$ref": "#/components/schemas/DetectionEventLabelAction"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "type",
+          "mapping": {
+            "classify": "#/components/schemas/DetectionEventClassifyAction",
+            "label": "#/components/schemas/DetectionEventLabelAction"
+          }
+        },
+        "description": "An action the monitor was configured to take, recorded with the event."
+      },
+      "DetectionEventClassifyAction": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["classify"]
+          },
+          "classification": {
+            "$ref": "#/components/schemas/TestStatus"
+          }
+        },
+        "required": ["type", "classification"],
+        "description": "The monitor classified the test."
+      },
+      "DetectionEventLabelAction": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["label"]
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DetectionEventLabel"
+            },
+            "maxItems": 100
+          }
+        },
+        "required": ["type", "labels"],
+        "description": "The monitor applied labels to the test, or removed them."
+      },
+      "DetectionEventLabel": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "slow"
+          },
+          "color": {
+            "type": "string",
+            "example": "#f97316"
+          }
+        },
+        "required": ["name", "color"],
+        "description": "A label as it was when the event was recorded."
+      },
+      "DetectionEventActor": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "example": "6f708192-a3b4-4c5d-8e9f-0a1b2c3d4e5f"
+          },
+          "displayName": {
+            "type": ["string", "null"],
+            "description": "Null only if the user record could not be found.",
+            "example": "Ada Lovelace"
+          }
+        },
+        "required": ["userId", "displayName"],
+        "description": "The person whose change to the monitor caused the event."
+      },
       "CreatedTestUpload": {
         "type": "object",
         "properties": {
@@ -5466,7 +5723,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5517,7 +5774,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5529,7 +5786,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -5564,7 +5821,7 @@
         "operationId": "mergeQueues.create",
         "tags": ["mergeQueues"],
         "summary": "Create a merge queue",
-        "description": "Creates a merge queue for a repository and target branch. At most one queue exists per pair, so a second create returns `QUEUE_ALREADY_EXISTS`.\n\n**This operation is not atomic.** `bisectionConcurrency` and `enqueueingLabel` are applied by a second write, so **an error response does not guarantee that no queue was created** — if the first write succeeded and the second failed, the queue exists with those two fields at their defaults and this call still returns the second write's error. Do not blindly retry: a retry returns `409 QUEUE_ALREADY_EXISTS`. Instead read the queue back (`GET /v2/merge-queues?repositoryId=…&targetBranch=…`) and, if it exists, finish the configuration with `PATCH /v2/merge-queues/{id}/config`.",
+        "description": "Requires the **Update Merge Queue settings** permission. Creates a merge queue for a repository and target branch. At most one queue exists per pair, so a second create returns `QUEUE_ALREADY_EXISTS`.\n\n**This operation is not atomic.** `bisectionConcurrency` and `enqueueingLabel` are applied by a second write, so **an error response does not guarantee that no queue was created** — if the first write succeeded and the second failed, the queue exists with those two fields at their defaults and this call still returns the second write's error. Do not blindly retry: a retry returns `409 QUEUE_ALREADY_EXISTS`. Instead read the queue back (`GET /v2/merge-queues?repositoryId=…&targetBranch=…`) and, if it exists, finish the configuration with `PATCH /v2/merge-queues/{id}/config`.",
         "requestBody": {
           "required": true,
           "content": {
@@ -5608,7 +5865,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5722,7 +5979,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5734,7 +5991,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -5840,7 +6097,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5912,7 +6169,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5924,7 +6181,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -5987,7 +6244,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6038,7 +6295,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6050,7 +6307,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -6113,7 +6370,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6164,7 +6421,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6176,7 +6433,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -6211,7 +6468,7 @@
         "operationId": "mergeQueues.delete",
         "tags": ["mergeQueues"],
         "summary": "Delete a merge queue",
-        "description": "**Destructive and not reversible.** Deletes a merge queue. The queue must be empty — drain or dequeue its pull requests first, or the call returns `QUEUE_HAS_ACTIVE_ENTRIES`. Historical queue entries and verification runs stay readable by id afterwards.",
+        "description": "Requires the **Update Merge Queue settings** permission. **Destructive and not reversible.** Deletes a merge queue. The queue must be empty — drain or dequeue its pull requests first, or the call returns `QUEUE_HAS_ACTIVE_ENTRIES`. Historical queue entries and verification runs stay readable by id afterwards.",
         "parameters": [
           {
             "schema": {
@@ -6230,7 +6487,7 @@
             "description": "The queue was deleted"
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6323,7 +6580,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6335,7 +6592,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -6419,7 +6676,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6491,7 +6748,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6503,7 +6760,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -6620,7 +6877,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6692,7 +6949,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6704,7 +6961,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -6879,7 +7136,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6951,7 +7208,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -6963,7 +7220,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -7021,7 +7278,7 @@
         "operationId": "mergeQueues.submitPullRequest",
         "tags": ["mergeQueues"],
         "summary": "Submit a pull request to a merge queue",
-        "description": "Enqueues a pull request. A pull request already enqueued in this queue is refused with `PR_ALREADY_ENQUEUED` rather than having its priority rewritten — change a live entry through `POST /v2/pull-requests/{id}/reprioritize` or `PATCH /v2/pull-requests/{id}/queue-entry`. `readiness.hasImpactedTargets` may be absent on the 201 if the post-write lookup failed; the enqueue still landed, so read the pull request again rather than retrying.\n\n`Idempotency-Key` is not honored. If a request times out, resolve the pull request by repository and number and inspect its queue entry before retrying.",
+        "description": "Requires the **Merge and cancel PRs** permission, plus **Set priority on PRs** to send `priorityValue` or `priorityName`, **Skip batching** to send `allowBatching: false`, and **Merge PRs with direct to queue** to send `direct: true`. Lower `priorityValue` numbers go first, from 0 to 255. The named priorities are `urgent` (0), `high` (10), `medium` (100, the default), and `low` (200). An `urgent` entry, or `priorityValue: 0`, restarts lower-priority entries that are already testing when it enters the queue (once it is ready), along with the entries tested on top of them.\n\nEnqueues a pull request. A pull request already enqueued in this queue is refused with `PR_ALREADY_ENQUEUED` rather than having its priority rewritten — change a live entry through `POST /v2/pull-requests/{id}/reprioritize` or `PATCH /v2/pull-requests/{id}/queue-entry`. `readiness.hasImpactedTargets` may be absent on the 201 if the post-write lookup failed; the enqueue still landed, so read the pull request again rather than retrying.\n\n`Idempotency-Key` is not honored. If a request times out, resolve the pull request by repository and number and inspect its queue entry before retrying.",
         "parameters": [
           {
             "schema": {
@@ -7078,7 +7335,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7192,7 +7449,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7204,7 +7461,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -7401,7 +7658,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7452,7 +7709,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7464,7 +7721,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -7501,7 +7758,7 @@
         "operationId": "mergeQueues.switchModes",
         "tags": ["mergeQueues"],
         "summary": "Switch a merge queue's mode",
-        "description": "Starts a conversion between `queue` and `graph` mode. Switching to the mode the queue is already in is an idempotent no-op. A queue already mid-conversion is refused with `MODE_CHANGE_IN_PROGRESS`. The response carries the state the merge engine reported after the write, so a started conversion reports `switchingModes`.",
+        "description": "Requires the **Update Merge Queue settings** permission. Starts a conversion between `queue` and `graph` mode. Switching to the mode the queue is already in is an idempotent no-op. A queue already mid-conversion is refused with `MODE_CHANGE_IN_PROGRESS`. The response carries the state the merge engine reported after the write, so a started conversion reports `switchingModes`.",
         "parameters": [
           {
             "schema": {
@@ -7558,7 +7815,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7651,7 +7908,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7663,7 +7920,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -7721,7 +7978,7 @@
         "operationId": "mergeQueues.pause",
         "tags": ["mergeQueues"],
         "summary": "Pause a merge queue",
-        "description": "**Disruptive — affects every entry in the queue.** Stops the queue testing or merging anything further; entries already in it stay enqueued and resume when the queue is resumed. `Idempotency-Key` is not honored; if the outcome is unknown, read the queue's state before retrying. The request body is ignored.",
+        "description": "Requires the **Update Merge Queue settings** permission. **Disruptive — affects every entry in the queue.** Stops the queue testing or merging anything further; entries already in it stay enqueued and resume when the queue is resumed. `Idempotency-Key` is not honored; if the outcome is unknown, read the queue's state before retrying. The request body is ignored.",
         "parameters": [
           {
             "schema": {
@@ -7768,7 +8025,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7840,7 +8097,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7852,7 +8109,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -7910,7 +8167,7 @@
         "operationId": "mergeQueues.resume",
         "tags": ["mergeQueues"],
         "summary": "Resume a merge queue",
-        "description": "Returns a paused or draining queue to `running`. `Idempotency-Key` is not honored; if the outcome is unknown, read the queue's state before retrying. The request body is ignored.",
+        "description": "Requires the **Update Merge Queue settings** permission. Returns a paused or draining queue to `running`. `Idempotency-Key` is not honored; if the outcome is unknown, read the queue's state before retrying. The request body is ignored.",
         "parameters": [
           {
             "schema": {
@@ -7957,7 +8214,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8029,7 +8286,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8041,7 +8298,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -8099,7 +8356,7 @@
         "operationId": "mergeQueues.drain",
         "tags": ["mergeQueues"],
         "summary": "Drain a merge queue",
-        "description": "**Disruptive — affects every entry in the queue.** Finishes the entries already in the queue but accepts no new submissions. `Idempotency-Key` is not honored; if the outcome is unknown, read the queue's state before retrying. The request body is ignored.",
+        "description": "Requires the **Update Merge Queue settings** permission. **Disruptive — affects every entry in the queue.** Finishes the entries already in the queue but accepts no new submissions. `Idempotency-Key` is not honored; if the outcome is unknown, read the queue's state before retrying. The request body is ignored.",
         "parameters": [
           {
             "schema": {
@@ -8146,7 +8403,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8218,7 +8475,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8230,7 +8487,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -8288,7 +8545,7 @@
         "operationId": "mergeQueues.updateConfig",
         "tags": ["mergeQueues"],
         "summary": "Update a merge queue's configuration",
-        "description": "Applies a JSON Merge Patch to the queue's configuration: an absent key leaves that setting unchanged, and an unknown key is rejected rather than silently dropped. Send `requiredStatuses: []`, `allowedBotSubmitters: []` or `batchingRules: []` to clear those lists.\n\n**Two of these fields are merge-protection controls, not tuning knobs**: `requiredStatuses` decides what must pass before an entry may merge (clearing it gates on nothing), and `allowedBotSubmitters` decides which bots may enqueue. Treat access to this endpoint as security-relevant. Refused with `MODE_CHANGE_IN_PROGRESS` while the queue is converting between modes.",
+        "description": "Requires the **Update Merge Queue settings** permission. Applies a JSON Merge Patch to the queue's configuration: an absent key leaves that setting unchanged, and an unknown key is rejected rather than silently dropped. Send `requiredStatuses: []` or `batchingRules: []` to clear those lists.\n\n**`requiredStatuses` is a merge-protection control, not a tuning knob**: it decides what must pass before an entry may merge (clearing it falls back to `.trunk/trunk.yaml` and the branch's protection rules). Treat access to this endpoint as security-relevant. Refused with `MODE_CHANGE_IN_PROGRESS` while the queue is converting between modes, and with `ALLOWED_BOT_SUBMITTERS_FROZEN` for a body carrying the removed `allowedBotSubmitters`: bots are approved on the Bots page of the organization's settings.",
         "parameters": [
           {
             "schema": {
@@ -8345,7 +8602,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8450,7 +8707,7 @@
                     "value": {
                       "error": {
                         "code": "ALLOWED_BOT_SUBMITTERS_FROZEN",
-                        "message": "allowedBotSubmitters can no longer be changed for this organization"
+                        "message": "allowedBotSubmitters has been removed. Bots are approved on the Bots page of the organization's settings instead."
                       }
                     }
                   }
@@ -8459,7 +8716,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8471,7 +8728,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -8529,7 +8786,7 @@
         "operationId": "impactedTargets.upload",
         "tags": ["impactedTargets"],
         "summary": "Upload a pull request's impacted targets",
-        "description": "Records which build targets a pull request's head sha impacts, for queues that gate on impacted targets. Address the pull request by exactly one of `number` or `branch`, and declare impact with exactly one of `impactedTargets` or `impactsAllTargets: true`. An empty `impactedTargets` array is a valid upload meaning the sha impacts nothing — it satisfies the queue's has-impacted-targets gate, because that gate asks whether CI reported, not whether it reported a non-zero result. Supported only for GitHub and GitLab repositories; anything else returns `IMPACTED_TARGETS_UNSUPPORTED`. Answers 202: the targets are stored, but readiness is re-evaluated asynchronously, so a 202 does not mean readiness has changed yet.\n\nA token from a GitHub Actions run may upload only for its own repository. One from a fork pull request's run is bound to that pull request and its head sha: address the pull request by `number`, and send that sha, or the upload is refused with `INSUFFICIENT_PERMISSIONS`.",
+        "description": "Requires the **Merge and cancel PRs** permission, or a GitHub Actions login for the run's own repository. Records which build targets a pull request's head sha impacts, for queues that gate on impacted targets. Address the pull request by exactly one of `number` or `branch`, and declare impact with exactly one of `impactedTargets` or `impactsAllTargets: true`. An empty `impactedTargets` array is a valid upload meaning the sha impacts nothing — it satisfies the queue's has-impacted-targets gate, because that gate asks whether CI reported, not whether it reported a non-zero result. Supported only for GitHub and GitLab repositories; anything else returns `IMPACTED_TARGETS_UNSUPPORTED`. Answers 202: the targets are stored, but readiness is re-evaluated asynchronously, so a 202 does not mean readiness has changed yet.\n\nA token from a GitHub Actions run may upload only for its own repository. One from a fork pull request's run is bound to that pull request and its head sha: address the pull request by `number`, and send that sha, or the upload is refused with `INSUFFICIENT_PERMISSIONS`.",
         "requestBody": {
           "required": true,
           "content": {
@@ -8566,7 +8823,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8668,7 +8925,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8680,7 +8937,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -8764,7 +9021,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8815,7 +9072,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -8827,7 +9084,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -8985,7 +9242,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9036,7 +9293,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9048,7 +9305,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -9195,7 +9452,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9246,7 +9503,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9258,7 +9515,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -9402,7 +9659,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9453,7 +9710,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9465,7 +9722,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -9550,7 +9807,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9652,7 +9909,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9664,7 +9921,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -9828,7 +10085,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9879,7 +10136,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9891,7 +10148,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -9928,7 +10185,7 @@
         "operationId": "pullRequests.reprioritize",
         "tags": ["pullRequests"],
         "summary": "Reprioritize a queued pull request",
-        "description": "Changes a live queue entry's priority. Exactly one of `priorityValue` or `priorityName` is required. `priorityValue: 0` is the write path for skipping the line. The pull request must have a non-terminal queue entry, or the call returns `PR_NOT_IN_ACTIVE_STATE`.\n\n`Idempotency-Key` is not honored. If a request times out, read the pull request's queue entry before retrying.",
+        "description": "Requires the **Set priority on PRs** permission. Lower `priorityValue` numbers go first, from 0 to 255. The named priorities are `urgent` (0), `high` (10), `medium` (100, the default), and `low` (200). Raising an entry that is already queued doesn't restart anything: the new priority applies the next time the entry is placed in the queue. An entry still `notReady` set to `urgent` restarts lower-priority entries already testing when it enters the queue.\n\nChanges a live queue entry's priority. Exactly one of `priorityValue` or `priorityName` is required. `priorityValue: 0` is the write path for skipping the line. The pull request must have a non-terminal queue entry, or the call returns `PR_NOT_IN_ACTIVE_STATE`.\n\n`Idempotency-Key` is not honored. If a request times out, read the pull request's queue entry before retrying.",
         "parameters": [
           {
             "schema": {
@@ -9986,7 +10243,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -10109,7 +10366,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -10121,7 +10378,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -10179,7 +10436,7 @@
         "operationId": "pullRequests.updateQueueEntry",
         "tags": ["pullRequests"],
         "summary": "Update a queued pull request's entry",
-        "description": "Patches a live queue entry; an omitted field leaves that attribute unchanged. `priorityValue` and `priorityName` are mutually exclusive. `skipsTheLine` is not settable — it is derived from `priorityValue === 0`, so send that instead. `direct` sends the entry directly to the queue past unmet readiness (it needs the **Merge PRs with direct to queue** permission, and a signed-in user also needs repository-admin permission). `allowBatching: false` gives the entry a test run of its own.",
+        "description": "Requires **Set priority on PRs** to send `priorityValue` or `priorityName`, **Skip batching** to send `allowBatching`, and **Merge PRs with direct to queue** to send `direct`. Lower `priorityValue` numbers go first, from 0 to 255. The named priorities are `urgent` (0), `high` (10), `medium` (100, the default), and `low` (200). Raising an entry that is already queued doesn't restart anything: the new priority applies the next time the entry is placed in the queue. An entry still `notReady` set to `urgent` restarts lower-priority entries already testing when it enters the queue.\n\nPatches a live queue entry; an omitted field leaves that attribute unchanged. `priorityValue` and `priorityName` are mutually exclusive. `skipsTheLine` is not settable — it is derived from `priorityValue === 0`, so send that instead. `direct` sends the entry directly to the queue past unmet readiness (it needs the **Merge PRs with direct to queue** permission, and a signed-in user also needs repository-admin permission). `allowBatching: false` gives the entry a test run of its own.",
         "parameters": [
           {
             "schema": {
@@ -10237,7 +10494,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -10360,7 +10617,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -10372,7 +10629,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -10430,7 +10687,7 @@
         "operationId": "pullRequests.dequeue",
         "tags": ["pullRequests"],
         "summary": "Dequeue a pull request",
-        "description": "**Disruptive.** Removes a pull request from its merge queue, abandoning any in-flight verification. The entry must be non-terminal, or the call returns `PR_NOT_IN_ACTIVE_STATE`. `Idempotency-Key` is not honored; if a request times out, read the pull request's queue entry before retrying. The request body is ignored.",
+        "description": "Requires the **Merge and cancel PRs** permission. **Disruptive.** Removes a pull request from its merge queue, abandoning any in-flight verification. The entry must be non-terminal, or the call returns `PR_NOT_IN_ACTIVE_STATE`. `Idempotency-Key` is not honored; if a request times out, read the pull request's queue entry before retrying. The request body is ignored.",
         "parameters": [
           {
             "schema": {
@@ -10478,7 +10735,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -10571,7 +10828,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -10583,7 +10840,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -10641,7 +10898,7 @@
         "operationId": "pullRequests.restartTests",
         "tags": ["pullRequests"],
         "summary": "Restart a queued pull request's tests",
-        "description": "**Disruptive.** Abandons the entry's in-flight verification and starts a new one, discarding CI progress. Only possible while the entry is testing or in pending-failure; other live states are refused with `PR_TESTS_NOT_RESTARTABLE`.\n\nThis endpoint does not diagnose anything — to find out *why* an entry keeps being re-tested, read `GET /v2/pull-requests/{id}/queue-entry-history` and inspect each transition's `reason`. `Idempotency-Key` is not yet honored, so a retry after a timeout starts a second restart; read the entry back instead of retrying. The request body is ignored.",
+        "description": "Requires the **Merge and cancel PRs** permission. **Disruptive.** Abandons the entry's in-flight verification and starts a new one, discarding CI progress. Only possible while the entry is testing or in pending-failure; other live states are refused with `PR_TESTS_NOT_RESTARTABLE`.\n\nThis endpoint does not diagnose anything — to find out *why* an entry keeps being re-tested, read `GET /v2/pull-requests/{id}/queue-entry-history` and inspect each transition's `reason`. `Idempotency-Key` is not yet honored, so a retry after a timeout starts a second restart; read the entry back instead of retrying. The request body is ignored.",
         "parameters": [
           {
             "schema": {
@@ -10689,7 +10946,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -10803,7 +11060,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -10815,7 +11072,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -10926,7 +11183,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -10977,7 +11234,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -10989,7 +11246,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -11100,7 +11357,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -11151,7 +11408,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -11163,7 +11420,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -11344,7 +11601,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -11395,7 +11652,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -11407,7 +11664,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -11577,7 +11834,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -11628,7 +11885,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -11640,7 +11897,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -11721,7 +11978,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -11781,7 +12038,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -11793,7 +12050,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -11924,7 +12181,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -11975,7 +12232,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -11987,7 +12244,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -12066,7 +12323,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -12117,7 +12374,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -12129,7 +12386,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -12214,7 +12471,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -12265,7 +12522,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -12277,7 +12534,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -12372,7 +12629,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -12444,7 +12701,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -12456,7 +12713,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -12597,7 +12854,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -12669,7 +12926,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -12681,7 +12938,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -12790,7 +13047,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -12841,7 +13098,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -12853,7 +13110,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -13144,7 +13401,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -13195,7 +13452,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -13207,7 +13464,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -13362,7 +13619,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -13413,7 +13670,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -13425,7 +13682,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -13627,7 +13884,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -13678,7 +13935,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -13690,7 +13947,317 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INTERNAL_ERROR": {
+                    "summary": "INTERNAL_ERROR",
+                    "value": {
+                      "error": {
+                        "code": "INTERNAL_ERROR",
+                        "message": "An unexpected error occurred"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/detection-events": {
+      "get": {
+        "operationId": "detectionEvents.list",
+        "tags": ["detectionEvents"],
+        "summary": "List detection events",
+        "description": "Lists each verdict a monitor recorded on a test: `active` when it detected the condition it watches for, `inactive` when the test recovered or the monitor was disabled or deleted. By default it reads every test collection in your organization; pass `testCollectionId` to narrow to one.\n\nThe window is `detectedAfter` to `detectedBefore`, at most 30 days. `detectedBefore` defaults to now and `detectedAfter` to 30 days before it. A wider window is a `400 OUT_OF_RANGE`.\n\nAn unknown `monitorId` or `testId` returns an empty page. The 'flag as flaky' mark is not listed here: see a test's status history.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25,
+              "description": "Page size, between 1 and 100.",
+              "example": 25
+            },
+            "required": false,
+            "description": "Page size, between 1 and 100.",
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "Opaque cursor from a previous response's `nextCursor`. A cursor is bound to the operation and filter it was minted for.",
+              "example": "AQEKZm9vYmFy"
+            },
+            "required": false,
+            "description": "Opaque cursor from a previous response's `nextCursor`. A cursor is bound to the operation and filter it was minted for.",
+            "name": "cursor",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "description": "Set true to include `total` in the response. Costs an extra COUNT query, so it is off by default.",
+              "example": false
+            },
+            "required": false,
+            "description": "Set true to include `total` in the response. Costs an extra COUNT query, so it is off by default.",
+            "name": "includeTotal",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Narrow to one collection, by its id. Omitted reads every collection in your organization.",
+              "example": "aB3xY9kQ"
+            },
+            "required": false,
+            "description": "Narrow to one collection, by its id. Omitted reads every collection in your organization.",
+            "name": "testCollectionId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Only events this monitor recorded.",
+              "example": "1a2b3c4d-5e6f-4a1b-8c9d-0e1f2a3b4c5d"
+            },
+            "required": false,
+            "description": "Only events this monitor recorded.",
+            "name": "monitorId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Comma-separated monitor types to include, e.g. `failureRate,passOnRetry`.",
+              "example": "failureRate,passOnRetry"
+            },
+            "required": false,
+            "description": "Comma-separated monitor types to include, e.g. `failureRate,passOnRetry`.",
+            "name": "monitorType",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Only events on this test, by its globally unique id.",
+              "example": "bfeebcf4-0000-8000-8000-000000000001"
+            },
+            "required": false,
+            "description": "Only events on this test, by its globally unique id.",
+            "name": "testId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": ["active", "inactive"],
+              "description": "Only events with this verdict.",
+              "example": "active"
+            },
+            "required": false,
+            "description": "Only events with this verdict.",
+            "name": "monitorStatus",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "boolean",
+              "description": "`true` for only the events that carry a classify action, `false` for only those that do not.",
+              "example": true
+            },
+            "required": false,
+            "description": "`true` for only the events that carry a classify action, `false` for only those that do not.",
+            "name": "isClassificationEvent",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Only events detected at or after this time.",
+              "example": "2026-06-01T00:00:00.000Z"
+            },
+            "required": false,
+            "description": "Only events detected at or after this time.",
+            "name": "detectedAfter",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Only events detected strictly before this time.",
+              "example": "2026-06-30T00:00:00.000Z"
+            },
+            "required": false,
+            "description": "Only events detected strictly before this time.",
+            "name": "detectedBefore",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": ["detectedAt"],
+              "default": "detectedAt",
+              "description": "Field to sort by."
+            },
+            "required": false,
+            "description": "Field to sort by.",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": ["asc", "desc"],
+              "default": "desc",
+              "description": "Sort direction. Newest first by default."
+            },
+            "required": false,
+            "description": "Sort direction. Newest first by default.",
+            "name": "direction",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of detection events",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetectionEventList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`VALIDATION_FAILED` | `INVALID_CURSOR` | `OUT_OF_RANGE`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "VALIDATION_FAILED": {
+                    "summary": "VALIDATION_FAILED",
+                    "value": {
+                      "error": {
+                        "code": "VALIDATION_FAILED",
+                        "message": "Invalid input: expected string, received undefined"
+                      }
+                    }
+                  },
+                  "INVALID_CURSOR": {
+                    "summary": "INVALID_CURSOR",
+                    "value": {
+                      "error": {
+                        "code": "INVALID_CURSOR",
+                        "message": "Invalid or expired cursor."
+                      }
+                    }
+                  },
+                  "OUT_OF_RANGE": {
+                    "summary": "OUT_OF_RANGE",
+                    "value": {
+                      "error": {
+                        "code": "OUT_OF_RANGE",
+                        "message": "The requested time window is wider than the endpoint allows"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "AUTHENTICATION_REQUIRED": {
+                    "summary": "AUTHENTICATION_REQUIRED",
+                    "value": {
+                      "error": {
+                        "code": "AUTHENTICATION_REQUIRED",
+                        "message": "No credential was supplied"
+                      }
+                    }
+                  },
+                  "INVALID_TOKEN": {
+                    "summary": "INVALID_TOKEN",
+                    "value": {
+                      "error": {
+                        "code": "INVALID_TOKEN",
+                        "message": "The supplied token failed verification"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`INSUFFICIENT_PERMISSIONS`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INSUFFICIENT_PERMISSIONS": {
+                    "summary": "INSUFFICIENT_PERMISSIONS",
+                    "value": {
+                      "error": {
+                        "code": "INSUFFICIENT_PERMISSIONS",
+                        "message": "The supplied credential is missing the required permission"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "RATE_LIMIT_EXCEEDED": {
+                    "summary": "RATE_LIMIT_EXCEEDED",
+                    "value": {
+                      "error": {
+                        "code": "RATE_LIMIT_EXCEEDED",
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -13785,7 +14352,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -13857,7 +14424,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -13869,7 +14436,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -13954,7 +14521,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -14005,7 +14572,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -14017,7 +14584,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -14112,7 +14679,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -14253,7 +14820,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -14265,7 +14832,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -14381,7 +14948,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -14549,7 +15116,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -14561,7 +15128,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -14713,7 +15280,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -14785,7 +15352,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -14797,7 +15364,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -14882,7 +15449,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -14933,7 +15500,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -14945,7 +15512,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -15115,7 +15682,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -15166,7 +15733,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -15178,7 +15745,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -15215,7 +15782,7 @@
         "operationId": "pullRequests.get",
         "tags": ["pullRequests"],
         "summary": "Get a pull request",
-        "description": "Returns one pull request: its queue entry and readiness if it has ever been submitted to a queue, and `ci`, the head commit's CI jobs counted with the URLs of the lists. Poll it: `ci.pollAfterSeconds` says when to read again, and a request that sends the last `ETag` in `If-None-Match` gets `304` when nothing changed.",
+        "description": "Returns one pull request: its queue entry and readiness if it has ever been submitted to a queue, and `ci`, the head commit's CI jobs counted with the URLs of the lists. `ci.pollAfterSeconds` says when to read the head commit's CI again; it is `null` once nothing on that commit will change, even while the queue entry is still live, so to wait for a merge keep polling until `queueEntry.state` is `merged`, `failed`, or `cancelled`. A request that sends the last `ETag` in `If-None-Match` gets `304` when nothing changed.",
         "parameters": [
           {
             "schema": {
@@ -15266,7 +15833,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -15338,7 +15905,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -15350,7 +15917,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -15556,7 +16123,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -15637,7 +16204,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -15649,7 +16216,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -15843,7 +16410,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -15924,7 +16491,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -15936,7 +16503,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -16091,7 +16658,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -16163,7 +16730,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -16175,7 +16742,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -16306,7 +16873,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -16378,7 +16945,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -16390,7 +16957,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -16519,7 +17086,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -16591,7 +17158,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -16603,7 +17170,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
@@ -16686,7 +17253,7 @@
             }
           },
           "401": {
-            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`",
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
             "content": {
               "application/json": {
                 "schema": {
@@ -16758,7 +17325,7 @@
             }
           },
           "429": {
-            "description": "`RATE_LIMIT_EXCEEDED`",
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
               "application/json": {
                 "schema": {
@@ -16770,7 +17337,7 @@
                     "value": {
                       "error": {
                         "code": "RATE_LIMIT_EXCEEDED",
-                        "message": "Rate limit exceeded; retry after the Retry-After delay"
+                        "message": "Rate limit exceeded; retry with backoff"
                       }
                     }
                   }
