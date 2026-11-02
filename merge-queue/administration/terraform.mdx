@@ -196,7 +196,7 @@ Either way, the queue stays marked as drifted, and with an API key `managed_stat
 
 With an API key, once `queue_id` is recorded, a queue deleted and recreated outside Terraform isn't taken over: the next refresh drops the old queue from state, and the plan proposes creating one, which fails with **Merge queue already exists**. [Import](#importing-existing-queues) the new queue instead.
 
-A revoked or invalid credential fails the refresh with an error, and the queue stays in state. So does a repository Trunk can't find, with the organization API token or before `queue_id` is recorded. An API key from another organization can't see the queue, so a refresh drops it from state.
+A revoked or invalid credential fails the refresh with an error, and the queue stays in state. So does a repository Trunk can't find, unless `queue_id` is recorded. Once it is, an API key from another organization can't see the queue, so a refresh drops it from state.
 
 ***
 

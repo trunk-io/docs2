@@ -69,8 +69,8 @@ See [Terraform Provider](./terraform) for the full reference.
 
 ## Fixed in 2.0
 
-* A refresh with a wrong or revoked organization API token, or for a repository Trunk can't find, removed the queue from state. It now fails with an error.
-* With an API key, a refresh no longer takes over a queue deleted and recreated outside Terraform. Import the new queue instead.
+* With the organization API token, a refresh with a wrong or revoked token, or for a repository Trunk can't find, removed the queue from state. It now fails with an error.
+* With an API key, once `queue_id` is recorded, a refresh no longer takes over a queue deleted and recreated outside Terraform. Import the new queue instead.
 * With the organization API token, a refresh of a queue on a host other than `github.com`, such as GitHub Enterprise, keeps the state and warns, since the v1 API can't read it. An apply that changes such a queue fails. Use an API key for those repositories.
 
 ## Switch to an API key
