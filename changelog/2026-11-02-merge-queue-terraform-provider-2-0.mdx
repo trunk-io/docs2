@@ -1,0 +1,30 @@
+---
+title: "Merge Queue: Terraform Provider 2.0"
+description: "The Trunk Terraform provider 2.0 adds API key support, batching rules, import by queue ID, and drift tracking."
+date: 2026-11-02
+category: Merge Queue
+type: new-feature
+---
+
+**Terraform provider 2.0 is out, with API keys and more of your Merge Queue settings as code.** The current version is 2.0.1. Most configurations upgrade unchanged. Read the [migration guide](/merge-queue/administration/terraform-migrate-to-2) before you upgrade.
+
+### New features
+
+- **API key support.** Authenticate with a Trunk [API key](/merge-queue/reference/api-v2/authentication#create-an-api-key) on the v2 API. The organization API token still works, but the v1 API it uses will be deprecated soon. See [Switch to an API key](/merge-queue/administration/terraform-migrate-to-2#switch-to-an-api-key).
+- **New settings.** Manage [`batching_rules`](/merge-queue/administration/terraform#batching-rules) and `test_branch_construction_mode` from Terraform.
+- **More with an API key.** Import a queue by its ID, read `queue_id` and `managed_state` to [track drift](/merge-queue/administration/terraform#managing-drift), set `batching_max_wait_time_minutes = 0`, and update queues on hosts other than `github.com`, such as GitHub Enterprise.
+
+### Updates
+
+- **`required_statuses` behaves differently.** Leaving it out no longer removes the queue's override. Set `required_statuses = []` to clear it. It's now a set, so order doesn't matter.
+- **`api_key` and `base_url` must be known at plan time.** `base_url` is now the API host, such as `https://api.trunk.io`.
+- **`testing_timeout_minutes = 0` means no timeout.**
+
+### Bug fixes
+
+- `required_statuses` in non-alphabetical order no longer fails the apply.
+- A wrong or revoked token, or an unknown repository, now fails the refresh instead of removing the queue from state.
+- A create that fails partway now marks the queue tainted instead of leaving nothing in state.
+- An apply during a [mode switch](/merge-queue/administration/terraform#switching-modes) no longer abandons the switch.
+
+To upgrade, set `version = "~> 2.0"` and run `terraform init -upgrade`. See the [Terraform provider docs](/merge-queue/administration/terraform).

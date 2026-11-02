@@ -927,6 +927,12 @@
             "group": "2026",
             "pages": [
               {
+                "group": "November",
+                "pages": [
+                  "changelog/2026-11-02-merge-queue-terraform-provider-2-0"
+                ]
+              },
+              {
                 "group": "October",
                 "pages": [
                   "changelog/2026-10-28-flaky-tests-depot-ci",
