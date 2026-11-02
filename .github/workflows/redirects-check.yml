@@ -1,0 +1,38 @@
+name: Redirects check
+
+on:
+  pull_request:
+    paths:
+      - 'docs.json'
+      - '**/*.mdx'
+      - 'scripts/check-redirects.py'
+  schedule:
+    - cron: '0 14 * * *'
+  workflow_dispatch:
+
+jobs:
+  static:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Every redirect lands on a page
+        run: python3 scripts/check-redirects.py
+
+  live:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: No redirect sends a signed-out reader to login
+        run: python3 scripts/check-redirects.py --live https://docs.trunk.io

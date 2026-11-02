@@ -99,7 +99,7 @@
               "merge-queue/merge-queue",
               {
                 "group": "Getting Started",
-                "root": "merge-queue/getting-started/index",
+                "root": "merge-queue/getting-started",
                 "pages": [
                   "merge-queue/getting-started/install-and-create-your-queue",
                   "merge-queue/getting-started/configure-branch-protection",
@@ -110,13 +110,13 @@
               "merge-queue/migrating-from-github-merge-queue",
               {
                 "group": "Optimizations",
-                "root": "merge-queue/optimizations/index",
+                "root": "merge-queue/optimizations",
                 "pages": [
                   "merge-queue/optimizations/predictive-testing",
                   "merge-queue/optimizations/anti-flake-protection",
                   {
                     "group": "Parallel queues",
-                    "root": "merge-queue/optimizations/parallel-queues/index",
+                    "root": "merge-queue/optimizations/parallel-queues",
                     "pages": [
                       "merge-queue/optimizations/parallel-queues/bazel",
                       "merge-queue/optimizations/parallel-queues/nx",
@@ -161,6 +161,7 @@
                 "pages": [
                   "merge-queue/administration/advanced-settings",
                   "merge-queue/administration/terraform",
+                  "merge-queue/administration/terraform-migrate-to-2",
                   "merge-queue/administration/metrics"
                 ]
               },
@@ -200,7 +201,7 @@
                   "flaky-tests/get-started/migrate-to-test-collections",
                   {
                     "group": "Test frameworks",
-                    "root": "flaky-tests/get-started/frameworks/index",
+                    "root": "flaky-tests/get-started/frameworks",
                     "pages": [
                       "flaky-tests/get-started/frameworks/android",
                       "flaky-tests/get-started/frameworks/bazel",
@@ -241,7 +242,7 @@
                   },
                   {
                     "group": "CI Providers",
-                    "root": "flaky-tests/get-started/ci-providers/index",
+                    "root": "flaky-tests/get-started/ci-providers",
                     "pages": [
                       "flaky-tests/get-started/ci-providers/atlassian-bamboo",
                       "flaky-tests/get-started/ci-providers/azure-devops-pipelines",
@@ -299,7 +300,7 @@
                   "flaky-tests/management/github-pull-request-comments",
                   {
                     "group": "Ticketing",
-                    "root": "flaky-tests/management/ticketing/index",
+                    "root": "flaky-tests/management/ticketing",
                     "pages": [
                       "flaky-tests/management/ticketing/automatic-ticketing",
                       "flaky-tests/management/ticketing/asana-integration",
@@ -352,7 +353,7 @@
                   "links/flaky-tests-api",
                   {
                     "group": "MCP reference",
-                    "root": "flaky-tests/reference/mcp-reference/index",
+                    "root": "flaky-tests/reference/mcp-reference",
                     "pages": [
                       {
                         "group": "Configuration",
@@ -404,7 +405,7 @@
           {
             "group": "Dynamic CI (beta)",
             "pages": [
-              "ci/dynamic-ci/index",
+              "ci/dynamic-ci",
               {
                 "group": "Getting Started",
                 "root": "ci/dynamic-ci/getting-started/index",
@@ -428,7 +429,7 @@
           {
             "group": "Overview",
             "pages": [
-              "runners/index",
+              "runners",
               "runners/getting-started",
               "runners/pricing"
             ]
@@ -501,10 +502,10 @@
               {
                 "group": "Code Quality",
                 "pages": [
-                  "code-quality/overview/index",
+                  "code-quality/overview",
                   "code-quality/overview/initialize-trunk",
                   "code-quality/overview/deal-with-existing-issues",
-                  "code-quality/overview/prevent-new-issues/index",
+                  "code-quality/overview/prevent-new-issues",
                   {
                     "group": "IDE integrations",
                     "root": "code-quality/overview/ide-integration/index",
@@ -584,11 +585,11 @@
                   },
                   {
                     "group": "Linters",
-                    "root": "code-quality/overview/linters/index",
+                    "root": "code-quality/overview/linters",
                     "pages": [
                       {
                         "group": "Supported linters",
-                        "root": "code-quality/overview/linters/supported/index",
+                        "root": "code-quality/overview/linters/supported",
                         "pages": [
                           "code-quality/overview/linters/supported/actionlint",
                           "code-quality/overview/linters/supported/ansible-lint",
@@ -2034,7 +2035,7 @@
     },
     {
       "source": "/docs",
-      "destination": "/welcome"
+      "destination": "/"
     },
     {
       "source": "/docs/actions-config",
@@ -2094,11 +2095,11 @@
     },
     {
       "source": "/docs/get-started",
-      "destination": "/welcome"
+      "destination": "/"
     },
     {
       "source": "/docs/getting-started",
-      "destination": "/welcome"
+      "destination": "/"
     },
     {
       "source": "/docs/github-app-permissions",
@@ -2134,7 +2135,7 @@
     },
     {
       "source": "/docs/overview",
-      "destination": "/welcome"
+      "destination": "/"
     },
     {
       "source": "/docs/plugins",
@@ -2162,7 +2163,7 @@
     },
     {
       "source": "/docs/what-is-trunk",
-      "destination": "/welcome"
+      "destination": "/"
     },
     {
       "source": "/docs/windows-beta",
@@ -2174,7 +2175,7 @@
     },
     {
       "source": "/get-started",
-      "destination": "/welcome"
+      "destination": "/"
     },
     {
       "source": "/merge-graph",

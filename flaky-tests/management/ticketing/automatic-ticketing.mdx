@@ -10,7 +10,7 @@ Trunk can manage the full lifecycle of a test's ticket for you. When a test's st
 * **Reopens the existing ticket** (or creates a fresh one) when a fixed test regresses
 * **Closes the ticket** when the test returns to healthy
 
-Automatic ticketing works with the built-in [Linear](./linear-integration), [Jira](./jira-integration), [Jira Data Center](./jira-data-center-integration), and [Asana](./asana-integration) integrations and produces the same rich tickets as manual creation — full [ticket content](./index#ticket-content) (failure history, impact, common failure reasons, code owners), your configured [field defaults](./jira-integration#custom-fields), and complete dashboard support: linked tickets appear on the test case details page, and every automated action is recorded in the test's [Events tab](/flaky-tests/dashboard#test-case-details).
+Automatic ticketing works with the built-in [Linear](./linear-integration), [Jira](./jira-integration), [Jira Data Center](./jira-data-center-integration), and [Asana](./asana-integration) integrations and produces the same rich tickets as manual creation — full [ticket content](.#ticket-content) (failure history, impact, common failure reasons, code owners), your configured [field defaults](./jira-integration#custom-fields), and complete dashboard support: linked tickets appear on the test case details page, and every automated action is recorded in the test's [Events tab](/flaky-tests/dashboard#test-case-details).
 
 ## Enabling ticket automation
 
@@ -62,7 +62,7 @@ The reopen window is measured from the ticket's close date in your ticketing sys
 
 ## How the automation behaves
 
-* **One ticket per test.** Each test case has at most one linked ticket at a time. Previous tickets remain visible in the test's [event history](./index#ticket-event-history).
+* **One ticket per test.** Each test case has at most one linked ticket at a time. Previous tickets remain visible in the test's [event history](.#ticket-event-history).
 * **Ticket content stays fresh.** Auto-created tickets have their description refreshed as the test's status evolves — for example when a flaky test escalates to broken — so the ticket always reflects current data. Title edits made by your team are preserved, and tickets you created or linked manually are never edited by Trunk (only closed or reopened per your settings).
 * **Quiet updates.** Status escalations update the ticket description in place rather than posting comments, so flip-flopping tests don't generate notification noise. Comments are only posted on reopen and close, where the context matters.
 * **Clearly attributed.** Auto-created tickets are badged in the dashboard, and every automated action appears in the test's Events tab attributed to Trunk automation — so it's always clear whether Trunk or a teammate acted on a ticket.
