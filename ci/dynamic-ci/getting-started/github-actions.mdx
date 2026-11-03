@@ -82,6 +82,22 @@ Use each job's key from `jobs:`, not its display `name:`.
   ```
 </Accordion>
 
+<Accordion title="Send your build tool's impact">
+  If your build tool measures how much of the codebase a change affects, such
+  as a count of affected packages, pass it as a JSON list so Trunk runs broad
+  changes:
+
+  ```yaml
+  with:
+    token: ${{ secrets.TRUNK_API_TOKEN }}
+    impacts: '[{"source":"tainted-packages","count":${{ steps.affected.outputs.count }}}]'
+  ```
+
+  Use `"all": true` in place of `count` when everything is affected, and leave
+  `impacts` unset when your tool computed nothing. A bad entry is dropped with
+  a warning. Ask us to turn the signal on and set each job's limit.
+</Accordion>
+
 ## Next
 
 [Turn on enforcement](/ci/dynamic-ci/getting-started) once the
