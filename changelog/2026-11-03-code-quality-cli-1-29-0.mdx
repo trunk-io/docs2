@@ -1,0 +1,38 @@
+---
+title: "Code Quality: CLI 1.29.0"
+description: "Trunk CLI 1.29.0 is available now, with libgit2 v1.9.7, security updates for bundled libraries and leaner telemetry."
+slug: code-quality-cli-1-29-0
+date: 2026-11-03
+category: Code Quality
+type: update
+---
+
+**Trunk CLI 1.29.0 is available now.** Run `trunk upgrade` to get it.
+
+**🔒 Security**
+
+- Upgraded libgit2 to [v1.9.7](https://github.com/libgit2/libgit2/releases/tag/v1.9.7), the latest stable release. The previous build used an untagged 2024 snapshot between 1.8 and 1.9.
+- Upgraded bundled libraries with known CVEs: curl 8.23.0, libarchive 3.8.1, mbedtls 3.6.7, c-ares 1.34.9 and zlib 1.3.2.
+- curl is now built with only HTTP(S) and `file://` support, so bugs in other protocols can't be reached, including through redirects.
+- macOS now uses BoringSSL and checks certificates against the macOS trust store.
+- Removed the AWS SDK. The CLI now downloads from public S3 buckets over HTTPS.
+
+**✨ Improvements**
+
+- `trunk init` always writes a `plugins:` section. Each release includes the latest [trunk-io/plugins](https://github.com/trunk-io/plugins) version, which init uses if it can't look up the newest one.
+- Looking up the latest version of plugins, linters and runtimes no longer uses GitHub's rate-limited API. Before, a couple of `trunk init` or `trunk upgrade` runs an hour could hit the limit.
+- `trunk init`, `trunk upgrade` and `trunk check enable` no longer call deprecated Trunk endpoints, so they start faster.
+- `trunk upgrade` adds a missing `plugins:` section right after `cli:`, as `trunk init` does, not at the end of `trunk.yaml`.
+- The minimum trunk-io/plugins version is now v1.10.0, which brings Ruby 3.4 and Python 3.14 runtimes. `trunk upgrade` updates older pinned refs.
+- CI detection now covers Bamboo, Google Cloud Build, GoCD, Harness, TaskCluster, Prow, Codefresh, Buddy, Screwdriver and Vela. `CI=false` now means "not CI".
+
+**🕵️ Privacy**
+
+- The CLI no longer sends telemetry from CI.
+- Usage analytics are limited to six events: `check`, `fmt`, `init`, `upgrade`, `merge` and `merge status`. The CLI no longer sends identify calls, so it sends no name or email.
+- Removed Sentry, Mixpanel and LaunchDarkly from the CLI.
+
+**⚠️ Behavior changes**
+
+- `s3://` downloads in `trunk.yaml` now need a public bucket. The CLI no longer reads your AWS `default` profile.
+- Removed the hidden `trunk flare` command.
