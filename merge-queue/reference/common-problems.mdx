@@ -29,7 +29,7 @@ og:title: "Trunk Merge Queue FAQ"
     - **Merge Commit** - Preserves all individual commits and creates a merge commit
     - **Rebase** - Replays commits on top of main for a linear history
 
-    The merge method is configured for each queue in **Merge Queue** → **[your repository]** → **Settings** → **Default merge method**. PRs merged through the queue use the selected method.
+    The merge method is configured for each queue in **Merge Queue** → **[your repository]** → **Settings** → **General** → **Default merge method**. PRs merged through the queue use the selected method.
 
     To let a PR use a different method, turn on **Allow choosing a merge method per pull request**. Then whoever submits the PR can choose its method, for example with `/trunk merge --merge-method=rebase`. See [Choosing a merge method per pull request](/merge-queue/administration/advanced-settings#choosing-a-merge-method-per-pull-request).
 

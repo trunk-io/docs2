@@ -85,7 +85,7 @@ curl -X POST https://api.trunk.io/v2/merge-queues/xK9mP2nQ/pull-requests \
 
 To change it while the pull request is queued, send `mergeMethod` to [`PATCH /v2/pull-requests/{id}/queue-entry`](/api/pullrequests/update-a-queued-pull-requests-entry). Send `null` to go back to the queue's method; leave it out to keep the current choice. Choosing needs only the **Merge and cancel PRs** permission. `queueEntry.mergeMethod` reads the choice back, and is `null` when the queue's method applies.
 
-Trunk refuses a choice with `422 PR_NOT_ENQUEUEABLE`, and the reason in `message`, when the queue's setting is off, when the pull request is already being merged, when the branch's rulesets don't allow the method, or when the provider can't merge that way. On GitLab, `mergeCommit` means "don't squash", and `rebase` isn't available.
+Trunk refuses a choice with `422 PR_NOT_ENQUEUEABLE`, and the reason in `message`, when the queue's setting is off, when the pull request is already being merged, or when the branch's rulesets don't allow the method.
 
 ## Queue order
 
