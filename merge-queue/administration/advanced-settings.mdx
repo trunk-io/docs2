@@ -119,9 +119,9 @@ Choose how your PRs get merged into the target branch. Options are Squash (defau
 You can change your merge method at any time:
 
 1. Navigate to the **Merge Queue** tab → **[repository]** → **Settings**
-2. Find the **Merge Method** dropdown
+2. Find the **Default merge method** dropdown
 3. Select your preferred method: Squash, Merge Commit, or Rebase
-4. The new method will apply to all PRs merged after the change
+4. The new method will apply to all PRs merged after the change, except PRs that [chose their own method](#choosing-a-merge-method-per-pull-request)
 
 <Info>
 **Note:** Changing the merge method only affects future merges. PRs already merged will retain their original merge method.
@@ -135,6 +135,36 @@ You can change your merge method at any time:
 * **Existing Workflows**: Match your existing GitHub merge button preferences for consistency across your team
 
 The merge method is configured per repository, so different repositories in your organization can use different methods based on their needs.
+
+### Choosing a merge method per pull request
+
+By default, every PR in a queue merges with the queue's merge method. To let the person who submits a PR choose a different method for that PR, turn on **Allow choosing a merge method per pull request**:
+
+1. Navigate to the **Merge Queue** tab → **[repository]** → **Settings** → **General**
+2. Turn on the **Allow choosing a merge method per pull request** toggle
+
+The queue's merge method becomes the default: a PR that doesn't choose a method merges with it. Anyone who can submit PRs to the queue can choose a method.
+
+When the setting is on, you choose a method as you submit the PR:
+
+* **Trunk web app:** select a method from the **Merge method** menu next to the submit button. **Queue default** uses the queue's method.
+* **Comment:** add `--merge-method` to the `/trunk merge` comment, with `squash`, `rebase`, or `merge` (a merge commit). For example, `/trunk merge --merge-method=rebase`. This works in GitHub comments and pull request reviews, and in GitLab comments.
+* **API:** send `mergeMethod` when you submit or update a PR. See [Automate the queue with the API](../using-the-queue/api#merge-method).
+
+Submitting with a label or the merge checkbox always uses the queue's method.
+
+Trunk refuses the method, and says why, when:
+
+* The setting is off.
+* The PR is already being merged and you choose a different method.
+* The branch's GitHub rulesets don't allow that method.
+* The provider can't merge that way. GitLab has no rebase.
+
+If you turn the setting off, every PR merges with the queue's method, including PRs that chose their own. If you turn it back on, those choices apply again.
+
+When Trunk merges a [stack](../using-the-queue/stacked-pull-requests), the method chosen on the PR you enqueued applies to it and to every PR below it that merges with it.
+
+**On GitLab**, the choices are **Squash** and **Don't squash**. **Don't squash** (`merge` in a comment, `mergeCommit` in the API) merges the merge request without squashing its commits, and your GitLab project's own merge method decides whether that creates a merge commit.
 
 ### Custom merge commit titles
 

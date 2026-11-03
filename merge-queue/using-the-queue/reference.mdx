@@ -24,6 +24,8 @@ og:title: "Submit and cancel PRs in Trunk Merge Queue"
 
     - **Submit:** `/trunk merge`
     - **Cancel:** `/trunk cancel`
+
+    If your queue lets PRs [choose their own merge method](/merge-queue/administration/advanced-settings#choosing-a-merge-method-per-pull-request), add `--merge-method=squash`, `--merge-method=rebase`, or `--merge-method=merge` to `/trunk merge`.
   </Tab>
   <Tab title="GitHub Label">
     Apply a configured **enqueue label** to the pull request on GitHub to submit it automatically. See [Enqueueing by label](#enqueueing-by-label) below.
