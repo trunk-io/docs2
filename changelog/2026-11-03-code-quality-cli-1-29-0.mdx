@@ -22,11 +22,4 @@ type: update
 
 **🕵️ Privacy**
 
-- The CLI no longer sends telemetry from CI.
-- Usage analytics are limited to six events: `check`, `fmt`, `init`, `upgrade`, `merge` and `merge status`. The CLI no longer sends identify calls, so it sends no name or email.
 - Removed Sentry, Mixpanel and LaunchDarkly from the CLI.
-
-**⚠️ Behavior changes**
-
-- `s3://` downloads in `trunk.yaml` now need a public bucket. The CLI no longer reads your AWS `default` profile.
-- Removed the hidden `trunk flare` command.
