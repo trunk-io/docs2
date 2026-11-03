@@ -88,6 +88,26 @@ your repository → **Configuration**.
     because the agent has already started, and a skipped step reports as passed.
   </Accordion>
 
+  <Accordion title="Send your build tool's impact (v0.1.8 or later)">
+    If your build tool measures how much of the codebase a change affects,
+    such as a count of affected packages, send it so Trunk runs broad changes.
+    Export it as a JSON list in the upload step's command, before the filter
+    runs:
+
+    ```bash
+    export BUILDKITE_PLUGIN_DYNAMIC_CI_IMPACTS='[{"source":"tainted-packages","count":734}]'
+    ```
+
+    - `source`: your name for the measure (lowercase letters, digits, `.`,
+      `_`, `-`). Keep it the same on every build.
+    - `count`: a whole number. Send `0` when nothing is affected.
+    - `all: true` in place of `count` when everything is affected.
+
+    Leave the variable unset when your tool computed nothing. A bad entry is
+    dropped with a warning, and the build continues. Ask us to turn the
+    signal on and set each step's limit.
+  </Accordion>
+
   <Accordion title="All options">
     | Option           | Default       | Description                                                          |
     | ---------------- | ------------- | -------------------------------------------------------------------- |
@@ -97,6 +117,7 @@ your repository → **Configuration**.
     | `exclude-keys`   | unset         | Comma-separated step keys to never skip. Wins over `only-keys`.      |
     | `debug`          | `false`       | Print the requested keys, the request and the plan to the build log. |
     | `ignore-signals` | unset         | Comma-separated signal identifiers to leave out. Ask us for the list. |
+    | `impacts`        | unset         | A list of `source`, `count` and `all` known when the pipeline is written. For a count computed during the build, use `BUILDKITE_PLUGIN_DYNAMIC_CI_IMPACTS` (above). |
   </Accordion>
 </AccordionGroup>
 
