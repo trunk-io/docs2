@@ -1,0 +1,19 @@
+---
+title: "Dynamic CI: Send your build tool's impact"
+description: "Tell Dynamic CI how much of your codebase a change affects, so broad changes always run the jobs they need."
+date: 2026-11-03
+category: Dynamic CI
+type: new-feature
+---
+
+**Dynamic CI can now use your build tool's view of how far a change reaches.**
+
+### New features
+
+- **Impact signal from your build tool.** If your build tool counts what a change affects, such as affected packages, send that count to Trunk. Changes that reach past a job's limit run that job instead of being skipped.
+- **Buildkite.** Export `BUILDKITE_PLUGIN_DYNAMIC_CI_IMPACTS` as a JSON list in your upload step, or set the `impacts` plugin option for a fixed value. Requires plugin v0.1.8 or later. See the [Buildkite guide](/ci/dynamic-ci/getting-started/buildkite).
+- **GitHub Actions.** Pass the `impacts` input as a JSON list. See the [GitHub Actions guide](/ci/dynamic-ci/getting-started/github-actions).
+
+Send `"all": true` when a change affects everything. Invalid entries are dropped with a warning, and your build continues.
+
+The signal is opt-in, and Trunk sets each job's limit for you. [Reach out to Trunk](https://slack.trunk.io) to turn it on.
