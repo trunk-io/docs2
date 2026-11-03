@@ -1,0 +1,25 @@
+---
+title: "Code Quality: CLI 1.29.0"
+description: "Trunk CLI 1.29.0 is available now, with libgit2 v1.9.7, security updates for bundled libraries and leaner telemetry."
+slug: code-quality-cli-1-29-0
+date: 2026-11-03
+category: Code Quality
+type: update
+---
+
+**Trunk CLI 1.29.0 is available now.** Run `trunk upgrade` to get it.
+
+**🔒 Security**
+
+- Upgraded libgit2 to [v1.9.7](https://github.com/libgit2/libgit2/releases/tag/v1.9.7), the latest stable release.
+- Upgraded bundled libraries.
+
+**✨ Improvements**
+
+- `trunk init` always writes a `plugins:` section. Each release includes the latest [trunk-io/plugins](https://github.com/trunk-io/plugins) version, which init uses if it can't look up the newest one.
+- The minimum trunk-io/plugins version is now v1.10.0, which brings Ruby 3.4 and Python 3.14 runtimes. `trunk upgrade` updates older pinned refs.
+- CI detection now covers Bamboo, Google Cloud Build, GoCD, Harness, TaskCluster, Prow, Codefresh, Buddy, Screwdriver and Vela. `CI=false` now means "not CI".
+
+**🕵️ Privacy**
+
+- Removed Sentry, Mixpanel and LaunchDarkly from the CLI.

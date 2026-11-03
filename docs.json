@@ -970,6 +970,12 @@
             "group": "2026",
             "pages": [
               {
+                "group": "November",
+                "pages": [
+                  "changelog/2026-11-03-code-quality-cli-1-29-0"
+                ]
+              },
+              {
                 "group": "October",
                 "pages": [
                   "changelog/2026-10-28-flaky-tests-depot-ci",
