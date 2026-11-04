@@ -12,7 +12,7 @@ If Trunk is offline, the token is missing, or a job has no verdict yet, the outp
 
 ## Workflow Example
 
-This workflow gates one single job and a matrix job, and has one job to mark as the required check. 
+This workflow gates two jobs. Note the job ids are the critical matched. values in this flow 
 
 ```yaml
 name: CI
@@ -61,9 +61,7 @@ jobs:
       - run: make test
 ```
 
-<br />
-
-## Rules for every gated job
+## Guidance for gating a job correctly
 
 <Steps>
   <Step title="Use the job key, not the display name">
