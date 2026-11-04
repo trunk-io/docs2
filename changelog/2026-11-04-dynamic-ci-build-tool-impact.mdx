@@ -1,0 +1,18 @@
+---
+title: "Dynamic CI: Send your build tool's impact"
+description: "The Dynamic CI Buildkite plugin can send how much of your codebase a change affects, so Trunk runs broad changes in full."
+date: 2026-11-04
+category: Dynamic CI
+type: new-feature
+---
+
+**Dynamic CI can now factor in how much of your codebase a change affects.**
+
+### New features
+
+- **Send your build tool's impact from Buildkite.** If your build tool counts affected packages or similar, pass that count to Dynamic CI plugin v0.1.8 or later. Trunk runs steps in full for broad changes. Export `BUILDKITE_PLUGIN_DYNAMIC_CI_IMPACTS` for counts computed during the build, or set the `impacts` option for values known up front. Send `"all": true` when everything is affected. Bad entries are dropped with a warning, and the build continues. Ask Trunk to turn the signal on and set each step's limit. See the [Buildkite guide](/ci/dynamic-ci/getting-started/buildkite).
+
+### Updates
+
+- **Show verdicts on the GitHub Actions run summary.** Set `enable-annotation: true` on `trunk-io/dynamic-ci@v1` to post each job's recommendation to the run's annotations and job summary. See the [action reference](/ci/dynamic-ci/dynamic-ci-action-reference).
+- **Clearer GitHub Actions setup.** The [GitHub Actions guide](/ci/dynamic-ci/getting-started/github-actions) now includes a complete workflow example, the rules every gated job must follow, and how to check your setup.
