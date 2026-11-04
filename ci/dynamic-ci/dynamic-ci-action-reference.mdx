@@ -1,0 +1,66 @@
+---
+title: "Dynamic CI Action Reference"
+sidebarTitle: "Action reference"
+description: "Inputs, outputs, modes, and fail-open behavior of the trunk-io/dynamic-ci GitHub Action."
+og:title: "trunk-io/dynamic-ci GitHub Action reference"
+---
+
+The [`trunk-io/dynamic-ci`](https://github.com/trunk-io/dynamic-ci) action connects a GitHub Actions workflow to Dynamic CI. It asks Trunk which jobs the current change needs and writes one output per job. Your jobs read those outputs in their `if:` conditions to decide whether to run.
+
+## Usage
+
+The action sets one output per job in the workflow, named by the job key. Outputs are set at runtime, so re-export each one from the filter job's `outputs:` under the same key:
+
+```yaml
+jobs:
+  dynamic-ci:
+    runs-on: ubuntu-latest
+    outputs:
+      # 'false': Trunk recommends skipping the job.
+      # Any other value: Trunk recommends running the job.
+      # Empty: no verdict (Trunk unreachable, missing token, or no history
+      # yet). The job should run.
+      unit-tests: ${{ steps.dynamic-ci.outputs.unit-tests }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          clean: false
+      - uses: trunk-io/dynamic-ci@v1
+        with:
+           # Your organization API token. Store it as a repository or organization
+           # secret, such as TRUNK_API_TOKEN
+           # Required.
+           token: ${{ secrets.TRUNK_API_TOKEN }}
+
+           # Token used to read the pull request's changed files when the checkout
+           # does not contain both the base and head commits
+           # Default: ${{ github.token }}
+           github-token: ''
+
+           # Post the recommendation for each job to the run's annotations and job
+           # summary, so verdicts show on the run's summary page
+           # Default: false
+           enable-annotation: ''
+```
+
+## Fail-open behavior
+
+The action is built so a problem never causes a job to be skipped by mistake. It retries requests to Trunk, and when it still cannot get a verdict, the output is empty and the job will run.
+
+## Checkout
+
+The action compares the pull request's base and head commits to find the changed files.`actions/checkout` with `clean: false` is enough. When the checkout does not contain both commits, the action falls back to `github-token` to read the changed files.
+
+## Versioning
+
+Pin to the major version tag, `trunk-io/dynamic-ci@v1`, to receive compatible updates automatically.
+
+## GitHub token permissions
+
+Grant the workflow `pull-requests: read` so `github-token` can read the pull request's changed files:
+
+```yaml
+permissions:
+  contents: read
+  pull-requests: read
+```

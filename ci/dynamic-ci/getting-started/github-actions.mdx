@@ -1,105 +1,99 @@
 ---
 title: "GitHub Actions"
-description: "Add the Dynamic CI filter job to a GitHub Actions workflow."
+description: "Adding Dynamic CI to your existing GitHub Actions workflows"
 og:title: "Set up Trunk Dynamic CI for GitHub Actions"
 ---
 
-<Note>
-  Before you start, [set up Trunk CI for GitHub Actions](/ci/get-started/github-actions)
-  and copy your organization API token from the **Organization API token (v1)**
-  section of [Settings → Developer → API Keys](https://app.trunk.io/settings/developer/api-tokens). Store it
-  as a repository secret named `TRUNK_API_TOKEN`.
-</Note>
+## How it works
 
-## Add the filter job to the top of your workflow
+A filter job at the top of your workflow runs the `trunk-io/dynamic-ci` action. The action asks Trunk which jobs this change needs, and writes one output per job. The `outputs` of the Dynamic CI step will store the verdict for each job specified. By listing a job in the list you are asking Dynamic CI to weigh in and attempt to manage that job.<br /><br />If Dynamic CI determines a job should be skipped it will set the output variable named after the job to `'false'.`At each job level you will need to add an `if: `clause to read that matching variable.
 
-List every job you want to gate under `outputs`. Check out first, with full
-history, so the action can read the changed files.
+If Trunk is offline, the token is missing, or a job has no verdict yet, the output will be empty and the job will run. This allows Dynamic CI to "fail open" so you will not inadvertently skip jobs.
+
+## Workflow Example
+
+This workflow gates two jobs. Note the job ids are the critical matched. values in this flow 
 
 ```yaml
+name: CI
+
+on:
+  pull_request: {}
+
 jobs:
-  dynamic-ci-filter:
+  dynamic-ci:
     name: Dynamic CI
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    if: github.event_name == 'pull_request'
+    # One output per gated job, named by its job key.
     outputs:
-      unit-tests: ${{ steps.ci-filter.outputs.unit-tests }}
-      integration-tests: ${{ steps.ci-filter.outputs.integration-tests }}
+      unit-tests: ${{ steps.dynamic-ci.outputs.unit-tests }}
+      playwright-tests: ${{ steps.dynamic-ci.outputs.playwright-tests }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
-          fetch-depth: 0
-          filter: blob:none
-      - name: Dynamic CI
-        id: ci-filter
-        uses: trunk-io/dynamic-ci@v1
+          clean: false
+      - uses: trunk-io/dynamic-ci@v1
         with:
           token: ${{ secrets.TRUNK_API_TOKEN }}
-```
 
-## Gate your jobs on it
-
-```yaml
-unit-tests:
-  name: Unit Tests
-  runs-on: ubuntu-latest
-  needs: [dynamic-ci-filter]
-  if: >-
-    !cancelled() &&
-    needs.dynamic-ci-filter.outputs.unit-tests != 'false'
-  steps:
-    - run: make test
-```
-
-<Warning>
-  Gate on `!= 'false'`, never on `== 'true'`. A job with no verdict has no
-  output, and `!= 'false'` makes it run.
-</Warning>
-
-Use each job's key from `jobs:`, not its display `name:`.
-
-<Accordion title="Gating a single job instead (pre-step mode)">
-  A job can ask about itself by passing its own key in `job-keys`, and skip its
-  own steps. It saves less, because the runner has already started.
-
-  ```yaml
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
+    needs: [dynamic-ci]
+    if: >-
+      !cancelled() &&
+      needs.dynamic-ci.outputs.unit-tests != 'false'
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          filter: blob:none
-      - name: Dynamic CI
-        id: ci-filter
-        uses: trunk-io/dynamic-ci@v1
-        with:
-          token: ${{ secrets.TRUNK_API_TOKEN }}
-          job-keys: unit-tests
-      - if: steps.ci-filter.outputs.unit-tests != 'false'
-        run: make test
-  ```
-</Accordion>
+      - uses: actions/checkout@v7
+      - run: make test
 
-<Accordion title="Send your build tool's impact">
-  If your build tool measures how much of the codebase a change affects, such
-  as a count of affected packages, pass it as a JSON list so Trunk runs broad
-  changes:
+  playwright-tests:
+    name: Playwright Tests
+    runs-on: ubuntu-latest
+    needs: [dynamic-ci]
+    if: >-
+      !cancelled() &&
+      needs.dynamic-ci.outputs.playwright-tests != 'false'
+    steps:
+      - uses: actions/checkout@v7
+      - run: make test
+```
 
-  ```yaml
-  with:
-    token: ${{ secrets.TRUNK_API_TOKEN }}
-    impacts: '[{"source":"tainted-packages","count":${{ steps.affected.outputs.count }}}]'
-  ```
+## Guidance for gating a job correctly
 
-  Use `"all": true` in place of `count` when everything is affected, and leave
-  `impacts` unset when your tool computed nothing. A bad entry is dropped with
-  a warning. Ask us to turn the signal on and set each job's limit.
-</Accordion>
+<Steps>
+  <Step title="Use the job key, not the display name">
+    Outputs are named by the key under `jobs:` In the example above playwright-tests ad unit-tests are the job ids. 
 
-## Next
+    Re-export each gated job's output from the filter job's `outputs:`, under the same key. The action sets its outputs at runtime, so GitHub cannot pass them on unless you list them there.
+  </Step>
 
-[Turn on enforcement](/ci/dynamic-ci/getting-started) once the
-recommendations look right. For how Dynamic CI behaves in a merge queue, see
-[Merge queues](/ci/dynamic-ci/merge-queue).
+  <Step title="Export the verdict for each job you want to dynamically manage in the outputs section of the Dynamic CI job ">
+    ```yaml
+    outputs:
+      unit-tests: ${{ steps.dynamic-ci.outputs.unit-tests }}
+      playwright-tests: ${{ steps.dynamic-ci.outputs.playwright-tests
+    ```
+  </Step>
+
+  <Step title="List the filter job in needs ">
+    Each managed job has should specify `needs: [dynamic-ci-filter]`. This ensures the dynamic ci verdict will be available to assess before the job ever spins up.
+  </Step>
+
+  <Step title="Start the condition with !cancelled()">
+    By default GitHub skips a job when a job it needs failed or was skipped. Without `!cancelled()`, a failed filter job (a bad token, an outage) skips every gated job, and nothing is tested. 
+  </Step>
+
+  <Step title="Compare with != 'false' on the output of the matching job">
+    Join other conditions with &&
+  </Step>
+</Steps>
+
+When your workflow files are updated and start calling into Dynamic CI a background linter will run to verify the format of your yaml file and call out problems.
+
+## Check your setup
+
+1. Open a pull request. The **Dynamic CI's** verdict will be reported on each pull request under the dynamic ci tab. Additionally you can see all decisions made by the system in the [Dynamic CI page](https://app.trunk.io/dynamic-ci).
+2. Your repository starts in **Learning** mode, which records verdicts but will not actively skip anything. Once the recommendations look right you can  [turn on enforcement](/ci/dynamic-ci/settings). 
