@@ -65,11 +65,12 @@ jobs:
 
 <Steps>
   <Step title="Use the job key, not the display name">
-    Outputs are named by the key under `jobs:` (`unit-tests`), the value
-    `github.job` reports, never by `name:` (`Unit Tests`). Re-export each gated
-    job's output from the filter job's `outputs:`, under the same key. The
-    action sets its outputs at runtime, so GitHub cannot pass them on unless
-    you list them there.
+    Outputs are named by the key under `jobs:` In the example above playwright-tests ad unit-tests are the job ids. 
+
+    Re-export each gated job's output from the filter job's `outputs:`, under the same key. The action sets its outputs at runtime, so GitHub cannot pass them on unless you list them there.
+  </Step>
+
+  <Step title="Export the verdict for each job you want to dynamically manage in the outputs section of the dynamic-ci job. ">
   </Step>
 
   <Step title="List the filter job in needs">
