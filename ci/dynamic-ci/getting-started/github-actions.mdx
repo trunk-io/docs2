@@ -6,34 +6,22 @@ og:title: "Set up Trunk Dynamic CI for GitHub Actions"
 
 ## How it works
 
-A filter job at the top of your workflow runs the `trunk-io/dynamic-ci` action. The action asks Trunk which jobs this change needs, and writes one output per job. The `outputs` of the Dynamic CI step will store the verdict for each job specified. By listing a job in the list you are asking Dynamic CI to weigh in and attempt to manage that job.<br /><br />If Dynamic CI determines a job should be skipped it will set the output variable named after the job to `'false'`<br /><br />At each job level you will need to add an `if: `clause to read that matching variable.
+A filter job at the top of your workflow runs the `trunk-io/dynamic-ci` action. The action asks Trunk which jobs this change needs, and writes one output per job. The `outputs` of the Dynamic CI step will store the verdict for each job specified. By listing a job in the list you are asking Dynamic CI to weigh in and attempt to manage that job.<br /><br />If Dynamic CI determines a job should be skipped it will set the output variable named after the job to `'false'.`At each job level you will need to add an `if: `clause to read that matching variable.
 
-A job runs unless its output is exactly `'false'`. If Trunk is down, the token
-is missing, or a job has no verdict yet, the output is empty and the job runs.
-This only holds if every job follows the [rules](#rules-for-every-gated-job)
-below.
+If Trunk is offline, the token is missing, or a job has no verdict yet, the output will be empty and the job will run. This allows Dynamic CI to "fail open" so you will not inadvertently skip jobs.
 
-## Complete example
+## Workflow Example
 
-This workflow gates two jobs and a matrix job, and has one job to mark as the
-required check. Copy it, then replace the job keys and steps with your own.
+This workflow gates one single job and a matrix job, and has one job to mark as the required check. 
 
 ```yaml
 name: CI
 
 on:
   pull_request: {}
-  push:
-    branches:
-      - main
-      - trunk-merge/** # Trunk Merge Queue's test branches
-
-permissions:
-  contents: read
-  pull-requests: read
 
 jobs:
-  dynamic-ci-filter:
+  dynamic-ci:
     name: Dynamic CI
     runs-on: ubuntu-latest
     timeout-minutes: 5
