@@ -69,6 +69,10 @@
       "x-group": "Tests"
     },
     {
+      "name": "testInvestigations",
+      "x-group": "Test Investigations"
+    },
+    {
       "name": "testUploads",
       "x-group": "Test Uploads"
     },
@@ -244,8 +248,8 @@
           },
           "bisectionConcurrency": {
             "type": "integer",
-            "description": "How many verification runs the engine may use in parallel when bisecting a failed batch. `0` means bisection gets no dedicated capacity and shares `concurrency`.",
-            "example": 0
+            "description": "How many verification runs the engine may use in parallel when bisecting a failed batch, separate from `concurrency`. At least 1.",
+            "example": 5
           },
           "pendingFailureDepth": {
             "type": "integer",
@@ -350,6 +354,11 @@
           "mergeMethod": {
             "$ref": "#/components/schemas/MergeMethod"
           },
+          "isMergeMethodOverrideEnabled": {
+            "type": "boolean",
+            "description": "Whether whoever submits a pull request may choose its merge method. An entry that chooses none merges with the queue's `mergeMethod`. While `false`, every entry merges with the queue's `mergeMethod`, and a submit that changes an entry's merge method is refused.",
+            "example": false
+          },
           "testBranchConstructionMode": {
             "$ref": "#/components/schemas/TestBranchConstructionMode"
           },
@@ -381,6 +390,7 @@
           "directMergeMode",
           "optimizationMode",
           "mergeMethod",
+          "isMergeMethodOverrideEnabled",
           "testBranchConstructionMode",
           "enqueueingLabel"
         ],
@@ -478,6 +488,14 @@
           "PR_TESTS_NOT_RESTARTABLE",
           "ALLOWED_BOT_SUBMITTERS_FROZEN",
           "ESTIMATE_NOT_ENABLED",
+          "PR_RERUN_FEATURE_DISABLED",
+          "PR_RERUN_NOT_PENDING_FAILURE",
+          "PR_RERUN_QUEUE_DOES_NOT_KEEP_FAILED_RUNS",
+          "PR_RERUN_NOT_A_REQUIRED_CHECK_FAILURE",
+          "PR_RERUN_CHECK_NOT_RERUNNABLE",
+          "PR_RERUN_RUN_TORN_DOWN",
+          "PR_RERUN_HOLD_LIMIT_REACHED",
+          "PR_RERUN_FORGE_NOT_SUPPORTED",
           "PROVIDER_URL_NOT_FOUND",
           "CI_HOST_UNSUPPORTED",
           "CI_SCOPE_NOT_FOUND",
@@ -486,11 +504,14 @@
           "TEST_COLLECTION_NOT_FOUND",
           "TEST_NOT_FOUND",
           "TEST_UPLOAD_NOT_FOUND",
+          "INVESTIGATION_NOT_FOUND",
           "OUT_OF_RANGE",
+          "TEST_UNAVAILABLE",
           "TICKETING_NOT_CONFIGURED",
           "TICKETING_CREDENTIALS_INVALID",
           "TICKETING_SITE_REFUSED",
           "TICKET_NOT_FOUND",
+          "TICKET_NOT_LINKED",
           "TICKET_LINK_CONFLICT",
           "TEST_ALREADY_LINKED",
           "TICKET_FIELDS_REJECTED",
@@ -527,9 +548,9 @@
           },
           "bisectionConcurrency": {
             "type": "integer",
-            "minimum": 0,
+            "minimum": 1,
             "maximum": 1000,
-            "description": "How many verification runs the engine may use in parallel when bisecting a failed batch. `0` means bisection gets no dedicated capacity and shares `concurrency`."
+            "description": "How many verification runs the engine may use in parallel when bisecting a failed batch, separate from `concurrency`. At least 1."
           },
           "enqueueingLabel": {
             "type": "string",
@@ -1097,6 +1118,18 @@
             "description": "Whether the entry was sent directly to the queue past an unmet readiness condition (`direct` on submit or on `PATCH /v2/pull-requests/{id}/queue-entry`). It did not skip the queue's own tests.",
             "example": false
           },
+          "mergeMethod": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MergeMethod"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The merge method this pull request chose, on submit or on `PATCH /v2/pull-requests/{id}/queue-entry`. `null` means the queue's merge method applies. A choice applies only while the queue lets pull requests choose their own merge method; otherwise the queue's is used.",
+            "example": "rebase"
+          },
           "verifiedByVerificationRunId": {
             "type": "string",
             "description": "The verification run whose pass the queue merged this entry on. Present only for an entry the queue itself merged straight out of `testsPassed`; absent for a force merge, a direct merge, a merge made on the provider, or any unmerged entry. For an optimistically merged entry it is the successor's run — the one that vouched. Read it with `GET /v2/merge-queue-verification-runs/{id}`.",
@@ -1126,6 +1159,7 @@
           "skipsTheLine",
           "allowBatching",
           "direct",
+          "mergeMethod",
           "readiness",
           "createdAt",
           "updatedAt"
@@ -1367,6 +1401,19 @@
           },
           "direct": {
             "type": "boolean"
+          },
+          "mergeMethod": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": ["mergeCommit", "squash", "rebase"]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How to merge this pull request: one of `mergeCommit`, `squash`, or `rebase` (see the `MergeMethod` schema). Omit it, or send `null`, to use the queue's merge method. Choosing one is refused with `PR_NOT_ENQUEUEABLE` unless the queue lets pull requests choose their own merge method, and when the branch's rules forbid the method or the repository's provider does not support it.",
+            "example": "rebase"
           }
         },
         "required": ["number"],
@@ -1448,9 +1495,9 @@
           },
           "bisectionConcurrency": {
             "type": "integer",
-            "minimum": 0,
+            "minimum": 1,
             "maximum": 1000,
-            "description": "How many verification runs the engine may use in parallel when bisecting a failed batch. `0` means bisection gets no dedicated capacity and shares `concurrency`."
+            "description": "How many verification runs the engine may use in parallel when bisecting a failed batch, separate from `concurrency`. At least 1."
           },
           "pendingFailureDepth": {
             "type": "integer",
@@ -1559,6 +1606,10 @@
             "type": "string",
             "enum": ["mergeCommit", "squash", "rebase"],
             "description": "One of `mergeCommit`, `squash`, or `rebase`. See the `MergeMethod` schema."
+          },
+          "isMergeMethodOverrideEnabled": {
+            "type": "boolean",
+            "description": "Whether whoever submits a pull request may choose its merge method. An entry that chooses none merges with the queue's `mergeMethod`. While `false`, every entry merges with the queue's `mergeMethod`, and a submit that changes an entry's merge method is refused."
           },
           "testBranchConstructionMode": {
             "type": "string",
@@ -2048,7 +2099,7 @@
           },
           "reason": {
             "type": ["string", "null"],
-            "description": "Why the entry entered this state. `null` for `testing` and `pendingFailure`, which carry no reason.\n\nThe values below are the vocabulary in use today, grouped by the state they accompany. **This is an open set** — it is the engine's own vocabulary and new values may appear within v2, so match on the values you care about and treat anything else as unclassified rather than failing closed.\n\n**Why an entry is waiting (`notReady`)** — `USER_REQUESTED`, `TRUNK_ADMIN_REQUESTED`, `API_REQUESTED`, `PR_PUSHED_TO` (a push to the pull request sent it back to wait on the new commit).\n\n**Why an entry (re)entered the line (`pending`)** — these are what distinguish a restart's cause:\n\n| Value | Meaning |\n| --- | --- |\n| `TESTS_RESTARTED_BY_USER` | A person restarted the tests. |\n| `TESTS_RESTARTED_BY_API_REQUEST` | Restarted through the API — e.g. `pullRequests.restartTests`. |\n| `MERGE_ITEM_NOW_READY` | A readiness condition became satisfied. |\n| `MANUAL_PUSH_TO_TARGET_BRANCH` | Someone pushed to the target branch, invalidating the tested state. |\n| `PREREQUISITE_MERGE_ITEM_FAILED` | An entry ahead of this one failed, so this one must re-test. |\n| `PREREQUISITE_MERGE_ITEM_CANCELLED` | An entry ahead was removed. |\n| `PREREQUISITE_MERGE_ITEM_MANUALLY_MERGED` | An entry ahead was merged outside the queue. |\n| `SKIP_THE_LINE_INTERRUPTED` | A higher-priority entry preempted this one. |\n| `BISECTION_REQUIRED` | A batch failed and the engine is bisecting to find the culprit. |\n| `BISECTION_TEST_RUN_PASSED` | A bisection run cleared this entry. |\n\n**Why verification passed (`testsPassed`)** — `TEST_RUN_PASSED`, `SUCCESSOR_TEST_RUN_PASSED`, `PASSED_BY_OPTIMIZATION`.\n\n**Why an entry failed (`failed`)** — `TEST_RUN_REQUIRED_STATUS_FAILED`, `TEST_RUN_TIMEOUT`, `TEST_RUN_FAILED_BY_OPTIMIZATION`, `START_TEST_RUN_MERGE_CONFLICT`, `START_TEST_RUN_RETRY_EXHAUSTED`, `START_TEST_RUN_DRAFT_PRS_NOT_ALLOWED`, `START_TEST_RUN_PERMISSIONS_BLOCK_TEST_BRANCH`, `START_TEST_RUN_NO_REQUIRED_STATUSES`, `START_TEST_RUN_CONFIG_NOT_FOUND`, `START_TEST_RUN_CONFIG_PARSING_FAILURE`, `START_TEST_RUN_CONFIG_BAD_VERSION`, `START_TEST_RUN_CONFIG_BAD_REQUIRED_STATUSES`, `START_TEST_RUN_CONFIG_MISSING_REQUIRED_STATUSES`, `START_TEST_RUN_INVALID_EVENT`, `PR_UPDATED_AT_MERGE_TIME`, `GITHUB_API_MERGE_PR_FAILED`, `GITHUB_API_DIRECT_MERGE_PR_FAILED`, `GITHUB_API_BRANCH_PROTECTION_UNMET`, `GITHUB_API_MERGE_ALREADY_IN_PROGRESS`, `GITHUB_API_RATE_LIMIT_EXCEEDED`, `GITHUB_API_REPEATED_SERVER_ERRORS`.\n\n**Why an entry was removed (`cancelled`)** — `USER_REQUESTED`, `TRUNK_ADMIN_REQUESTED`, `PR_CLOSED`, `PR_MERGED_INTO_OTHER_BRANCH`, `PR_PUSHED_TO` (older entries only; a push now returns an entry to `notReady`), `PR_BASE_BRANCH_CHANGED`, `PR_CONVERTED_TO_DRAFT`, `NOT_READY_TIMEOUT_EXPIRED`, `STACKED_PR_MEMBER_PUSHED_TO`, `STACKED_PR_MEMBER_CLOSED`, `STACKED_PR_MEMBER_MERGED`, `STACKED_PR_MEMBER_BASE_BRANCH_CHANGED`, `STACKED_PR_STACK_CHANGED`, `STACKED_PR_GROUP_CANCELLED_AT_MERGE_TIME`.\n\n**Why an entry merged (`merged`)** — `MERGE_GRAPH_MERGE`, `MERGE_GRAPH_DIRECT_MERGE`, `MANUAL_MERGE`.",
+            "description": "Why the entry entered this state. `null` for `testing` and `pendingFailure`, which carry no reason.\n\nThe values below are the vocabulary in use today, grouped by the state they accompany. **This is an open set** — it is the engine's own vocabulary and new values may appear within v2, so match on the values you care about and treat anything else as unclassified rather than failing closed.\n\n**Why an entry is waiting (`notReady`)** — `USER_REQUESTED`, `TRUNK_ADMIN_REQUESTED`, `API_REQUESTED`, `PR_PUSHED_TO` (a push to the pull request sent it back to wait on the new commit).\n\n**Why an entry (re)entered the line (`pending`)** — these are what distinguish a restart's cause:\n\n| Value | Meaning |\n| --- | --- |\n| `TESTS_RESTARTED_BY_USER` | A person restarted the tests. |\n| `TESTS_RESTARTED_BY_API_REQUEST` | Restarted through the API — e.g. `pullRequests.restartTests`. |\n| `MERGE_ITEM_NOW_READY` | A readiness condition became satisfied. |\n| `MANUAL_PUSH_TO_TARGET_BRANCH` | Someone pushed to the target branch, invalidating the tested state. |\n| `PREREQUISITE_MERGE_ITEM_FAILED` | An entry ahead of this one failed, so this one must re-test. |\n| `PREREQUISITE_MERGE_ITEM_CANCELLED` | An entry ahead was removed. |\n| `PREREQUISITE_MERGE_ITEM_MANUALLY_MERGED` | An entry ahead was merged outside the queue. |\n| `SKIP_THE_LINE_INTERRUPTED` | A higher-priority entry preempted this one. |\n| `BISECTION_REQUIRED` | A batch failed and the engine is bisecting to find the culprit. |\n| `BISECTION_TEST_RUN_PASSED` | A bisection run cleared this entry. |\n\n**Why verification passed (`testsPassed`)** — `TEST_RUN_PASSED`, `SUCCESSOR_TEST_RUN_PASSED`, `PASSED_BY_OPTIMIZATION`.\n\n**Why an entry failed (`failed`)** — `TEST_RUN_REQUIRED_STATUS_FAILED`, `TEST_RUN_TIMEOUT`, `TEST_RUN_FAILED_BY_OPTIMIZATION`, `START_TEST_RUN_MERGE_CONFLICT`, `START_TEST_RUN_RETRY_EXHAUSTED`, `START_TEST_RUN_DRAFT_PRS_NOT_ALLOWED`, `START_TEST_RUN_PERMISSIONS_BLOCK_TEST_BRANCH`, `START_TEST_RUN_NO_REQUIRED_STATUSES`, `START_TEST_RUN_CONFIG_NOT_FOUND`, `START_TEST_RUN_CONFIG_PARSING_FAILURE`, `START_TEST_RUN_CONFIG_BAD_VERSION`, `START_TEST_RUN_CONFIG_BAD_REQUIRED_STATUSES`, `START_TEST_RUN_CONFIG_MISSING_REQUIRED_STATUSES`, `START_TEST_RUN_INVALID_EVENT`, `PR_UPDATED_AT_MERGE_TIME`, `GITHUB_API_MERGE_PR_FAILED`, `GITHUB_API_DIRECT_MERGE_PR_FAILED`, `GITHUB_API_BRANCH_PROTECTION_UNMET`, `GITHUB_API_MERGE_ALREADY_IN_PROGRESS`, `GITHUB_API_RATE_LIMIT_EXCEEDED`, `GITHUB_API_REPEATED_SERVER_ERRORS`, `MERGE_METHOD_NOT_ALLOWED`.\n\n**Why an entry was removed (`cancelled`)** — `USER_REQUESTED`, `TRUNK_ADMIN_REQUESTED`, `PR_CLOSED`, `PR_MERGED_INTO_OTHER_BRANCH`, `PR_PUSHED_TO` (older entries only; a push now returns an entry to `notReady`), `PR_BASE_BRANCH_CHANGED`, `PR_CONVERTED_TO_DRAFT`, `NOT_READY_TIMEOUT_EXPIRED`, `STACKED_PR_MEMBER_PUSHED_TO`, `STACKED_PR_MEMBER_CLOSED`, `STACKED_PR_MEMBER_MERGED`, `STACKED_PR_MEMBER_BASE_BRANCH_CHANGED`, `STACKED_PR_STACK_CHANGED`, `STACKED_PR_GROUP_CANCELLED_AT_MERGE_TIME`.\n\n**Why an entry merged (`merged`)** — `MERGE_GRAPH_MERGE`, `MERGE_GRAPH_DIRECT_MERGE`, `MANUAL_MERGE`.",
             "example": "TEST_RUN_REQUIRED_STATUS_FAILED"
           },
           "verificationRunId": {
@@ -2117,10 +2168,22 @@
             "type": "boolean",
             "description": "Whether the submission allowed the entry to be batched.",
             "example": true
+          },
+          "mergeMethod": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MergeMethod"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The merge method the pull request had chosen after this submission. `null` means none was chosen, so the queue's merge method applies.",
+            "example": "rebase"
           }
         },
-        "required": ["allowBatching"],
-        "description": "How the pull request was submitted: the priority and batching it was submitted with. Present on `notReady` transitions."
+        "required": ["allowBatching", "mergeMethod"],
+        "description": "How the pull request was submitted: the priority, batching and merge method it was submitted with. Present on `notReady` transitions."
       },
       "PendingTransitionDetails": {
         "type": "object",
@@ -2248,6 +2311,9 @@
             },
             "maxItems": 10000,
             "description": "The required checks that failed. Populated when `eventualFailureReason` is `TEST_RUN_REQUIRED_STATUS_FAILED`."
+          },
+          "rerun": {
+            "$ref": "#/components/schemas/PendingFailureRerun"
           }
         },
         "required": ["waitingFor", "failureCausingChecks"],
@@ -2274,6 +2340,79 @@
         },
         "required": ["name"],
         "description": "A required check whose failure failed a verification run. Names the check directly, so a consumer need not fetch the run to learn what broke."
+      },
+      "PendingFailureRerun": {
+        "type": "object",
+        "properties": {
+          "until": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the queue stops waiting for the re-run to start.",
+            "example": "2026-07-28T11:40:00.000Z"
+          },
+          "requestedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the re-run was requested.",
+            "example": "2026-07-28T11:10:00.000Z"
+          },
+          "requestedBy": {
+            "$ref": "#/components/schemas/TransitionActor"
+          },
+          "via": {
+            "$ref": "#/components/schemas/RerunVia"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/RerunMode"
+          },
+          "switchedToNowAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When a `wait` request was switched to `now`. Omitted when it was not.",
+            "example": "2026-07-28T11:15:00.000Z"
+          },
+          "switchedToNowBy": {
+            "$ref": "#/components/schemas/TransitionActor"
+          },
+          "checks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 10000,
+            "description": "The failed required checks the request re-runs.",
+            "example": ["build"]
+          },
+          "ending": {
+            "$ref": "#/components/schemas/RerunHoldEnding"
+          }
+        },
+        "required": ["until", "requestedAt", "checks"],
+        "description": "A re-run of the failed checks, requested while the entry was in `pendingFailure`. `requestedBy` is omitted when no user made the request (an organization API token); `via` and `mode` are omitted when the recorded value is not one this version knows; `ending` is omitted while the queue is still waiting."
+      },
+      "RerunVia": {
+        "type": "string",
+        "enum": ["web", "api"],
+        "description": "Where the re-run was requested: the Trunk web app or the API.",
+        "example": "api"
+      },
+      "RerunMode": {
+        "type": "string",
+        "enum": ["now", "wait"],
+        "description": "`now`: stop the jobs still running in the failed checks' workflows and re-run them with the failed jobs. `wait`: re-run the failed jobs once those workflows finish.",
+        "example": "now"
+      },
+      "RerunHoldEnding": {
+        "type": "string",
+        "enum": [
+          "rerunStarted",
+          "expiredCiRunning",
+          "expiredNotStarted",
+          "forgeRefused",
+          "superseded"
+        ],
+        "description": "How the wait for the re-run ended. `rerunStarted`: the re-run began testing. `expiredCiRunning`: the time limit passed while the workflow was still running, so the re-run was never sent. `expiredNotStarted`: the re-run was sent but did not start in time. `forgeRefused`: the provider refused the re-run. `superseded`: something else moved the entry on first, such as a restart, a cancel or the entry passing.",
+        "example": "rerunStarted"
       },
       "FailedTransitionDetails": {
         "type": "object",
@@ -2648,6 +2787,19 @@
             "type": "boolean",
             "description": "Whether this entry may be tested in a batch with others. `false` gives it a test run of its own. Sending this field at all needs the **Skip batching** permission. Omit to leave the entry's current setting alone.",
             "example": false
+          },
+          "mergeMethod": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": ["mergeCommit", "squash", "rebase"]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How to merge this pull request: one of `mergeCommit`, `squash`, or `rebase` (see the `MergeMethod` schema). `null` clears it, so the queue's merge method applies. Omit to leave it unchanged. Sending this field at all needs the **Merge and cancel PRs** permission. A change is refused with `PR_NOT_ENQUEUEABLE` unless the queue lets pull requests choose their own merge method, while the pull request is being merged, and when the branch's rules forbid the method or the repository's provider does not support it.",
+            "example": "rebase"
           }
         },
         "additionalProperties": false,
@@ -2656,6 +2808,65 @@
         "not": {
           "required": ["priorityValue", "priorityName"]
         }
+      },
+      "RerunFailedChecksResult": {
+        "type": "object",
+        "properties": {
+          "pullRequest": {
+            "$ref": "#/components/schemas/PullRequest"
+          },
+          "rerun": {
+            "$ref": "#/components/schemas/RerunHeld"
+          }
+        },
+        "required": ["pullRequest", "rerun"],
+        "description": "The pull request after the request, and the re-run it is waiting for."
+      },
+      "RerunHeld": {
+        "type": "object",
+        "properties": {
+          "until": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the queue stops waiting for the re-run to start. If it has not started by then, the pull request fails.",
+            "example": "2026-07-28T11:40:00.000Z"
+          },
+          "alreadyHeld": {
+            "type": "boolean",
+            "description": "True when an earlier request for these checks was already waiting, so this request changed nothing.",
+            "example": false
+          },
+          "switchedToNow": {
+            "type": "boolean",
+            "description": "True when this request switched a waiting `wait` request to `now`.",
+            "example": false
+          },
+          "checks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 10000,
+            "description": "The failed required checks being re-run.",
+            "example": ["build"]
+          },
+          "requestedBy": {
+            "$ref": "#/components/schemas/TransitionActor"
+          }
+        },
+        "required": ["until", "alreadyHeld", "switchedToNow", "checks"],
+        "description": "The accepted re-run request. `requestedBy` names the earlier requester when `alreadyHeld` is true and a user made that request."
+      },
+      "RerunFailedChecksRequest": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "$ref": "#/components/schemas/RerunMode"
+          }
+        },
+        "required": ["mode"],
+        "additionalProperties": false,
+        "description": "`mode` is required: `now` stops the jobs still running in the failed checks' workflows and re-runs them with the failed jobs, and `wait` re-runs the failed jobs once those workflows finish. `now` on a request that is waiting switches it to `now`. Send the body as `application/json`; a missing body, or one without `mode`, is a `400`."
       },
       "CiPlan": {
         "type": "object",
@@ -2738,7 +2949,8 @@
           "required-check",
           "merge-queue-is-required",
           "paths-filter",
-          "draft-pull-request"
+          "draft-pull-request",
+          "impact-reach"
         ],
         "description": "Which independent signal produced a contribution to a job's verdict. These identifiers are also what `ignoreSignals` accepts.",
         "example": "historical-pass-rate"
@@ -2850,6 +3062,14 @@
           },
           "changedFiles": {
             "$ref": "#/components/schemas/ChangedFiles"
+          },
+          "impacts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlanImpact"
+            },
+            "maxItems": 8,
+            "description": "How much of the codebase the change affects, by each measure your own build or dependency tool computes, one entry per source. Jobs with the impact reach signal turned on always run a change that affects everything, lean toward running a broad change and lean slightly toward skipping a narrow one. Omit it when your tool computed nothing; sending nothing leaves every verdict as it is."
           },
           "workflowPath": {
             "type": "string",
@@ -2982,6 +3202,31 @@
         "description": "How the file changed. The values GitHub reports, so its `status` can be passed through. `changed` (a type change, such as a file becoming a symlink) is read as `modified`.",
         "example": "modified"
       },
+      "PlanImpact": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+            "description": "The measure, such as `tainted-packages` or `test-files`: lowercase letters, digits, `.`, `_` and `-`, at most 64 characters. Trunk sets each job's maximum per source, so keep a source's name and measure the same on every request.",
+            "example": "tainted-packages"
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000000,
+            "description": "How many units your build tool says the change affects: packages, targets, test files or tests. Required unless `all` is true, and ignored when it is. `0` means nothing is affected, not unknown.",
+            "example": 734
+          },
+          "all": {
+            "type": "boolean",
+            "default": false,
+            "description": "The tool says the change affects everything, or could not work out what is affected. Never send a large `count` in its place.",
+            "example": false
+          }
+        },
+        "required": ["source"]
+      },
       "BuildkitePlanRequest": {
         "type": "object",
         "properties": {
@@ -3059,6 +3304,14 @@
           },
           "changedFiles": {
             "$ref": "#/components/schemas/ChangedFiles"
+          },
+          "impacts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlanImpact"
+            },
+            "maxItems": 8,
+            "description": "How much of the codebase the change affects, by each measure your own build or dependency tool computes, one entry per source. Jobs with the impact reach signal turned on always run a change that affects everything, lean toward running a broad change and lean slightly toward skipping a narrow one. Omit it when your tool computed nothing; sending nothing leaves every verdict as it is."
           },
           "buildkiteOrganizationSlug": {
             "type": "string",
@@ -3816,9 +4069,15 @@
             "type": "string",
             "description": "The provider's status name, as last synced.",
             "example": "In Progress"
+          },
+          "deletedAt": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "When Trunk found that the ticketing provider no longer has this ticket; null while it exists. A deleted ticket stays linked until it is unlinked, and its `status` is the last one synced.",
+            "example": "2026-10-01T09:00:00.000Z"
           }
         },
-        "required": ["id", "provider", "key", "url", "status"],
+        "required": ["id", "provider", "key", "url", "status", "deletedAt"],
         "description": "The ticket linked to a test, as Trunk last synced it. Reading a test never calls the ticketing provider."
       },
       "TicketProvider": {
@@ -4551,6 +4810,294 @@
         "required": ["userId", "displayName"],
         "description": "The person whose change to the monitor caused the event."
       },
+      "InvestigationSummaryList": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvestigationSummary"
+            },
+            "maxItems": 100
+          },
+          "nextCursor": {
+            "type": ["string", "null"],
+            "description": "Opaque cursor for the next page, or null on the last page. Pass it back verbatim as `cursor`; do not construct or inspect one.",
+            "example": "AQEKZm9vYmFy"
+          },
+          "hasMore": {
+            "type": "boolean",
+            "description": "True when another page is available.",
+            "example": true
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total rows matching the filter. Present only when the request set `includeTotal=true`.",
+            "example": 1247
+          }
+        },
+        "required": ["data", "nextCursor", "hasMore"]
+      },
+      "InvestigationSummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "5a7fef9e-c8cd-4eed-8a87-9494bdf96bed"
+          },
+          "testId": {
+            "type": "string",
+            "description": "The investigated test's globally unique id.",
+            "example": "bfeebcf4-0000-8000-8000-000000000001"
+          },
+          "status": {
+            "$ref": "#/components/schemas/InvestigationStatus"
+          },
+          "triggerType": {
+            "$ref": "#/components/schemas/InvestigationTriggerType"
+          },
+          "detectionEventId": {
+            "type": ["string", "null"],
+            "description": "The detection that started an `automatic` investigation.",
+            "example": "6b8f0aaf-d9de-4ffe-9b98-a5a5ceca7cfe"
+          },
+          "factCount": {
+            "type": "integer",
+            "example": 4
+          },
+          "overallConfidence": {
+            "type": ["number", "null"],
+            "description": "The model's confidence in the summary, from 0 to 1. Null unless `completed`.",
+            "example": 0.75
+          },
+          "markdownSummary": {
+            "type": ["string", "null"],
+            "description": "The investigation's conclusion, in Markdown. Null unless `completed`.",
+            "example": "The test is flaky because it races the cache warm-up introduced in [this commit](https://github.com/acme/widgets/commit/9c58bf40e5c1)."
+          },
+          "errorMessage": {
+            "type": ["string", "null"],
+            "description": "Why a `failed` or `skipped` investigation did not complete.",
+            "example": "The monthly investigation limit for this collection was reached"
+          },
+          "actor": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InvestigationActor"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Who started a `manual` or `mcp` investigation. Null for an `automatic` one."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-06-02T10:00:00.123Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-06-02T10:01:30.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "testId",
+          "status",
+          "triggerType",
+          "detectionEventId",
+          "factCount",
+          "overallConfidence",
+          "markdownSummary",
+          "errorMessage",
+          "actor",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "InvestigationStatus": {
+        "type": "string",
+        "enum": ["completed", "failed", "skipped"],
+        "description": "`completed` produced a summary; `failed` errored; `skipped` was declined, for example by a monthly cap.",
+        "example": "completed"
+      },
+      "InvestigationTriggerType": {
+        "type": "string",
+        "enum": ["manual", "automatic", "mcp"],
+        "description": "`manual` from the web app, `automatic` from a detection, `mcp` from the MCP server.",
+        "example": "automatic"
+      },
+      "InvestigationActor": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "example": "6f708192-a3b4-4c5d-8e9f-0a1b2c3d4e5f"
+          },
+          "displayName": {
+            "type": ["string", "null"],
+            "description": "Null when the user no longer exists.",
+            "example": "Ada Lovelace"
+          }
+        },
+        "required": ["userId", "displayName"]
+      },
+      "Investigation": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "5a7fef9e-c8cd-4eed-8a87-9494bdf96bed"
+          },
+          "testId": {
+            "type": "string",
+            "description": "The investigated test's globally unique id.",
+            "example": "bfeebcf4-0000-8000-8000-000000000001"
+          },
+          "status": {
+            "$ref": "#/components/schemas/InvestigationStatus"
+          },
+          "triggerType": {
+            "$ref": "#/components/schemas/InvestigationTriggerType"
+          },
+          "detectionEventId": {
+            "type": ["string", "null"],
+            "description": "The detection that started an `automatic` investigation.",
+            "example": "6b8f0aaf-d9de-4ffe-9b98-a5a5ceca7cfe"
+          },
+          "factCount": {
+            "type": "integer",
+            "example": 4
+          },
+          "overallConfidence": {
+            "type": ["number", "null"],
+            "description": "The model's confidence in the summary, from 0 to 1. Null unless `completed`.",
+            "example": 0.75
+          },
+          "markdownSummary": {
+            "type": ["string", "null"],
+            "description": "The investigation's conclusion, in Markdown. Null unless `completed`.",
+            "example": "The test is flaky because it races the cache warm-up introduced in [this commit](https://github.com/acme/widgets/commit/9c58bf40e5c1)."
+          },
+          "errorMessage": {
+            "type": ["string", "null"],
+            "description": "Why a `failed` or `skipped` investigation did not complete.",
+            "example": "The monthly investigation limit for this collection was reached"
+          },
+          "actor": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InvestigationActor"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Who started a `manual` or `mcp` investigation. Null for an `automatic` one."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-06-02T10:00:00.123Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-06-02T10:01:30.000Z"
+          },
+          "facts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvestigationFact"
+            },
+            "maxItems": 100,
+            "description": "Ordered by impact, then confidence, highest first."
+          },
+          "snapshotFailureTestRunIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 1000,
+            "description": "The failing runs the investigation was started from."
+          }
+        },
+        "required": [
+          "id",
+          "testId",
+          "status",
+          "triggerType",
+          "detectionEventId",
+          "factCount",
+          "overallConfidence",
+          "markdownSummary",
+          "errorMessage",
+          "actor",
+          "createdAt",
+          "updatedAt",
+          "facts",
+          "snapshotFailureTestRunIds"
+        ]
+      },
+      "InvestigationFact": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "What the fact is about, such as `ciLogs`, `gitBlame`, `failureMode`, `testPurpose` or `environmentConfig`. New types may be added.",
+            "example": "gitBlame"
+          },
+          "content": {
+            "type": "string",
+            "description": "Markdown. Cited evidence is linked inline where it has a URL.",
+            "example": "The assertion began failing after [this commit](https://github.com/acme/widgets/commit/9c58bf40e5c1)."
+          },
+          "confidence": {
+            "type": "number",
+            "description": "The model's confidence in the fact, from 0 to 1.",
+            "example": 0.8
+          },
+          "impact": {
+            "type": "number",
+            "description": "How much the fact explains the flakiness, from 0 to 1.",
+            "example": 0.7
+          },
+          "citations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InvestigationCitation"
+            },
+            "maxItems": 100
+          }
+        },
+        "required": ["type", "content", "confidence", "impact", "citations"]
+      },
+      "InvestigationCitation": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/InvestigationCitationKind"
+          },
+          "url": {
+            "type": ["string", "null"],
+            "description": "Where the cited evidence is. Set for a commit or file on a GitHub repository; null otherwise.",
+            "example": "https://github.com/acme/widgets/commit/9c58bf40e5c1"
+          },
+          "testRunId": {
+            "type": ["string", "null"],
+            "description": "The cited run, for a `testRun` citation.",
+            "example": "1f9ddce9-b5f5-5676-8eef-770e11cf761f"
+          }
+        },
+        "required": ["kind", "url", "testRunId"]
+      },
+      "InvestigationCitationKind": {
+        "type": "string",
+        "enum": ["testRun", "testCase", "upload", "commit", "file", "ciRun"],
+        "example": "commit"
+      },
       "CreatedTestUpload": {
         "type": "object",
         "properties": {
@@ -4774,6 +5321,154 @@
         "description": "`invalid`: Trunk could not use the part of the bundle the defect names (`type`, `source`), and ingested the rest. `suboptimal`: that part was used, with less information than it could have had.",
         "example": "suboptimal"
       },
+      "SetQuarantineRequest": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "$ref": "#/components/schemas/SetQuarantineMode"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000,
+            "description": "Why the override was set, shown with it in the web app and on the test's `quarantineOverride`.",
+            "example": "Fails only on the Windows shard; tracked in TRUNK-1234."
+          }
+        },
+        "required": ["mode"],
+        "additionalProperties": false,
+        "description": "The quarantine override to set on one test."
+      },
+      "SetQuarantineMode": {
+        "type": "string",
+        "enum": ["alwaysQuarantine", "neverQuarantine", "clear"],
+        "description": "`alwaysQuarantine` quarantines the test whatever its status. `neverQuarantine` keeps it out of quarantine whatever its status. `clear` removes the override, so the collection's quarantine settings and the test's status decide again.",
+        "example": "neverQuarantine"
+      },
+      "BulkResult": {
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BulkResultItem"
+            },
+            "maxItems": 100,
+            "description": "One entry per requested item, in request order."
+          },
+          "succeededCount": {
+            "type": "integer",
+            "example": 2
+          },
+          "unchangedCount": {
+            "type": "integer",
+            "example": 1
+          },
+          "failedCount": {
+            "type": "integer",
+            "example": 0
+          }
+        },
+        "required": [
+          "results",
+          "succeededCount",
+          "unchangedCount",
+          "failedCount"
+        ],
+        "description": "The outcome of each item of a many-form request. A request that is refused as a whole answers a coded error instead, never a `BulkResult`."
+      },
+      "BulkResultItem": {
+        "type": "object",
+        "properties": {
+          "testId": {
+            "type": "string",
+            "example": "bfeebcf4-0000-8000-8000-000000000001"
+          },
+          "status": {
+            "$ref": "#/components/schemas/BulkItemStatus"
+          },
+          "quarantineOverride": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/QuarantineOverride"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Quarantine: the test's override after the call, null when none is in force. Absent on a failed item."
+          },
+          "error": {
+            "$ref": "#/components/schemas/BulkItemError"
+          }
+        },
+        "required": ["testId", "status"]
+      },
+      "BulkItemStatus": {
+        "type": "string",
+        "enum": ["succeeded", "unchanged", "failed"],
+        "description": "`succeeded` changed the test. `unchanged` found it already in the requested state and wrote nothing. `failed` carries an `error` and changed nothing that stayed.",
+        "example": "succeeded"
+      },
+      "BulkItemError": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "TEST_NOT_FOUND"
+          },
+          "message": {
+            "type": "string",
+            "example": "No test found with ID bfeebcf4-0000-8000-8000-000000000001"
+          },
+          "param": {
+            "type": "string",
+            "description": "The request field the error is about.",
+            "example": "items[2].testId"
+          }
+        },
+        "required": ["code", "message", "param"]
+      },
+      "SetQuarantineManyRequest": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000,
+            "description": "Why the override was set, shown with it in the web app and on the test's `quarantineOverride`.",
+            "example": "Fails only on the Windows shard; tracked in TRUNK-1234."
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SetQuarantineItem"
+            },
+            "minItems": 1,
+            "maxItems": 100,
+            "description": "The tests to change, at most 100, each id once."
+          }
+        },
+        "required": ["items"],
+        "additionalProperties": false,
+        "description": "Quarantine overrides to set on many tests, with one `reason` for all of them."
+      },
+      "SetQuarantineItem": {
+        "type": "object",
+        "properties": {
+          "testId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The test's globally unique id.",
+            "example": "bfeebcf4-0000-8000-8000-000000000001"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/SetQuarantineMode"
+          }
+        },
+        "required": ["testId", "mode"],
+        "additionalProperties": false
+      },
       "Ticket": {
         "type": "object",
         "properties": {
@@ -4814,6 +5509,12 @@
             "format": "date-time",
             "description": "When Trunk last read the ticket back from its provider.",
             "example": "2026-09-15T14:45:01.000Z"
+          },
+          "deletedAt": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "When Trunk found that the ticketing provider no longer has this ticket; null while it exists. A deleted ticket stays linked until it is unlinked, and its `status` is the last one synced.",
+            "example": "2026-10-01T09:00:00.000Z"
           }
         },
         "required": [
@@ -4824,7 +5525,8 @@
           "title",
           "status",
           "assignee",
-          "syncedAt"
+          "syncedAt",
+          "deletedAt"
         ]
       },
       "LinkTicketRequest": {
@@ -7278,7 +7980,7 @@
         "operationId": "mergeQueues.submitPullRequest",
         "tags": ["mergeQueues"],
         "summary": "Submit a pull request to a merge queue",
-        "description": "Requires the **Merge and cancel PRs** permission, plus **Set priority on PRs** to send `priorityValue` or `priorityName`, **Skip batching** to send `allowBatching: false`, and **Merge PRs with direct to queue** to send `direct: true`. Lower `priorityValue` numbers go first, from 0 to 255. The named priorities are `urgent` (0), `high` (10), `medium` (100, the default), and `low` (200). An `urgent` entry, or `priorityValue: 0`, restarts lower-priority entries that are already testing when it enters the queue (once it is ready), along with the entries tested on top of them.\n\nEnqueues a pull request. A pull request already enqueued in this queue is refused with `PR_ALREADY_ENQUEUED` rather than having its priority rewritten — change a live entry through `POST /v2/pull-requests/{id}/reprioritize` or `PATCH /v2/pull-requests/{id}/queue-entry`. `readiness.hasImpactedTargets` may be absent on the 201 if the post-write lookup failed; the enqueue still landed, so read the pull request again rather than retrying.\n\n`Idempotency-Key` is not honored. If a request times out, resolve the pull request by repository and number and inspect its queue entry before retrying.",
+        "description": "Requires the **Merge and cancel PRs** permission, plus **Set priority on PRs** to send `priorityValue` or `priorityName`, **Skip batching** to send `allowBatching: false`, and **Merge PRs with direct to queue** to send `direct: true`. Choosing a `mergeMethod` needs no extra permission. Lower `priorityValue` numbers go first, from 0 to 255. The named priorities are `urgent` (0), `high` (10), `medium` (100, the default), and `low` (200). An `urgent` entry, or `priorityValue: 0`, restarts lower-priority entries that are already testing when it enters the queue (once it is ready), along with the entries tested on top of them.\n\nEnqueues a pull request. A pull request already enqueued in this queue is refused with `PR_ALREADY_ENQUEUED` rather than having its priority rewritten — change a live entry through `POST /v2/pull-requests/{id}/reprioritize` or `PATCH /v2/pull-requests/{id}/queue-entry`. `readiness.hasImpactedTargets` may be absent on the 201 if the post-write lookup failed; the enqueue still landed, so read the pull request again rather than retrying.\n\n`Idempotency-Key` is not honored. If a request times out, resolve the pull request by repository and number and inspect its queue entry before retrying.",
         "parameters": [
           {
             "schema": {
@@ -8786,7 +9488,7 @@
         "operationId": "impactedTargets.upload",
         "tags": ["impactedTargets"],
         "summary": "Upload a pull request's impacted targets",
-        "description": "Requires the **Merge and cancel PRs** permission, or a GitHub Actions login for the run's own repository. Records which build targets a pull request's head sha impacts, for queues that gate on impacted targets. Address the pull request by exactly one of `number` or `branch`, and declare impact with exactly one of `impactedTargets` or `impactsAllTargets: true`. An empty `impactedTargets` array is a valid upload meaning the sha impacts nothing — it satisfies the queue's has-impacted-targets gate, because that gate asks whether CI reported, not whether it reported a non-zero result. Supported only for GitHub and GitLab repositories; anything else returns `IMPACTED_TARGETS_UNSUPPORTED`. Answers 202: the targets are stored, but readiness is re-evaluated asynchronously, so a 202 does not mean readiness has changed yet.\n\nA token from a GitHub Actions run may upload only for its own repository. One from a fork pull request's run is bound to that pull request and its head sha: address the pull request by `number`, and send that sha, or the upload is refused with `INSUFFICIENT_PERMISSIONS`.",
+        "description": "Requires the **Merge and cancel PRs** permission, or a GitHub Actions login for the run's own repository. Records which build targets a pull request's head sha impacts, for queues that gate on impacted targets. Address the pull request by exactly one of `number` or `branch`, and declare impact with exactly one of `impactedTargets` or `impactsAllTargets: true`. An empty `impactedTargets` array is a valid upload meaning the sha impacts nothing — it satisfies the queue's has-impacted-targets gate, because that gate asks whether CI reported, not whether it reported a non-zero result. Supported only for GitHub and GitLab repositories; anything else returns `IMPACTED_TARGETS_UNSUPPORTED`. Answers 202: the targets are stored, but readiness is re-evaluated asynchronously, so a 202 does not mean readiness has changed yet.\n\nA token from a GitHub Actions run may upload only for its own repository. One from a fork pull request's run is bound to that pull request and its head sha: address the pull request by `number`, and send that sha, or the upload is refused with `INSUFFICIENT_PERMISSIONS`. It is also refused unless the repository has a merge queue whose GitHub settings allow impacted targets from fork pull requests.",
         "requestBody": {
           "required": true,
           "content": {
@@ -10185,7 +10887,7 @@
         "operationId": "pullRequests.reprioritize",
         "tags": ["pullRequests"],
         "summary": "Reprioritize a queued pull request",
-        "description": "Requires the **Set priority on PRs** permission. Lower `priorityValue` numbers go first, from 0 to 255. The named priorities are `urgent` (0), `high` (10), `medium` (100, the default), and `low` (200). Raising an entry that is already queued doesn't restart anything: the new priority applies the next time the entry is placed in the queue. An entry still `notReady` set to `urgent` restarts lower-priority entries already testing when it enters the queue.\n\nChanges a live queue entry's priority. Exactly one of `priorityValue` or `priorityName` is required. `priorityValue: 0` is the write path for skipping the line. The pull request must have a non-terminal queue entry, or the call returns `PR_NOT_IN_ACTIVE_STATE`.\n\n`Idempotency-Key` is not honored. If a request times out, read the pull request's queue entry before retrying.",
+        "description": "Requires the **Set priority on PRs** permission. Lower `priorityValue` numbers go first, from 0 to 255. The named priorities are `urgent` (0), `high` (10), `medium` (100, the default), and `low` (200). Raising an entry that is already queued doesn't restart anything: the new priority applies the next time the entry is placed in the queue. An entry still `notReady` set to `urgent` restarts lower-priority entries already testing when it enters the queue.\n\nChanges a live queue entry's priority. Exactly one of `priorityValue` or `priorityName` is required. `priorityValue: 0` is the write path for skipping the line. The entry keeps its merge method. The pull request must have a non-terminal queue entry, or the call returns `PR_NOT_IN_ACTIVE_STATE`.\n\n`Idempotency-Key` is not honored. If a request times out, read the pull request's queue entry before retrying.",
         "parameters": [
           {
             "schema": {
@@ -10436,7 +11138,7 @@
         "operationId": "pullRequests.updateQueueEntry",
         "tags": ["pullRequests"],
         "summary": "Update a queued pull request's entry",
-        "description": "Requires **Set priority on PRs** to send `priorityValue` or `priorityName`, **Skip batching** to send `allowBatching`, and **Merge PRs with direct to queue** to send `direct`. Lower `priorityValue` numbers go first, from 0 to 255. The named priorities are `urgent` (0), `high` (10), `medium` (100, the default), and `low` (200). Raising an entry that is already queued doesn't restart anything: the new priority applies the next time the entry is placed in the queue. An entry still `notReady` set to `urgent` restarts lower-priority entries already testing when it enters the queue.\n\nPatches a live queue entry; an omitted field leaves that attribute unchanged. `priorityValue` and `priorityName` are mutually exclusive. `skipsTheLine` is not settable — it is derived from `priorityValue === 0`, so send that instead. `direct` sends the entry directly to the queue past unmet readiness (it needs the **Merge PRs with direct to queue** permission, and a signed-in user also needs repository-admin permission). `allowBatching: false` gives the entry a test run of its own.",
+        "description": "Requires **Set priority on PRs** to send `priorityValue` or `priorityName`, **Skip batching** to send `allowBatching`, **Merge PRs with direct to queue** to send `direct`, and **Merge and cancel PRs** to send `mergeMethod`. Lower `priorityValue` numbers go first, from 0 to 255. The named priorities are `urgent` (0), `high` (10), `medium` (100, the default), and `low` (200). Raising an entry that is already queued doesn't restart anything: the new priority applies the next time the entry is placed in the queue. An entry still `notReady` set to `urgent` restarts lower-priority entries already testing when it enters the queue.\n\nPatches a live queue entry; an omitted field leaves that attribute unchanged. `priorityValue` and `priorityName` are mutually exclusive. `skipsTheLine` is not settable — it is derived from `priorityValue === 0`, so send that instead. `direct` sends the entry directly to the queue past unmet readiness (it needs the **Merge PRs with direct to queue** permission, and a signed-in user also needs repository-admin permission). `allowBatching: false` gives the entry a test run of its own. `mergeMethod` chooses how this pull request is merged, and `null` returns it to the queue's merge method.",
         "parameters": [
           {
             "schema": {
@@ -11052,6 +11754,320 @@
                       "error": {
                         "code": "PR_TESTS_NOT_RESTARTABLE",
                         "message": "This pull request's tests cannot be restarted in its current state"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "RATE_LIMIT_EXCEEDED": {
+                    "summary": "RATE_LIMIT_EXCEEDED",
+                    "value": {
+                      "error": {
+                        "code": "RATE_LIMIT_EXCEEDED",
+                        "message": "Rate limit exceeded; retry with backoff"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INTERNAL_ERROR": {
+                    "summary": "INTERNAL_ERROR",
+                    "value": {
+                      "error": {
+                        "code": "INTERNAL_ERROR",
+                        "message": "An unexpected error occurred"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "`UPSTREAM_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "UPSTREAM_ERROR": {
+                    "summary": "UPSTREAM_ERROR",
+                    "value": {
+                      "error": {
+                        "code": "UPSTREAM_ERROR",
+                        "message": "An upstream service did not respond"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/pull-requests/{id}/rerun-failed-checks": {
+      "post": {
+        "operationId": "pullRequests.rerunFailedChecks",
+        "tags": ["pullRequests"],
+        "summary": "Re-run a pull request's failed checks",
+        "description": "Requires the **Merge and cancel PRs** permission. Re-runs the failed jobs of the GitHub Actions workflows behind the failed required checks, and keeps the pull request's place in the queue: it stays in `pendingFailure` until the re-run starts or `rerun.until` passes, whichever is first. If the re-run has not started by then, the pull request fails as it would have without the request. Only possible while the entry is in `pendingFailure` on a queue that keeps failed test runs; every refusal is a `422` with its own code.\n\n`mode` is required. **Disruptive** with `mode: now`: it stops the jobs still running in the failed checks' workflows. `mode: wait` lets them finish first. `now` on a request that is waiting switches it to `now` (`rerun.switchedToNow`). `Idempotency-Key` is not honored, but a repeat with the same `mode` is safe: it answers `rerun.alreadyHeld` and changes nothing.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "The pull request's id.",
+              "example": "0f8fad5b-d9cb-469f-a165-70867728950e"
+            },
+            "required": true,
+            "description": "The pull request's id.",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RerunFailedChecksRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The pull request, and the re-run it is waiting for",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RerunFailedChecksResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "VALIDATION_FAILED": {
+                    "summary": "VALIDATION_FAILED",
+                    "value": {
+                      "error": {
+                        "code": "VALIDATION_FAILED",
+                        "message": "Invalid input: expected string, received undefined"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "AUTHENTICATION_REQUIRED": {
+                    "summary": "AUTHENTICATION_REQUIRED",
+                    "value": {
+                      "error": {
+                        "code": "AUTHENTICATION_REQUIRED",
+                        "message": "No credential was supplied"
+                      }
+                    }
+                  },
+                  "INVALID_TOKEN": {
+                    "summary": "INVALID_TOKEN",
+                    "value": {
+                      "error": {
+                        "code": "INVALID_TOKEN",
+                        "message": "The supplied token failed verification"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`INSUFFICIENT_PERMISSIONS`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INSUFFICIENT_PERMISSIONS": {
+                    "summary": "INSUFFICIENT_PERMISSIONS",
+                    "value": {
+                      "error": {
+                        "code": "INSUFFICIENT_PERMISSIONS",
+                        "message": "The supplied credential is missing the required permission"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`PR_NOT_FOUND` | `MERGE_QUEUE_NOT_FOUND`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "PR_NOT_FOUND": {
+                    "summary": "PR_NOT_FOUND",
+                    "value": {
+                      "error": {
+                        "code": "PR_NOT_FOUND",
+                        "message": "Pull request not found"
+                      }
+                    }
+                  },
+                  "MERGE_QUEUE_NOT_FOUND": {
+                    "summary": "MERGE_QUEUE_NOT_FOUND",
+                    "value": {
+                      "error": {
+                        "code": "MERGE_QUEUE_NOT_FOUND",
+                        "message": "Merge queue not found"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "`PR_NOT_IN_ACTIVE_STATE`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "PR_NOT_IN_ACTIVE_STATE": {
+                    "summary": "PR_NOT_IN_ACTIVE_STATE",
+                    "value": {
+                      "error": {
+                        "code": "PR_NOT_IN_ACTIVE_STATE",
+                        "message": "This pull request is not in an active queue state"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "`PR_RERUN_FEATURE_DISABLED` | `PR_RERUN_NOT_PENDING_FAILURE` | `PR_RERUN_QUEUE_DOES_NOT_KEEP_FAILED_RUNS` | `PR_RERUN_NOT_A_REQUIRED_CHECK_FAILURE` | `PR_RERUN_CHECK_NOT_RERUNNABLE` | `PR_RERUN_RUN_TORN_DOWN` | `PR_RERUN_HOLD_LIMIT_REACHED` | `PR_RERUN_FORGE_NOT_SUPPORTED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "PR_RERUN_FEATURE_DISABLED": {
+                    "summary": "PR_RERUN_FEATURE_DISABLED",
+                    "value": {
+                      "error": {
+                        "code": "PR_RERUN_FEATURE_DISABLED",
+                        "message": "You cannot re-run failed checks from Trunk on this queue."
+                      }
+                    }
+                  },
+                  "PR_RERUN_NOT_PENDING_FAILURE": {
+                    "summary": "PR_RERUN_NOT_PENDING_FAILURE",
+                    "value": {
+                      "error": {
+                        "code": "PR_RERUN_NOT_PENDING_FAILURE",
+                        "message": "You cannot re-run checks for this pull request now."
+                      }
+                    }
+                  },
+                  "PR_RERUN_QUEUE_DOES_NOT_KEEP_FAILED_RUNS": {
+                    "summary": "PR_RERUN_QUEUE_DOES_NOT_KEEP_FAILED_RUNS",
+                    "value": {
+                      "error": {
+                        "code": "PR_RERUN_QUEUE_DOES_NOT_KEEP_FAILED_RUNS",
+                        "message": "This queue does not allow re-runs. A queue admin can turn on \"Accept Manual Re-runs of Failed Required Checks\"."
+                      }
+                    }
+                  },
+                  "PR_RERUN_NOT_A_REQUIRED_CHECK_FAILURE": {
+                    "summary": "PR_RERUN_NOT_A_REQUIRED_CHECK_FAILURE",
+                    "value": {
+                      "error": {
+                        "code": "PR_RERUN_NOT_A_REQUIRED_CHECK_FAILURE",
+                        "message": "No required check failed. Use Restart tests."
+                      }
+                    }
+                  },
+                  "PR_RERUN_CHECK_NOT_RERUNNABLE": {
+                    "summary": "PR_RERUN_CHECK_NOT_RERUNNABLE",
+                    "value": {
+                      "error": {
+                        "code": "PR_RERUN_CHECK_NOT_RERUNNABLE",
+                        "message": "Trunk can re-run only GitHub Actions checks. Re-run `buildkite/ci` in its own CI, or use Restart tests."
+                      }
+                    }
+                  },
+                  "PR_RERUN_RUN_TORN_DOWN": {
+                    "summary": "PR_RERUN_RUN_TORN_DOWN",
+                    "value": {
+                      "error": {
+                        "code": "PR_RERUN_RUN_TORN_DOWN",
+                        "message": "These checks cannot be re-run now. Use Restart tests."
+                      }
+                    }
+                  },
+                  "PR_RERUN_HOLD_LIMIT_REACHED": {
+                    "summary": "PR_RERUN_HOLD_LIMIT_REACHED",
+                    "value": {
+                      "error": {
+                        "code": "PR_RERUN_HOLD_LIMIT_REACHED",
+                        "message": "These checks were already re-run two times. Use Restart tests."
+                      }
+                    }
+                  },
+                  "PR_RERUN_FORGE_NOT_SUPPORTED": {
+                    "summary": "PR_RERUN_FORGE_NOT_SUPPORTED",
+                    "value": {
+                      "error": {
+                        "code": "PR_RERUN_FORGE_NOT_SUPPORTED",
+                        "message": "Trunk can re-run checks only for GitHub repositories. Use Restart tests."
                       }
                     }
                   }
@@ -13285,6 +14301,42 @@
           {
             "schema": {
               "type": "string",
+              "minLength": 1,
+              "description": "Only tests currently linked to this ticket, by its Trunk id (`ticket.id` on a test). Spans every collection unless `testCollectionId` narrows it. An unknown id returns an empty page, not an error. Cannot be combined with `ticketKey`.",
+              "example": "5b0e8f8a-1c2d-4e3f-8a9b-0c1d2e3f4a5b"
+            },
+            "required": false,
+            "description": "Only tests currently linked to this ticket, by its Trunk id (`ticket.id` on a test). Spans every collection unless `testCollectionId` narrows it. An unknown id returns an empty page, not an error. Cannot be combined with `ticketKey`.",
+            "name": "ticketId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Only tests currently linked to the ticket with this provider key or URL. A convenience: a key can change (a Jira issue moved between projects) and two connections can share one, so prefer `ticketId`, and pass `integrationId` to narrow to one connection. An unknown key returns an empty page.",
+              "example": "TRUNK-12345"
+            },
+            "required": false,
+            "description": "Only tests currently linked to the ticket with this provider key or URL. A convenience: a key can change (a Jira issue moved between projects) and two connections can share one, so prefer `ticketId`, and pass `integrationId` to narrow to one connection. An unknown key returns an empty page.",
+            "name": "ticketKey",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The ticketing connection `ticketKey` is looked up in. Only valid with `ticketKey`.",
+              "example": "6c1f9a9b-2d3e-4f40-9b0c-1d2e3f4a5b6c"
+            },
+            "required": false,
+            "description": "The ticketing connection `ticketKey` is looked up in. Only valid with `ticketKey`.",
+            "name": "integrationId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
               "enum": ["quarantined", "notQuarantined"],
               "description": "Filter on effective quarantine state, derived from the test's status, its collection's quarantine settings and any per-test override.",
               "example": "quarantined"
@@ -14289,6 +15341,426 @@
         }
       }
     },
+    "/v2/tests/{testId}/investigations": {
+      "get": {
+        "operationId": "testInvestigations.list",
+        "tags": ["testInvestigations"],
+        "summary": "List a test's AI investigations",
+        "description": "Returns the AI investigations Trunk ran on a test, newest first. An investigation that was retried appears once, as its latest attempt, and the filters apply to that attempt.\n\nTrunk keeps investigations for 45 days. `createdAfter` and `createdBefore` bound when an investigation was created; when `createdAfter` is set, the window up to `createdBefore` (or now) may span at most 30 days.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The test's globally unique id.",
+              "example": "bfeebcf4-0000-8000-8000-000000000001"
+            },
+            "required": true,
+            "description": "The test's globally unique id.",
+            "name": "testId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25,
+              "description": "Page size, between 1 and 100.",
+              "example": 25
+            },
+            "required": false,
+            "description": "Page size, between 1 and 100.",
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "Opaque cursor from a previous response's `nextCursor`. A cursor is bound to the operation and filter it was minted for.",
+              "example": "AQEKZm9vYmFy"
+            },
+            "required": false,
+            "description": "Opaque cursor from a previous response's `nextCursor`. A cursor is bound to the operation and filter it was minted for.",
+            "name": "cursor",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "description": "Set true to include `total` in the response. Costs an extra COUNT query, so it is off by default.",
+              "example": false
+            },
+            "required": false,
+            "description": "Set true to include `total` in the response. Costs an extra COUNT query, so it is off by default.",
+            "name": "includeTotal",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Comma-separated statuses to include: `completed`, `failed`, `skipped`.",
+              "example": "completed"
+            },
+            "required": false,
+            "description": "Comma-separated statuses to include: `completed`, `failed`, `skipped`.",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Comma-separated trigger types to include: `manual`, `automatic`, `mcp`.",
+              "example": "manual,mcp"
+            },
+            "required": false,
+            "description": "Comma-separated trigger types to include: `manual`, `automatic`, `mcp`.",
+            "name": "triggerType",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Only investigations created at or after this time.",
+              "example": "2026-06-01T00:00:00.000Z"
+            },
+            "required": false,
+            "description": "Only investigations created at or after this time.",
+            "name": "createdAfter",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Only investigations created strictly before this time.",
+              "example": "2026-06-30T00:00:00.000Z"
+            },
+            "required": false,
+            "description": "Only investigations created strictly before this time.",
+            "name": "createdBefore",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of investigations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvestigationSummaryList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`VALIDATION_FAILED` | `INVALID_CURSOR` | `OUT_OF_RANGE`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "VALIDATION_FAILED": {
+                    "summary": "VALIDATION_FAILED",
+                    "value": {
+                      "error": {
+                        "code": "VALIDATION_FAILED",
+                        "message": "Invalid input: expected string, received undefined"
+                      }
+                    }
+                  },
+                  "INVALID_CURSOR": {
+                    "summary": "INVALID_CURSOR",
+                    "value": {
+                      "error": {
+                        "code": "INVALID_CURSOR",
+                        "message": "Invalid or expired cursor."
+                      }
+                    }
+                  },
+                  "OUT_OF_RANGE": {
+                    "summary": "OUT_OF_RANGE",
+                    "value": {
+                      "error": {
+                        "code": "OUT_OF_RANGE",
+                        "message": "The requested time window is wider than the endpoint allows"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "AUTHENTICATION_REQUIRED": {
+                    "summary": "AUTHENTICATION_REQUIRED",
+                    "value": {
+                      "error": {
+                        "code": "AUTHENTICATION_REQUIRED",
+                        "message": "No credential was supplied"
+                      }
+                    }
+                  },
+                  "INVALID_TOKEN": {
+                    "summary": "INVALID_TOKEN",
+                    "value": {
+                      "error": {
+                        "code": "INVALID_TOKEN",
+                        "message": "The supplied token failed verification"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`TEST_NOT_FOUND`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "TEST_NOT_FOUND": {
+                    "summary": "TEST_NOT_FOUND",
+                    "value": {
+                      "error": {
+                        "code": "TEST_NOT_FOUND",
+                        "message": "Test not found"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "RATE_LIMIT_EXCEEDED": {
+                    "summary": "RATE_LIMIT_EXCEEDED",
+                    "value": {
+                      "error": {
+                        "code": "RATE_LIMIT_EXCEEDED",
+                        "message": "Rate limit exceeded; retry with backoff"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INTERNAL_ERROR": {
+                    "summary": "INTERNAL_ERROR",
+                    "value": {
+                      "error": {
+                        "code": "INTERNAL_ERROR",
+                        "message": "An unexpected error occurred"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/tests/{testId}/investigations/{investigationId}": {
+      "get": {
+        "operationId": "testInvestigations.get",
+        "tags": ["testInvestigations"],
+        "summary": "Get an AI investigation",
+        "description": "Returns one AI investigation of a test, at its latest attempt, with the facts it found and the evidence each cites.\n\nAn investigation of another test, or of a test you cannot read, is reported as `404`.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The test's globally unique id.",
+              "example": "bfeebcf4-0000-8000-8000-000000000001"
+            },
+            "required": true,
+            "description": "The test's globally unique id.",
+            "name": "testId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The investigation's id.",
+              "example": "5a7fef9e-c8cd-4eed-8a87-9494bdf96bed"
+            },
+            "required": true,
+            "description": "The investigation's id.",
+            "name": "investigationId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The investigation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Investigation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "VALIDATION_FAILED": {
+                    "summary": "VALIDATION_FAILED",
+                    "value": {
+                      "error": {
+                        "code": "VALIDATION_FAILED",
+                        "message": "Invalid input: expected string, received undefined"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "AUTHENTICATION_REQUIRED": {
+                    "summary": "AUTHENTICATION_REQUIRED",
+                    "value": {
+                      "error": {
+                        "code": "AUTHENTICATION_REQUIRED",
+                        "message": "No credential was supplied"
+                      }
+                    }
+                  },
+                  "INVALID_TOKEN": {
+                    "summary": "INVALID_TOKEN",
+                    "value": {
+                      "error": {
+                        "code": "INVALID_TOKEN",
+                        "message": "The supplied token failed verification"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`TEST_NOT_FOUND` | `INVESTIGATION_NOT_FOUND`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "TEST_NOT_FOUND": {
+                    "summary": "TEST_NOT_FOUND",
+                    "value": {
+                      "error": {
+                        "code": "TEST_NOT_FOUND",
+                        "message": "Test not found"
+                      }
+                    }
+                  },
+                  "INVESTIGATION_NOT_FOUND": {
+                    "summary": "INVESTIGATION_NOT_FOUND",
+                    "value": {
+                      "error": {
+                        "code": "INVESTIGATION_NOT_FOUND",
+                        "message": "Investigation not found"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "RATE_LIMIT_EXCEEDED": {
+                    "summary": "RATE_LIMIT_EXCEEDED",
+                    "value": {
+                      "error": {
+                        "code": "RATE_LIMIT_EXCEEDED",
+                        "message": "Rate limit exceeded; retry with backoff"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INTERNAL_ERROR": {
+                    "summary": "INTERNAL_ERROR",
+                    "value": {
+                      "error": {
+                        "code": "INTERNAL_ERROR",
+                        "message": "An unexpected error occurred"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/test-collections/{id}/uploads": {
       "post": {
         "operationId": "testCollections.createUpload",
@@ -14616,7 +16088,506 @@
         }
       }
     },
+    "/v2/tests/{testId}/quarantine": {
+      "post": {
+        "operationId": "tests.setQuarantine",
+        "tags": ["tests"],
+        "summary": "Set a test's quarantine override",
+        "description": "Requires the **Quarantine tests** permission.\n\nAlways quarantines a test, keeps it out of quarantine, or clears the override, whatever its monitors decided, and returns the test as it now stands. `neverQuarantine` and `clear` are how a test is taken out of quarantine; there is no separate endpoint. An override applies only while the test's collection has quarantining turned on, and turning that on is not offered here.\n\nA test already in the requested mode is left as it is, and `reason` is not recorded. A collection whose quarantine settings let only admins set overrides refuses anyone else with `INSUFFICIENT_PERMISSIONS`. An API token made on the API Keys page passes that check, since only an admin can make one or give it this permission; the organization's legacy API token does not, since every member can see it.\n\nA `503 TEST_UNAVAILABLE` means the override was saved but the test could not be read back in time; read it with `GET /v2/tests/{testId}` rather than treating the write as failed.\n\nThe override is recorded as set by the API token, or by the person whose token made the call. A change a person makes sends the `v2.test_case.quarantining_setting_changed` webhook; a change made with an API token does not yet.\n\n`Idempotency-Key` is not honored. The write is idempotent by state, so a request whose outcome is unknown (a `504` or a dropped connection) is safe to send again: a test already in the requested mode reports `unchanged`.\n\nA test in another organization is reported as `404`, not `403`, and so is a malformed id.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The test's globally unique id.",
+              "example": "bfeebcf4-0000-8000-8000-000000000001"
+            },
+            "required": true,
+            "description": "The test's globally unique id.",
+            "name": "testId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetQuarantineRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The test, with its new override",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Test"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "VALIDATION_FAILED": {
+                    "summary": "VALIDATION_FAILED",
+                    "value": {
+                      "error": {
+                        "code": "VALIDATION_FAILED",
+                        "message": "Invalid input: expected string, received undefined"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "AUTHENTICATION_REQUIRED": {
+                    "summary": "AUTHENTICATION_REQUIRED",
+                    "value": {
+                      "error": {
+                        "code": "AUTHENTICATION_REQUIRED",
+                        "message": "No credential was supplied"
+                      }
+                    }
+                  },
+                  "INVALID_TOKEN": {
+                    "summary": "INVALID_TOKEN",
+                    "value": {
+                      "error": {
+                        "code": "INVALID_TOKEN",
+                        "message": "The supplied token failed verification"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`INSUFFICIENT_PERMISSIONS`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INSUFFICIENT_PERMISSIONS": {
+                    "summary": "INSUFFICIENT_PERMISSIONS",
+                    "value": {
+                      "error": {
+                        "code": "INSUFFICIENT_PERMISSIONS",
+                        "message": "The supplied credential is missing the required permission"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`TEST_NOT_FOUND`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "TEST_NOT_FOUND": {
+                    "summary": "TEST_NOT_FOUND",
+                    "value": {
+                      "error": {
+                        "code": "TEST_NOT_FOUND",
+                        "message": "Test not found"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "RATE_LIMIT_EXCEEDED": {
+                    "summary": "RATE_LIMIT_EXCEEDED",
+                    "value": {
+                      "error": {
+                        "code": "RATE_LIMIT_EXCEEDED",
+                        "message": "Rate limit exceeded; retry with backoff"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INTERNAL_ERROR": {
+                    "summary": "INTERNAL_ERROR",
+                    "value": {
+                      "error": {
+                        "code": "INTERNAL_ERROR",
+                        "message": "An unexpected error occurred"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "`TEST_UNAVAILABLE`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "TEST_UNAVAILABLE": {
+                    "summary": "TEST_UNAVAILABLE",
+                    "value": {
+                      "error": {
+                        "code": "TEST_UNAVAILABLE",
+                        "message": "The change was saved, but the test could not be read back; read it again"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/tests/quarantine": {
+      "post": {
+        "operationId": "tests.setQuarantineMany",
+        "tags": ["tests"],
+        "summary": "Set quarantine overrides on many tests",
+        "description": "Requires the **Quarantine tests** permission.\n\nSets the quarantine override of each listed test, as `POST /v2/tests/{testId}/quarantine` does for one, and reports each test's outcome in request order. The tests may be in different collections. At most 100 items, and a test listed twice refuses the whole request with `VALIDATION_FAILED`.\n\nEach item either `succeeded`, was `unchanged` (already in that mode; `reason` is not recorded for it), or `failed` with an `error`: `TEST_NOT_FOUND` for an id that does not resolve to a test you can see (another organization's included), `INSUFFICIENT_PERMISSIONS` for a test whose collection lets only admins set overrides, and `INTERNAL_ERROR` for one that could not be saved, which wrote nothing and may be sent again. One item failing does not undo the others. A caller without the permission is refused as a whole with `403`.\n\nThe override is recorded as set by the API token, or by the person whose token made the call. A change a person makes sends the `v2.test_case.quarantining_setting_changed` webhook; a change made with an API token does not yet.\n\n`Idempotency-Key` is not honored. The write is idempotent by state, so a request whose outcome is unknown (a `504` or a dropped connection) is safe to send again: a test already in the requested mode reports `unchanged`.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetQuarantineManyRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Each test's outcome, in request order",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "VALIDATION_FAILED": {
+                    "summary": "VALIDATION_FAILED",
+                    "value": {
+                      "error": {
+                        "code": "VALIDATION_FAILED",
+                        "message": "Invalid input: expected string, received undefined"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "AUTHENTICATION_REQUIRED": {
+                    "summary": "AUTHENTICATION_REQUIRED",
+                    "value": {
+                      "error": {
+                        "code": "AUTHENTICATION_REQUIRED",
+                        "message": "No credential was supplied"
+                      }
+                    }
+                  },
+                  "INVALID_TOKEN": {
+                    "summary": "INVALID_TOKEN",
+                    "value": {
+                      "error": {
+                        "code": "INVALID_TOKEN",
+                        "message": "The supplied token failed verification"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`INSUFFICIENT_PERMISSIONS`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INSUFFICIENT_PERMISSIONS": {
+                    "summary": "INSUFFICIENT_PERMISSIONS",
+                    "value": {
+                      "error": {
+                        "code": "INSUFFICIENT_PERMISSIONS",
+                        "message": "The supplied credential is missing the required permission"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "RATE_LIMIT_EXCEEDED": {
+                    "summary": "RATE_LIMIT_EXCEEDED",
+                    "value": {
+                      "error": {
+                        "code": "RATE_LIMIT_EXCEEDED",
+                        "message": "Rate limit exceeded; retry with backoff"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INTERNAL_ERROR": {
+                    "summary": "INTERNAL_ERROR",
+                    "value": {
+                      "error": {
+                        "code": "INTERNAL_ERROR",
+                        "message": "An unexpected error occurred"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/tests/{testId}/ticket": {
+      "get": {
+        "operationId": "tests.getTicket",
+        "tags": ["tests"],
+        "summary": "Get a test's linked ticket",
+        "description": "Returns the ticket linked to a test, with its title, assignee and when Trunk last synced it. A test with no linked ticket is `404 TICKET_NOT_LINKED`.\n\nThis is the only test read that calls the ticketing provider: a ticket Trunk has not synced in the last 15 minutes is read back from its provider first. If the provider does not answer within a few seconds, the ticket is returned as Trunk last synced it, with that older `syncedAt`.\n\nA ticket the provider no longer has stays linked, with `deletedAt` set and the last `status` synced; unlink it or link another ticket to replace it.\n\nA test in another organization is reported as `404 TEST_NOT_FOUND`, not `403`, and so is a malformed id.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The test's globally unique id.",
+              "example": "bfeebcf4-0000-8000-8000-000000000001"
+            },
+            "required": true,
+            "description": "The test's globally unique id.",
+            "name": "testId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The linked ticket",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ticket"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "VALIDATION_FAILED": {
+                    "summary": "VALIDATION_FAILED",
+                    "value": {
+                      "error": {
+                        "code": "VALIDATION_FAILED",
+                        "message": "Invalid input: expected string, received undefined"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "AUTHENTICATION_REQUIRED": {
+                    "summary": "AUTHENTICATION_REQUIRED",
+                    "value": {
+                      "error": {
+                        "code": "AUTHENTICATION_REQUIRED",
+                        "message": "No credential was supplied"
+                      }
+                    }
+                  },
+                  "INVALID_TOKEN": {
+                    "summary": "INVALID_TOKEN",
+                    "value": {
+                      "error": {
+                        "code": "INVALID_TOKEN",
+                        "message": "The supplied token failed verification"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`TEST_NOT_FOUND` | `TICKET_NOT_LINKED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "TEST_NOT_FOUND": {
+                    "summary": "TEST_NOT_FOUND",
+                    "value": {
+                      "error": {
+                        "code": "TEST_NOT_FOUND",
+                        "message": "Test not found"
+                      }
+                    }
+                  },
+                  "TICKET_NOT_LINKED": {
+                    "summary": "TICKET_NOT_LINKED",
+                    "value": {
+                      "error": {
+                        "code": "TICKET_NOT_LINKED",
+                        "message": "No ticket is linked to this test"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "RATE_LIMIT_EXCEEDED": {
+                    "summary": "RATE_LIMIT_EXCEEDED",
+                    "value": {
+                      "error": {
+                        "code": "RATE_LIMIT_EXCEEDED",
+                        "message": "Rate limit exceeded; retry with backoff"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INTERNAL_ERROR": {
+                    "summary": "INTERNAL_ERROR",
+                    "value": {
+                      "error": {
+                        "code": "INTERNAL_ERROR",
+                        "message": "An unexpected error occurred"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "post": {
         "operationId": "tests.linkTicket",
         "tags": ["tests"],
@@ -14875,6 +16846,175 @@
                       "error": {
                         "code": "UPSTREAM_ERROR",
                         "message": "An upstream service did not respond"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "tests.unlinkTicket",
+        "tags": ["tests"],
+        "summary": "Unlink a test's ticket",
+        "description": "Removes the link between a test and its ticket. The ticket itself is not changed or closed in its provider. A test with no linked ticket is refused with `404 TICKET_NOT_LINKED`, so a retry after a successful unlink answers that rather than `204`.\n\nA test in another organization is reported as `404 TEST_NOT_FOUND`, not `403`, and so is a malformed id.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The test's globally unique id.",
+              "example": "bfeebcf4-0000-8000-8000-000000000001"
+            },
+            "required": true,
+            "description": "The test's globally unique id.",
+            "name": "testId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The ticket was unlinked"
+          },
+          "400": {
+            "description": "`VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "VALIDATION_FAILED": {
+                    "summary": "VALIDATION_FAILED",
+                    "value": {
+                      "error": {
+                        "code": "VALIDATION_FAILED",
+                        "message": "Invalid input: expected string, received undefined"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "AUTHENTICATION_REQUIRED": {
+                    "summary": "AUTHENTICATION_REQUIRED",
+                    "value": {
+                      "error": {
+                        "code": "AUTHENTICATION_REQUIRED",
+                        "message": "No credential was supplied"
+                      }
+                    }
+                  },
+                  "INVALID_TOKEN": {
+                    "summary": "INVALID_TOKEN",
+                    "value": {
+                      "error": {
+                        "code": "INVALID_TOKEN",
+                        "message": "The supplied token failed verification"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`INSUFFICIENT_PERMISSIONS`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INSUFFICIENT_PERMISSIONS": {
+                    "summary": "INSUFFICIENT_PERMISSIONS",
+                    "value": {
+                      "error": {
+                        "code": "INSUFFICIENT_PERMISSIONS",
+                        "message": "The supplied credential is missing the required permission"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`TEST_NOT_FOUND` | `TICKET_NOT_LINKED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "TEST_NOT_FOUND": {
+                    "summary": "TEST_NOT_FOUND",
+                    "value": {
+                      "error": {
+                        "code": "TEST_NOT_FOUND",
+                        "message": "Test not found"
+                      }
+                    }
+                  },
+                  "TICKET_NOT_LINKED": {
+                    "summary": "TICKET_NOT_LINKED",
+                    "value": {
+                      "error": {
+                        "code": "TICKET_NOT_LINKED",
+                        "message": "No ticket is linked to this test"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "RATE_LIMIT_EXCEEDED": {
+                    "summary": "RATE_LIMIT_EXCEEDED",
+                    "value": {
+                      "error": {
+                        "code": "RATE_LIMIT_EXCEEDED",
+                        "message": "Rate limit exceeded; retry with backoff"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INTERNAL_ERROR": {
+                    "summary": "INTERNAL_ERROR",
+                    "value": {
+                      "error": {
+                        "code": "INTERNAL_ERROR",
+                        "message": "An unexpected error occurred"
                       }
                     }
                   }
