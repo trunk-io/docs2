@@ -418,6 +418,7 @@
               "ci/dynamic-ci/settings",
               "ci/dynamic-ci/force-run",
               "ci/dynamic-ci/merge-queue",
+              "ci/dynamic-ci/dynamic-ci-action-reference",
               "ci/dynamic-ci/faq"
             ]
           }
