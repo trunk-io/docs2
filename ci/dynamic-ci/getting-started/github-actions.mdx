@@ -93,23 +93,6 @@ jobs:
 
 When your workflow files are updated and start calling into Dynamic CI a background linter will run to verify the format of your yaml file and call out problems.
 
-## Keep required checks working
-
-A skipped job counts as passing for a required check, but two cases still
-block a pull request:
-
-- **A skipped matrix job** reports one check under the job's name. Required
-  checks named for each matrix entry, such as `E2E (chromium)`, wait forever.
-- **A workflow skipped by `on.paths` or `on.paths-ignore`** reports no checks
-  at all, so its required checks wait forever. Keep path rules out of `on:`.
-  Put them in the job's `if:`, or in [Dynamic CI configuration](/ci/dynamic-ci/configuration).
-
-Mark one job that sums up the others as required, like `ci-passed` in the
-example. It runs unless the run was cancelled, `needs` every gated job, and
-passes when each job passed or was skipped. Do not add the filter job to its
-`needs`: if Trunk is down, the gated jobs run and their results decide the
-check.
-
 ## Which events to filter
 
 - **Pull requests** are scored from your CI history.
