@@ -17,7 +17,7 @@ Merge queues are GitHub-only. Install the Trunk GitHub App on the repository, an
 - **Mode**: `queue` mode (**Single** in the app) puts pull requests in one line, each tested on top of the ones ahead of it, several at a time. `graph` mode (**Parallel** in the app) gives unrelated pull requests separate lines, based on the [impacted targets](/merge-queue/optimizations/parallel-queues) CI uploads for each.
 - **Priority**: lower `priorityValue` numbers test first. The names are `urgent` (0), `high` (10), `medium` (100), and `low` (200). Send a number as `priorityValue` or a name as `priorityName`. Without either, a pull request gets `medium` (100). **`urgent` (or `priorityValue: 0`) restarts lower-priority pull requests that are already testing**, so reserve it for emergencies. See [Priority merging](/merge-queue/optimizations/priority-merging).
 - **Direct to queue**: `direct: true` sends a pull request to the queue before its branch protection is satisfied. See [Direct-to-Queue](/merge-queue/using-the-queue/direct-to-queue).
-- **Merge method**: how Trunk merges a pull request: `squash`, `rebase`, or `mergeCommit`. A pull request uses the queue's `mergeMethod` unless it chose its own. See [Merge method](#merge-method).
+- **Merge method**: `squash`, `rebase`, or `mergeCommit`. A pull request uses the queue's `mergeMethod` unless it chose its own while the queue allows choosing. See [Merge method](#merge-method).
 
 ## Authentication
 
@@ -72,9 +72,9 @@ To find out why a pull request failed, read the latest transition in its [queue-
 
 ## Merge method
 
-Every pull request merges with the queue's merge method, `config.mergeMethod`, unless it chose its own. A pull request can choose only when the queue's `config.isMergeMethodOverrideEnabled` is `true`. Turn it on in the queue's [settings](/merge-queue/administration/advanced-settings#choosing-a-merge-method-per-pull-request), or send `{ "isMergeMethodOverrideEnabled": true }` to [`PATCH /v2/merge-queues/{id}/config`](/api/mergequeues/update-a-merge-queues-configuration) with a key that has **Update Merge Queue settings**.
+Every pull request merges with the queue's merge method, `config.mergeMethod`, unless it chose its own. A pull request can choose only when the queue's `config.isMergeMethodOverrideEnabled` is `true`. Turn the setting on in the queue's [settings](/merge-queue/administration/advanced-settings#choosing-a-merge-method-per-pull-request), or send `{ "isMergeMethodOverrideEnabled": true }` to [`PATCH /v2/merge-queues/{id}/config`](/api/mergequeues/update-a-merge-queues-configuration) with a key that has **Update Merge Queue settings**.
 
-To choose, send `mergeMethod` as `squash`, `rebase`, or `mergeCommit` when you submit:
+To choose, send `mergeMethod` as `squash`, `rebase`, or `mergeCommit` when you submit. Choosing needs only the **Merge and cancel PRs** permission:
 
 ```bash
 curl -X POST https://api.trunk.io/v2/merge-queues/xK9mP2nQ/pull-requests \
@@ -83,9 +83,9 @@ curl -X POST https://api.trunk.io/v2/merge-queues/xK9mP2nQ/pull-requests \
   -d '{ "number": 4901, "mergeMethod": "rebase" }'
 ```
 
-To change it while the pull request is queued, send `mergeMethod` to [`PATCH /v2/pull-requests/{id}/queue-entry`](/api/pullrequests/update-a-queued-pull-requests-entry). Send `null` to go back to the queue's method; leave it out to keep the current choice. Choosing needs only the **Merge and cancel PRs** permission. `queueEntry.mergeMethod` reads the choice back, and is `null` when the queue's method applies.
+To change it while the pull request is queued, send `mergeMethod` to [`PATCH /v2/pull-requests/{id}/queue-entry`](/api/pullrequests/update-a-queued-pull-requests-entry). Send `null` to go back to the queue's method; leave it out to keep the current choice. `queueEntry.mergeMethod` reads the choice back, and is `null` when none is chosen.
 
-Trunk refuses a choice with `422 PR_NOT_ENQUEUEABLE`, and the reason in `message`, when the queue's setting is off, when the pull request is already being merged, or when the branch's rulesets don't allow the method.
+Trunk refuses a choice with `422 PR_NOT_ENQUEUEABLE`, and the reason in `message`, when the queue's setting is off and the method differs from the current one, when the pull request is already being merged and the method changes, or when the branch's rulesets don't allow the method.
 
 ## Queue order
 
