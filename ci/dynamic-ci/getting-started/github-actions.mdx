@@ -72,9 +72,9 @@ jobs:
 
   <Step title="Export the verdict for each job you want to dynamically manage in the outputs section of the dynamic-ci job. ">
     ```yaml
-
-    
-    ...    
+     # [!code --]
+     # [!code --]
+    ...     # [!code --]
       outputs:
           unit-tests: ${{ steps.dynamic-ci.outputs.unit-tests }}
           playwright-tests: ${{ steps.dynamic-ci.outputs.playwright-tests }}
