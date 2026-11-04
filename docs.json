@@ -967,6 +967,7 @@
               {
                 "group": "November",
                 "pages": [
+                  "changelog/2026-11-04-merge-queue-per-pr-merge-method",
                   "changelog/2026-11-04-dynamic-ci-impacts-and-action-updates",
                   "changelog/2026-11-03-code-quality-cli-1-29-0"
                 ]
