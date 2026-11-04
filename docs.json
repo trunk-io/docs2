@@ -389,7 +389,9 @@
             "group": "Overview",
             "pages": [
               "ci/dynamic-ci",
-              "ci/dynamic-ci/getting-started/index"
+              "ci/dynamic-ci/getting-started/index",
+              "ci/dynamic-ci/merge-queue",
+              "ci/dynamic-ci/force-run"
             ]
           },
           {
@@ -403,9 +405,7 @@
             "group": "Configuration",
             "pages": [
               "ci/dynamic-ci/configuration",
-              "ci/dynamic-ci/settings",
-              "ci/dynamic-ci/force-run",
-              "ci/dynamic-ci/merge-queue"
+              "ci/dynamic-ci/settings"
             ]
           },
           {
