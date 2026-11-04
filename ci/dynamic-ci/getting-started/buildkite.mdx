@@ -1,17 +1,17 @@
 ---
-title: "Buildkite"
+title: "BuildKite"
 description: "Add the Dynamic CI plugin to a Buildkite pipeline."
 og:title: "Set up Trunk Dynamic CI for Buildkite"
 ---
 
-<Note>
-  Before you start, [set up Trunk CI for Buildkite](/setup/integrations/buildkite), install the [Trunk CI](/setup/integrations/github/trunk-ci) GitHub App, and copy your organization API token from the **Organization API token (v1)** section of [Settings → Developer → API Keys](https://app.trunk.io/settings/developer/api-tokens). Store it as a Buildkite secret named `TRUNK_API_TOKEN`. The pipeline's remote must be on github.com.
-
-  So Trunk can see the steps it skips, paste a Buildkite API token with the
-  `read_builds` and `read_organizations` scopes into
-  [Settings → Organization → Buildkite](https://app.trunk.io/settings/organization/buildkite).
-  Use a token from a dedicated Buildkite user.
-</Note>
+<Steps>
+  <Step title="Configure Secrets in BuildKite: Add your trunk API token to BuildKite's secret store named `TRUNK_API_TOKEN`">
+  </Step>
+  <Step title="[Configure BuildKite to export CI data to Trunk](/setup/integrations/buildkite): connecting BuildKite's OTEL data allows us to learn the behavior of your CI jobs ">
+  </Step>
+  <Step title="Paste a BuildKite API token with the `read_builds` and `read_organizations` scopes into [Settings → Organization → Buildkite](https://app.trunk.io/settings/organization/buildkite). Use a token from a dedicated BuildKite user. ">
+  </Step>
+</Steps>
 
 ## Give your steps keys
 
