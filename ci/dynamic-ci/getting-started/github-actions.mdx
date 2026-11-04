@@ -1,6 +1,6 @@
 ---
 title: "GitHub Actions"
-description: "Add the Dynamic CI filter job to a GitHub Actions workflow."
+description: "Add Dynamic CI to a GitHub Actions workflow: a complete example workflow, the rules every gated job must follow, how to keep required checks working, and how to check the setup."
 og:title: "Set up Trunk Dynamic CI for GitHub Actions"
 ---
 
@@ -11,20 +11,50 @@ og:title: "Set up Trunk Dynamic CI for GitHub Actions"
   as a repository secret named `TRUNK_API_TOKEN`.
 </Note>
 
-## Add the filter job to the top of your workflow
+## How it works
 
-List every job you want to gate under `outputs`. Check out first, with full
-history, so the action can read the changed files.
+A filter job at the top of your workflow runs the `trunk-io/dynamic-ci`
+action. The action asks Trunk which jobs this change needs, and writes one
+output per job, named by the job's key under `jobs:`. The value is `'true'`
+(run) or `'false'` (skip). Each job you want Dynamic CI to decide reads its
+output in its `if:`.
+
+A job runs unless its output is exactly `'false'`. If Trunk is down, the token
+is missing, or a job has no verdict yet, the output is empty and the job runs.
+This only holds if every job follows the [rules](#rules-for-every-gated-job)
+below.
+
+## Complete example
+
+This workflow gates two jobs and a matrix job, and has one job to mark as the
+required check. Copy it, then replace the job keys and steps with your own.
 
 ```yaml
+name: CI
+
+on:
+  pull_request: {}
+  push:
+    branches:
+      - main
+      - trunk-merge/** # Trunk Merge Queue's test branches
+
+permissions:
+  contents: read
+  pull-requests: read
+
 jobs:
   dynamic-ci-filter:
     name: Dynamic CI
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    # Every gated job runs after a merge to main.
+    if: github.ref != 'refs/heads/main'
+    # One output per gated job, named by its job key.
     outputs:
       unit-tests: ${{ steps.ci-filter.outputs.unit-tests }}
       integration-tests: ${{ steps.ci-filter.outputs.integration-tests }}
+      e2e: ${{ steps.ci-filter.outputs.e2e }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -35,32 +65,154 @@ jobs:
         uses: trunk-io/dynamic-ci@v1
         with:
           token: ${{ secrets.TRUNK_API_TOKEN }}
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    needs: [dynamic-ci-filter]
+    if: >-
+      !cancelled() &&
+      needs.dynamic-ci-filter.outputs.unit-tests != 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - run: make test
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: [dynamic-ci-filter]
+    if: >-
+      !cancelled() &&
+      needs.dynamic-ci-filter.outputs.integration-tests != 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - run: make integration-test
+
+  e2e:
+    name: E2E
+    runs-on: ubuntu-latest
+    needs: [dynamic-ci-filter]
+    if: >-
+      !cancelled() &&
+      needs.dynamic-ci-filter.outputs.e2e != 'false'
+    strategy:
+      matrix:
+        browser: [chromium, firefox]
+    steps:
+      - uses: actions/checkout@v4
+      - run: make e2e BROWSER=${{ matrix.browser }}
+
+  # Mark this job, and only this job, as the required check.
+  ci-passed:
+    name: CI Passed
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: ${{ !cancelled() }}
+    needs: [unit-tests, integration-tests, e2e]
+    steps:
+      - name: Fail unless every job passed or was skipped
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          for result in ${RESULTS}; do
+            case "${result}" in
+              success | skipped) ;;
+              *) echo "::error::a job reported '${result}'"; exit 1 ;;
+            esac
+          done
 ```
 
-## Gate your jobs on it
+## Rules for every gated job
 
-```yaml
-unit-tests:
-  name: Unit Tests
-  runs-on: ubuntu-latest
-  needs: [dynamic-ci-filter]
-  if: >-
-    !cancelled() &&
-    needs.dynamic-ci-filter.outputs.unit-tests != 'false'
-  steps:
-    - run: make test
-```
+<Steps>
+  <Step title="Use the job key, not the display name">
+    Outputs are named by the key under `jobs:` (`unit-tests`), the value
+    `github.job` reports, never by `name:` (`Unit Tests`). Re-export each gated
+    job's output from the filter job's `outputs:`, under the same key. The
+    action sets its outputs at runtime, so GitHub cannot pass them on unless
+    you list them there.
+  </Step>
 
-<Warning>
-  Gate on `!= 'false'`, never on `== 'true'`. A job with no verdict has no
-  output, and `!= 'false'` makes it run.
-</Warning>
+  <Step title="List the filter job in needs">
+    Each gated job has `needs: [dynamic-ci-filter]`. Without it,
+    `needs.dynamic-ci-filter.outputs` is empty and the job always runs.
+  </Step>
 
-Use each job's key from `jobs:`, not its display `name:`.
+  <Step title="Start the condition with !cancelled()">
+    By default GitHub skips a job when a job it needs failed or was skipped.
+    Without `!cancelled()`, a failed filter job (a bad token, an outage) skips
+    every gated job, and nothing is tested. With it, the output is empty and the
+    jobs run.
+  </Step>
+
+  <Step title="Compare with != 'false'">
+    Gate on `!= 'false'`, never on `== 'true'`, so a job with no verdict runs.
+    Do not read the output on its own (`if: needs.dynamic-ci-filter.outputs.unit-tests`):
+    `'false'` is a non-empty string, so the job always runs.
+  </Step>
+
+  <Step title="Join other conditions with &&">
+    Add your own conditions with `&&`. A condition joined with `||` can still be
+    true when the verdict is `'false'`, so the job never skips:
+
+    ```yaml
+    if: >-
+      !cancelled() &&
+      needs.dynamic-ci-filter.outputs.unit-tests != 'false' &&
+      github.actor != 'dependabot[bot]'
+    ```
+  </Step>
+</Steps>
+
+Trunk checks your workflow files for these mistakes. See
+[Check your setup](#check-your-setup).
+
+## Keep required checks working
+
+A skipped job counts as passing for a required check, but two cases still
+block a pull request:
+
+- **A skipped matrix job** reports one check under the job's name. Required
+  checks named for each matrix entry, such as `E2E (chromium)`, wait forever.
+- **A workflow skipped by `on.paths` or `on.paths-ignore`** reports no checks
+  at all, so its required checks wait forever. Keep path rules out of `on:`.
+  Put them in the job's `if:`, or in [Dynamic CI configuration](/ci/dynamic-ci/configuration).
+
+Mark one job that sums up the others as required, like `ci-passed` in the
+example. It runs unless the run was cancelled, `needs` every gated job, and
+passes when each job passed or was skipped. Do not add the filter job to its
+`needs`: if Trunk is down, the gated jobs run and their results decide the
+check.
+
+## Which events to filter
+
+- **Pull requests** are scored from your CI history.
+- **Merge queues** (Trunk Merge Queue's `trunk-merge/**` branches, or a
+  `merge_group` event) skip a job only when a path filter in your
+  [Dynamic CI configuration](/ci/dynamic-ci/configuration) excludes it. See
+  [Merge queues](/ci/dynamic-ci/merge-queue).
+- **Pushes to your default branch** are scored like a pull request. To run
+  everything after a merge, skip the filter job there, as the example does with
+  `if: github.ref != 'refs/heads/main'`. Its outputs are then empty, so every
+  gated job runs.
+- **Pull requests from forks** have no access to `TRUNK_API_TOKEN`, so every job
+  runs.
+
+## Action inputs
+
+| Input               | Default               | Description |
+| ------------------- | --------------------- | ----------- |
+| `token`             | required              | Your organization API token. |
+| `job-keys`          | every job             | A job key, or a comma-separated list, to ask about. Leave unset in a filter job, so Trunk decides every job in the workflow. |
+| `github-token`      | `${{ github.token }}` | Reads the pull request's changed files when the checkout does not have both commits. Needs `pull-requests: read`. |
+| `enable-annotation` | `false`               | Posts the recommendation to the run's annotations and job summary. |
+| `impacts`           | unset                 | Your build tool's measure of how much a change affects. See below. |
+| `ignore-signals`    | unset                 | Signals to leave out. An unknown name makes every job run. |
 
 <Accordion title="Gating a single job instead (pre-step mode)">
   A job can ask about itself by passing its own key in `job-keys`, and skip its
-  own steps. It saves less, because the runner has already started.
+  own steps. It saves less, because the runner has already started. The same
+  rules apply: compare with `!= 'false'` and join with `&&`.
 
   ```yaml
   unit-tests:
@@ -95,11 +247,26 @@ Use each job's key from `jobs:`, not its display `name:`.
 
   Use `"all": true` in place of `count` when everything is affected, and leave
   `impacts` unset when your tool computed nothing. A bad entry is dropped with
-  a warning. Ask us to turn the signal on and set each job's limit.
+  a warning. The signal is off until you ask us to turn it on and set each
+  job's limit; until then, sending `impacts` changes no verdict.
 </Accordion>
+
+## Check your setup
+
+1. Open a pull request. The **Dynamic CI** job's log lists a verdict for each
+   job. Set `enable-annotation: true` to see them on the run's summary page too.
+2. Open [Dynamic CI](https://app.trunk.io/dynamic-ci) in the Trunk app and
+   select **Issues**. Trunk reads your workflow files on the default branch and
+   lists each job whose gate cannot skip it: a missing `needs`, an output the
+   filter job does not export, an output that carries another job's verdict, a
+   job left out of `job-keys`, or a condition that holds when the verdict is
+   `'false'`.
+3. Your repository starts in **Learning** mode, which records verdicts and skips
+   nothing. Once the Issues list is empty and the recommendations look right,
+   [turn on enforcement](/ci/dynamic-ci/settings).
 
 ## Next
 
-[Turn on enforcement](/ci/dynamic-ci/getting-started) once the
-recommendations look right. For how Dynamic CI behaves in a merge queue, see
-[Merge queues](/ci/dynamic-ci/merge-queue).
+For how Dynamic CI behaves in a merge queue, see
+[Merge queues](/ci/dynamic-ci/merge-queue). To make a job run on one pull
+request whatever Trunk recommends, see [Force Run](/ci/dynamic-ci/force-run).
