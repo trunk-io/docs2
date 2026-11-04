@@ -29,8 +29,7 @@ jobs:
     # One output per gated job, named by its job key.
     outputs:
       unit-tests: ${{ steps.dynamic-ci.outputs.unit-tests }}
-      integration-tests: ${{ steps.dynamic-ci.outputs.integration-tests }}
-      e2e: ${{ steps.dci.outputs.e2e }}
+      playwright-tests: ${{ steps.dynamic-ci.outputs.playwright-tests }}
     steps:
       - uses: actions/checkout@v7
         with:
