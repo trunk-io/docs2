@@ -153,11 +153,15 @@ When the setting is on, you choose a method as you submit the PR:
 
 Submitting with a label or the merge checkbox always uses the queue's method.
 
+A chosen method shows on the submit button (for example, **Submit to merge queue · Rebase**) and as a **Merge method** badge on the PR's page in Trunk. While the setting is on, Trunk's comment on the PR says how it will merge the PR, for example "Trunk will merge this pull request by rebasing its commits (chosen for it)."
+
 Trunk refuses the method, and says why, when:
 
 * The setting is off.
 * The PR is already being merged and you choose a different method.
 * The branch's GitHub rulesets don't allow that method.
+
+If the repository refuses the method when Trunk merges the PR, Trunk removes the PR from the queue and says why.
 
 If you turn the setting off, every PR merges with the queue's method, including PRs that chose their own. If you turn it back on, those choices apply again.
 
