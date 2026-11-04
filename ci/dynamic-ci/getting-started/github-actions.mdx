@@ -6,7 +6,7 @@ og:title: "Set up Trunk Dynamic CI for GitHub Actions"
 
 ## How it works
 
-A filter job at the top of your workflow runs the `trunk-io/dynamic-ci` action. The action asks Trunk which jobs this change needs, and writes one output per job. The `outputs` of the Dynamic CI step will store the verdict for each job specified. By listing a job in the list you are asking Dynamic CI to weigh in and attempt to manage that job.<br /><br />If Dynamic CI determines a job should be skipped it will set , named by the job's key under `jobs:`. The value is `'true'` (run) or `'false'` (skip). Each job you want Dynamic CI to decide reads its output in its `if:`.
+A filter job at the top of your workflow runs the `trunk-io/dynamic-ci` action. The action asks Trunk which jobs this change needs, and writes one output per job. The `outputs` of the Dynamic CI step will store the verdict for each job specified. By listing a job in the list you are asking Dynamic CI to weigh in and attempt to manage that job.<br /><br />If Dynamic CI determines a job should be skipped it will set the output variable named after the job to `'false'`<br /><br />At each job level you will need to add an `if: `clause to read that matching variable.
 
 A job runs unless its output is exactly `'false'`. If Trunk is down, the token
 is missing, or a job has no verdict yet, the output is empty and the job runs.
