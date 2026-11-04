@@ -83,28 +83,11 @@ jobs:
   </Step>
 
   <Step title="Start the condition with !cancelled()">
-    By default GitHub skips a job when a job it needs failed or was skipped.
-    Without `!cancelled()`, a failed filter job (a bad token, an outage) skips
-    every gated job, and nothing is tested. With it, the output is empty and the
-    jobs run.
+    By default GitHub skips a job when a job it needs failed or was skipped. Without `!cancelled()`, a failed filter job (a bad token, an outage) skips every gated job, and nothing is tested. 
   </Step>
 
-  <Step title="Compare with != 'false'">
-    Gate on `!= 'false'`, never on `== 'true'`, so a job with no verdict runs.
-    Do not read the output on its own (`if: needs.dynamic-ci-filter.outputs.unit-tests`):
-    `'false'` is a non-empty string, so the job always runs.
-  </Step>
-
-  <Step title="Join other conditions with &&">
-    Add your own conditions with `&&`. A condition joined with `||` can still be
-    true when the verdict is `'false'`, so the job never skips:
-
-    ```yaml
-    if: >-
-      !cancelled() &&
-      needs.dynamic-ci-filter.outputs.unit-tests != 'false' &&
-      github.actor != 'dependabot[bot]'
-    ```
+  <Step title="Compare with != 'false' on the output of the matching job">
+    Join other conditions with &&
   </Step>
 </Steps>
 
