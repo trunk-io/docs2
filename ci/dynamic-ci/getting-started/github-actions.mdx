@@ -25,18 +25,14 @@ jobs:
     name: Dynamic CI
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    # Every gated job runs after a merge to main.
-    if: github.ref != 'refs/heads/main'
+    if: github.event_name == 'pull_request'
     # One output per gated job, named by its job key.
     outputs:
-      unit-tests: ${{ steps.ci-filter.outputs.unit-tests }}
-      integration-tests: ${{ steps.ci-filter.outputs.integration-tests }}
-      e2e: ${{ steps.ci-filter.outputs.e2e }}
+      unit-tests: ${{ steps.dci.outputs.unit-tests }}
+      integration-tests: ${{ steps.dci.outputs.integration-tests }}
+      e2e: ${{ steps.dci.outputs.e2e }}
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          filter: blob:none
+      - uses: actions/checkout@v7
       - name: Dynamic CI
         id: ci-filter
         uses: trunk-io/dynamic-ci@v1
