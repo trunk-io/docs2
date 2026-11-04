@@ -1,0 +1,26 @@
+---
+title: "Path filters"
+description: "Tell Dynamic CI which changed files are relevant to each job."
+---
+
+Path filters describe which changed files are relevant to a job. Set them per job on the [Configuration tab](https://app.trunk.io/ci/dynamic-ci/configuration) in the Trunk web app. See [Jobs](/ci/dynamic-ci/configuration/jobs) to find and expand a job.
+
+## Syntax
+
+Path filters use the same glob syntax as [dorny/paths-filter](https://github.com/dorny/paths-filter): the job's name followed by a list of patterns.
+
+```yaml
+unit-tests:
+  - 'ts/**'
+  - '.github/**'
+```
+
+You can edit filters in the **Visual** editor or switch to **YAML**.
+
+## How filters affect a verdict
+
+By default, path filters are another [signal](/ci/dynamic-ci/configuration/signals) into the scoring engine rather than a hard rule. A change that matches a job's filters makes the engine more likely to run it, and a change that touches none of them makes a skip more likely, but the engine still weighs the job's history and the pull request's state before deciding.
+
+In the merge queue, Dynamic CI skips a job only when its path filters say the change does not touch it. With no path filters, every job runs. See [Merge queues](/ci/dynamic-ci/merge-queue).
+
+Jobs with path filters show a **Path filters** badge in the job list.

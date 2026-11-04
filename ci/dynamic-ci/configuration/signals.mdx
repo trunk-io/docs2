@@ -1,0 +1,24 @@
+---
+title: "Signals Dynamic CI uses to decide"
+sidebarTitle: "Signals"
+description: "The kinds of evidence Dynamic CI combines into a run or skip verdict for each job."
+---
+
+For every job, Dynamic CI combines several independent kinds of evidence, or signals, into one verdict: **run** or **skip**.
+
+| Signal | What it measures |
+| --- | --- |
+| **The job's own track record** | How often the job fails, and how much it costs to run. |
+| **What the change touches** | How often changes to these files have broken this job before. |
+| **This pull request so far** | Whether the job has already run on this pull request, and how it went. |
+| **Where the pull request sits** | Whether other pull requests are stacked on top of it, and whether the job gates the merge. |
+| **What the merge queue found** | Recent merge-queue failures for this pull request, and skips the queue later caught. |
+| **What you told it** | Your [path filters](/ci/dynamic-ci/configuration/path-filters), [job schedules](/ci/dynamic-ci/configuration/jobs) and [Force Run](/ci/dynamic-ci/force-run) overrides. These always take precedence. |
+
+Everything Dynamic CI learns comes from your organization's own CI history.
+
+## Fail-safe defaults
+
+- **A job with no history always runs.**
+- **If Trunk is slow or unreachable, everything runs.**
+- **A job that rejected a pull request from the merge queue always runs** on that pull request's next push. See [Merge queues](/ci/dynamic-ci/merge-queue).

@@ -404,8 +404,10 @@
           {
             "group": "Configuration",
             "pages": [
-              "ci/dynamic-ci/configuration",
-              "ci/dynamic-ci/settings"
+              "ci/dynamic-ci/configuration/jobs",
+              "ci/dynamic-ci/configuration/signals",
+              "ci/dynamic-ci/configuration/path-filters",
+              "ci/dynamic-ci/configuration/mode"
             ]
           },
           {
@@ -2822,6 +2824,14 @@
     {
       "source": "/ci/get-started/buildkite",
       "destination": "/setup/integrations/buildkite"
+    },
+    {
+      "source": "/ci/dynamic-ci/configuration",
+      "destination": "/ci/dynamic-ci/configuration/jobs"
+    },
+    {
+      "source": "/ci/dynamic-ci/settings",
+      "destination": "/ci/dynamic-ci/configuration/mode"
     }
   ],
   "interaction": {

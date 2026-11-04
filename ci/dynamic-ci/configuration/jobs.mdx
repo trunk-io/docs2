@@ -1,10 +1,10 @@
 ---
 title: "Configure how Dynamic CI schedules each CI job"
-sidebarTitle: "Configuration"
-description: "Tune Dynamic CI per job in the Trunk app"
+sidebarTitle: "Jobs"
+description: "Find a job in the Trunk app and set its schedule for pull requests and the merge queue."
 ---
 
-Dynamic CI is configured job by job on the [Configuration tab](https://app.trunk.io/ci/dynamic-ci/configuration) in the Trunk web app. Each job has a schedule that controls how it is evaluated on pull requests and in the merge queue, plus optional path filters that tell Dynamic CI which changes are relevant to it.
+Dynamic CI is configured job by job on the [Configuration tab](https://app.trunk.io/ci/dynamic-ci/configuration) in the Trunk web app. Each job has a schedule that controls how it is evaluated on pull requests and in the merge queue, plus optional [path filters](/ci/dynamic-ci/configuration/path-filters) that tell Dynamic CI which changes are relevant to it.
 
 ## Find a job
 
@@ -40,22 +40,6 @@ The schedule controls how Dynamic CI evaluates a job. You set it separately for 
   In the merge queue, **Automatic** runs every job by default to guarantee correctness. The merge queue is the final safeguard against regressions, so Dynamic CI does not skip jobs there on its own.
 </Note>
 
-## Path filters
-
-Path filters describe which changed files are relevant to a job. They use the same glob syntax as [dorny/paths-filter](https://github.com/dorny/paths-filter): the job's name followed by a list of patterns.
-
-```yaml
-unit-tests:
-  - 'ts/**'
-  - '.github/**'
-```
-
-You can edit filters in the **Visual** editor or switch to **YAML**.
-
-By default, path filters are another signal into the scoring engine rather than a hard rule. A change that matches a job's filters makes the engine more likely to run it, and a change that touches none of them makes a skip more likely, but the engine still weighs the job's history and the pull request's state before deciding.
-
-Jobs with path filters show a **Path filters** badge in the job list.
-
 ## Run before queue
 
 <Info>
@@ -68,6 +52,7 @@ Jobs with path filters show a **Path filters** badge in the job list.
   <Card title="Force Run" icon="arrow-up" href="/ci/dynamic-ci/force-run">
     Override Dynamic CI on a single pull request.
   </Card>
+
   <Card title="Merge queues" icon="shield-check" href="/ci/dynamic-ci/merge-queue">
     How Dynamic CI behaves on merge queue runs.
   </Card>
