@@ -5,11 +5,12 @@ og:title: "Set up Trunk Dynamic CI for Buildkite"
 ---
 
 <Steps>
-  <Step title="Configure Secrets in BuildKite: Add your trunk API token to BuildKite's secret store named `TRUNK_API_TOKEN`">
+  <Step title="Configure Secrets in BuildKite: [Create a Trunk API key](/api/authentication#create-an-api-key) and add it to BuildKite's secret store named `TRUNK_API_TOKEN`">
+    The key doesn't need any permissions.
   </Step>
-  <Step title="[Configure BuildKite to export CI data to Trunk](/setup/integrations/buildkite): connecting BuildKite's OTEL data allows us to learn the behavior of your CI jobs ">
+  <Step title="[Configure BuildKite to export CI data to Trunk](/setup/integrations/buildkite): connecting BuildKite's OTEL data allows us to learn the behavior of your CI jobs">
   </Step>
-  <Step title="Paste a BuildKite API token with the `read_builds` and `read_organizations` scopes into [Settings → Organization → Buildkite](https://app.trunk.io/settings/organization/buildkite). Use a token from a dedicated BuildKite user. ">
+  <Step title="Paste a BuildKite API token with the `read_builds` and `read_organizations` scopes into [Settings → Organization → Buildkite](https://app.trunk.io/settings/organization/buildkite). Use a token from a dedicated BuildKite user.">
   </Step>
 </Steps>
 
@@ -107,7 +108,7 @@ your repository → **Configuration**.
     | Option           | Default       | Description                                                          |
     | ---------------- | ------------- | -------------------------------------------------------------------- |
     | `mode`           | `filter`      | `filter` for your upload pipe, `step` for the step the plugin is on. |
-    | `token-env`      | `TRUNK_TOKEN` | The environment variable holding your Trunk API token.               |
+    | `token-env` | `TRUNK_TOKEN` | The environment variable holding your Trunk API key. |
     | `only-keys`      | unset         | Comma-separated step keys to consider. Every other step runs.        |
     | `exclude-keys`   | unset         | Comma-separated step keys to never skip. Wins over `only-keys`.      |
     | `debug`          | `false`       | Print the requested keys, the request and the plan to the build log. |

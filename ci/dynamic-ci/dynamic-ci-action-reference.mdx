@@ -27,7 +27,8 @@ jobs:
           clean: false
       - uses: trunk-io/dynamic-ci@v1
         with:
-           # Your organization API token. Store it as a repository or organization
+           # A Trunk API key (starts with trunk_v2_). No permissions needed.
+           # Store it as a repository or organization
            # secret, such as TRUNK_API_TOKEN
            # Required.
            token: ${{ secrets.TRUNK_API_TOKEN }}
