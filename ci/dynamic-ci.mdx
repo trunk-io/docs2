@@ -1,19 +1,32 @@
 ---
-title: "Dynamic CI"
+title: "Trunk Dynamic CI"
+sidebarTitle: "Dynamic CI"
 description: "Run only the CI jobs a pull request needs, decided from your own CI history."
 og:title: "Trunk Dynamic CI"
 ---
-
-<Warning>
-  Dynamic CI is in **private beta**. Recommendation quality is still improving,
-  and setup details may change between releases. Reach out on
-  [Slack](https://slack.trunk.io) to have it enabled for your organization.
-</Warning>
 
 Dynamic CI decides which CI jobs a pull request actually needs to run. For each
 job, it weighs that job's history, what the pull request changed, and where the
 pull request sits in a stack. Anything it can safely skip, it skips, so you
 spend less on CI and wait less on each push.
+
+<Note>
+  Dynamic CI is in **private beta**. Recommendation quality is still improving, and setup details may change between releases. Reach out on [Slack](https://slack.trunk.io) to have it enabled for your organization.
+</Note>
+
+<CardGroup cols={3}>
+  <Card title="Run less CI" icon="forward">
+    Skip the jobs a push does not need, decided job by job from your own CI history.
+  </Card>
+
+  <Card title="Fail safe" icon="shield-check">
+    New jobs always run, and if Trunk is slow or unreachable, everything runs.
+  </Card>
+
+  <Card title="Backed by the queue" icon="layer-group" href="/ci/dynamic-ci/merge-queue">
+    The merge queue tests the exact commit about to land and skips nothing by default.
+  </Card>
+</CardGroup>
 
 ## What it helps with
 
@@ -74,14 +87,12 @@ It is also built to fail safe:
   Trunk records a verdict for every job but skips nothing. Switch it to
   **Enforced** once the recommendations look right.
 
-## Get started
-
-Dynamic CI is in private beta, so [reach out to Trunk](https://slack.trunk.io)
-for access. Then set up Trunk CI, add Dynamic CI to your CI provider, and turn
-on enforcement. See [Getting started](/ci/dynamic-ci/getting-started).
-
 ## Feedback
 
 Dynamic CI is being tuned against real repositories during the beta, and the
 fastest way to change it is to tell us what it got wrong. Reach out on
 [Slack](https://slack.trunk.io).
+
+<Card title="Get started" icon="arrow-right" href="/ci/dynamic-ci/getting-started">
+  Set up Trunk CI, add Dynamic CI to your CI provider, and turn on enforcement.
+</Card>
