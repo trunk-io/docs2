@@ -1,0 +1,19 @@
+---
+title: "Dynamic CI: Build tool impact signal and GitHub Action updates"
+description: "Send your build tool's impact to Dynamic CI from Buildkite, show verdicts on GitHub Actions run summaries, and set up the action with a lighter checkout."
+date: 2026-11-04
+category: Dynamic CI
+type: new-feature
+---
+
+**Dynamic CI can now use your build tool's view of a change, and the GitHub Action is easier to set up.** Dynamic CI is in private beta.
+
+### New features
+
+- **Send your build tool's impact from Buildkite.** If your build tool counts how much of the codebase a change affects, such as affected packages, send that count so Trunk runs broad changes. Requires the Buildkite plugin v0.1.8 or later. Ask us to turn the signal on. See the [Buildkite guide](/ci/dynamic-ci/getting-started/buildkite).
+
+### Updates
+
+- **Verdicts on the run summary.** Set `enable-annotation: true` on `trunk-io/dynamic-ci` to post each job's recommendation to the run's annotations and job summary. See the [action reference](/ci/dynamic-ci/dynamic-ci-action-reference).
+- **Lighter checkout.** The action only needs `actions/checkout` with `clean: false`. When the checkout lacks the base or head commit, it reads the changed files with `github-token`.
+- **Workflow checks.** Once your workflows call Dynamic CI, Trunk checks their YAML and flags problems. See the [GitHub Actions guide](/ci/dynamic-ci/getting-started/github-actions).
