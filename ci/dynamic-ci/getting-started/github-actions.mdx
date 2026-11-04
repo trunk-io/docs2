@@ -70,33 +70,16 @@ jobs:
     Re-export each gated job's output from the filter job's `outputs:`, under the same key. The action sets its outputs at runtime, so GitHub cannot pass them on unless you list them there.
   </Step>
 
-  <Step title="Export the verdict for each job you want to dynamically manage in the outputs section of the dynamic-ci job. ">
-    ```yaml
-     # [!code --]
-     # [!code --]
-    ...     # [!code --]
-      outputs:
-          unit-tests: ${{ steps.dynamic-ci.outputs.unit-tests }}
-          playwright-tests: ${{ steps.dynamic-ci.outputs.playwright-tests }}
-    ...
-    ```
-
-    ```yaml
-      outputs:
-          unit-tests: ${{ steps.dynamic-ci.outputs.unit-tests }}
-          playwright-tests: ${{ steps.dynamic-ci.outputs.playwright-tests }}
-    ```
-
+  <Step title="Export the verdict for each job you want to dynamically manage in the outputs section of the Dynamic CI job ">
     ```yaml
     outputs:
-          unit-tests: ${{ steps.dynamic-ci.outputs.unit-tests }}
-          playwright-tests: ${{ steps.dynamic-ci.outputs.playwright-tests }}
+      unit-tests: ${{ steps.dynamic-ci.outputs.unit-tests }}
+      playwright-tests: ${{ steps.dynamic-ci.outputs.playwright-tests
     ```
   </Step>
 
-  <Step title="List the filter job in needs">
-    Each gated job has `needs: [dynamic-ci-filter]`. Without it,
-    `needs.dynamic-ci-filter.outputs` is empty and the job always runs.
+  <Step title="List the filter job in needs ">
+    Each managed job has should specify `needs: [dynamic-ci-filter]`. This ensures the dynamic ci verdict will be available to assess before the job ever spins up.
   </Step>
 
   <Step title="Start the condition with !cancelled()">
