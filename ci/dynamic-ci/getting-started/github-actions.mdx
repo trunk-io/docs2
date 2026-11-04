@@ -21,15 +21,15 @@ on:
   pull_request: {}
 
 jobs:
-  dynamic-ci-filter:
+  dynamic-ci:
     name: Dynamic CI
     runs-on: ubuntu-latest
     timeout-minutes: 5
     if: github.event_name == 'pull_request'
     # One output per gated job, named by its job key.
     outputs:
-      unit-tests: ${{ steps.dci.outputs.unit-tests }}
-      integration-tests: ${{ steps.dci.outputs.integration-tests }}
+      unit-tests: ${{ steps.dynamic-ci.outputs.unit-tests }}
+      integration-tests: ${{ steps.dynamic-ci.outputs.integration-tests }}
       e2e: ${{ steps.dci.outputs.e2e }}
     steps:
       - uses: actions/checkout@v7
