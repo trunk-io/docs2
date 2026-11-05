@@ -1,0 +1,21 @@
+---
+title: "Merge Queue: Terraform provider 1.1.0"
+description: "Terraform provider 1.1.0 manages more of your queue's settings, from label commands to the browser extension, with clearer guidance on required statuses."
+date: 2026-10-30
+category: Merge Queue
+type: update
+---
+
+**Terraform provider 1.1.0 is out, and you can manage more of your merge queue as code.**
+
+### New features
+
+- **More settings in Terraform.** Provider 1.1.0 supports `label_commands_enabled`, `enqueueing_label`, `state_labels_enabled`, `extension_enabled` and `not_ready_timeout_hours` on `trunk_merge_queue`. See the [resource reference](/merge-queue/administration/terraform#optional-attributes).
+
+### Updates
+
+- **Pin to `~> 1.1`.** Update the `version` in your `required_providers` block. See the [quick start](/merge-queue/administration/terraform#quick-start).
+- **Lowercase values.** Enum attributes take lowercase values, such as `state = "draining"`, `merge_method = "squash"` and `optimization_mode = "bisection_skip_redundant_tests"`. Uppercase values fail validation.
+- **Minimums.** `testing_timeout_minutes`, `batching_max_wait_time_minutes` and `bisection_concurrency` must be at least 1.
+- **Import existing queues.** `terraform apply` doesn't adopt a queue that already exists. It fails with **Merge queue already exists**. [Import the queue](/merge-queue/administration/terraform#importing-existing-queues) instead.
+- **Required statuses.** List checks in sorted order, or wrap the list in `sort()`. Leaving `required_statuses` out removes any override when an apply updates the queue, and an empty list is ignored. See [Required statuses](/merge-queue/administration/terraform#required-statuses).
