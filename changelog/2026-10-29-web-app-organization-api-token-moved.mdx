@@ -1,0 +1,24 @@
+---
+title: "Web App: Organization API token moved to API Keys"
+description: "Find your organization API token under Settings → Developer → API Keys. Every member can copy it, and only admins can rotate or create it."
+date: 2026-10-29
+category: Web App
+type: update
+---
+
+**Your organization API token now lives next to your v2 API keys.**
+
+### Updates
+
+- **New location.** The organization API token moved from **Settings** → **Organization** → **General** to **Settings** → **Developer** → **API Keys**, in the **Organization API token (v1)** section. Your organization slug stays on **General**. See [Finding your API token](/setup-and-administration/apis#finding-your-api-token).
+- **Clearer permissions.** Every member can view and copy the token. Only admins can **Rotate** or **Create token**, and only admins can create v2 API keys.
+- **Your token hasn't changed.** Existing CI jobs, CLI uploads, and integrations keep working without changes.
+
+### Heads up: v1 API deprecation
+
+The v1 APIs will be deprecated soon. To prepare, move to the v2 APIs, which use scoped [API keys](/merge-queue/reference/api-v2/authentication):
+
+- **Merge Queue:** see [Migrate from the v1 API](/merge-queue/reference/api-v2/migrate-from-v1).
+- **Flaky Tests:** use the [test collection endpoints](/flaky-tests/reference/api-reference#test-collection-endpoints).
+
+The Trunk Analytics CLI, `trunk-io/analytics-uploader`, the Terraform provider, and the Trunk MCP server's token sign-in still use the organization API token.
