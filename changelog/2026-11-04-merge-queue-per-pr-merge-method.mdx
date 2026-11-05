@@ -1,0 +1,21 @@
+---
+title: "Merge Queue: Choose a merge method per pull request"
+description: "Let each pull request merge with squash, rebase, or a merge commit instead of the queue's default method."
+date: 2026-11-04
+category: Merge Queue
+type: new-feature
+---
+
+**Pull requests can now merge with a different method from the rest of the queue.**
+
+### New features
+
+- **Per-PR merge method.** Turn on **Allow choosing a merge method per pull request** under your queue's **Settings** → **General**. It's off by default. PRs that don't choose a method still use the queue's method. See [Choosing a merge method per pull request](/merge-queue/administration/advanced-settings#choosing-a-merge-method-per-pull-request).
+- **Choose from the web app, a comment, or the API.** Pick a method from the menu beside the submit button, or comment `/trunk merge --merge-method=rebase`. Through the API, send `mergeMethod` when you submit or update a queued PR. See the [comment reference](/merge-queue/using-the-queue/reference) and [API guide](/merge-queue/using-the-queue/api#merge-method).
+
+### Updates
+
+- **See the chosen method.** The submit button, a **Merge method** badge on the PR's page, and Trunk's PR comment show which method the PR uses.
+- **Default merge method.** The queue-wide dropdown is now named **Default merge method**.
+- **Stacks.** When Trunk merges a [stack](/merge-queue/using-the-queue/stacked-pull-requests) together, every PR uses the method chosen on the PR you submitted.
+- **Clear refusals.** Trunk refuses a method the queue or the branch's GitHub rulesets don't allow, and tells you why. If GitHub refuses the method at merge time, Trunk removes the PR from the queue and comments with GitHub's reason.
