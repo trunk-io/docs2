@@ -72,7 +72,7 @@ The queue waits on its **required statuses** while it tests a merge request. On 
 3. Add the GitLab CI **job names** that must pass, or the names of external commit statuses.
 
 <Warning>
-  **Set at least one required status.** A GitLab queue with no required statuses doesn't wait for CI: each test run passes as soon as it starts, and Trunk merges without testing.
+  **Set at least one required status.** A GitLab queue with no required statuses can't start testing. Each merge request fails as soon as testing starts, and Trunk merges nothing.
 </Warning>
 
 How Trunk reads job results:
