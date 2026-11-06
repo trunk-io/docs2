@@ -1,0 +1,93 @@
+---
+title: "Configure CI pipelines and required statuses"
+description: "Make sure GitLab CI runs whenever Trunk Merge Queue tests a merge request, and choose the jobs the queue waits on."
+og:title: "Configure GitLab CI pipelines for Trunk Merge Queue"
+groups: ["gitlab"]
+---
+
+## Prerequisites
+
+- Completed [Connect GitLab and create your queue](/merge-queue/getting-started/gitlab/connect-and-create-your-queue) and [Configure project settings](/merge-queue/getting-started/gitlab/configure-project-settings)
+- Write access to your project's `.gitlab-ci.yml`
+
+## Make sure pipelines run on test runs
+
+Trunk opens a draft merge request for each test run, from a `trunk-merge/` branch. Trunk reads every pipeline for that branch and that merge request, including merge request pipelines, merged results pipelines, branch pipelines and child pipelines.
+
+If your project already runs pipelines for merge requests, **you don't need to change anything**. A common configuration that works as is:
+
+```yaml
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+```
+
+If your project runs only branch pipelines, make sure they run for branches that start with `trunk-merge/`:
+
+```yaml
+workflow:
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^trunk-merge\//
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    # ...your other rules
+```
+
+<Note>
+  **Avoid duplicate pipelines.** If a `trunk-merge/` branch gets both a branch pipeline and a merge request pipeline, both run the same jobs, and the first result for a required job decides it. Use `workflow: rules` that pick one pipeline per test run, as in the first example.
+</Note>
+
+## Run different jobs in the queue
+
+On GitHub, Push-triggered mode lets you run different jobs for queue tests than for code review. On GitLab, use CI rules instead. Test runs come from branches that start with `trunk-merge/`, and their merge requests carry the `trunk-merge-queue-test-run` label.
+
+For example, to skip a preview deployment during queue tests:
+
+```yaml
+deploy_preview:
+  rules:
+    - if: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME =~ /^trunk-merge\//
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  script:
+    - ./deploy-preview.sh
+```
+
+To run a job only in the queue:
+
+```yaml
+integration_tests:
+  rules:
+    - if: $CI_MERGE_REQUEST_LABELS =~ /trunk-merge-queue-test-run/
+  script:
+    - npm run test:integration
+```
+
+## Set required statuses
+
+The queue waits on its **required statuses** while it tests a merge request. On GitLab, these come only from the queue setting. Trunk doesn't read `.trunk/trunk.yaml`, and GitLab protected branches have no list of required checks.
+
+1. In the Trunk web app, go to **Merge Queue** → your queue → **Settings**.
+2. Find **Required Statuses** and click **Configure**.
+3. Add the GitLab CI **job names** that must pass, or the names of external commit statuses.
+
+<Warning>
+  **Set at least one required status.** A GitLab queue with no required statuses doesn't wait for CI: each test run passes as soon as it starts, and Trunk merges without testing.
+</Warning>
+
+How Trunk reads job results:
+
+- A job that passes counts as passed.
+- A **skipped** job counts as passed, unless an earlier job in the same pipeline failed.
+- A **manual** job counts as passed only if it has `allow_failure: true`.
+- If a job fails, Trunk checks again before it fails the test run, so GitLab's automatic `retry:` can take effect.
+
+<Info>
+  Required statuses control what the queue waits on during testing. They don't control which merge requests are admitted to the queue: admission depends on GitLab's own merge checks. See [How project settings affect the queue](/merge-queue/getting-started/gitlab/configure-project-settings#how-project-settings-affect-the-queue).
+</Info>
+
+## Next steps
+
+→ [**Test your setup**](/merge-queue/getting-started/gitlab/test-your-setup) - Submit a merge request and confirm that it merges.
+
+_Having trouble?_ See the [GitLab troubleshooting section](/merge-queue/getting-started/gitlab/test-your-setup#troubleshooting).

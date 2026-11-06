@@ -1,0 +1,64 @@
+---
+title: "Test your setup"
+description: "Verify your Trunk Merge Queue setup on GitLab by submitting a test merge request and confirming that it merges."
+og:title: "Test your Trunk Merge Queue setup on GitLab"
+groups: ["gitlab"]
+---
+
+## Prerequisites
+
+After you complete the configuration, check that:
+
+- The GitLab connection shows as connected in **Settings** → **Integrations** → **GitLab**
+- The project has a webhook named `Trunk` in **Settings** → **Webhooks**
+- The service account can merge into your target branch
+- No protected branch rule or push rule blocks `trunk-merge/**` branches
+- The project's merge method is **Merge commit**
+- Your pipelines run on merge requests from `trunk-merge/` branches
+- The queue has at least one required status
+
+## Test your configuration
+
+1. Open a test merge request against your target branch.
+2. Add a comment on the merge request: `/trunk merge`. You need at least the **Developer** role on the project to submit.
+3. Check the [Trunk dashboard](https://app.trunk.io/) to follow the merge request.
+4. The merge request shows as **Queued** until GitLab reports it as ready to merge.
+5. Click the merge request in the dashboard to see what it is waiting for.
+6. Trunk also posts a status comment on the merge request and updates it as the merge request moves through the queue.
+
+**Expected behavior:** a draft merge request labeled `trunk-merge-queue-test-run` opens, its pipeline runs, and Trunk merges your merge request when the required statuses pass.
+
+### Other ways to submit
+
+- **Label:** add the queue's [enqueueing label](/merge-queue/administration/advanced-settings#enqueueing-label) (`trunk-merge-queue-submit` by default). Remove the label to cancel.
+- **Checkbox:** check the box in Trunk's comment on the merge request.
+- **Web app, [API](/merge-queue/using-the-queue/api) and [CLI](/merge-queue/reference/merge-queue-cli-reference):** these take GitLab merge requests the same way as GitHub pull requests.
+- **[Browser extension](/merge-queue/browser-extensions):** shows a merge queue card on GitLab.com merge request pages.
+
+To cancel, comment `/trunk cancel`.
+
+## Troubleshooting
+
+<Info>
+  Visit [Trunk Support](/setup-and-administration/support) for more help or to contact the support team.
+</Info>
+
+- **Stuck in "Queued":** GitLab doesn't report the merge request as ready to merge. Check the merge request widget for missing approvals, unresolved threads, a failed or running pipeline, draft status or conflicts. If the merge request needs a rebase, change the project's merge method to **Merge commit** (see [Merge method](/merge-queue/getting-started/gitlab/configure-project-settings#merge-method)).
+- **Fails right after testing starts with a push error:** a protected branch rule or push rule blocks `trunk-merge/**`. GitLab's message is "You are not allowed to push code to protected branches on this project" or "You are not allowed to push code to this project". See [Test branches](/merge-queue/getting-started/gitlab/configure-project-settings#test-branches) and [Push rules](/merge-queue/getting-started/gitlab/configure-project-settings#push-rules).
+- **Merged without waiting for CI:** the queue has no required statuses. See [Set required statuses](/merge-queue/getting-started/gitlab/configure-ci-pipelines#set-required-statuses).
+- **Testing never finishes:** no pipeline ran a required job on the draft merge request. Check that your `workflow: rules` allow `trunk-merge/` branches, and that each required status matches a job name exactly.
+- **Fails when attempting to merge:** check that the service account is in **Allowed to merge** on the target branch, and that the project's squash option allows the queue's [merge method](/merge-queue/administration/advanced-settings#merge-method).
+- **Nothing happens when you comment `/trunk merge`:** check that the `Trunk` webhook is enabled in the project's **Settings** → **Webhooks**, and that you have at least the **Developer** role on the project.
+- **The queue stopped merging everything:** check the connection in **Settings** → **Integrations** → **GitLab**. A revoked or expired token, or a service account that lost the Maintainer role, stops the queue.
+
+## Next steps
+
+**Congratulations!** Your merge queue is working on GitLab.
+
+→ [**Submit and cancel pull requests**](/merge-queue/using-the-queue/reference) - Learn how to use the queue day to day
+
+→ [**Batching**](/merge-queue/optimizations/batching) - Merge several merge requests together for faster processing
+
+→ [**Priority merging**](/merge-queue/optimizations/priority-merging) - Fast-track urgent merge requests
+
+→ [**Anti-flake protection**](/merge-queue/optimizations/anti-flake-protection) - Handle flaky tests automatically

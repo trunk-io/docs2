@@ -1,0 +1,46 @@
+---
+title: "GitLab"
+description: "Set up Trunk Merge Queue for a GitLab project by connecting a GitLab group, creating a queue, and configuring protected branches and CI pipelines."
+og:title: "Set up Trunk Merge Queue on GitLab"
+groups: ["gitlab"]
+---
+
+Trunk Merge Queue works with merge requests on GitLab.com. Setup follows the same steps as on GitHub, with GitLab equivalents for each one:
+
+1. [**Connect GitLab and create your queue**](/merge-queue/getting-started/gitlab/connect-and-create-your-queue). Connect a top-level GitLab group through a service account, then create a queue for a project's target branch.
+2. [**Configure project settings**](/merge-queue/getting-started/gitlab/configure-project-settings). Set up protected branches, merge request checks and the merge method so Trunk can test and merge merge requests.
+3. [**Configure CI pipelines and required statuses**](/merge-queue/getting-started/gitlab/configure-ci-pipelines). Make sure your GitLab CI pipelines run on the queue's test merge requests, and choose the jobs the queue waits on.
+4. [**Test your setup**](/merge-queue/getting-started/gitlab/test-your-setup). Submit a merge request and confirm that it merges.
+
+<Info>
+  GitLab support is in beta. If you don't see **GitLab** under **Settings** → **Integrations** in the Trunk web app, [contact support](/setup-and-administration/support) to turn it on for your organization.
+</Info>
+
+## Prerequisites
+
+- A [Trunk account and organization](/setup-and-administration/connecting-to-trunk), and the **admin** role in it (only admins can create a queue).
+- A project on **GitLab.com**. Self-managed GitLab instances are not supported yet.
+- The **Owner** role on the project's top-level group, to let Trunk create its service account. Without it, someone with the Owner role can [create the service account by hand](/merge-queue/getting-started/gitlab/connect-and-create-your-queue#option-b-create-the-service-account-yourself).
+- The **Maintainer** role on the project, to change its protected branches and merge request settings.
+- GitLab CI pipelines that run on merge requests.
+
+## How GitLab differs from GitHub
+
+If you already run Trunk Merge Queue on GitHub, these are the differences that change how you set it up:
+
+| | GitHub | GitLab |
+| :-- | :-- | :-- |
+| **Connection** | The Trunk GitHub App, installed on an organization | A service account with the Maintainer role on a top-level group, which covers every project and subgroup in it |
+| **Branch rules** | Rulesets or classic branch protection | Protected branches, push rules and merge request settings |
+| **Test runs** | A `trunk-temp/` branch renamed to `trunk-merge/`, plus a draft PR in Draft PR mode | A `trunk-merge/` branch and a draft merge request, every time |
+| **Required statuses** | From the queue setting, `.trunk/trunk.yaml`, or branch protection | From the queue setting only |
+| **Merging** | The GitHub merge API, as the Trunk GitHub App | The GitLab merge request API, as the service account |
+| **Webhooks** | Delivered to the GitHub App | A project webhook that Trunk adds when you create the queue |
+
+## What is not available on GitLab
+
+- [Direct to queue](/merge-queue/using-the-queue/direct-to-queue) and Trunk Sudo. GitLab has no account that can bypass a branch's rules, so `/trunk merge --direct` is refused.
+- [Stacked pull requests](/merge-queue/using-the-queue/stacked-pull-requests).
+- The **Rebase** [merge method](/merge-queue/administration/advanced-settings#merge-method). Use **Squash** or **Merge commit**.
+- `merge.required_statuses` in `.trunk/trunk.yaml`. Set required statuses in the Trunk web app instead.
+- The **Draft PR Creation** setting. Trunk always opens a draft merge request for each test run on GitLab.

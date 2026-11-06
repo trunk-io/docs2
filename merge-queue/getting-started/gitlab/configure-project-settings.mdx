@@ -1,0 +1,117 @@
+---
+title: "Configure project settings"
+description: "Set up GitLab protected branches, push rules and merge request settings so Trunk Merge Queue can admit, test and merge merge requests."
+og:title: "Configure GitLab project settings for Trunk Merge Queue"
+groups: ["gitlab"]
+---
+
+## Prerequisites
+
+- GitLab connected and a queue created ([previous step](/merge-queue/getting-started/gitlab/connect-and-create-your-queue))
+- The **Maintainer** role on the project
+- GitLab CI pipelines that run on merge requests
+
+## How project settings affect the queue
+
+Trunk Merge Queue respects your project's GitLab settings. They play two roles:
+
+- **Admission into the queue.** Trunk doesn't test a submitted merge request until GitLab reports it as ready to merge. Everything your project requires on the merge request widget gates admission: required approvals, resolved threads, **Pipelines must succeed**, not being a draft, and having no conflicts.
+- **Merging.** When a merge request passes testing in the queue, Trunk merges it with GitLab's merge request API, as the [service account](/merge-queue/getting-started/gitlab/connect-and-create-your-queue). GitLab applies the same checks to that merge as to a merge from the GitLab UI.
+
+The settings on this page make sure GitLab doesn't _block_ Trunk from doing its job. They don't change either role above.
+
+## How Trunk tests a merge request
+
+When a merge request enters the queue, Trunk:
+
+1. Pushes a test branch named `trunk-merge/pr-<number>/<id>` that combines the target branch, the merge requests ahead in the queue, and this merge request.
+2. Opens a **draft merge request** from that branch into the target branch, titled `Draft: Trunk Merge Queue test run (<branch>)` and labeled `trunk-merge-queue-test-run`. The draft merge request starts your merge request pipelines.
+3. Closes the draft merge request and deletes the branch when the test run ends.
+
+The draft merge requests are visible in your project, so they can trigger notifications, CODEOWNERS approval requests and your own merge request webhooks. Use the `trunk-merge-queue-test-run` label to filter them out. Because they are drafts, nobody can merge them by mistake.
+
+Unlike on GitHub, there is no separate push-triggered mode: Trunk opens a draft merge request for every test run. To run different jobs for queue tests than for code review, use [CI rules](/merge-queue/getting-started/gitlab/configure-ci-pipelines#run-different-jobs-in-the-queue).
+
+## Configure protected branches
+
+GitLab protected branches are the equivalent of GitHub rulesets. You need to check two things: that the service account can merge into your target branch, and that no protected branch rule blocks Trunk's test branches.
+
+### Target branch: let the service account merge
+
+1. In GitLab, go to your project → **Settings** → **Repository** → **Protected branches**.
+2. Find (or add) the rule for your target branch (for example, `main`).
+3. Set **Allowed to merge** to a value that includes the service account: **Maintainers**, or the service account itself.
+4. Trunk never pushes to the target branch, so **Allowed to push and merge** can be **No one**. This makes sure all changes reach the branch through a merge request.
+5. Leave **Allowed to force push** off.
+
+<Tip>
+  **Optional: enforce merges through the queue only.** On GitLab Premium and Ultimate, you can set **Allowed to merge** to the service account alone. Then nobody can click **Merge** in GitLab, and every merge request must go through the queue. Keep a few people in **Allowed to merge** if you need an emergency path, and use [priority merging](/merge-queue/optimizations/priority-merging) for urgent changes instead.
+</Tip>
+
+### Test branches
+
+Trunk creates, pushes to and deletes `trunk-merge/**` branches for every test run. It needs unrestricted access to them.
+
+1. In **Settings** → **Repository** → **Protected branches**, review every rule and its wildcard pattern.
+2. Look for patterns that match a branch named `trunk-merge/pr-123/abc`, such as `*` or `*/*`.
+3. If you find one, either replace it with more specific patterns for your real branches, or make sure the service account is allowed to push to, and delete, the matching branches.
+
+**What happens if these branches are protected:** a merge request fails out of the queue shortly after testing starts, and GitLab refuses the push with "You are not allowed to push code to protected branches on this project".
+
+### Push rules
+
+If your project or group uses [push rules](https://docs.gitlab.com/user/project/repository/push_rules/) (GitLab Premium and Ultimate), make sure they accept Trunk's test branches:
+
+- **Branch name** rules must allow names that start with `trunk-merge/`.
+- **Reject unsigned commits** blocks the queue. Trunk doesn't sign the commits it creates on test branches.
+- **Reject unverified users** and **Check whether the commit author is a GitLab user** must accept the service account. Trunk authors test commits as the service account, with its name and commit email.
+- **Commit message** rules apply to the commits Trunk creates when it combines merge requests on a test branch.
+
+## Configure merge request settings
+
+In your project → **Settings** → **Merge requests**:
+
+### Merge method
+
+Set **Merge method** to **Merge commit**.
+
+<Warning>
+  **Don't use Fast-forward merge or Merge commit with semi-linear history.** With these methods, GitLab requires a merge request to be rebased onto the target branch before it can merge. Trunk doesn't rebase your merge requests, so each queued merge request stops being ready every time the target branch moves.
+</Warning>
+
+### Squash commits when merging
+
+Trunk merges with the queue's [merge method](/merge-queue/administration/advanced-settings#merge-method): **Squash** or **Merge commit** (shown as "Don't squash"). Make sure the project's **Squash commits when merging** option allows it:
+
+- If the queue squashes, don't set the project option to **Do not allow**.
+- If the queue uses merge commits, don't set the project option to **Require**.
+
+If the project refuses the method, the merge fails after testing.
+
+### Merge checks
+
+Trunk admits a merge request only when GitLab says it is ready to merge, so the merge checks you enable here gate the queue:
+
+- **Pipelines must succeed** applies to the merge request's own pipeline, before it enters the queue. Trunk honors **Skipped pipelines are considered successful**. Trunk doesn't post a commit status on your merge request, so the queue never blocks its own merge.
+- **All threads must be resolved** and required approvals also hold a merge request out of the queue until they pass.
+
+### Merge trains
+
+Turn off **merge trains** on a project that uses Trunk Merge Queue. Both features decide the order of merges into the same branch, and they work against each other. Merged results pipelines are fine to keep: Trunk counts them when it reads a test run's pipelines.
+
+## Verify your configuration
+
+Before you submit your first merge request to the queue, confirm:
+
+- The target branch's **Allowed to merge** includes the service account or **Maintainers**.
+- No protected branch pattern matches `trunk-merge/**`, or the service account can push to and delete the matching branches.
+- Push rules, if you use them, accept `trunk-merge/` branch names and the service account's unsigned commits.
+- The project's merge method is **Merge commit**.
+- The project's squash option allows the queue's merge method.
+- Merge trains are off.
+
+## Next steps
+
+→ [**Configure CI pipelines and required statuses**](/merge-queue/getting-started/gitlab/configure-ci-pipelines) - Make sure your pipelines run on queue test runs, and choose the jobs the queue waits on.
+
+_Having trouble?_ See the [GitLab troubleshooting section](/merge-queue/getting-started/gitlab/test-your-setup#troubleshooting).
