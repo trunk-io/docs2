@@ -1,6 +1,7 @@
 ---
 title: "runs-on label reference"
 description: "The full Trunk Runners runs-on label format in one table, with examples."
+groups: ["firewatch"]
 ---
 
 {/* Generated in trunk-io/docs2 from apps/firewatch/docs in trunk-io/trunk-cloud. */}
@@ -11,7 +12,7 @@ For a guide with more context, see [The runs-on label](/runners/actions/runs-on)
 ## Format
 
 ```text
-trunk=<run>[..size=<size>][..memory=<value>][..template=<id>][..cache=<value>]
+trunk=<run>[..size=<size>][..memory=<value>][..template=<id>][..region=<name>][..cache=<value>][..run-as=<mode>]
 ```
 
 - `trunk=<run>` — the anchor. Use `${{ github.run_id }}-${{
@@ -27,19 +28,21 @@ github.run_attempt }}` for `<run>`, so a job from a different workflow run
 | `size`     | No       | See [Sizes](#sizes)   | `small`                                                                                               |
 | `memory`   | No       | See [Memory](#memory) | See [Memory](#memory)                                                                                 |
 | `template` | No       | A template ID         | Organization default                                                                                  |
+| `region`   | No       | A region name         | See [How a job resolves a region](/runners/actions/templates-and-regions#how-a-job-resolves-a-region) |
 | `cache`    | No       | `trunk`, `github`     | `trunk`, per your settings                                                                            |
+| `run-as`   | No       | `dispatcher`, `actor` | Off                                                                                                   |
 
 ### Sizes
 
 The memory columns are the values of the `memory` option.
 
-| `size`             | `low`  | `standard` | `high` |
-| ------------------ | ------ | ---------- | ------ |
-| `xsmall` (1 CPU)   | 1 GiB  | 2 GiB      | 4 GiB  |
-| `small` (2 CPUs)   | 2 GiB  | 4 GiB      | 8 GiB  |
-| `medium` (4 CPUs)  | 4 GiB  | 8 GiB      | 16 GiB |
-| `large` (8 CPUs)   | 8 GiB  | 16 GiB     | 32 GiB |
-| `xlarge` (16 CPUs) | 16 GiB | 32 GiB     | 64 GiB |
+| `size`   | CPUs | `low`  | `standard` (default with a `size`) | `high`                      |
+| -------- | ---- | ------ | ---------------------------------- | --------------------------- |
+| `xsmall` | 1    | 1 GiB  | 2 GiB                              | 4 GiB                       |
+| `small`  | 2    | 2 GiB  | 4 GiB                              | 8 GiB (the default machine) |
+| `medium` | 4    | 4 GiB  | 8 GiB                              | 16 GiB                      |
+| `large`  | 8    | 8 GiB  | 16 GiB                             | 32 GiB                      |
+| `xlarge` | 16   | 16 GiB | 32 GiB                             | 64 GiB                      |
 
 ### Memory
 

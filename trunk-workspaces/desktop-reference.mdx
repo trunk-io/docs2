@@ -74,3 +74,7 @@ operating system may ask for notification permission the first time this occurs.
 The app checks its production update channel and presents available release notes.
 Windows and macOS use the in-app updater. Linux packages register the production
 Trunk apt or yum repository so the system package manager can install updates.
+
+The Linux packages need glibc 2.43 or later, for example Ubuntu 26.04 or
+Fedora 44. On an older distribution, such as Ubuntu 24.04 or Debian 13, the
+package manager does not install the package.
