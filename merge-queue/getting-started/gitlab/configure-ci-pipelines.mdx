@@ -12,7 +12,7 @@ groups: ["gitlab"]
 
 ## Make sure pipelines run on test runs
 
-Trunk opens a draft merge request for each test run, from a `trunk-merge/` branch. Trunk reads every pipeline for that branch and that merge request, including merge request pipelines, merged results pipelines, branch pipelines and child pipelines.
+Trunk opens a draft merge request for each test run, from a `trunk-merge/` branch. Trunk reads every pipeline for that branch and that merge request, including merge request pipelines, merged results pipelines, branch pipelines and child pipelines in the same project.
 
 If your project already runs pipelines for merge requests, **you don't need to change anything**. A common configuration that works as is:
 
@@ -34,7 +34,7 @@ workflow:
 ```
 
 <Note>
-  **Avoid duplicate pipelines.** If a `trunk-merge/` branch gets both a branch pipeline and a merge request pipeline, both run the same jobs, and the first result for a required job decides it. Use `workflow: rules` that pick one pipeline per test run, as in the first example.
+  **Avoid duplicate pipelines.** If a `trunk-merge/` branch gets both a branch pipeline and a merge request pipeline, both run the same jobs. A required job then has to pass in both pipelines, a failure in either one fails the test run, and the run takes twice the runner time. Use `workflow: rules` that pick one pipeline per test run, as in the first example.
 </Note>
 
 ## Run different jobs in the queue
@@ -67,19 +67,20 @@ integration_tests:
 
 The queue waits on its **required statuses** while it tests a merge request. On GitLab, these come only from the queue setting. Trunk doesn't read `.trunk/trunk.yaml`, and GitLab protected branches have no list of required checks.
 
-1. In the Trunk web app, go to **Merge Queue** → your queue → **Settings**.
+1. In the Trunk web app, go to **Merge Queue** → your queue → **Settings** → **General**.
 2. Find **Required Statuses** and click **Configure**.
-3. Add the GitLab CI **job names** that must pass, or the names of external commit statuses.
+3. Type each GitLab CI **job name** that must pass, exactly as it appears in your pipeline, and press Enter. You can also add the names of external commit statuses.
 
 <Warning>
   **Set at least one required status.** A GitLab queue with no required statuses can't start testing. Each merge request fails as soon as testing starts, and Trunk merges nothing.
 </Warning>
 
-How Trunk reads job results:
+How Trunk reads the result of a required job:
 
-- A job that passes counts as passed.
-- A **skipped** job counts as passed, unless an earlier job in the same pipeline failed.
-- A **manual** job counts as passed only if it has `allow_failure: true`.
+- **Passed** or **skipped**: passes. A skipped job fails if another job in the same pipeline failed or was canceled.
+- **Failed**: fails, unless the job has `allow_failure: true`. **Canceled**: fails.
+- **Manual**: passes if the job has `allow_failure: true`. Otherwise the test run waits until someone runs the job.
+- A **trigger** job counts as its downstream pipeline's result. Jobs inside a downstream pipeline in another project are not read.
 - If a job fails, Trunk checks again before it fails the test run, so GitLab's automatic `retry:` can take effect.
 
 <Info>

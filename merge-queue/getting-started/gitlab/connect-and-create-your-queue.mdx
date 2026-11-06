@@ -21,10 +21,10 @@ Trunk acts on GitLab through a **service account** in one of your top-level grou
 
 ### Option A: Connect with GitLab (recommended)
 
-Trunk creates and manages the service account for you. This option requires the **Owner** role on the top-level group.
+Trunk creates the service account and its tokens for you. This option requires the **Owner** role on the top-level group.
 
 1. Click **Connect with GitLab** and authorize Trunk on GitLab.com. Trunk asks for the `api` scope and uses your authorization only once, to set up its own service account. It then discards your authorization.
-2. Under **Choose a group**, select the top-level group that contains your project. Subgroups are not listed: Trunk connects a whole top-level group.
+2. Under **Choose a group**, select the top-level group that contains your project. Only top-level groups that you own are listed: Trunk connects a whole top-level group.
 3. Click **Create service account & connect**.
 
 Trunk then:
@@ -34,7 +34,7 @@ Trunk then:
 - Issues its own access tokens for the account, with the `api` scope.
 
 <Note>
-  If you see "You need the Owner role on this group to create a service account", ask a group Owner to complete these steps, or use Option B with a service account they create.
+  If you see "You are not an Owner of any top-level GitLab group" or "GitLab refused the request. You need the Owner role on this group to create a service account", ask a group Owner to complete these steps. They also need the **admin** role in Trunk: invite them in **Settings** → **Organization** → **Team**. You can also use Option B with a service account they create.
 </Note>
 
 ### Option B: Create the service account yourself
@@ -49,7 +49,7 @@ Use this option if your GitLab policies require you to create and manage the acc
 6. Check the account, token scopes, memberships and accessible projects that Trunk shows, then click **Confirm & Save**. If the token can reach more than one top-level group, pick the group to connect.
 
 <Warning>
-  **Trunk cannot replace a token that you paste in.** When the token expires, the queue stops merging until the connection is fixed. Set an expiration date that matches your rotation policy, and [contact support](/setup-and-administration/support) before it expires. Option A does not have this limit.
+  **Trunk cannot replace a token that you paste in.** When the token expires, the queue stops merging until the connection is fixed. Set an expiration date that matches your rotation policy, and [contact support](/setup-and-administration/support) before it expires. The connection's page in **Settings** → **Integrations** → **GitLab** shows the token's expiration date.
 </Warning>
 
 <Note>
@@ -58,14 +58,16 @@ Use this option if your GitLab policies require you to create and manage the acc
 
 ## Create your first queue
 
-1. In the **Merge Queue** tab, click **New Queue**.
-2. Select your GitLab project from the dropdown and enter the target branch to merge into (for example, `main`).
+1. Open the **Merge Queue** tab. If your organization has no queues yet, it opens the setup form. Otherwise, open the actions menu and choose **Create queue**.
+2. Under **Select a repository**, pick your GitLab project. Enter the target branch to merge into (for example, `main`) in **Branch Name**.
 3. Click **Create Queue**.
+
+If GitLab isn't connected yet, the **Merge Queue** tab shows **Connect GitLab**, which opens the setup above.
 
 When you create the queue, Trunk adds a **project webhook** named `Trunk` to the GitLab project. It delivers push, merge request, comment, pipeline and job events to Trunk. You don't need to add a webhook yourself.
 
 <Note>
-  **Don't edit or delete the `Trunk` webhook.** Trunk signs its webhook deliveries and rejects hooks that use only a secret token. If GitLab disables the hook after repeated failed deliveries, re-enable it in the project's **Settings** → **Webhooks**. Trunk does not detect a disabled hook, so queued merge requests stop moving until you do.
+  **Don't edit or delete the `Trunk` webhook.** Trunk signs its deliveries, so a hook that you add or edit by hand doesn't work. If GitLab disables the hook after repeated failed deliveries, re-enable it in the project's **Settings** → **Webhooks**. Trunk doesn't detect a disabled or missing hook, so queued merge requests stop moving until you fix it. If the hook is missing, [contact support](/setup-and-administration/support).
 </Note>
 
 ## What you just did
@@ -75,6 +77,10 @@ You connected a GitLab group to Trunk and created a queue for one project's targ
 <Info>
   **Need multiple queues?** You can create more queues for the same project that target other branches (for example, `release/v2`). See [Multiple queues per repository](/merge-queue/administration/advanced-settings#multiple-queues-per-repository).
 </Info>
+
+## Disconnecting GitLab
+
+To disconnect, open the connection in **Settings** → **Integrations** → **GitLab** and delete it. You can't disconnect while any of the group's projects has a merge queue: delete those queues first. Trunk revokes the tokens it created. A token you pasted in stays valid, so revoke it in GitLab if you no longer need it. Trunk doesn't delete the service account: remove it from the group in GitLab yourself.
 
 ## Next steps
 
