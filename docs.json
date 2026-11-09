@@ -405,6 +405,7 @@
             "group": "Configuration",
             "pages": [
               "ci/dynamic-ci/configuration/jobs",
+              "ci/dynamic-ci/configuration/matrices",
               "ci/dynamic-ci/configuration/signals",
               "ci/dynamic-ci/configuration/path-filters",
               "ci/dynamic-ci/configuration/mode"

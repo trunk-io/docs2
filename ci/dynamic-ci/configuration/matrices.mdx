@@ -1,0 +1,86 @@
+---
+title: "Skip single variations of a matrix job"
+sidebarTitle: "Matrix jobs"
+description: "Opt a matrix job in to being decided variation by variation, and choose the keys that split it."
+---
+
+By default, Dynamic CI decides a matrix job as a whole: every variation runs, or
+none does. You can opt a matrix job in to being decided by variation instead.
+Dynamic CI then learns each group of variations from its own history, and a pull
+request runs only the variations it is likely to break.
+
+## When to opt in
+
+A matrix job is a good fit when:
+
+- **Its variations do different work.** Each runs on a different OS, runtime
+  version, test suite or package group, so a change can break one and not the
+  others.
+- **It is expensive.** Skipping part of it saves real runner time.
+
+Leave a job whole when its variations split the same work differently on every
+run. Dynamic CI can only learn from a variation's history if that variation does
+the same work each time (see below).
+
+## Choose the keys to split by
+
+This is the choice that matters most. You pick one or more of the matrix's keys.
+Variations that share values for those keys form a **group**, and each group
+gets its own run or skip decision, learned from that group's own history.
+
+That history is only useful if each group does the **same work from one run to
+the next**. If `suite=frontend` always runs the frontend tests, its history says
+how often a change like this one breaks the frontend tests. If it runs a
+different set of tests each time, its history says nothing, and its decisions
+will be poor.
+
+| Key | Good to split by? |
+| --- | --- |
+| OS, runtime version, image, test suite, package | Yes. The value names the work. |
+| Shard number, when tests are assigned to shards deterministically (for example, a fixed list, or a split by file path) | Yes. Shard 2 runs the same tests on every run, and only changes when the tests themselves change. |
+| Shard number, when shards are balanced by timing data or rebuilt on every run | No. Shard 2 runs different tests each time, so its history describes no particular work. |
+| A value that is new on every run, such as a build number or commit SHA | No. Every run starts a new group with no history, so every variation always runs. The job's settings mark such a key **New value every run**. |
+
+Some more guidance:
+
+- **Keys you don't pick are run together.** In a matrix of `os` × `node`, split by
+  `os`, the Linux variations for every Node version run or skip together.
+- **Fewer keys mean larger groups, which learn faster.** A group needs about 10
+  runs in the past week before it is decided on its own history. Until then it
+  follows the decision for the whole job.
+- **Start with the key that names what breaks independently.** If the macOS build
+  fails for reasons the Linux build never sees, split by OS.
+
+## Opt a job in
+
+<Steps>
+  <Step title="Open the job's settings">
+    In [Dynamic CI → Configuration](https://app.trunk.io/ci/dynamic-ci/configuration),
+    click the matrix job to expand it.
+  </Step>
+
+  <Step title="Choose the keys">
+    Under **Matrix variations**, choose **Decide variations separately** and tick
+    the keys to split by. The section shows each key's values with their failure
+    rate over the past 30 days, and the groups your choice makes.
+  </Step>
+
+  <Step title="Set up your CI">
+    - **GitHub Actions:** the matrix reads which variations to run from the
+      Dynamic CI job. See [Matrix jobs on GitHub Actions](/ci/dynamic-ci/getting-started/github-actions#matrix-jobs).
+    - **Buildkite:** no pipeline change beyond the plugin version. See
+      [Matrix steps on Buildkite](/ci/dynamic-ci/getting-started/buildkite#matrix-steps).
+
+    The section's setup checklist shows what your workflow or pipeline needs.
+  </Step>
+
+  <Step title="Save">
+    In an **Enforced** repository, the next push is decided by variation. In
+    **Learning** mode, Dynamic CI records a decision for each group and skips
+    nothing, so you can see how the split would behave first.
+  </Step>
+</Steps>
+
+Settings still apply to the whole job: **Always Run** and
+[Force Run](/ci/dynamic-ci/force-run) run every variation, and a
+[path filter](/ci/dynamic-ci/configuration/path-filters) applies to every group.
