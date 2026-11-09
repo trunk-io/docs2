@@ -1,0 +1,23 @@
+---
+title: "Merge Queue: Choose a merge method per pull request"
+description: "Let whoever submits a PR pick squash, rebase, or a merge commit for that PR, from the web app, a comment, or the API."
+date: 2026-11-09
+category: Merge Queue
+type: new-feature
+---
+
+**Pick a merge method for each pull request, not just for the whole queue.**
+
+### New features
+
+- **Per-PR merge method.** Turn on **Allow choosing a merge method per pull request** in your queue's **Settings** under **General**. PRs that don't choose still use the queue's **Default merge method**. See [Choosing a merge method per pull request](/merge-queue/administration/advanced-settings#choosing-a-merge-method-per-pull-request).
+- **Choose it where you submit.**
+  - **Web app:** open the menu beside the submit button and pick a method under **Merge method**.
+  - **Comment:** `/trunk merge --merge-method=rebase` (or `squash`, `merge`). See [Submit and cancel PRs](/merge-queue/using-the-queue/reference).
+  - **API:** send `mergeMethod` when you submit or update a PR. See [Merge method](/merge-queue/using-the-queue/api#merge-method).
+- **See the choice.** The chosen method shows on the submit button, as a **Merge method** badge on the PR's page, and in Trunk's PR comment.
+
+### Updates
+
+- **Stacks follow the submitted PR.** Every PR merged together in a [stack](/merge-queue/using-the-queue/stacked-pull-requests) uses the method chosen on the PR you submitted.
+- **Clear refusals.** Trunk tells you why it refuses a method, for example when the branch's GitHub rulesets don't allow it. See [If a merge method is refused](/merge-queue/administration/advanced-settings#if-a-merge-method-is-refused).
