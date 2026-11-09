@@ -362,6 +362,14 @@
           "testBranchConstructionMode": {
             "$ref": "#/components/schemas/TestBranchConstructionMode"
           },
+          "failedTestRunTeardown": {
+            "$ref": "#/components/schemas/FailedTestRunTeardown"
+          },
+          "maxHoldMinutes": {
+            "type": "integer",
+            "description": "How long a re-run of failed checks (`POST /v2/pull-requests/{id}/rerun-failed-checks`) keeps its pull request in `pendingFailure` waiting for the re-run to start; `rerun.until` is the request time plus this. From 1 to 60. Applies while `failedTestRunTeardown` is `keepForRerun`. A change applies to later re-runs; a hold already in progress keeps its `rerun.until`.",
+            "example": 30
+          },
           "enqueueingLabel": {
             "type": "string",
             "description": "The label that submits a pull request to this queue when `areLabelCommandsEnabled` is true. May not collide with a Trunk-reserved `trunk-*` state label.",
@@ -392,6 +400,8 @@
           "mergeMethod",
           "isMergeMethodOverrideEnabled",
           "testBranchConstructionMode",
+          "failedTestRunTeardown",
+          "maxHoldMinutes",
           "enqueueingLabel"
         ],
         "description": "A queue's full configuration. `requiredStatuses` (what must pass) is a merge-protection control rather than a tuning knob, so treat write access to this object as security-relevant."
@@ -440,6 +450,12 @@
         "enum": ["renameTempBranch", "pushNewBranchFromTemp"],
         "description": "How the queue turns the temporary branch it builds into the `trunk-merge` branch CI runs on. `renameTempBranch` renames the ref. `pushNewBranchFromTemp` creates the final ref at the temporary branch's head commit and deletes the temporary ref, which needs no rename permission — use it when an organization- or enterprise-level ruleset targets these branches, since GitHub's rename restriction is the one rule an exempt bypass actor cannot lift.",
         "example": "renameTempBranch"
+      },
+      "FailedTestRunTeardown": {
+        "type": "string",
+        "enum": ["tearDown", "keepForRerun"],
+        "description": "What the queue does with a failed verification run's testing branch and CI. `tearDown` deletes them when the run fails. `keepForRerun` keeps them while the entry waits in `pendingFailure`, so its failed checks can be re-run on the same run (`POST /v2/pull-requests/{id}/rerun-failed-checks`); they are torn down once the entry stops waiting, including runs kept before a switch back to `tearDown`. Switching to `tearDown` also ends any re-run hold already in progress.",
+        "example": "tearDown"
       },
       "ErrorResponse": {
         "type": "object",
@@ -499,6 +515,7 @@
           "PROVIDER_URL_NOT_FOUND",
           "CI_HOST_UNSUPPORTED",
           "CI_SCOPE_NOT_FOUND",
+          "PATHS_FILTER_CONFLICT",
           "CI_JOB_NOT_FOUND",
           "CI_FAILURE_CLUSTER_NOT_FOUND",
           "TEST_COLLECTION_NOT_FOUND",
@@ -1616,6 +1633,17 @@
             "enum": ["renameTempBranch", "pushNewBranchFromTemp"],
             "description": "One of `renameTempBranch` or `pushNewBranchFromTemp`. See the `TestBranchConstructionMode` schema."
           },
+          "failedTestRunTeardown": {
+            "type": "string",
+            "enum": ["tearDown", "keepForRerun"],
+            "description": "One of `tearDown` or `keepForRerun`. See the `FailedTestRunTeardown` schema."
+          },
+          "maxHoldMinutes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 60,
+            "description": "How long a re-run of failed checks (`POST /v2/pull-requests/{id}/rerun-failed-checks`) keeps its pull request in `pendingFailure` waiting for the re-run to start; `rerun.until` is the request time plus this. From 1 to 60. Applies while `failedTestRunTeardown` is `keepForRerun`. A change applies to later re-runs; a hold already in progress keeps its `rerun.until`."
+          },
           "enqueueingLabel": {
             "type": "string",
             "minLength": 1,
@@ -2099,7 +2127,7 @@
           },
           "reason": {
             "type": ["string", "null"],
-            "description": "Why the entry entered this state. `null` for `testing` and `pendingFailure`, which carry no reason.\n\nThe values below are the vocabulary in use today, grouped by the state they accompany. **This is an open set** — it is the engine's own vocabulary and new values may appear within v2, so match on the values you care about and treat anything else as unclassified rather than failing closed.\n\n**Why an entry is waiting (`notReady`)** — `USER_REQUESTED`, `TRUNK_ADMIN_REQUESTED`, `API_REQUESTED`, `PR_PUSHED_TO` (a push to the pull request sent it back to wait on the new commit).\n\n**Why an entry (re)entered the line (`pending`)** — these are what distinguish a restart's cause:\n\n| Value | Meaning |\n| --- | --- |\n| `TESTS_RESTARTED_BY_USER` | A person restarted the tests. |\n| `TESTS_RESTARTED_BY_API_REQUEST` | Restarted through the API — e.g. `pullRequests.restartTests`. |\n| `MERGE_ITEM_NOW_READY` | A readiness condition became satisfied. |\n| `MANUAL_PUSH_TO_TARGET_BRANCH` | Someone pushed to the target branch, invalidating the tested state. |\n| `PREREQUISITE_MERGE_ITEM_FAILED` | An entry ahead of this one failed, so this one must re-test. |\n| `PREREQUISITE_MERGE_ITEM_CANCELLED` | An entry ahead was removed. |\n| `PREREQUISITE_MERGE_ITEM_MANUALLY_MERGED` | An entry ahead was merged outside the queue. |\n| `SKIP_THE_LINE_INTERRUPTED` | A higher-priority entry preempted this one. |\n| `BISECTION_REQUIRED` | A batch failed and the engine is bisecting to find the culprit. |\n| `BISECTION_TEST_RUN_PASSED` | A bisection run cleared this entry. |\n\n**Why verification passed (`testsPassed`)** — `TEST_RUN_PASSED`, `SUCCESSOR_TEST_RUN_PASSED`, `PASSED_BY_OPTIMIZATION`.\n\n**Why an entry failed (`failed`)** — `TEST_RUN_REQUIRED_STATUS_FAILED`, `TEST_RUN_TIMEOUT`, `TEST_RUN_FAILED_BY_OPTIMIZATION`, `START_TEST_RUN_MERGE_CONFLICT`, `START_TEST_RUN_RETRY_EXHAUSTED`, `START_TEST_RUN_DRAFT_PRS_NOT_ALLOWED`, `START_TEST_RUN_PERMISSIONS_BLOCK_TEST_BRANCH`, `START_TEST_RUN_NO_REQUIRED_STATUSES`, `START_TEST_RUN_CONFIG_NOT_FOUND`, `START_TEST_RUN_CONFIG_PARSING_FAILURE`, `START_TEST_RUN_CONFIG_BAD_VERSION`, `START_TEST_RUN_CONFIG_BAD_REQUIRED_STATUSES`, `START_TEST_RUN_CONFIG_MISSING_REQUIRED_STATUSES`, `START_TEST_RUN_INVALID_EVENT`, `PR_UPDATED_AT_MERGE_TIME`, `GITHUB_API_MERGE_PR_FAILED`, `GITHUB_API_DIRECT_MERGE_PR_FAILED`, `GITHUB_API_BRANCH_PROTECTION_UNMET`, `GITHUB_API_MERGE_ALREADY_IN_PROGRESS`, `GITHUB_API_RATE_LIMIT_EXCEEDED`, `GITHUB_API_REPEATED_SERVER_ERRORS`, `MERGE_METHOD_NOT_ALLOWED`.\n\n**Why an entry was removed (`cancelled`)** — `USER_REQUESTED`, `TRUNK_ADMIN_REQUESTED`, `PR_CLOSED`, `PR_MERGED_INTO_OTHER_BRANCH`, `PR_PUSHED_TO` (older entries only; a push now returns an entry to `notReady`), `PR_BASE_BRANCH_CHANGED`, `PR_CONVERTED_TO_DRAFT`, `NOT_READY_TIMEOUT_EXPIRED`, `STACKED_PR_MEMBER_PUSHED_TO`, `STACKED_PR_MEMBER_CLOSED`, `STACKED_PR_MEMBER_MERGED`, `STACKED_PR_MEMBER_BASE_BRANCH_CHANGED`, `STACKED_PR_STACK_CHANGED`, `STACKED_PR_GROUP_CANCELLED_AT_MERGE_TIME`.\n\n**Why an entry merged (`merged`)** — `MERGE_GRAPH_MERGE`, `MERGE_GRAPH_DIRECT_MERGE`, `MANUAL_MERGE`.",
+            "description": "Why the entry entered this state. `null` for `testing` and `pendingFailure`, which carry no reason.\n\nThe values below are the vocabulary in use today, grouped by the state they accompany. **This is an open set** — it is the engine's own vocabulary and new values may appear within v2, so match on the values you care about and treat anything else as unclassified rather than failing closed.\n\n**Why an entry is waiting (`notReady`)** — `USER_REQUESTED`, `TRUNK_ADMIN_REQUESTED`, `API_REQUESTED`, `PR_PUSHED_TO` (a push to the pull request sent it back to wait on the new commit).\n\n**Why an entry (re)entered the line (`pending`)** — these are what distinguish a restart's cause:\n\n| Value | Meaning |\n| --- | --- |\n| `TESTS_RESTARTED_BY_USER` | A person restarted the tests. |\n| `TESTS_RESTARTED_BY_API_REQUEST` | Restarted through the API — e.g. `pullRequests.restartTests`. |\n| `MERGE_ITEM_NOW_READY` | A readiness condition became satisfied. |\n| `MANUAL_PUSH_TO_TARGET_BRANCH` | Someone pushed to the target branch, invalidating the tested state. |\n| `PREREQUISITE_MERGE_ITEM_FAILED` | An entry ahead of this one failed, so this one must re-test. |\n| `PREREQUISITE_MERGE_ITEM_CANCELLED` | An entry ahead was removed. |\n| `PREREQUISITE_MERGE_ITEM_MANUALLY_MERGED` | An entry ahead was merged outside the queue. |\n| `SKIP_THE_LINE_INTERRUPTED` | A higher-priority entry preempted this one. |\n| `BISECTION_REQUIRED` | A batch failed and the engine is bisecting to find the culprit. |\n| `BISECTION_TEST_RUN_PASSED` | A bisection run cleared this entry. |\n\n**Why verification passed (`testsPassed`)** — `TEST_RUN_PASSED`, `SUCCESSOR_TEST_RUN_PASSED`, `PASSED_BY_OPTIMIZATION`.\n\n**Why an entry failed (`failed`)** — `TEST_RUN_REQUIRED_STATUS_FAILED`, `TEST_RUN_TIMEOUT`, `TEST_RUN_FAILED_BY_OPTIMIZATION`, `START_TEST_RUN_MERGE_CONFLICT`, `START_TEST_RUN_RETRY_EXHAUSTED`, `START_TEST_RUN_DRAFT_PRS_NOT_ALLOWED`, `START_TEST_RUN_PERMISSIONS_BLOCK_TEST_BRANCH`, `START_TEST_RUN_NO_REQUIRED_STATUSES`, `START_TEST_RUN_CONFIG_NOT_FOUND`, `START_TEST_RUN_CONFIG_PARSING_FAILURE`, `START_TEST_RUN_CONFIG_BAD_VERSION`, `START_TEST_RUN_CONFIG_BAD_REQUIRED_STATUSES`, `START_TEST_RUN_CONFIG_MISSING_REQUIRED_STATUSES`, `START_TEST_RUN_INVALID_EVENT`, `PR_UPDATED_AT_MERGE_TIME`, `GITHUB_API_MERGE_PR_FAILED`, `GITHUB_API_DIRECT_MERGE_PR_FAILED`, `GITHUB_API_BRANCH_PROTECTION_UNMET`, `GITHUB_API_MERGE_ALREADY_IN_PROGRESS`, `GITHUB_API_RATE_LIMIT_EXCEEDED`, `GITHUB_API_REPEATED_SERVER_ERRORS`, `MERGE_METHOD_NOT_ALLOWED`, `GITHUB_STACK_MERGE_STUCK_PENDING`.\n\n**Why an entry was removed (`cancelled`)** — `USER_REQUESTED`, `TRUNK_ADMIN_REQUESTED`, `PR_CLOSED`, `PR_MERGED_INTO_OTHER_BRANCH`, `PR_PUSHED_TO` (older entries only; a push now returns an entry to `notReady`), `PR_BASE_BRANCH_CHANGED`, `PR_CONVERTED_TO_DRAFT`, `NOT_READY_TIMEOUT_EXPIRED`, `STACKED_PR_MEMBER_PUSHED_TO`, `STACKED_PR_MEMBER_CLOSED`, `STACKED_PR_MEMBER_MERGED`, `STACKED_PR_MEMBER_BASE_BRANCH_CHANGED`, `STACKED_PR_STACK_CHANGED`, `STACKED_PR_GROUP_CANCELLED_AT_MERGE_TIME`.\n\n**Why an entry merged (`merged`)** — `MERGE_GRAPH_MERGE`, `MERGE_GRAPH_DIRECT_MERGE`, `MANUAL_MERGE`.",
             "example": "TEST_RUN_REQUIRED_STATUS_FAILED"
           },
           "verificationRunId": {
@@ -2910,6 +2938,17 @@
             },
             "maxItems": 64,
             "description": "The audit trail behind `summary`, abstentions included."
+          },
+          "variations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VariationVerdict"
+            },
+            "maxItems": 256,
+            "description": "One verdict per matrix variation, for a job decided per variation. Informational: act on `run` and `prune`, never on these."
+          },
+          "prune": {
+            "$ref": "#/components/schemas/Prune"
           }
         },
         "required": ["jobKey", "run", "summary", "signals"]
@@ -2967,6 +3006,100 @@
         ],
         "description": "One signal's contribution. `MUST_RUN` and `NEVER_RUN` are hard verdicts (a single one decides, with `MUST_RUN` winning a tie); `VOTE_RUN` and `VOTE_NO_RUN` are weighted votes. `INCOMPLETE` means the signal applies but lacks evidence — two of them fail the job safe to running. `ABSTAIN` means the signal does not apply at all and is excluded from the tally entirely, which is what makes it different from `INCOMPLETE`.",
         "example": "VOTE_NO_RUN"
+      },
+      "VariationVerdict": {
+        "type": "object",
+        "properties": {
+          "match": {
+            "type": "object",
+            "additionalProperties": {},
+            "description": "The variation's matrix values, each as typed JSON. Informational: a number may lose how it was written (`3.10` reads as `3.1`), so never build a matrix output from it; set `prune` instead.",
+            "example": {
+              "os": "macos-14",
+              "node": 20
+            }
+          },
+          "group": {
+            "type": "object",
+            "additionalProperties": {},
+            "description": "The values of `match` on the job's variation dimensions: the decision group whose verdict this variation took, and what to label this variation by. Empty when the variation sets none of them. Variations in one group can still differ in `run`, because a variation that cannot be pruned runs while its group skips, so combine variations into one line only when both `group` and `run` match.",
+            "example": {
+              "os": "macos-14"
+            }
+          },
+          "run": {
+            "type": "boolean",
+            "description": "Whether this variation's legs should run.",
+            "example": false
+          },
+          "summary": {
+            "type": "string",
+            "description": "One-line rationale for this variation's verdict, safe to show to a user.",
+            "example": "The job should skip because no changed file has ever broken it."
+          }
+        },
+        "required": ["match", "run", "summary"]
+      },
+      "Prune": {
+        "type": "object",
+        "properties": {
+          "exclude": {
+            "type": "string",
+            "description": "Set as the `<job>-exclude` output, unchanged, for a matrix declared with axes and wired as `exclude: ${{ fromJSON(<output> || '[...your own excludes...]') }}`. A JSON array: your own `exclude` entries first, then one entry per pruned leg. Do not parse or re-encode it: GitHub matches `exclude` by JSON type.",
+            "example": "[{\"os\":\"macos-14\",\"node\":20}]"
+          },
+          "matrix": {
+            "type": "string",
+            "description": "Set as the `<job>-matrix` output, unchanged, for a matrix written as `matrix: ${{ fromJSON(<output> || '{\"include\":[...]}') }}`. A JSON object `{\"include\": [...]}` holding the rows that run, each exactly as written in your literal, so leg names do not change.",
+            "example": "{\"include\":[{\"lane\":\"parallel\",\"shard\":1}]}"
+          },
+          "include": {
+            "type": "string",
+            "description": "Set as the `<job>-include` output, unchanged, for a matrix wired as `include: ${{ fromJSON(<output> || '[...]') }}`. The same rows as `matrix`, as a bare JSON array.",
+            "example": "[{\"lane\":\"parallel\",\"shard\":1}]"
+          },
+          "dropSetup": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "maxItems": 50,
+            "description": "For a Buildkite matrix with no dimension names (`matrix: [a, b]` or `setup: [a, b]`): the positions in the step's setup list to delete, counted from 0 in the list you sent in `matrixBlocks`, ascending. Delete them from the step you upload; never every position.",
+            "example": [1]
+          },
+          "adjustments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PruneAdjustment"
+            },
+            "maxItems": 12,
+            "description": "For a Buildkite matrix with named dimensions: entries to append, unchanged, to the step's `matrix.adjustments`. Each skips one variation. With your own adjustments, the step never has more than Buildkite's limit of 12."
+          }
+        },
+        "description": "Present only when some legs of this matrix job are skipped and others run. Each field is the exact text for one output; a client sets it unchanged. When every leg is skipped, `run` is false and `prune` is absent."
+      },
+      "PruneAdjustment": {
+        "type": "object",
+        "properties": {
+          "with": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "The variation's value for each named dimension, as strings. Buildkite matches these against your `setup` values by their string form.",
+            "example": {
+              "os": "macos",
+              "arch": "arm64"
+            }
+          },
+          "skip": {
+            "type": "string",
+            "description": "The reason Buildkite shows for the skipped variation. It starts with `Trunk Dynamic CI:`.",
+            "example": "Trunk Dynamic CI: no changed file has broken this variation."
+          }
+        },
+        "required": ["with", "skip"]
       },
       "PlanNotice": {
         "type": "object",
@@ -3075,6 +3208,31 @@
             "type": "string",
             "description": "From `github.workflow_ref`; identifies the workflow whose jobs are in scope.",
             "example": ".github/workflows/ci.yaml"
+          },
+          "workflowFileSha": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{40}([0-9a-f]{24})?$",
+            "description": "The git blob sha of the workflow file at `commitSha` (`git rev-parse <commitSha>:<workflowPath>`). Matrix jobs are pruned only against the parsed version of exactly this file; without it, a matrix job is decided as a whole.",
+            "example": "51d537a714c0f1c8a4e92b13d5f0e6a7c2b9d8e1"
+          },
+          "matrixRows": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "For matrix jobs whose rows a planner job builds at run time (`fromJSON`): each job's rows array, by job key, as the exact JSON text the planner emitted. Send the text unchanged; Trunk returns the rows it keeps in the same text. A job is pruned per variation only when its rows are sent and they are its whole matrix. Send at most 64 jobs, 64 KiB and 256 rows per job, and 256 KiB in all; a job over its limits is decided as a whole.",
+            "example": {
+              "tests": "[{\"suite\":\"api\",\"shard\":1},{\"suite\":\"web\",\"shard\":1}]"
+            }
+          },
+          "matrixRowsOmitted": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 64,
+            "description": "Job keys whose rows you left out of `matrixRows` for size. Informational: those jobs are decided as a whole.",
+            "example": ["bin-packed"]
           }
         },
         "required": [
@@ -3326,6 +3484,14 @@
             "maxLength": 200,
             "description": "`BUILDKITE_PIPELINE_SLUG` on an agent.",
             "example": "widgets-pr"
+          },
+          "matrixBlocks": {
+            "type": "object",
+            "additionalProperties": {},
+            "description": "Each keyed matrix step's `matrix:` block, by step key, as `buildkite-agent pipeline upload --dry-run` renders it with environment variables resolved. Matrix steps are pruned per variation only when their block is sent; a step left out is decided as a whole. Send at most 64 KiB of blocks; Trunk ignores a larger map.",
+            "example": {
+              "build-image": ["amd64", "arm64"]
+            }
           }
         },
         "required": [
@@ -3530,6 +3696,393 @@
           }
         },
         "required": ["scope"]
+      },
+      "PathsFilterWithJobsList": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PathsFilterWithJobs"
+            },
+            "maxItems": 100
+          },
+          "nextCursor": {
+            "type": ["string", "null"],
+            "description": "Opaque cursor for the next page, or null on the last page. Pass it back verbatim as `cursor`; do not construct or inspect one.",
+            "example": "AQEKZm9vYmFy"
+          },
+          "hasMore": {
+            "type": "boolean",
+            "description": "True when another page is available.",
+            "example": true
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total rows matching the filter. Present only when the request set `includeTotal=true`.",
+            "example": 1247
+          }
+        },
+        "required": ["data", "nextCursor", "hasMore"]
+      },
+      "PathsFilterWithJobs": {
+        "type": "object",
+        "properties": {
+          "pathsFilterId": {
+            "type": "string",
+            "example": "e8f1c2a4-5b6d-4e7f-8a9b-0c1d2e3f4a5b"
+          },
+          "name": {
+            "type": ["string", "null"],
+            "description": "Null for an unnamed filter, which the web app shows as Custom.",
+            "example": "web"
+          },
+          "rules": {
+            "$ref": "#/components/schemas/PathsFilterRules"
+          },
+          "jobs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PathsFilterJob"
+            },
+            "maxItems": 10000,
+            "description": "The jobs the filter gates. A job the web app gave one filter for pull requests and another for the merge queue is listed under both."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-26T20:31:04.512Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-26T20:31:04.512Z"
+          }
+        },
+        "required": [
+          "pathsFilterId",
+          "name",
+          "rules",
+          "jobs",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "PathsFilterRules": {
+        "type": "object",
+        "properties": {
+          "include": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PathsFilterRule"
+            },
+            "minItems": 1,
+            "maxItems": 64,
+            "description": "A changed file counts when some `include` rule matches it and no `exclude` rule does.",
+            "example": [
+              {
+                "glob": "web/**"
+              }
+            ]
+          },
+          "exclude": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PathsFilterRule"
+            },
+            "maxItems": 64,
+            "example": [
+              {
+                "glob": "web/**/*.md"
+              }
+            ]
+          }
+        },
+        "required": ["include", "exclude"],
+        "additionalProperties": false
+      },
+      "PathsFilterRule": {
+        "type": "object",
+        "properties": {
+          "glob": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "A picomatch glob, matched with `dot: true` against the repository-relative path. May not begin with `!` or `(`.",
+            "example": "web/**"
+          },
+          "changeTypes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChangeType"
+            },
+            "minItems": 1,
+            "maxItems": 6,
+            "description": "Match only these kinds of change. Absent matches any.",
+            "example": ["added", "modified"]
+          }
+        },
+        "required": ["glob"],
+        "additionalProperties": false
+      },
+      "ChangeType": {
+        "type": "string",
+        "enum": [
+          "added",
+          "copied",
+          "deleted",
+          "modified",
+          "renamed",
+          "unmerged"
+        ],
+        "description": "A kind of file change, as `dorny/paths-filter` names them.",
+        "example": "modified"
+      },
+      "PathsFilterJob": {
+        "type": "object",
+        "properties": {
+          "workflowPath": {
+            "type": ["string", "null"],
+            "description": "The workflow file's path. Null if Trunk has not seen one.",
+            "example": ".github/workflows/ci.yaml"
+          },
+          "jobKey": {
+            "type": ["string", "null"],
+            "description": "The job's key under `jobs:`. Null means the job is reachable only by `jobId`.",
+            "example": "web-unit"
+          },
+          "jobId": {
+            "type": "string",
+            "example": "3c4d0b17-8e2a-4f6c-9d1b-7a5e3c2f1d0e"
+          }
+        },
+        "required": ["workflowPath", "jobKey", "jobId"]
+      },
+      "SetPathsFiltersResult": {
+        "type": "object",
+        "properties": {
+          "filters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WrittenFilter"
+            },
+            "maxItems": 100,
+            "description": "One per `filters` entry, leaving out an entry none of whose jobs resolved."
+          },
+          "jobs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WrittenJob"
+            },
+            "maxItems": 500,
+            "description": "One per job named, in request order. A job named by `jobId` is reported by its path and key."
+          }
+        },
+        "required": ["filters", "jobs"]
+      },
+      "WrittenFilter": {
+        "type": "object",
+        "properties": {
+          "pathsFilterId": {
+            "type": "string",
+            "example": "e8f1c2a4-5b6d-4e7f-8a9b-0c1d2e3f4a5b"
+          },
+          "name": {
+            "type": ["string", "null"],
+            "description": "The stored name, which an existing named filter keeps.",
+            "example": "web"
+          },
+          "status": {
+            "$ref": "#/components/schemas/WrittenFilterStatus"
+          },
+          "jobCount": {
+            "type": "integer",
+            "description": "Distinct jobs on the filter after the write.",
+            "example": 1
+          }
+        },
+        "required": ["pathsFilterId", "name", "status", "jobCount"]
+      },
+      "WrittenFilterStatus": {
+        "type": "string",
+        "enum": ["new", "existing"],
+        "description": "Whether the request created the filter or found it by its rules.",
+        "example": "new"
+      },
+      "WrittenJob": {
+        "type": "object",
+        "properties": {
+          "workflowPath": {
+            "type": ["string", "null"],
+            "example": ".github/workflows/ci.yaml"
+          },
+          "jobKey": {
+            "type": ["string", "null"],
+            "example": "web-unit"
+          },
+          "status": {
+            "$ref": "#/components/schemas/WrittenJobStatus"
+          },
+          "jobIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 500,
+            "description": "Every job the name matched; one name can match more than one. Empty for `unresolved`.",
+            "example": ["3c4d0b17-8e2a-4f6c-9d1b-7a5e3c2f1d0e"]
+          }
+        },
+        "required": ["workflowPath", "jobKey", "status", "jobIds"]
+      },
+      "WrittenJobStatus": {
+        "type": "string",
+        "enum": ["set", "unchanged", "cleared", "unresolved"],
+        "description": "`set`: the job now has the filter. `unchanged`: nothing was written. `cleared`: its filter was removed. `unresolved`: Trunk has not seen the job run, so nothing was written; send the request again after it runs.",
+        "example": "set"
+      },
+      "SetPathsFiltersRequest": {
+        "type": "object",
+        "properties": {
+          "repo": {
+            "$ref": "#/components/schemas/PlanRepo"
+          },
+          "overwrite": {
+            "type": "boolean",
+            "default": false,
+            "description": "Replace a different filter already on a job. Without it, such a job fails the request with `PATHS_FILTER_CONFLICT`.",
+            "example": false
+          },
+          "filters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PathsFilterEntry"
+            },
+            "maxItems": 100
+          },
+          "clear": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/JobRef"
+            },
+            "maxItems": 500,
+            "description": "Jobs to remove the paths filter from."
+          }
+        },
+        "required": ["repo"],
+        "additionalProperties": false
+      },
+      "PathsFilterEntry": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": ["string", "null"],
+            "maxLength": 80,
+            "description": "Trimmed; blank or absent is unnamed. Names a new filter, or an existing unnamed one with the same rules; an existing name is kept.",
+            "example": "web"
+          },
+          "rules": {
+            "$ref": "#/components/schemas/PathsFilterRulesInput"
+          },
+          "jobs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/JobRef"
+            },
+            "minItems": 1,
+            "maxItems": 500
+          }
+        },
+        "required": ["rules", "jobs"],
+        "additionalProperties": false
+      },
+      "PathsFilterRulesInput": {
+        "type": "object",
+        "properties": {
+          "include": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PathsFilterRule"
+            },
+            "minItems": 1,
+            "maxItems": 64,
+            "example": [
+              {
+                "glob": "web/**"
+              }
+            ]
+          },
+          "exclude": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PathsFilterRule"
+            },
+            "maxItems": 64,
+            "description": "Defaults to none.",
+            "example": [
+              {
+                "glob": "web/**/*.md"
+              }
+            ]
+          }
+        },
+        "required": ["include"],
+        "additionalProperties": false
+      },
+      "JobRef": {
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/JobRefByName"
+          },
+          {
+            "$ref": "#/components/schemas/JobRefById"
+          }
+        ],
+        "description": "A job, as `{ workflowPath, jobKey }` or as `{ jobId }`."
+      },
+      "JobRefByName": {
+        "type": "object",
+        "properties": {
+          "workflowPath": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The workflow file's repository-relative path, exactly.",
+            "example": ".github/workflows/ci.yaml"
+          },
+          "jobKey": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The job's key under `jobs:` in that file.",
+            "example": "web-unit"
+          }
+        },
+        "required": ["workflowPath", "jobKey"],
+        "additionalProperties": false
+      },
+      "JobRefById": {
+        "type": "object",
+        "properties": {
+          "jobId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "A job's id from `dynamicCi.listPathsFilters` or `dynamicCi.listPrJobs`. A `workflowPath` or `jobKey` sent beside it must name the same job.",
+            "example": "3c4f8e21-6a1d-4b7e-9f02-5d8c1a2b3e4f"
+          },
+          "workflowPath": {
+            "type": ["string", "null"],
+            "minLength": 1,
+            "description": "The workflow file's repository-relative path, exactly.",
+            "example": ".github/workflows/ci.yaml"
+          },
+          "jobKey": {
+            "type": ["string", "null"],
+            "minLength": 1,
+            "description": "The job's key under `jobs:` in that file.",
+            "example": "web-unit"
+          }
+        },
+        "required": ["jobId"],
+        "additionalProperties": false
       },
       "TestCollectionList": {
         "type": "object",
@@ -3877,6 +4430,17 @@
                 "maxItems": 100,
                 "description": "The monitors currently classifying this test."
               },
+              "manualFlag": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ManualFlag"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "The test's flaky mark set by hand, or null if it has none. While it is set, `activeMonitors` also lists a `manual` entry. The mark is not a status override: a monitor classifying the test as broken still wins `status`."
+              },
               "firstSeenAt": {
                 "type": ["string", "null"],
                 "format": "date-time",
@@ -3893,6 +4457,7 @@
             "required": [
               "quarantineOverride",
               "activeMonitors",
+              "manualFlag",
               "firstSeenAt",
               "lastFailureAt"
             ]
@@ -3926,6 +4491,11 @@
             "type": "string",
             "example": "Tests that only get slow on pull-request runs."
           },
+          "color": {
+            "type": "string",
+            "description": "The label's hex color, as the web app shows it. A label created by `POST /v2/tests/{testId}/add-labels` starts as `#6366F1`.",
+            "example": "#6366F1"
+          },
           "assignedAt": {
             "type": "string",
             "format": "date-time",
@@ -3938,10 +4508,17 @@
               "$ref": "#/components/schemas/LabelSource"
             },
             "maxItems": 100,
-            "description": "Everything that put this label on the test. More than one entry means several sources applied the same label independently; removing it clears them all."
+            "description": "Everything that put this label on the test. More than one entry means several sources applied the same label independently. `POST /v2/tests/{testId}/remove-labels` removes only the `user` source; a `monitor` source stays until the monitor stops applying the label."
           }
         },
-        "required": ["id", "name", "description", "assignedAt", "sources"],
+        "required": [
+          "id",
+          "name",
+          "description",
+          "color",
+          "assignedAt",
+          "sources"
+        ],
         "description": "A label on a test, folded across its sources — one entry per label, never one per assignment."
       },
       "LabelSource": {
@@ -3978,17 +4555,17 @@
                 "type": "null"
               }
             ],
-            "description": "Who applied the label. Null when an API token did — a token resolves to no user."
+            "description": "Who applied the label. Null when an API token did, since a token resolves to no user, or when that user has since been deleted."
           },
           "assignedAt": {
             "type": "string",
             "format": "date-time",
-            "description": "When the user applied the label.",
+            "description": "When the label was applied.",
             "example": "2026-06-01T00:00:00.000Z"
           }
         },
         "required": ["type", "user", "assignedAt"],
-        "description": "A label applied by hand."
+        "description": "A label applied by hand: in the web app, or through `POST /v2/tests/{testId}/add-labels`."
       },
       "LabelUser": {
         "type": "object",
@@ -4193,6 +4770,19 @@
         ],
         "description": "A monitor type that can be active on a test. `manual` is the 'flag as flaky' mark, which has no addressable monitor resource and always reports a null `monitorId`.",
         "example": "failureRate"
+      },
+      "ManualFlag": {
+        "type": "object",
+        "properties": {
+          "markedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the mark was last set. Marking a test that is already marked does not move it.",
+            "example": "2026-06-07T00:00:00.000Z"
+          }
+        },
+        "required": ["markedAt"],
+        "description": "A flaky mark set by hand, in the web app or with `POST /v2/tests/{testId}/mark-flaky`."
       },
       "TestSummary": {
         "type": "object",
@@ -4649,7 +5239,7 @@
                 "type": "null"
               }
             ],
-            "description": "Set when the monitor became inactive because it was disabled or deleted. Null for a detection, and for a test that recovered."
+            "description": "Set when the event comes from a change to the monitor: it was disabled or deleted, or its classify action changed. Null for a detection, and for a test that recovered."
           },
           "detectedAt": {
             "type": "string",
@@ -4683,7 +5273,7 @@
                 "type": "null"
               }
             ],
-            "description": "The person who disabled or deleted the monitor. Null for an event the detection pipeline made, and for a change made with an API token."
+            "description": "The person who disabled or deleted the monitor, or changed its classify action. Null for an event the detection pipeline made, and for a change made with an API token."
           }
         },
         "required": [
@@ -4725,8 +5315,8 @@
       },
       "DeactivationReason": {
         "type": "string",
-        "enum": ["monitorDisabled", "monitorDeleted"],
-        "description": "Why a monitor stopped being active on a test because of a change to the monitor itself.",
+        "enum": ["monitorDisabled", "monitorDeleted", "classifyActionChanged"],
+        "description": "Why the event exists because of a change to the monitor itself. `monitorDisabled` and `monitorDeleted` are on an `inactive` event: the monitor stopped being active on the test. `classifyActionChanged` is on an `active` event: someone added, removed or changed the monitor's classify action while it was active on the test. That event is not a detection.",
         "example": "monitorDisabled"
       },
       "DetectionEventAction": {
@@ -5097,6 +5687,39 @@
         "type": "string",
         "enum": ["testRun", "testCase", "upload", "commit", "file", "ciRun"],
         "example": "commit"
+      },
+      "TestLabels": {
+        "type": "object",
+        "properties": {
+          "labels": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Label"
+            },
+            "maxItems": 100
+          }
+        },
+        "required": ["labels"],
+        "description": "A test's labels, folded across their sources as on `Test.labels`."
+      },
+      "TestLabelsRequest": {
+        "type": "object",
+        "properties": {
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_ -]{1,64}$",
+              "example": "needs-triage"
+            },
+            "minItems": 1,
+            "maxItems": 50,
+            "description": "Label names, at most 50. A name listed twice counts once. Names match exactly, case included."
+          }
+        },
+        "required": ["labels"],
+        "additionalProperties": false,
+        "description": "The labels to add to a test, or to remove from it, by name."
       },
       "CreatedTestUpload": {
         "type": "object",
@@ -7352,7 +7975,7 @@
         "operationId": "mergeQueues.order",
         "tags": ["mergeQueues"],
         "summary": "Get a merge queue's dispatch order",
-        "description": "Returns the queue's batches with a verification run, what is admitted and waiting in the order the engine will consider it, and what has not been admitted yet.\n\n**A batch in `batches` is not necessarily still testing** — one that has passed, is merging, or is holding others back after a failure still has a run and is still listed. Read its `state`.\n\n**The order is one of consideration, not of execution, and array position is not a wait estimate.** `predictedBatch` repeats across every pull request predicted to start testing together, and in `graph` mode several predicted batches commonly start at once — so the pull requests ahead of yours may all start with it, and may sit on unrelated branches that never block yours. `directlyAhead` is what actually precedes a pull request; use it rather than counting.\n\nIt is a point-in-time prediction. A new submission, a priority change or a failure regroups it, and four things outside this response still gate dispatch: `queueState: paused` stops it entirely, the queue's testing-concurrency cap bounds how many start, a batch whose predecessors have no usable test branch is skipped over rather than blocking, and bisections dispatch on their own budget.\n\nPull requests that are not ready are deliberately absent — they are not admitted, so they hold no position. Read one through `GET /v2/pull-requests/{id}`.\n\nUnpaginated: the engine caps its own graph, so the admitted set is bounded. `awaitingAdmission` is not, and is truncated.",
+        "description": "Returns the queue's batches with a verification run, what is admitted and waiting in the order the engine will consider it, and what has not been admitted yet.\n\n**A batch in `batches` is not necessarily still testing** — one that has passed, is merging, or is holding others back after a failure still has a run and is still listed. Read its `state`.\n\n**The order is one of consideration, not of execution, and array position is not a wait estimate.** `predictedBatch` repeats across every pull request predicted to start testing together, and in `graph` mode several predicted batches commonly start at once — so the pull requests ahead of yours may all start with it, and may sit on unrelated branches that never block yours. `directlyAhead` is what actually precedes a pull request; use it rather than counting.\n\nIt is a point-in-time prediction, up to a few seconds old. A new submission, a priority change or a failure regroups it, and four things outside this response still gate dispatch: `queueState: paused` stops it entirely, the queue's testing-concurrency cap bounds how many start, a batch whose predecessors have no usable test branch is skipped over rather than blocking, and bisections dispatch on their own budget.\n\nPull requests that are not ready are deliberately absent — they are not admitted, so they hold no position. Read one through `GET /v2/pull-requests/{id}`.\n\nUnpaginated: the engine caps its own graph, so the admitted set is bounded. `awaitingAdmission` is not, and is truncated.",
         "parameters": [
           {
             "schema": {
@@ -13098,6 +13721,431 @@
         }
       }
     },
+    "/v2/dynamic-ci/paths-filters": {
+      "get": {
+        "operationId": "dynamicCi.listPathsFilters",
+        "tags": ["dynamicCi"],
+        "summary": "List a repository's paths filters",
+        "description": "Every paths filter in the repository, each with the jobs it gates. A paths filter decides which changed files make a job run, on pull requests and in the merge queue alike. An item with jobs can be sent back as one `filters` entry of `dynamicCi.setPathsFilters`, with its `name`, `rules` and `jobs`. A job the web app gave one filter for pull requests and another for the merge queue is listed under both: sending both items back leaves it as is, and sending one alone is a conflict, since the job also has the other filter.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25,
+              "description": "Page size, between 1 and 100.",
+              "example": 25
+            },
+            "required": false,
+            "description": "Page size, between 1 and 100.",
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "Opaque cursor from a previous response's `nextCursor`. A cursor is bound to the operation and filter it was minted for.",
+              "example": "AQEKZm9vYmFy"
+            },
+            "required": false,
+            "description": "Opaque cursor from a previous response's `nextCursor`. A cursor is bound to the operation and filter it was minted for.",
+            "name": "cursor",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "description": "Set true to include `total` in the response. Costs an extra COUNT query, so it is off by default.",
+              "example": false
+            },
+            "required": false,
+            "description": "Set true to include `total` in the response. Costs an extra COUNT query, so it is off by default.",
+            "name": "includeTotal",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "default": "github.com",
+              "description": "`github.com` is the only supported value today.",
+              "example": "github.com"
+            },
+            "required": false,
+            "description": "`github.com` is the only supported value today.",
+            "name": "host",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "example": "acme"
+            },
+            "required": true,
+            "name": "owner",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "example": "widgets"
+            },
+            "required": true,
+            "name": "name",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of paths filters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PathsFilterWithJobsList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`VALIDATION_FAILED` | `INVALID_CURSOR` | `CI_HOST_UNSUPPORTED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "VALIDATION_FAILED": {
+                    "summary": "VALIDATION_FAILED",
+                    "value": {
+                      "error": {
+                        "code": "VALIDATION_FAILED",
+                        "message": "Invalid input: expected string, received undefined"
+                      }
+                    }
+                  },
+                  "INVALID_CURSOR": {
+                    "summary": "INVALID_CURSOR",
+                    "value": {
+                      "error": {
+                        "code": "INVALID_CURSOR",
+                        "message": "Invalid or expired cursor."
+                      }
+                    }
+                  },
+                  "CI_HOST_UNSUPPORTED": {
+                    "summary": "CI_HOST_UNSUPPORTED",
+                    "value": {
+                      "error": {
+                        "code": "CI_HOST_UNSUPPORTED",
+                        "message": "Dynamic CI does not support the repository host gitlab.example.com"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "AUTHENTICATION_REQUIRED": {
+                    "summary": "AUTHENTICATION_REQUIRED",
+                    "value": {
+                      "error": {
+                        "code": "AUTHENTICATION_REQUIRED",
+                        "message": "No credential was supplied"
+                      }
+                    }
+                  },
+                  "INVALID_TOKEN": {
+                    "summary": "INVALID_TOKEN",
+                    "value": {
+                      "error": {
+                        "code": "INVALID_TOKEN",
+                        "message": "The supplied token failed verification"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`REPOSITORY_NOT_FOUND`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "REPOSITORY_NOT_FOUND": {
+                    "summary": "REPOSITORY_NOT_FOUND",
+                    "value": {
+                      "error": {
+                        "code": "REPOSITORY_NOT_FOUND",
+                        "message": "Repository not found"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "RATE_LIMIT_EXCEEDED": {
+                    "summary": "RATE_LIMIT_EXCEEDED",
+                    "value": {
+                      "error": {
+                        "code": "RATE_LIMIT_EXCEEDED",
+                        "message": "Rate limit exceeded; retry with backoff"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INTERNAL_ERROR": {
+                    "summary": "INTERNAL_ERROR",
+                    "value": {
+                      "error": {
+                        "code": "INTERNAL_ERROR",
+                        "message": "An unexpected error occurred"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "dynamicCi.setPathsFilters",
+        "tags": ["dynamicCi"],
+        "summary": "Set or clear paths filters on jobs",
+        "description": "Requires the **Update Dynamic CI settings** permission.\n\nSets a paths filter on each job named in `filters`, and removes it from each job in `clear`. Name a job by its workflow file and its key under `jobs:`. Each filter applies to pull requests and the merge queue alike. A request names at most 500 jobs in all, across every `filters[].jobs` and `clear`.\n\nIt changes only the jobs it names. It never deletes a filter; one the request leaves with no jobs stays in the list, with no jobs. Sending the same body again changes nothing, so no `Idempotency-Key` is needed. A job that already has a different filter fails the request with `PATHS_FILTER_CONFLICT` unless `overwrite` is true. Any error means nothing was written.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetPathsFiltersRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "What the request did to each job",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetPathsFiltersResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`VALIDATION_FAILED` | `CI_HOST_UNSUPPORTED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "VALIDATION_FAILED": {
+                    "summary": "VALIDATION_FAILED",
+                    "value": {
+                      "error": {
+                        "code": "VALIDATION_FAILED",
+                        "message": "Invalid input: expected string, received undefined"
+                      }
+                    }
+                  },
+                  "CI_HOST_UNSUPPORTED": {
+                    "summary": "CI_HOST_UNSUPPORTED",
+                    "value": {
+                      "error": {
+                        "code": "CI_HOST_UNSUPPORTED",
+                        "message": "Dynamic CI does not support the repository host gitlab.example.com"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "AUTHENTICATION_REQUIRED": {
+                    "summary": "AUTHENTICATION_REQUIRED",
+                    "value": {
+                      "error": {
+                        "code": "AUTHENTICATION_REQUIRED",
+                        "message": "No credential was supplied"
+                      }
+                    }
+                  },
+                  "INVALID_TOKEN": {
+                    "summary": "INVALID_TOKEN",
+                    "value": {
+                      "error": {
+                        "code": "INVALID_TOKEN",
+                        "message": "The supplied token failed verification"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`INSUFFICIENT_PERMISSIONS`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INSUFFICIENT_PERMISSIONS": {
+                    "summary": "INSUFFICIENT_PERMISSIONS",
+                    "value": {
+                      "error": {
+                        "code": "INSUFFICIENT_PERMISSIONS",
+                        "message": "The supplied credential is missing the required permission"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`REPOSITORY_NOT_FOUND` | `CI_SCOPE_NOT_FOUND`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "REPOSITORY_NOT_FOUND": {
+                    "summary": "REPOSITORY_NOT_FOUND",
+                    "value": {
+                      "error": {
+                        "code": "REPOSITORY_NOT_FOUND",
+                        "message": "Repository not found"
+                      }
+                    }
+                  },
+                  "CI_SCOPE_NOT_FOUND": {
+                    "summary": "CI_SCOPE_NOT_FOUND",
+                    "value": {
+                      "error": {
+                        "code": "CI_SCOPE_NOT_FOUND",
+                        "message": "A workflow or job in the request does not belong to this repository"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "`PATHS_FILTER_CONFLICT`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "PATHS_FILTER_CONFLICT": {
+                    "summary": "PATHS_FILTER_CONFLICT",
+                    "value": {
+                      "error": {
+                        "code": "PATHS_FILTER_CONFLICT",
+                        "message": "1 job already has a different paths filter: .github/workflows/ci.yml test (job 3c4f8e21-6a1d-4b7e-9f02-5d8c1a2b3e4f, \"backend\"). Send \"overwrite\": true to replace them."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "RATE_LIMIT_EXCEEDED": {
+                    "summary": "RATE_LIMIT_EXCEEDED",
+                    "value": {
+                      "error": {
+                        "code": "RATE_LIMIT_EXCEEDED",
+                        "message": "Rate limit exceeded; retry with backoff"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INTERNAL_ERROR": {
+                    "summary": "INTERNAL_ERROR",
+                    "value": {
+                      "error": {
+                        "code": "INTERNAL_ERROR",
+                        "message": "An unexpected error occurred"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/test-collections": {
       "get": {
         "operationId": "testCollections.list",
@@ -14163,7 +15211,7 @@
         "operationId": "tests.list",
         "tags": ["tests"],
         "summary": "List and search tests",
-        "description": "Lists tests, by default across every test collection in your organization — pass `testCollectionId` to narrow to one. Each row carries the `id` to pass to the per-test endpoints.\n\n`q` searches name, file, class and parent as case-insensitive substrings. Several words are separate requirements, not a phrase — `q=flaky slow` returns tests matching both, in any position. It also accepts per-field qualifiers mixed freely with those words: `q=file:checkout flaky class:PaymentTest`. Qualifier keys are case-sensitive, and an unrecognized prefix is treated as literal text rather than guessed at.\n\nRows omit `quarantineOverride`, `activeMonitors`, `firstSeenAt` and `lastFailureAt` — fetch a single test for those.",
+        "description": "Lists tests, by default across every test collection in your organization — pass `testCollectionId` to narrow to one. Each row carries the `id` to pass to the per-test endpoints.\n\n`q` searches name, file, class and parent as case-insensitive substrings. Several words are separate requirements, not a phrase — `q=flaky slow` returns tests matching both, in any position. It also accepts per-field qualifiers mixed freely with those words: `q=file:checkout flaky class:PaymentTest`. Qualifier keys are case-sensitive, and an unrecognized prefix is treated as literal text rather than guessed at.\n\nRows omit `quarantineOverride`, `activeMonitors`, `manualFlag`, `firstSeenAt` and `lastFailureAt` — fetch a single test for those.",
         "parameters": [
           {
             "schema": {
@@ -14344,6 +15392,18 @@
             "required": false,
             "description": "Filter on effective quarantine state, derived from the test's status, its collection's quarantine settings and any per-test override.",
             "name": "quarantineState",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": ["alwaysQuarantine", "neverQuarantine", "any"],
+              "description": "Only tests with a quarantine override, as set by `POST /v2/tests/{testId}/quarantine`: `alwaysQuarantine` or `neverQuarantine` for one mode, `any` for either. Matches the mode of a test's `quarantineOverride`, so a cleared override matches nothing. It filters on the override alone, whether or not the test's collection has quarantining turned on; combine it with `quarantineState` for the effective state.",
+              "example": "neverQuarantine"
+            },
+            "required": false,
+            "description": "Only tests with a quarantine override, as set by `POST /v2/tests/{testId}/quarantine`: `alwaysQuarantine` or `neverQuarantine` for one mode, `any` for either. Matches the mode of a test's `quarantineOverride`, so a cleared override matches nothing. It filters on the override alone, whether or not the test's collection has quarantining turned on; combine it with `quarantineState` for the effective state.",
+            "name": "quarantineOverride",
             "in": "query"
           },
           {
@@ -15036,7 +16096,7 @@
         "operationId": "detectionEvents.list",
         "tags": ["detectionEvents"],
         "summary": "List detection events",
-        "description": "Lists each verdict a monitor recorded on a test: `active` when it detected the condition it watches for, `inactive` when the test recovered or the monitor was disabled or deleted. By default it reads every test collection in your organization; pass `testCollectionId` to narrow to one.\n\nThe window is `detectedAfter` to `detectedBefore`, at most 30 days. `detectedBefore` defaults to now and `detectedAfter` to 30 days before it. A wider window is a `400 OUT_OF_RANGE`.\n\nAn unknown `monitorId` or `testId` returns an empty page. The 'flag as flaky' mark is not listed here: see a test's status history.",
+        "description": "Lists each verdict a monitor recorded on a test: `active` when it detected the condition it watches for, `inactive` when the test recovered or the monitor was disabled or deleted. An `active` event whose `deactivationReason` is `classifyActionChanged` records a change to the monitor's classify action, not a detection. By default it reads every test collection in your organization; pass `testCollectionId` to narrow to one.\n\nThe window is `detectedAfter` to `detectedBefore`, at most 30 days. `detectedBefore` defaults to now and `detectedAfter` to 30 days before it. A wider window is a `400 OUT_OF_RANGE`.\n\nAn unknown `monitorId` or `testId` returns an empty page. The 'flag as flaky' mark is not listed here: see a test's status history.",
         "parameters": [
           {
             "schema": {
@@ -15761,6 +16821,364 @@
         }
       }
     },
+    "/v2/tests/{testId}/add-labels": {
+      "post": {
+        "operationId": "tests.addLabels",
+        "tags": ["tests"],
+        "summary": "Add labels to a test",
+        "description": "Requires the **Flag tests** permission.\n\nApplies each named label to the test by hand. A name with no label in the organization creates the label, colored `#6366F1` with no description; an admin can change both in the web app's organization settings. A label already applied by hand is left as it is. A label a monitor applies gets a `user` source beside the monitor's.\n\nAnswers the test's labels after the change, in the shape of `Test.labels`, read in the same transaction as the write.\n\nA label changes no status, so this sends no webhook and does not reconcile the test.\n\nThe `labels` filter of `GET /v2/tests` reads a copy of the assignments that lags by a minute or two, so a test can be missing from (or still in) a label's results that long after this answers. The labels on each test, here and on every read, are current.\n\nThe change is recorded as made by the person whose token made the call. An API token is recorded as no one: its source reads `user: null`.\n\n`Idempotency-Key` is not honored. The change is idempotent by state, so a request whose outcome is unknown (a `504` or a dropped connection) is safe to send again.\n\nA test in another organization is reported as `404`, not `403`.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The test's globally unique id.",
+              "example": "bfeebcf4-0000-8000-8000-000000000001"
+            },
+            "required": true,
+            "description": "The test's globally unique id.",
+            "name": "testId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestLabelsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The test's labels after the change",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestLabels"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "VALIDATION_FAILED": {
+                    "summary": "VALIDATION_FAILED",
+                    "value": {
+                      "error": {
+                        "code": "VALIDATION_FAILED",
+                        "message": "Invalid input: expected string, received undefined"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "AUTHENTICATION_REQUIRED": {
+                    "summary": "AUTHENTICATION_REQUIRED",
+                    "value": {
+                      "error": {
+                        "code": "AUTHENTICATION_REQUIRED",
+                        "message": "No credential was supplied"
+                      }
+                    }
+                  },
+                  "INVALID_TOKEN": {
+                    "summary": "INVALID_TOKEN",
+                    "value": {
+                      "error": {
+                        "code": "INVALID_TOKEN",
+                        "message": "The supplied token failed verification"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`INSUFFICIENT_PERMISSIONS`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INSUFFICIENT_PERMISSIONS": {
+                    "summary": "INSUFFICIENT_PERMISSIONS",
+                    "value": {
+                      "error": {
+                        "code": "INSUFFICIENT_PERMISSIONS",
+                        "message": "The supplied credential is missing the required permission"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`TEST_NOT_FOUND`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "TEST_NOT_FOUND": {
+                    "summary": "TEST_NOT_FOUND",
+                    "value": {
+                      "error": {
+                        "code": "TEST_NOT_FOUND",
+                        "message": "Test not found"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "RATE_LIMIT_EXCEEDED": {
+                    "summary": "RATE_LIMIT_EXCEEDED",
+                    "value": {
+                      "error": {
+                        "code": "RATE_LIMIT_EXCEEDED",
+                        "message": "Rate limit exceeded; retry with backoff"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INTERNAL_ERROR": {
+                    "summary": "INTERNAL_ERROR",
+                    "value": {
+                      "error": {
+                        "code": "INTERNAL_ERROR",
+                        "message": "An unexpected error occurred"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/tests/{testId}/remove-labels": {
+      "post": {
+        "operationId": "tests.removeLabels",
+        "tags": ["tests"],
+        "summary": "Remove labels from a test",
+        "description": "Requires the **Flag tests** permission.\n\nRemoves each named label's hand-applied source from the test. A label a monitor also applies stays on the test, with only its `monitor` sources, until the monitor stops applying it; mute the monitor for the test to stop it sooner. A name the organization has no label for, or one not applied to this test by hand, is ignored. Labels themselves are not deleted.\n\nAnswers the test's labels after the change, in the shape of `Test.labels`, read in the same transaction as the write.\n\nA label changes no status, so this sends no webhook and does not reconcile the test.\n\nThe `labels` filter of `GET /v2/tests` reads a copy of the assignments that lags by a minute or two, so a test can be missing from (or still in) a label's results that long after this answers. The labels on each test, here and on every read, are current.\n\nThe change is recorded as made by the person whose token made the call. An API token is recorded as no one: its source reads `user: null`.\n\n`Idempotency-Key` is not honored. The change is idempotent by state, so a request whose outcome is unknown (a `504` or a dropped connection) is safe to send again.\n\nA test in another organization is reported as `404`, not `403`.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The test's globally unique id.",
+              "example": "bfeebcf4-0000-8000-8000-000000000001"
+            },
+            "required": true,
+            "description": "The test's globally unique id.",
+            "name": "testId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestLabelsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The test's labels after the change",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestLabels"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "VALIDATION_FAILED": {
+                    "summary": "VALIDATION_FAILED",
+                    "value": {
+                      "error": {
+                        "code": "VALIDATION_FAILED",
+                        "message": "Invalid input: expected string, received undefined"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "AUTHENTICATION_REQUIRED": {
+                    "summary": "AUTHENTICATION_REQUIRED",
+                    "value": {
+                      "error": {
+                        "code": "AUTHENTICATION_REQUIRED",
+                        "message": "No credential was supplied"
+                      }
+                    }
+                  },
+                  "INVALID_TOKEN": {
+                    "summary": "INVALID_TOKEN",
+                    "value": {
+                      "error": {
+                        "code": "INVALID_TOKEN",
+                        "message": "The supplied token failed verification"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`INSUFFICIENT_PERMISSIONS`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INSUFFICIENT_PERMISSIONS": {
+                    "summary": "INSUFFICIENT_PERMISSIONS",
+                    "value": {
+                      "error": {
+                        "code": "INSUFFICIENT_PERMISSIONS",
+                        "message": "The supplied credential is missing the required permission"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`TEST_NOT_FOUND`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "TEST_NOT_FOUND": {
+                    "summary": "TEST_NOT_FOUND",
+                    "value": {
+                      "error": {
+                        "code": "TEST_NOT_FOUND",
+                        "message": "Test not found"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "RATE_LIMIT_EXCEEDED": {
+                    "summary": "RATE_LIMIT_EXCEEDED",
+                    "value": {
+                      "error": {
+                        "code": "RATE_LIMIT_EXCEEDED",
+                        "message": "Rate limit exceeded; retry with backoff"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INTERNAL_ERROR": {
+                    "summary": "INTERNAL_ERROR",
+                    "value": {
+                      "error": {
+                        "code": "INTERNAL_ERROR",
+                        "message": "An unexpected error occurred"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/test-collections/{id}/uploads": {
       "post": {
         "operationId": "testCollections.createUpload",
@@ -16078,6 +17496,386 @@
                       "error": {
                         "code": "INTERNAL_ERROR",
                         "message": "An unexpected error occurred"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/tests/{testId}/mark-flaky": {
+      "post": {
+        "operationId": "tests.markFlaky",
+        "tags": ["tests"],
+        "summary": "Mark a test flaky",
+        "description": "Requires the **Flag tests** permission.\n\nMarks a test flaky by hand, as Flag as Flaky does in the web app, and returns the test with `manualFlag` set. Takes no body. Marking a test that is already marked changes nothing and returns it as it is.\n\nThe mark is not a status override. It counts as one more monitor classifying the test as flaky, so `status` is reconciled across every active monitor and a monitor classifying the test as broken still wins. The answer is the test after that reconcile.\n\nA status change this causes sends the same customer webhooks as one made in the web app or by a monitor. That is deliberate: a consumer must hear about every status change, whatever made it.\n\nA collection whose settings let only admins flag tests as flaky refuses anyone else with `INSUFFICIENT_PERMISSIONS`. An API token made on the API Keys page passes that check, since only an admin can make one or give it this permission; the organization's legacy API token does not, since every member can see it.\n\nThe change is recorded as made by the API token, or by the person whose token made the call.\n\nA `500 INTERNAL_ERROR` says in its message whether the test was put back as it was. A `503 TEST_UNAVAILABLE` means the change was made but the test could not be read back in time; read it with `GET /v2/tests/{testId}` rather than treating the change as failed.\n\n`Idempotency-Key` is not honored. The change is idempotent by state, so a request whose outcome is unknown (a `504` or a dropped connection) is safe to send again.\n\nA test in another organization is reported as `404`, not `403`.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The test's globally unique id.",
+              "example": "bfeebcf4-0000-8000-8000-000000000001"
+            },
+            "required": true,
+            "description": "The test's globally unique id.",
+            "name": "testId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The test, after the reconcile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Test"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "VALIDATION_FAILED": {
+                    "summary": "VALIDATION_FAILED",
+                    "value": {
+                      "error": {
+                        "code": "VALIDATION_FAILED",
+                        "message": "Invalid input: expected string, received undefined"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "AUTHENTICATION_REQUIRED": {
+                    "summary": "AUTHENTICATION_REQUIRED",
+                    "value": {
+                      "error": {
+                        "code": "AUTHENTICATION_REQUIRED",
+                        "message": "No credential was supplied"
+                      }
+                    }
+                  },
+                  "INVALID_TOKEN": {
+                    "summary": "INVALID_TOKEN",
+                    "value": {
+                      "error": {
+                        "code": "INVALID_TOKEN",
+                        "message": "The supplied token failed verification"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`INSUFFICIENT_PERMISSIONS`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INSUFFICIENT_PERMISSIONS": {
+                    "summary": "INSUFFICIENT_PERMISSIONS",
+                    "value": {
+                      "error": {
+                        "code": "INSUFFICIENT_PERMISSIONS",
+                        "message": "The supplied credential is missing the required permission"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`TEST_NOT_FOUND`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "TEST_NOT_FOUND": {
+                    "summary": "TEST_NOT_FOUND",
+                    "value": {
+                      "error": {
+                        "code": "TEST_NOT_FOUND",
+                        "message": "Test not found"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "RATE_LIMIT_EXCEEDED": {
+                    "summary": "RATE_LIMIT_EXCEEDED",
+                    "value": {
+                      "error": {
+                        "code": "RATE_LIMIT_EXCEEDED",
+                        "message": "Rate limit exceeded; retry with backoff"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INTERNAL_ERROR": {
+                    "summary": "INTERNAL_ERROR",
+                    "value": {
+                      "error": {
+                        "code": "INTERNAL_ERROR",
+                        "message": "An unexpected error occurred"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "`TEST_UNAVAILABLE`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "TEST_UNAVAILABLE": {
+                    "summary": "TEST_UNAVAILABLE",
+                    "value": {
+                      "error": {
+                        "code": "TEST_UNAVAILABLE",
+                        "message": "The change was saved, but the test could not be read back; read it again"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/tests/{testId}/unmark-flaky": {
+      "post": {
+        "operationId": "tests.unmarkFlaky",
+        "tags": ["tests"],
+        "summary": "Clear a test's flaky mark",
+        "description": "Requires the **Flag tests** permission.\n\nClears a flaky mark set by hand and returns the test with `manualFlag` null. Takes no body. A monitor still classifying the test keeps its status. Unmarking a test that is not marked changes nothing and returns it as it is.\n\nThe mark is not a status override. It counts as one more monitor classifying the test as flaky, so `status` is reconciled across every active monitor and a monitor classifying the test as broken still wins. The answer is the test after that reconcile.\n\nA status change this causes sends the same customer webhooks as one made in the web app or by a monitor. That is deliberate: a consumer must hear about every status change, whatever made it.\n\nA collection whose settings let only admins flag tests as flaky refuses anyone else with `INSUFFICIENT_PERMISSIONS`. An API token made on the API Keys page passes that check, since only an admin can make one or give it this permission; the organization's legacy API token does not, since every member can see it.\n\nThe change is recorded as made by the API token, or by the person whose token made the call.\n\nA `500 INTERNAL_ERROR` says in its message whether the test was put back as it was. A `503 TEST_UNAVAILABLE` means the change was made but the test could not be read back in time; read it with `GET /v2/tests/{testId}` rather than treating the change as failed.\n\n`Idempotency-Key` is not honored. The change is idempotent by state, so a request whose outcome is unknown (a `504` or a dropped connection) is safe to send again.\n\nA test in another organization is reported as `404`, not `403`.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The test's globally unique id.",
+              "example": "bfeebcf4-0000-8000-8000-000000000001"
+            },
+            "required": true,
+            "description": "The test's globally unique id.",
+            "name": "testId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The test, after the reconcile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Test"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "VALIDATION_FAILED": {
+                    "summary": "VALIDATION_FAILED",
+                    "value": {
+                      "error": {
+                        "code": "VALIDATION_FAILED",
+                        "message": "Invalid input: expected string, received undefined"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "AUTHENTICATION_REQUIRED": {
+                    "summary": "AUTHENTICATION_REQUIRED",
+                    "value": {
+                      "error": {
+                        "code": "AUTHENTICATION_REQUIRED",
+                        "message": "No credential was supplied"
+                      }
+                    }
+                  },
+                  "INVALID_TOKEN": {
+                    "summary": "INVALID_TOKEN",
+                    "value": {
+                      "error": {
+                        "code": "INVALID_TOKEN",
+                        "message": "The supplied token failed verification"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`INSUFFICIENT_PERMISSIONS`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INSUFFICIENT_PERMISSIONS": {
+                    "summary": "INSUFFICIENT_PERMISSIONS",
+                    "value": {
+                      "error": {
+                        "code": "INSUFFICIENT_PERMISSIONS",
+                        "message": "The supplied credential is missing the required permission"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`TEST_NOT_FOUND`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "TEST_NOT_FOUND": {
+                    "summary": "TEST_NOT_FOUND",
+                    "value": {
+                      "error": {
+                        "code": "TEST_NOT_FOUND",
+                        "message": "Test not found"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "RATE_LIMIT_EXCEEDED": {
+                    "summary": "RATE_LIMIT_EXCEEDED",
+                    "value": {
+                      "error": {
+                        "code": "RATE_LIMIT_EXCEEDED",
+                        "message": "Rate limit exceeded; retry with backoff"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INTERNAL_ERROR": {
+                    "summary": "INTERNAL_ERROR",
+                    "value": {
+                      "error": {
+                        "code": "INTERNAL_ERROR",
+                        "message": "An unexpected error occurred"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "`TEST_UNAVAILABLE`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "TEST_UNAVAILABLE": {
+                    "summary": "TEST_UNAVAILABLE",
+                    "value": {
+                      "error": {
+                        "code": "TEST_UNAVAILABLE",
+                        "message": "The change was saved, but the test could not be read back; read it again"
                       }
                     }
                   }

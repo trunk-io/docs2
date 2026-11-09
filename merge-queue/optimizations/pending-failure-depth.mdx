@@ -24,6 +24,8 @@ A group in Pending Failure always waits for predecessor groups (the PRs ahead of
 
 This predecessor-waiting happens regardless of the Pending Failure Depth setting.
 
+If the queue accepts re-runs, a group's failed checks can be [re-run](../using-the-queue/rerun-failed-checks) while it waits in Pending Failure.
+
 ### Waiting for Successors (Controlled by Pending Failure Depth)
 
 **Pending Failure Depth** is a configuration value (integer, default 0) that controls how many levels of **successor** test runs (PRs behind the failed group in the queue) the system also waits on before transitioning the group out of the Pending Failure state.

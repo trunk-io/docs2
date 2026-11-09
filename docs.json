@@ -139,6 +139,7 @@
                   "merge-queue/using-the-queue/stacked-pull-requests",
                   "merge-queue/using-the-queue/monitor-queue-status",
                   "merge-queue/using-the-queue/handle-failed-pull-requests",
+                  "merge-queue/using-the-queue/rerun-failed-checks",
                   "merge-queue/using-the-queue/emergency-pull-requests",
                   "merge-queue/using-the-queue/api"
                 ]
@@ -788,6 +789,7 @@
                   "POST /v2/pull-requests/{id}/reprioritize",
                   "PATCH /v2/pull-requests/{id}/queue-entry",
                   "POST /v2/pull-requests/{id}/restart-tests",
+                  "POST /v2/pull-requests/{id}/rerun-failed-checks",
                   "POST /v2/pull-requests/{id}/dequeue",
                   "GET /v2/pull-requests/{id}/queue-entry-history",
                   "GET /v2/queue-entry-history",
@@ -970,6 +972,7 @@
               {
                 "group": "November",
                 "pages": [
+                  "changelog/2026-11-09-merge-queue-rerun-failed-checks",
                   "changelog/2026-11-04-dynamic-ci-impacts-and-action-updates",
                   "changelog/2026-11-03-code-quality-cli-1-29-0"
                 ]

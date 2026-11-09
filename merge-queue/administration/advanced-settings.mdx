@@ -306,6 +306,25 @@ When set to **0** (default), the successor check is skipped and groups transitio
 
 ***
 
+## Accept Manual Re-runs of Failed Required Checks
+
+> Toggle this feature **Enabled** or **Disabled**. Default is **Disabled**.
+
+When enabled, a pull request in Pending Failure is tested again when its failed required checks are re-run, without resubmitting it. A failed test run's CI keeps running until the pull request leaves Pending Failure. See [Re-run failed checks](../using-the-queue/rerun-failed-checks).
+
+<Frame caption="Both settings are under General.">
+<img className="block dark:hidden" src="/assets/merge-queue/using-the-queue/rerun-settings-light.png" alt="The Accept Manual Re-runs of Failed Required Checks setting, enabled, and the Re-run Time Limit set to 30 minutes." />
+<img className="hidden dark:block" src="/assets/merge-queue/using-the-queue/rerun-settings-dark.png" alt="The Accept Manual Re-runs of Failed Required Checks setting, enabled, and the Re-run Time Limit set to 30 minutes." />
+</Frame>
+
+### Re-run Time Limit
+
+> Options are **10**, **15**, **30** (default), **45**, and **60** minutes, or **Custom** (1 to 60).
+
+How long Trunk waits for a re-run requested from Trunk to start. Pull requests behind it wait to merge for up to this long. Shown when **Accept Manual Re-runs of Failed Required Checks** is enabled.
+
+***
+
 ## Draft pull request creation
 
 > Toggle this feature **Enabled** or **Disabled**. Default is **Enabled**.

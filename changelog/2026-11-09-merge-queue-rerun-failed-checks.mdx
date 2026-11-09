@@ -1,0 +1,17 @@
+---
+title: "Merge Queue: Re-run failed checks"
+description: "Re-run a pull request's failed checks without resubmitting it or losing its place in the queue."
+date: 2026-11-09
+category: Merge Queue
+type: new-feature
+---
+
+**Re-run a failed check without losing your place in the queue.**
+
+When a required check fails, re-run the failed checks instead of resubmitting. The pull request is tested again and keeps its place in the queue.
+
+- **From Trunk.** Click **Re-run failed checks** to re-run failed GitHub Actions jobs, now or when their workflow finishes.
+- **From your CI.** Re-run the failed checks yourself, in any CI that reports to GitHub.
+- **Opt-in.** Turn on **Accept Manual Re-runs of Failed Required Checks** in your queue's **Settings**, or through the [API](/api/mergequeues/update-a-merge-queues-configuration).
+
+See [Re-run failed checks](/merge-queue/using-the-queue/rerun-failed-checks) for details.
