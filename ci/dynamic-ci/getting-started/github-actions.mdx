@@ -132,74 +132,108 @@ beside the job's own output, and read it in the matrix. Which output depends on
 how the matrix is written. When nothing is skipped, the output is empty and the
 `||` fallback keeps your own matrix.
 
-**A matrix with axes** (keys with lists of values) reads `<job>-exclude` as its
-`exclude`:
+<Tabs>
+  <Tab title="Matrix with axes">
+    For a matrix written as keys with lists of values, read `<job>-exclude` as the
+    matrix's `exclude`:
 
-```yaml
-jobs:
-  dynamic-ci:
-    # ...
-    outputs:
-      test: ${{ steps.dynamic-ci.outputs.test }}
-      test-exclude: ${{ steps.dynamic-ci.outputs.test-exclude }}
+    ```yaml
+    jobs:
+      dynamic-ci:
+        # ...
+        outputs:
+          test: ${{ steps.dynamic-ci.outputs.test }}
+          test-exclude: ${{ steps.dynamic-ci.outputs.test-exclude }}
 
-  test:
-    needs: [dynamic-ci]
-    if: >-
-      !cancelled() &&
-      needs.dynamic-ci.outputs.test != 'false'
-    name: Test (${{ matrix.os }}, node ${{ matrix.node }})
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-14]
-        node: [18, 20]
-        exclude: ${{ fromJSON(needs.dynamic-ci.outputs.test-exclude || '[]') }}
-```
+      test:
+        needs: [dynamic-ci]
+        if: >-
+          !cancelled() &&
+          needs.dynamic-ci.outputs.test != 'false'
+        name: Test (${{ matrix.os }}, node ${{ matrix.node }})
+        strategy:
+          matrix:
+            os: [ubuntu-latest, macos-14]
+            node: [18, 20]
+            exclude: ${{ fromJSON(needs.dynamic-ci.outputs.test-exclude || '[]') }}
+    ```
 
-GitHub takes a single `exclude` value. If the matrix already excludes some
-combinations, move them into the fallback as JSON, such as
-`'[{"os":"macos-14","node":18}]'`. Trunk keeps them in every list it sends.
+    GitHub takes a single `exclude` value. If the matrix already excludes some
+    combinations, move them into the fallback as JSON. Trunk keeps them in every
+    list it sends:
 
-**A matrix written as an `include:` list of rows** can't use `exclude`, because
-GitHub applies `exclude` before `include`. Write the rows as a JSON literal and
-read `<job>-matrix` in its place. The output holds the rows that run, each
-exactly as you wrote it, so job names don't change:
+    ```yaml
+    exclude: ${{ fromJSON(needs.dynamic-ci.outputs.test-exclude || '[{"os":"macos-14","node":18}]') }}
+    ```
+  </Tab>
 
-```yaml
-unit-tests:
-  # needs and if as above
-  name: Unit tests (${{ matrix.suite }})
-  strategy:
-    matrix: ${{ fromJSON(needs.dynamic-ci.outputs.unit-tests-matrix || '{"include":[{"suite":"packages"},{"suite":"apps"},{"suite":"frontend"}]}') }}
-```
+  <Tab title="List of rows">
+    A matrix written as an `include:` list of rows can't use `exclude`, because
+    GitHub applies `exclude` before `include`. Write the rows as a JSON literal and
+    read `<job>-matrix` in its place:
 
-**Rows built by a planner job** go to the action's `matrices` input, so the
-Dynamic CI job runs after the planner. Pass the planner's output unchanged, as
-the job's whole matrix, and read `<job>-include`:
+    ```yaml
+    jobs:
+      dynamic-ci:
+        # ...
+        outputs:
+          unit-tests: ${{ steps.dynamic-ci.outputs.unit-tests }}
+          unit-tests-matrix: ${{ steps.dynamic-ci.outputs.unit-tests-matrix }}
 
-```yaml
-jobs:
-  dynamic-ci:
-    needs: [plan]
-    # ...
-    steps:
-      - id: dynamic-ci
-        uses: trunk-io/dynamic-ci@v1
-        with:
-          token: ${{ secrets.TRUNK_API_TOKEN }}
-          matrices: >-
-            {"tests": ${{ needs.plan.outputs.rows || '[]' }}}
+      unit-tests:
+        needs: [dynamic-ci]
+        if: >-
+          !cancelled() &&
+          needs.dynamic-ci.outputs.unit-tests != 'false'
+        name: Unit tests (${{ matrix.suite }})
+        strategy:
+          matrix: ${{ fromJSON(needs.dynamic-ci.outputs.unit-tests-matrix || '{"include":[{"suite":"packages"},{"suite":"apps"},{"suite":"frontend"}]}') }}
+    ```
 
-  tests:
-    needs: [plan, dynamic-ci]
-    # if as above
-    strategy:
-      matrix:
-        include: ${{ fromJSON(needs.dynamic-ci.outputs.tests-include || needs.plan.outputs.rows) }}
-```
+    The output holds the rows that run, each exactly as you wrote it, so job names
+    don't change.
+  </Tab>
 
-For planner rows, the keys you choose also define what a variation is, so
-changing them later starts every group's history over.
+  <Tab title="Rows from a planner job">
+    When an earlier job builds the matrix at run time, give its rows to the
+    action's `matrices` input, so the Dynamic CI job runs after the planner. Then
+    read `<job>-include` as the matrix's `include`:
+
+    ```yaml
+    jobs:
+      dynamic-ci:
+        needs: [plan]
+        # ...
+        outputs:
+          tests: ${{ steps.dynamic-ci.outputs.tests }}
+          tests-include: ${{ steps.dynamic-ci.outputs.tests-include }}
+        steps:
+          # ...
+          - id: dynamic-ci
+            uses: trunk-io/dynamic-ci@v1
+            with:
+              token: ${{ secrets.TRUNK_API_TOKEN }}
+              matrices: >-
+                {"tests": ${{ needs.plan.outputs.rows || '[]' }}}
+
+      tests:
+        needs: [plan, dynamic-ci]
+        if: >-
+          !cancelled() &&
+          needs.dynamic-ci.outputs.tests != 'false'
+        strategy:
+          matrix:
+            include: ${{ fromJSON(needs.dynamic-ci.outputs.tests-include || needs.plan.outputs.rows) }}
+    ```
+
+    - Pass the planner's output unchanged, and make it the job's whole matrix,
+      with no other keys beside `include:`.
+    - Use `<job>-matrix` instead if the job reads a whole matrix object at
+      `strategy.matrix`.
+    - The keys you choose also define what a variation is, so changing them later
+      starts every group's history over.
+  </Tab>
+</Tabs>
 
 ### Check that it works
 
