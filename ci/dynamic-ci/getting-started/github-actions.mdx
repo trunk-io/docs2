@@ -133,7 +133,7 @@ how the matrix is written. When nothing is skipped, the output is empty and the
 `||` fallback keeps your own matrix.
 
 <Tabs>
-  <Tab title="Matrix with axes">
+  <Tab title="Axis">
     For a matrix written as keys with lists of values, read `<job>-exclude` as the
     matrix's `exclude`:
 
@@ -167,7 +167,7 @@ how the matrix is written. When nothing is skipped, the output is empty and the
     ```
   </Tab>
 
-  <Tab title="List of rows">
+  <Tab title="Fixed-include">
     A matrix written as an `include:` list of rows can't use `exclude`, because
     GitHub applies `exclude` before `include`. Write the rows as a JSON literal and
     read `<job>-matrix` in its place:
@@ -194,7 +194,7 @@ how the matrix is written. When nothing is skipped, the output is empty and the
     don't change.
   </Tab>
 
-  <Tab title="Rows from a planner job">
+  <Tab title="Dynamic-include">
     When an earlier job builds the matrix at run time, give its rows to the
     action's `matrices` input, so the Dynamic CI job runs after the planner. Then
     read `<job>-include` as the matrix's `include`:

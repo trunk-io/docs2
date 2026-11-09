@@ -52,14 +52,15 @@ jobs:
 ## Matrix outputs
 
 A matrix job [decided by variation](/ci/dynamic-ci/configuration/matrices) can
-also get one of these outputs (v1.1.0 or later). Each is set only when some
-variations are skipped and others run.
+also get one of these outputs (v1.1.0 or later), depending on [how its matrix is
+written](/ci/dynamic-ci/getting-started/github-actions#read-the-variations-to-run).
+Each is set only when some variations are skipped and others run.
 
 | Output | Value | Read it at |
 | --- | --- | --- |
-| `<job>-exclude` | A JSON list of the skipped combinations, after your own exclusions | `strategy.matrix.exclude`, for a matrix with axes |
-| `<job>-matrix` | A JSON object, `{"include": [...]}`, of the rows that run | `strategy.matrix`, for a matrix written as rows |
-| `<job>-include` | A JSON list of the rows that run | `strategy.matrix.include`, for rows from a planner job |
+| `<job>-exclude` | A JSON list of the skipped combinations, after your own exclusions | `strategy.matrix.exclude`, for an Axis matrix |
+| `<job>-matrix` | A JSON object, `{"include": [...]}`, of the rows that run | `strategy.matrix`, for a Fixed-include matrix |
+| `<job>-include` | A JSON list of the rows that run | `strategy.matrix.include`, for a Dynamic-include matrix |
 
 When every variation is skipped, `<job>` is `'false'` and the job is skipped
 whole.
