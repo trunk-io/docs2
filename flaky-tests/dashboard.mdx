@@ -68,7 +68,7 @@ Three charts show movement by day:
 * **Test Status Changes** — one bar per day, split by what tests changed *to*: **Newly Flaky**, **Newly Broken**, and **Recovered**. This counts transitions rather than totals, so a test that becomes flaky and recovers in the same window appears in both series.
 * **Quarantined Runs** — runs of quarantined tests per day.
 
-Beneath them, a filter bar — branch, code owner, and, unique to collections, repository, since a collection can span several — applies to three tables: **Top 10 Most Unstable Tests**, **Top 10 Longest-Running Tests**, and **Top 10 Longest-Manually-Quarantined Tests**. Every row links to that test's details. A linked-repositories band lists the repositories that have uploaded to the collection.
+Beneath them, a filter bar — branch, code owner, and, unique to collections, repository, since a collection can span several — applies to three tables: **Top 10 Most Unstable Tests**, **Top 10 Longest-Running Tests**, and **Top 10 Longest-Manually-Quarantined Tests**. Every row links to that test's details. **Last Seen** in the Most Unstable and Longest-Manually-Quarantined tables is the time of the test's most recent run, skipped runs excluded; you can find that run in the test's [Test History tab](#test-history-tab). A linked-repositories band lists the repositories that have uploaded to the collection.
 
 <Note>
 A collection's metrics begin at its first upload — there is no backfill — so a correctly configured collection can still look empty for a day.
