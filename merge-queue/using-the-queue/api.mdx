@@ -91,6 +91,10 @@ Trunk refuses a choice with `422 PR_NOT_ENQUEUEABLE`, and the reason in `message
 
 List order is not queue order. A queue's pull request list is ordered by when each pull request was first submitted to the queue, newest first, and a resubmission doesn't move it. For the order the queue will test pull requests in, use [`GET /v2/merge-queues/{id}/order`](/api/mergequeues/get-a-merge-queues-dispatch-order). Its lists carry only each pull request's `id`, `number`, `title`, `sha`, and `url`. For state or priority, match by `id` against `GET /v2/merge-queues/{id}/pull-requests?state=pending,testing,testsPassed,pendingFailure`.
 
+## Re-run failed checks
+
+`POST /v2/pull-requests/{id}/rerun-failed-checks` re-runs a pull request's failed GitHub Actions jobs while it is in Pending Failure, keeping its place in the queue. See [Re-run failed checks](./rerun-failed-checks) for when it applies and the [reference](/api/pullrequests/re-run-a-pull-requests-failed-checks) for its errors.
+
 ## Retrying
 
 Writes don't honor `Idempotency-Key` yet. A write that times out or returns a `5xx` has an unknown outcome, so read the resource back before you retry it. A blind retry can, for example, restart a pull request's tests twice. Some writes, such as `PATCH …/config` and `PUT /v2/impacted-targets`, set a value and are safe to repeat. See [Status codes and errors](/api/errors#retrying).
