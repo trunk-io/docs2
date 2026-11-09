@@ -1,0 +1,19 @@
+---
+title: "Merge Queue: Choose a merge method per pull request"
+description: "Let each pull request pick squash, rebase, or a merge commit, plus scoped API keys for Dynamic CI and a Last Seen column on the Flaky Tests dashboard."
+date: 2026-11-09
+category: Merge Queue
+type: new-feature
+---
+
+**Pull requests can now pick their own merge method.** This week also brings scoped API keys for Dynamic CI and a clearer **Last Seen** column in Flaky Tests.
+
+### New features
+
+- **Merge method per pull request.** Turn on **Allow choosing a merge method per pull request** in **Settings** → **General** for a queue. Whoever submits a PR can then choose squash, rebase, or a merge commit from the Trunk web app, with `/trunk merge --merge-method=rebase`, or with `mergeMethod` in the API. PRs that don't choose keep the queue's default. See [Choosing a merge method per pull request](/merge-queue/administration/advanced-settings#choosing-a-merge-method-per-pull-request).
+- **Clear refusals.** If a method isn't allowed, such as when the branch's rulesets block it, Trunk refuses it and tells you why. Through the API, Trunk returns `422 PR_NOT_ENQUEUEABLE` with the reason. See [Merge method in the API](/merge-queue/using-the-queue/api#merge-method).
+
+### Updates
+
+- **Dynamic CI uses API keys.** Authenticate the GitHub Action and Buildkite plugin with a Trunk [API key](/api/authentication#create-an-api-key) instead of the organization token. The key needs no permissions. See [Get started with Dynamic CI](/ci/dynamic-ci/getting-started).
+- **Last Seen on the Flaky Tests dashboard.** The **Top 10 Most Unstable Tests** and **Top 10 Longest-Manually-Quarantined Tests** tables show when each test last ran, skipped runs excluded. Hover for the exact time. See the [dashboard](/flaky-tests/dashboard).
