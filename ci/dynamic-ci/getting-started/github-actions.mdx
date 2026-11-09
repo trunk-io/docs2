@@ -97,3 +97,120 @@ When your workflow files are updated and start calling into Dynamic CI a backgro
 
 1. Open a pull request. The **Dynamic CI's** verdict will be reported on each pull request under the dynamic ci tab. Additionally you can see all decisions made by the system in the [Dynamic CI page](https://app.trunk.io/dynamic-ci).
 2. Your repository starts in **Learning** mode, which records verdicts but will not actively skip anything. Once the recommendations look right you can  [turn on enforcement](/ci/dynamic-ci/configuration/mode).
+
+## Matrix jobs
+
+A matrix job runs or skips as a whole unless you
+[decide it by variation](/ci/dynamic-ci/configuration/matrices). Once you have,
+make the two changes below. They need `trunk-io/dynamic-ci` v1.1.0 or later;
+`@v1` picks it up.
+
+### Require one check per job
+
+A skipped variation never reports a status. If branch protection requires each
+variation's check, such as `Test (macos-14)`, a pull request that skips it waits
+forever on **Expected — Waiting for status to be reported**.
+
+Add one job that always runs after the matrix and passes when the matrix passed
+or was skipped, and make it the required check in place of the per-variation
+checks. Don't gate this job with Dynamic CI.
+
+```yaml
+test-pass: # make this the required check
+  needs: [test]
+  if: ${{ !cancelled() }}
+  runs-on: ubuntu-latest
+  steps:
+    - run: '[[ "${{ needs.test.result }}" =~ ^(success|skipped)$ ]]'
+```
+
+### Read the variations to run
+
+For an opted-in job, the action sets one more output, which leaves the skipped
+variations out of the matrix. Re-export it from the Dynamic CI job's `outputs:`
+beside the job's own output, and read it in the matrix. Which output depends on
+how the matrix is written. When nothing is skipped, the output is empty and the
+`||` fallback keeps your own matrix.
+
+**A matrix with axes** (keys with lists of values) reads `<job>-exclude` as its
+`exclude`:
+
+```yaml
+jobs:
+  dynamic-ci:
+    # ...
+    outputs:
+      test: ${{ steps.dynamic-ci.outputs.test }}
+      test-exclude: ${{ steps.dynamic-ci.outputs.test-exclude }}
+
+  test:
+    needs: [dynamic-ci]
+    if: >-
+      !cancelled() &&
+      needs.dynamic-ci.outputs.test != 'false'
+    name: Test (${{ matrix.os }}, node ${{ matrix.node }})
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-14]
+        node: [18, 20]
+        exclude: ${{ fromJSON(needs.dynamic-ci.outputs.test-exclude || '[]') }}
+```
+
+GitHub takes a single `exclude` value. If the matrix already excludes some
+combinations, move them into the fallback as JSON, such as
+`'[{"os":"macos-14","node":18}]'`. Trunk keeps them in every list it sends.
+
+**A matrix written as an `include:` list of rows** can't use `exclude`, because
+GitHub applies `exclude` before `include`. Write the rows as a JSON literal and
+read `<job>-matrix` in its place. The output holds the rows that run, each
+exactly as you wrote it, so job names don't change:
+
+```yaml
+unit-tests:
+  # needs and if as above
+  name: Unit tests (${{ matrix.suite }})
+  strategy:
+    matrix: ${{ fromJSON(needs.dynamic-ci.outputs.unit-tests-matrix || '{"include":[{"suite":"packages"},{"suite":"apps"},{"suite":"frontend"}]}') }}
+```
+
+**Rows built by a planner job** go to the action's `matrices` input, so the
+Dynamic CI job runs after the planner. Pass the planner's output unchanged, as
+the job's whole matrix, and read `<job>-include`:
+
+```yaml
+jobs:
+  dynamic-ci:
+    needs: [plan]
+    # ...
+    steps:
+      - id: dynamic-ci
+        uses: trunk-io/dynamic-ci@v1
+        with:
+          token: ${{ secrets.TRUNK_API_TOKEN }}
+          matrices: >-
+            {"tests": ${{ needs.plan.outputs.rows || '[]' }}}
+
+  tests:
+    needs: [plan, dynamic-ci]
+    # if as above
+    strategy:
+      matrix:
+        include: ${{ fromJSON(needs.dynamic-ci.outputs.tests-include || needs.plan.outputs.rows) }}
+```
+
+For planner rows, the keys you choose also define what a variation is, so
+changing them later starts every group's history over.
+
+### Check that it works
+
+Once a pull request skips some variations, the Dynamic CI step's log names each
+group and its decision:
+
+```text
+test: RUN — Runs 2 of 4 matrix variations (os=ubuntu-latest ×2); skips 2 (os=macos-14 ×2).
+  - [RUN] os=ubuntu-latest ×2: The job should run because …
+  - [SKIP] os=macos-14 ×2: The job should skip because …
+```
+
+A pull request that edits the workflow file itself can run every variation, so
+check on one that changes something else.

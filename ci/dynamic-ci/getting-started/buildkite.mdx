@@ -119,6 +119,25 @@ your repository → **Configuration**.
   </Accordion>
 </AccordionGroup>
 
+## Matrix steps
+
+A `matrix:` step runs or skips as a whole unless you
+[decide it by variation](/ci/dynamic-ci/configuration/matrices). Once you have,
+nothing in your pipeline changes beyond the plugin, which must be v0.1.9 or
+later. When Trunk skips some variations of a step, the plugin leaves them out
+of the step it uploads, and the upload step's log counts them.
+
+- **A matrix with no dimension names** (`matrix: [amd64, arm64]`): the skipped
+  values are removed from the list.
+- **A matrix with named dimensions** (`setup: {os: [...], arch: [...]}`): a
+  `matrix.adjustments` entry with `skip:` is added for each skipped variation.
+  Buildkite allows 12 adjustments per step, counting your own; when a build
+  would need more, every variation of that step runs.
+
+Give each dimension a name: a `setup` whose dimension is named `""` is always
+decided as a whole. The plugin sends your matrix values to Trunk with
+environment variables filled in, so don't put a secret in a matrix value.
+
 ## Troubleshooting
 
 Set `debug: true` to print what the plugin asked for and the plan it got back.
