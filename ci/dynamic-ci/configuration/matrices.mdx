@@ -1,0 +1,258 @@
+---
+title: "Skip single variations of a matrix job"
+sidebarTitle: "Matrix jobs"
+description: "Opt a matrix job in to being decided variation by variation, choose the keys that split it, and wire your workflow or pipeline."
+---
+
+By default, Dynamic CI decides a matrix job as a whole: every variation runs, or
+none does. You can opt a matrix job in to being decided by variation instead.
+Dynamic CI then learns each group of variations from its own history, and a pull
+request runs only the variations it is likely to break: the Linux tests but not
+the macOS ones, or the `apps` suite but not the `packages` suite.
+
+<Note>
+  Deciding matrix jobs by variation is in **preview**. Reach out on
+  [Slack](https://slack.trunk.io) to have it turned on for your organization.
+</Note>
+
+## When to opt in
+
+A matrix job is a good fit when:
+
+- **Its variations do different work.** Each runs on a different OS, runtime
+  version, test suite or package group, so a change can break one and not the
+  others.
+- **It is expensive.** Skipping part of it saves real runner time.
+
+Leave a job whole when its variations split the same work differently on every
+run. Dynamic CI can only learn from a variation's history if that variation does
+the same work each time (see below).
+
+## Choose the keys to split by
+
+This is the choice that matters most. You pick one or more of the matrix's keys.
+Variations that share values for those keys form a **group**, and each group
+gets its own run or skip decision, learned from that group's own history.
+
+That history is only useful if each group does the **same work from one run to
+the next**. If `suite=frontend` always runs the frontend tests, its history says
+how often a change like this one breaks the frontend tests. If it runs a
+different set of tests each time, its history says nothing, and its decisions
+will be poor.
+
+| Key | Good to split by? |
+| --- | --- |
+| OS, runtime version, image, test suite, package | Yes. The value names the work. |
+| Shard number, when tests are assigned to shards deterministically (for example, a fixed list, or a split by file path) | Yes. Shard 2 runs the same tests on every run, and only changes when the tests themselves change. |
+| Shard number, when shards are balanced by timing data or rebuilt on every run | No. Shard 2 runs different tests each time, so its history describes no particular work. |
+| A value that is new on every run, such as a build number or commit SHA | No. Every run starts a new group with no history, so every variation always runs. The job's settings mark such a key **New value every run**. |
+
+Some more guidance:
+
+- **Keys you don't pick are run together.** In a matrix of `os` × `node`, split by
+  `os`, the Linux variations for every Node version run or skip together.
+- **Fewer keys mean larger groups, which learn faster.** A group needs about 10
+  runs in the past week before it is decided on its own history. Until then it
+  follows the decision for the whole job.
+- **Start with the key that names what breaks independently.** If the macOS build
+  fails for reasons the Linux build never sees, split by OS.
+
+## Before you start: require one check per job
+
+<Warning>
+  On GitHub, a skipped variation never reports a status. If branch protection
+  requires each variation's check, such as `Test (macos-14)`, a pull request that
+  skips it waits forever on **Expected — Waiting for status to be reported**.
+</Warning>
+
+Add one job that always runs after the matrix and passes when the matrix
+passed or was skipped, and make it the required check in place of the
+per-variation checks:
+
+```yaml
+test-pass: # make this the required check
+  needs: [test]
+  if: ${{ !cancelled() }}
+  runs-on: ubuntu-latest
+  steps:
+    - run: '[[ "${{ needs.test.result }}" =~ ^(success|skipped)$ ]]'
+```
+
+Don't gate this job with Dynamic CI: a skipped required check can't report.
+
+## Opt a job in
+
+<Steps>
+  <Step title="Open the job's settings">
+    In [Dynamic CI → Configuration](https://app.trunk.io/ci/dynamic-ci/configuration),
+    click the matrix job to expand it.
+  </Step>
+
+  <Step title="Choose the keys">
+    Under **Matrix variations**, choose **Decide variations separately** and tick
+    the keys to split by. The section shows each key's values with their failure
+    rate over the past 30 days, and the groups your choice makes.
+  </Step>
+
+  <Step title="Wire your workflow or pipeline">
+    Make the change for your matrix's shape (below). The section's setup
+    checklist shows the exact lines for your file, and marks each step done once
+    it finds them on your default branch.
+  </Step>
+
+  <Step title="Save">
+    In an **Enforced** repository, the next push is decided by variation. In
+    **Learning** mode, Dynamic CI records a decision for each group and skips
+    nothing, so you can see how the split would behave first.
+  </Step>
+</Steps>
+
+Settings still apply to the whole job: **Always Run** and
+[Force Run](/ci/dynamic-ci/force-run) run every variation, and a
+[path filter](/ci/dynamic-ci/configuration/path-filters) applies to every group.
+
+## Wire your CI
+
+On GitHub, the Dynamic CI action sets one more output for an opted-in job, which
+leaves the skipped variations out of the matrix. Which output you read depends
+on how the matrix is written. When nothing is skipped, the output is empty and
+the `||` fallback keeps your own matrix, so a Trunk outage runs everything.
+
+These outputs need `trunk-io/dynamic-ci` v1.1.0 or later; `@v1` picks it up.
+
+<Tabs>
+  <Tab title="GitHub: matrix with axes">
+    For a matrix written as keys with lists of values, read `<job>-exclude` as the
+    matrix's `exclude`:
+
+    ```yaml
+    jobs:
+      dynamic-ci:
+        # ...
+        outputs:
+          test: ${{ steps.dynamic-ci.outputs.test }}
+          test-exclude: ${{ steps.dynamic-ci.outputs.test-exclude }}
+
+      test:
+        needs: [dynamic-ci]
+        if: >-
+          !cancelled() &&
+          needs.dynamic-ci.outputs.test != 'false'
+        name: Test (${{ matrix.os }}, node ${{ matrix.node }})
+        strategy:
+          matrix:
+            os: [ubuntu-latest, macos-14]
+            node: [18, 20]
+            exclude: ${{ fromJSON(needs.dynamic-ci.outputs.test-exclude || '[]') }}
+    ```
+
+    GitHub takes a single `exclude` value. If the matrix already excludes some
+    combinations, move them into the fallback as JSON. Trunk keeps them in every
+    list it sends:
+
+    ```yaml
+    exclude: ${{ fromJSON(needs.dynamic-ci.outputs.test-exclude || '[{"os":"macos-14","node":18}]') }}
+    ```
+  </Tab>
+
+  <Tab title="GitHub: list of rows">
+    A matrix written as an `include:` list of rows can't use `exclude`, because
+    GitHub applies `exclude` before `include`. Write the rows as a JSON literal and
+    read `<job>-matrix` in its place:
+
+    ```yaml
+    jobs:
+      dynamic-ci:
+        # ...
+        outputs:
+          unit-tests: ${{ steps.dynamic-ci.outputs.unit-tests }}
+          unit-tests-matrix: ${{ steps.dynamic-ci.outputs.unit-tests-matrix }}
+
+      unit-tests:
+        needs: [dynamic-ci]
+        if: >-
+          !cancelled() &&
+          needs.dynamic-ci.outputs.unit-tests != 'false'
+        name: Unit tests (${{ matrix.suite }})
+        strategy:
+          matrix: ${{ fromJSON(needs.dynamic-ci.outputs.unit-tests-matrix || '{"include":[{"suite":"packages"},{"suite":"apps"},{"suite":"frontend"}]}') }}
+    ```
+
+    The output holds the rows that run, each exactly as you wrote it, so job names
+    don't change.
+  </Tab>
+
+  <Tab title="GitHub: rows from a planner job">
+    When an earlier job builds the matrix at run time, give its rows to the
+    action's `matrices` input, so the Dynamic CI job runs after the planner. Then
+    read `<job>-include` as the matrix's `include`:
+
+    ```yaml
+    jobs:
+      dynamic-ci:
+        needs: [plan]
+        # ...
+        outputs:
+          tests: ${{ steps.dynamic-ci.outputs.tests }}
+          tests-include: ${{ steps.dynamic-ci.outputs.tests-include }}
+        steps:
+          # ...
+          - id: dynamic-ci
+            uses: trunk-io/dynamic-ci@v1
+            with:
+              token: ${{ secrets.TRUNK_API_TOKEN }}
+              matrices: >-
+                {"tests": ${{ needs.plan.outputs.rows || '[]' }}}
+
+      tests:
+        needs: [plan, dynamic-ci]
+        if: >-
+          !cancelled() &&
+          needs.dynamic-ci.outputs.tests != 'false'
+        strategy:
+          matrix:
+            include: ${{ fromJSON(needs.dynamic-ci.outputs.tests-include || needs.plan.outputs.rows) }}
+    ```
+
+    - Pass the planner's output unchanged, and make it the job's whole matrix,
+      with no other keys beside `include:`.
+    - Use `<job>-matrix` instead if the job reads a whole matrix object at
+      `strategy.matrix`.
+    - Here the keys you choose also define what a variation is, so changing them
+      later starts every group's history over.
+  </Tab>
+
+  <Tab title="Buildkite">
+    No pipeline change is needed beyond the plugin, v0.1.9 or later. When Trunk
+    skips some variations of a matrix step, the plugin leaves them out of the step
+    it uploads:
+
+    - **A matrix with no dimension names** (`matrix: [amd64, arm64]`): the skipped
+      values are removed from the list.
+    - **A matrix with named dimensions** (`setup: {os: [...], arch: [...]}`): a
+      `matrix.adjustments` entry with `skip:` is added for each skipped variation.
+
+    Buildkite allows 12 adjustments per step, counting your own. When a build
+    would need more, every variation of that step runs. Give each dimension a
+    name: a `setup` whose dimension is named `""` is always decided as a whole.
+
+    The plugin reads your matrix values with environment variables filled in, and
+    sends them to Trunk. Don't put a secret in a matrix value.
+  </Tab>
+</Tabs>
+
+## Check that it works
+
+Once a split pull request skips something, the Dynamic CI step's log names each
+group and its decision:
+
+```text
+test: RUN — Runs 2 of 4 matrix variations (os=ubuntu-latest ×2); skips 2 (os=macos-14 ×2).
+  - [RUN] os=ubuntu-latest ×2: The job should run because …
+  - [SKIP] os=macos-14 ×2: The job should skip because …
+```
+
+On Buildkite, the upload step's log counts the variations left out of each step.
+
+A pull request that edits the workflow file itself can run every variation of
+its matrix jobs. Check on a pull request that changes something else.
