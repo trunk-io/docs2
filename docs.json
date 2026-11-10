@@ -491,7 +491,8 @@
                 ],
                 "root": "setup/integrations/github"
               },
-              "setup/integrations/buildkite"
+              "setup/integrations/buildkite",
+              "setup/integrations/evergreen"
             ]
           },
           {

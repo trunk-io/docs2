@@ -1,0 +1,64 @@
+---
+title: "Evergreen"
+description: "Send Evergreen CI webhooks to Trunk to collect CI data from your versions and tasks."
+og:title: "Set up Trunk CI for Evergreen"
+---
+
+[Evergreen](https://github.com/evergreen-ci/evergreen) sends a webhook when a task or a version finishes. To set up Trunk CI, add two webhook subscriptions that send these events to Trunk's ingest endpoint.
+
+Trunk maps Evergreen to its CI model like this:
+
+| Evergreen | Trunk |
+| --- | --- |
+| Project | Pipeline |
+| Version (a commit, a patch, a pull request or a merge queue run) | Pipeline run |
+| Task (with its build variant) | Job |
+| Task execution | Job attempt |
+
+#### Before you start
+
+The repository must already exist in Trunk and have **CI Intelligence** turned on. In the Trunk app, go to **Settings** → **Repositories** and turn on **CI Intelligence** for the repository. Trunk matches each Evergreen version to a repository in your organization by the version's repository name. Data for a repository that Trunk does not know, or that has CI Intelligence off, is not shown.
+
+#### Create a Trunk API key
+
+An organization admin creates the key. In the Trunk app, go to [**Settings** → **Developer** → **API Keys**](https://app.trunk.io/settings/developer/api-tokens) and click **Create Key**. Use an API key here, not the organization API token shown on the same page.
+
+![Create Api Key](/create-api-key.png "Create Api Key")
+
+#### Add the webhook subscriptions
+
+Add the subscriptions in your Evergreen **repo settings** if you can. A repo-level subscription applies to every branch project attached to the repo, including branches you add later. You can also add them to each project.
+
+In the project or repo settings, open **Notifications** and add two subscriptions:
+
+| Event | Notification method |
+| --- | --- |
+| **Any task finishes** | Webhook |
+| **Any version finishes** | Webhook |
+
+Give both subscriptions the same webhook settings:
+
+| Field | Value |
+| --- | --- |
+| Webhook URL | `https://api.trunk.io/v2/ci/evergreen/v1/webhooks` |
+| HTTP header | `Authorization: Bearer <your Trunk API key>` |
+| Retries | `3` |
+| Timeout | `10` seconds |
+
+Do not add the "fails", "first failure", "previously passing" or "runtime" events. Each one sends a subset of what **Any task finishes** and **Any version finishes** already send, so Trunk would receive the same data twice.
+
+## Troubleshooting
+
+**Nothing arrives at all.** The endpoint answers `401` for an API key it does not recognize, and for a request without the `Authorization: Bearer <key>` header. Check the header first, then the repository gate below.
+
+**Versions arrive for one repository but not another.** Each version is matched to a Trunk repository by its repository name. Confirm that a repository with that name exists in your Trunk organization and has **CI Intelligence** on. If two repositories in your organization have the same name under different owners, Trunk cannot choose one and skips the version.
+
+**A large task is refused.** The endpoint accepts webhook bodies up to 16 MiB and answers `413` for larger ones.
+
+**Evergreen reports `503`.** Trunk asks Evergreen to send the webhook again later. Evergreen retries a non-`2xx` answer up to the number of retries you set.
+
+A few Evergreen specifics are worth knowing:
+
+- **A display task is one job.** Evergreen sends one "task finishes" webhook for a display task, not one for each of its execution tasks, so Trunk shows the display task as one job.
+- **A restart is a new attempt.** When Evergreen restarts a task, it runs a new execution of the same task, and Trunk records it as the next attempt of that job.
+- **Stepback runs arrive late.** When Evergreen activates a task on an older commit to find a failure, that run is reported on the older version.
