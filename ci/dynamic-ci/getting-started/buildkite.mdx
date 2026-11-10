@@ -19,30 +19,11 @@ og:title: "Set up Trunk Dynamic CI for Buildkite"
 Add a `key:` to every step you might want skipped. A step without one always
 runs.
 
-## Start with a dry run
-
-Add this step to each pull request pipeline that runs your tests and checks.
-Trunk records verdicts, and your pipeline is unchanged.
-
-```yaml
-- label: ":trunk: Dynamic CI (learning, no-op)"
-  timeout_in_minutes: 5
-  secrets:
-    - TRUNK_API_TOKEN
-  # Replace .buildkite/pr-checks.yml with your pipeline file, or pipe your
-  # pipeline generator's output into trunk-dynamic-ci-filter instead.
-  command: trunk-dynamic-ci-filter < .buildkite/pr-checks.yml > /dev/null
-  plugins:
-    - trunk-io/dynamic-ci#v0.1.5:
-        token-env: TRUNK_API_TOKEN
-```
-
-Use the same `if:` and `agents:` as your other pull request steps.
-
 ## Add the plugin to your upload step
 
-When you are ready to skip steps, pipe your pipeline through the filter on its
-way to upload:
+Pipe your pipeline through the filter on its way to upload. Your repository
+starts in **Learning** mode, so Trunk records a verdict for every step and
+skips nothing until you [turn on enforcement](/ci/dynamic-ci/configuration/mode).
 
 ```yaml
 steps:
@@ -80,6 +61,28 @@ Or set them to **Always run** in [Dynamic CI](https://app.trunk.io/dynamic-ci) â
 your repository â†’ **Configuration**.
 
 <AccordionGroup>
+  <Accordion title="Run it beside your pipeline (dry run)">
+    To try Dynamic CI without touching your upload step, add this step to each
+    pull request pipeline that runs your tests and checks instead. Trunk
+    records verdicts, and your pipeline is unchanged.
+
+    ```yaml
+    - label: ":trunk: Dynamic CI (learning, no-op)"
+      timeout_in_minutes: 5
+      secrets:
+        - TRUNK_API_TOKEN
+      # Replace .buildkite/pr-checks.yml with your pipeline file, or pipe your
+      # pipeline generator's output into trunk-dynamic-ci-filter instead.
+      command: trunk-dynamic-ci-filter < .buildkite/pr-checks.yml > /dev/null
+      plugins:
+        - trunk-io/dynamic-ci#v0.1.5:
+            token-env: TRUNK_API_TOKEN
+    ```
+
+    Use the same `if:` and `agents:` as your other pull request steps. Move to
+    the upload step before you turn on enforcement.
+  </Accordion>
+
   <Accordion title="Pipelines with no upload step (step mode)">
     If your pipeline lives in Buildkite's settings editor, put the plugin on the
     step itself with `mode: step`. The step needs a `key:`. It saves less,
