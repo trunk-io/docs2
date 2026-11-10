@@ -334,6 +334,14 @@ sudo -u dd-agent -- datadog-agent check openmetrics
 All metrics are prefixed with your configured `namespace` value. For example, `mq_depth_current` becomes `trunk_merge_queue.mq_depth_current` in Datadog.
 </Info>
 
+<Warning>
+Set an explicit `.rollup(max, 3600)` on the rolling 1-hour window metrics. Datadog stores them as gauges and averages a gauge's samples over each chart bucket by default, so a bar that spans several scrapes of `mq_pr_conclusions_1h_total` shows a fraction such as `2.7` even though every sample is a whole number. `max` over 1-hour buckets reads each hour's count; `sum` double-counts, because each PR stays in the window for an hour of samples.
+
+```
+max:trunk_merge_queue.mq_pr_conclusions_1h_total{conclusion:failed}.rollup(max, 3600)
+```
+</Warning>
+
 ### Example queries
 
 **Queue health alerts:**
