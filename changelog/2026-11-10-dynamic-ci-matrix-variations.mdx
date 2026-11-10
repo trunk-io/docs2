@@ -1,0 +1,14 @@
+---
+title: "Dynamic CI: Skip single variations of a matrix job"
+description: "Dynamic CI can now decide a matrix job variation by variation, so a pull request runs only the variations it is likely to break."
+date: 2026-11-10
+category: Dynamic CI
+type: new-feature
+---
+
+**Dynamic CI can now skip single variations of a matrix job.** Dynamic CI is in private beta.
+
+### New features
+
+- **Decide matrix jobs by variation.** Opt a matrix job in, pick the keys to split it by, such as OS or test suite, and Dynamic CI learns each group of variations from its own history. A pull request then runs only the variations it is likely to break. See [Matrix jobs](/ci/dynamic-ci/configuration/matrices).
+- **Matrix outputs on the GitHub Action.** `trunk-io/dynamic-ci` v0.1.8 or later returns the variations to run or skip, ready to read in your matrix. `@v1` picks it up automatically. See the [action reference](/ci/dynamic-ci/dynamic-ci-action-reference#matrix-outputs) and the [GitHub Actions guide](/ci/dynamic-ci/getting-started/github-actions#matrix-jobs).
