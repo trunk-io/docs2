@@ -856,6 +856,17 @@
                   "POST /v2/tests/{testId}/create-ticket"
                 ]
               },
+              {
+                "group": "Dynamic CI",
+                "openapi": {
+                  "source": "/openapi-v2.json",
+                  "directory": "/api"
+                },
+                "pages": [
+                  "GET /v2/dynamic-ci/paths-filters",
+                  "PATCH /v2/dynamic-ci/paths-filters"
+                ]
+              },
               "api/webhooks",
               {
                 "group": "Legacy API",
