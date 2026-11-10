@@ -39,8 +39,8 @@ If you already run Trunk Merge Queue on GitHub, these are the differences that c
 
 ## What is not available on GitLab
 
-- [Direct to queue](/merge-queue/using-the-queue/direct-to-queue) and Trunk Sudo. GitLab has no account that can bypass a branch's rules, so `/trunk merge --direct` is refused.
-- [Direct merge to main](/merge-queue/optimizations/direct-merge-to-main). Every merge request is tested in the queue before it merges.
+- [Direct to queue](/merge-queue/using-the-queue/direct-to-queue) and Trunk Sudo, which let an admin queue a merge request whose branch rules aren't satisfied. GitLab has no account that can bypass a branch's rules, so `/trunk merge --direct` is refused.
+- [Direct merge to main](/merge-queue/optimizations/direct-merge-to-main), which skips the test run when the queue is empty and a merge request is already based on the tip of the target branch. On GitLab, every merge request gets a test run, even when the queue is empty.
 - [Stacked pull requests](/merge-queue/using-the-queue/stacked-pull-requests).
 - The **Rebase** [merge method](/merge-queue/administration/advanced-settings#merge-method). The setting still offers it, but a GitLab queue can't merge with it. Use **Squash** or **Merge Commit**.
 - `merge.required_statuses` in `.trunk/trunk.yaml`. Set required statuses in the Trunk web app instead.
