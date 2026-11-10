@@ -10,22 +10,18 @@ Trunk acts on GitLab through a **service account** in one of your top-level grou
 ## Prerequisites
 
 - The **admin** role in your Trunk organization
-- The **Owner** role on the GitLab top-level group that contains your project (for Option A), or a service account that a group Owner created for you (for Option B)
+- The **Owner** role on the GitLab top-level group that contains your project
 - Your project is on GitLab.com. Self-managed GitLab instances are not supported yet.
 
 ## Connect GitLab
 
+Trunk creates the service account and its tokens for you.
+
 1. [Sign in to app.trunk.io](https://app.trunk.io/login) and go to **Settings** → **Integrations** → **GitLab**.
 2. Click **Connect GitLab** (or **Add Connection** if your organization already has one).
-3. Choose one of the two options below.
-
-### Option A: Connect with GitLab (recommended)
-
-Trunk creates the service account and its tokens for you. This option requires the **Owner** role on the top-level group.
-
-1. Click **Connect with GitLab** and authorize Trunk on GitLab.com. Trunk asks for the `api` scope and uses your authorization only once, to set up its own service account. It then discards your authorization.
-2. Under **Choose a group**, select the top-level group that contains your project. Only top-level groups that you own are listed: Trunk connects a whole top-level group.
-3. Click **Create service account & connect**.
+3. Click **Connect with GitLab** and authorize Trunk on GitLab.com. Trunk asks for the `api` scope and uses your authorization only once, to set up its own service account. It then discards your authorization.
+4. Under **Choose a group**, select the top-level group that contains your project. Only top-level groups that you own are listed: Trunk connects a whole top-level group.
+5. Click **Create service account & connect**.
 
 Trunk then:
 
@@ -34,26 +30,7 @@ Trunk then:
 - Issues its own access tokens for the account, with the `api` scope.
 
 <Note>
-  If you see "You are not an Owner of any top-level GitLab group" or "GitLab refused the request. You need the Owner role on this group to create a service account", ask a group Owner to complete these steps. They also need the **admin** role in Trunk: invite them in **Settings** → **Organization** → **Team**. You can also use Option B with a service account they create.
-</Note>
-
-### Option B: Create the service account yourself
-
-Use this option if your GitLab policies require you to create and manage the account.
-
-1. In GitLab, go to your top-level group → **Settings** → **Service accounts**.
-2. Create a service account, for example `Trunk Merge Queue`.
-3. Create a personal access token for the service account with the `api` scope.
-4. Add the service account as a **Maintainer** of the group, or of each project you want Trunk to manage.
-5. In Trunk, paste the token into **Personal Access Token** and click **Validate & Continue**.
-6. Check the account, token scopes, memberships and accessible projects that Trunk shows, then click **Confirm & Save**. If the token can reach more than one top-level group, pick the group to connect.
-
-<Warning>
-  **Trunk cannot replace a token that you paste in.** When the token expires, the queue stops merging until the connection is fixed. Set an expiration date that matches your rotation policy, and [contact support](/setup-and-administration/support) before it expires. The connection's page in **Settings** → **Integrations** → **GitLab** shows the token's expiration date.
-</Warning>
-
-<Note>
-  You can paste a personal access token that belongs to a person instead of a service account. Trunk accepts it with a warning: the queue then acts as that person, and stops working if they lose access or leave.
+  If you see "You are not an Owner of any top-level GitLab group" or "GitLab refused the request. You need the Owner role on this group to create a service account", ask a group Owner to complete these steps. They also need the **admin** role in Trunk: invite them in **Settings** → **Organization** → **Team**.
 </Note>
 
 ## Create your first queue
@@ -80,7 +57,7 @@ You connected a GitLab group to Trunk and created a queue for one project's targ
 
 ## Disconnecting GitLab
 
-To disconnect, open the connection in **Settings** → **Integrations** → **GitLab** and delete it. You can't disconnect while any of the group's projects has a merge queue: delete those queues first. Trunk revokes the tokens it created. A token you pasted in stays valid, so revoke it in GitLab if you no longer need it. Trunk doesn't delete the service account: remove it from the group in GitLab yourself.
+To disconnect, open the connection in **Settings** → **Integrations** → **GitLab** and delete it. You can't disconnect while any of the group's projects has a merge queue: delete those queues first. Trunk revokes its tokens. It doesn't delete the service account: remove it from the group in GitLab yourself.
 
 ## Next steps
 
