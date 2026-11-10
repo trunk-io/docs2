@@ -499,6 +499,7 @@
           "PROVIDER_URL_NOT_FOUND",
           "CI_HOST_UNSUPPORTED",
           "CI_SCOPE_NOT_FOUND",
+          "PATHS_FILTER_CONFLICT",
           "CI_JOB_NOT_FOUND",
           "CI_FAILURE_CLUSTER_NOT_FOUND",
           "TEST_COLLECTION_NOT_FOUND",
@@ -6309,6 +6310,393 @@
           }
         },
         "required": ["summaryShort", "summary", "rootCause"]
+      },
+      "SetPathsFiltersResult": {
+        "type": "object",
+        "properties": {
+          "filters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WrittenFilter"
+            },
+            "maxItems": 100,
+            "description": "One per `filters` entry, leaving out an entry none of whose jobs resolved."
+          },
+          "jobs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WrittenJob"
+            },
+            "maxItems": 500,
+            "description": "One per job named, in request order. A job named by `jobId` is reported by its path and key."
+          }
+        },
+        "required": ["filters", "jobs"]
+      },
+      "WrittenJob": {
+        "type": "object",
+        "properties": {
+          "workflowPath": {
+            "type": ["string", "null"],
+            "example": ".github/workflows/ci.yaml"
+          },
+          "jobKey": {
+            "type": ["string", "null"],
+            "example": "web-unit"
+          },
+          "status": {
+            "$ref": "#/components/schemas/WrittenJobStatus"
+          },
+          "jobIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 500,
+            "description": "Every job the name matched; one name can match more than one. Empty for `unresolved`.",
+            "example": ["3c4d0b17-8e2a-4f6c-9d1b-7a5e3c2f1d0e"]
+          }
+        },
+        "required": ["workflowPath", "jobKey", "status", "jobIds"]
+      },
+      "WrittenJobStatus": {
+        "type": "string",
+        "enum": ["set", "unchanged", "cleared", "unresolved"],
+        "description": "`set`: the job now has the filter. `unchanged`: nothing was written. `cleared`: its filter was removed. `unresolved`: Trunk has not seen the job run, so nothing was written; send the request again after it runs.",
+        "example": "set"
+      },
+      "WrittenFilter": {
+        "type": "object",
+        "properties": {
+          "pathsFilterId": {
+            "type": "string",
+            "example": "e8f1c2a4-5b6d-4e7f-8a9b-0c1d2e3f4a5b"
+          },
+          "name": {
+            "type": ["string", "null"],
+            "description": "The stored name, which an existing named filter keeps.",
+            "example": "web"
+          },
+          "status": {
+            "$ref": "#/components/schemas/WrittenFilterStatus"
+          },
+          "jobCount": {
+            "type": "integer",
+            "description": "Distinct jobs on the filter after the write.",
+            "example": 1
+          }
+        },
+        "required": ["pathsFilterId", "name", "status", "jobCount"]
+      },
+      "WrittenFilterStatus": {
+        "type": "string",
+        "enum": ["new", "existing"],
+        "description": "Whether the request created the filter or found it by its rules.",
+        "example": "new"
+      },
+      "SetPathsFiltersRequest": {
+        "type": "object",
+        "properties": {
+          "repo": {
+            "$ref": "#/components/schemas/PlanRepo"
+          },
+          "overwrite": {
+            "type": "boolean",
+            "default": false,
+            "description": "Replace a different filter already on a job. Without it, such a job fails the request with `PATHS_FILTER_CONFLICT`.",
+            "example": false
+          },
+          "filters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PathsFilterEntry"
+            },
+            "maxItems": 100
+          },
+          "clear": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/JobRef"
+            },
+            "maxItems": 500,
+            "description": "Jobs to remove the paths filter from."
+          }
+        },
+        "required": ["repo"],
+        "additionalProperties": false
+      },
+      "JobRef": {
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/JobRefByName"
+          },
+          {
+            "$ref": "#/components/schemas/JobRefById"
+          }
+        ],
+        "description": "A job, as `{ workflowPath, jobKey }` or as `{ jobId }`."
+      },
+      "JobRefById": {
+        "type": "object",
+        "properties": {
+          "jobId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "A job's id from `dynamicCi.listPathsFilters` or `dynamicCi.listPrJobs`. A `workflowPath` or `jobKey` sent beside it must name the same job.",
+            "example": "3c4f8e21-6a1d-4b7e-9f02-5d8c1a2b3e4f"
+          },
+          "workflowPath": {
+            "type": ["string", "null"],
+            "minLength": 1,
+            "description": "The workflow file's repository-relative path, exactly.",
+            "example": ".github/workflows/ci.yaml"
+          },
+          "jobKey": {
+            "type": ["string", "null"],
+            "minLength": 1,
+            "description": "The job's key under `jobs:` in that file.",
+            "example": "web-unit"
+          }
+        },
+        "required": ["jobId"],
+        "additionalProperties": false
+      },
+      "JobRefByName": {
+        "type": "object",
+        "properties": {
+          "workflowPath": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The workflow file's repository-relative path, exactly.",
+            "example": ".github/workflows/ci.yaml"
+          },
+          "jobKey": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The job's key under `jobs:` in that file.",
+            "example": "web-unit"
+          }
+        },
+        "required": ["workflowPath", "jobKey"],
+        "additionalProperties": false
+      },
+      "PathsFilterEntry": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": ["string", "null"],
+            "maxLength": 80,
+            "description": "Trimmed; blank or absent is unnamed. Names a new filter, or an existing unnamed one with the same rules; an existing name is kept.",
+            "example": "web"
+          },
+          "rules": {
+            "$ref": "#/components/schemas/PathsFilterRulesInput"
+          },
+          "jobs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/JobRef"
+            },
+            "minItems": 1,
+            "maxItems": 500
+          }
+        },
+        "required": ["rules", "jobs"],
+        "additionalProperties": false
+      },
+      "PathsFilterRulesInput": {
+        "type": "object",
+        "properties": {
+          "include": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PathsFilterRule"
+            },
+            "minItems": 1,
+            "maxItems": 64,
+            "example": [
+              {
+                "glob": "web/**"
+              }
+            ]
+          },
+          "exclude": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PathsFilterRule"
+            },
+            "maxItems": 64,
+            "description": "Defaults to none.",
+            "example": [
+              {
+                "glob": "web/**/*.md"
+              }
+            ]
+          }
+        },
+        "required": ["include"],
+        "additionalProperties": false
+      },
+      "PathsFilterRule": {
+        "type": "object",
+        "properties": {
+          "glob": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "A picomatch glob, matched with `dot: true` against the repository-relative path. May not begin with `!` or `(`.",
+            "example": "web/**"
+          },
+          "changeTypes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChangeType"
+            },
+            "minItems": 1,
+            "maxItems": 6,
+            "description": "Match only these kinds of change. Absent matches any.",
+            "example": ["added", "modified"]
+          }
+        },
+        "required": ["glob"],
+        "additionalProperties": false
+      },
+      "ChangeType": {
+        "type": "string",
+        "enum": [
+          "added",
+          "copied",
+          "deleted",
+          "modified",
+          "renamed",
+          "unmerged"
+        ],
+        "description": "A kind of file change, as `dorny/paths-filter` names them.",
+        "example": "modified"
+      },
+      "PathsFilterWithJobsList": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PathsFilterWithJobs"
+            },
+            "maxItems": 100
+          },
+          "nextCursor": {
+            "type": ["string", "null"],
+            "description": "Opaque cursor for the next page, or null on the last page. Pass it back verbatim as `cursor`; do not construct or inspect one.",
+            "example": "AQEKZm9vYmFy"
+          },
+          "hasMore": {
+            "type": "boolean",
+            "description": "True when another page is available.",
+            "example": true
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total rows matching the filter. Present only when the request set `includeTotal=true`.",
+            "example": 1247
+          }
+        },
+        "required": ["data", "nextCursor", "hasMore"]
+      },
+      "PathsFilterWithJobs": {
+        "type": "object",
+        "properties": {
+          "pathsFilterId": {
+            "type": "string",
+            "example": "e8f1c2a4-5b6d-4e7f-8a9b-0c1d2e3f4a5b"
+          },
+          "name": {
+            "type": ["string", "null"],
+            "description": "Null for an unnamed filter, which the web app shows as Custom.",
+            "example": "web"
+          },
+          "rules": {
+            "$ref": "#/components/schemas/PathsFilterRules"
+          },
+          "jobs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PathsFilterJob"
+            },
+            "maxItems": 10000,
+            "description": "The jobs the filter gates. A job the web app gave one filter for pull requests and another for the merge queue is listed under both."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-26T20:31:04.512Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-26T20:31:04.512Z"
+          }
+        },
+        "required": [
+          "pathsFilterId",
+          "name",
+          "rules",
+          "jobs",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "PathsFilterJob": {
+        "type": "object",
+        "properties": {
+          "workflowPath": {
+            "type": ["string", "null"],
+            "description": "The workflow file's path. Null if Trunk has not seen one.",
+            "example": ".github/workflows/ci.yaml"
+          },
+          "jobKey": {
+            "type": ["string", "null"],
+            "description": "The job's key under `jobs:`. Null means the job is reachable only by `jobId`.",
+            "example": "web-unit"
+          },
+          "jobId": {
+            "type": "string",
+            "example": "3c4d0b17-8e2a-4f6c-9d1b-7a5e3c2f1d0e"
+          }
+        },
+        "required": ["workflowPath", "jobKey", "jobId"]
+      },
+      "PathsFilterRules": {
+        "type": "object",
+        "properties": {
+          "include": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PathsFilterRule"
+            },
+            "minItems": 1,
+            "maxItems": 64,
+            "description": "A changed file counts when some `include` rule matches it and no `exclude` rule does.",
+            "example": [
+              {
+                "glob": "web/**"
+              }
+            ]
+          },
+          "exclude": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PathsFilterRule"
+            },
+            "maxItems": 64,
+            "example": [
+              {
+                "glob": "web/**/*.md"
+              }
+            ]
+          }
+        },
+        "required": ["include", "exclude"],
+        "additionalProperties": false
       }
     },
     "parameters": {}
@@ -13046,6 +13434,431 @@
                       "error": {
                         "code": "CI_SCOPE_NOT_FOUND",
                         "message": "A workflow or job in the request does not belong to this repository"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "RATE_LIMIT_EXCEEDED": {
+                    "summary": "RATE_LIMIT_EXCEEDED",
+                    "value": {
+                      "error": {
+                        "code": "RATE_LIMIT_EXCEEDED",
+                        "message": "Rate limit exceeded; retry with backoff"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INTERNAL_ERROR": {
+                    "summary": "INTERNAL_ERROR",
+                    "value": {
+                      "error": {
+                        "code": "INTERNAL_ERROR",
+                        "message": "An unexpected error occurred"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/dynamic-ci/paths-filters": {
+      "get": {
+        "operationId": "dynamicCi.listPathsFilters",
+        "tags": ["dynamicCi"],
+        "summary": "List a repository's paths filters",
+        "description": "Every paths filter in the repository, each with the jobs it gates. A paths filter decides which changed files make a job run, on pull requests and in the merge queue alike. An item with jobs can be sent back as one `filters` entry of `dynamicCi.setPathsFilters`, with its `name`, `rules` and `jobs`. A job the web app gave one filter for pull requests and another for the merge queue is listed under both: sending both items back leaves it as is, and sending one alone is a conflict, since the job also has the other filter.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25,
+              "description": "Page size, between 1 and 100.",
+              "example": 25
+            },
+            "required": false,
+            "description": "Page size, between 1 and 100.",
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "Opaque cursor from a previous response's `nextCursor`. A cursor is bound to the operation and filter it was minted for.",
+              "example": "AQEKZm9vYmFy"
+            },
+            "required": false,
+            "description": "Opaque cursor from a previous response's `nextCursor`. A cursor is bound to the operation and filter it was minted for.",
+            "name": "cursor",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "description": "Set true to include `total` in the response. Costs an extra COUNT query, so it is off by default.",
+              "example": false
+            },
+            "required": false,
+            "description": "Set true to include `total` in the response. Costs an extra COUNT query, so it is off by default.",
+            "name": "includeTotal",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "default": "github.com",
+              "description": "`github.com` is the only supported value today.",
+              "example": "github.com"
+            },
+            "required": false,
+            "description": "`github.com` is the only supported value today.",
+            "name": "host",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "example": "acme"
+            },
+            "required": true,
+            "name": "owner",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "example": "widgets"
+            },
+            "required": true,
+            "name": "name",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of paths filters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PathsFilterWithJobsList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`VALIDATION_FAILED` | `INVALID_CURSOR` | `CI_HOST_UNSUPPORTED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "VALIDATION_FAILED": {
+                    "summary": "VALIDATION_FAILED",
+                    "value": {
+                      "error": {
+                        "code": "VALIDATION_FAILED",
+                        "message": "Invalid input: expected string, received undefined"
+                      }
+                    }
+                  },
+                  "INVALID_CURSOR": {
+                    "summary": "INVALID_CURSOR",
+                    "value": {
+                      "error": {
+                        "code": "INVALID_CURSOR",
+                        "message": "Invalid or expired cursor."
+                      }
+                    }
+                  },
+                  "CI_HOST_UNSUPPORTED": {
+                    "summary": "CI_HOST_UNSUPPORTED",
+                    "value": {
+                      "error": {
+                        "code": "CI_HOST_UNSUPPORTED",
+                        "message": "Dynamic CI does not support the repository host gitlab.example.com"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "AUTHENTICATION_REQUIRED": {
+                    "summary": "AUTHENTICATION_REQUIRED",
+                    "value": {
+                      "error": {
+                        "code": "AUTHENTICATION_REQUIRED",
+                        "message": "No credential was supplied"
+                      }
+                    }
+                  },
+                  "INVALID_TOKEN": {
+                    "summary": "INVALID_TOKEN",
+                    "value": {
+                      "error": {
+                        "code": "INVALID_TOKEN",
+                        "message": "The supplied token failed verification"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`REPOSITORY_NOT_FOUND`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "REPOSITORY_NOT_FOUND": {
+                    "summary": "REPOSITORY_NOT_FOUND",
+                    "value": {
+                      "error": {
+                        "code": "REPOSITORY_NOT_FOUND",
+                        "message": "Repository not found"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "RATE_LIMIT_EXCEEDED": {
+                    "summary": "RATE_LIMIT_EXCEEDED",
+                    "value": {
+                      "error": {
+                        "code": "RATE_LIMIT_EXCEEDED",
+                        "message": "Rate limit exceeded; retry with backoff"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INTERNAL_ERROR": {
+                    "summary": "INTERNAL_ERROR",
+                    "value": {
+                      "error": {
+                        "code": "INTERNAL_ERROR",
+                        "message": "An unexpected error occurred"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "dynamicCi.setPathsFilters",
+        "tags": ["dynamicCi"],
+        "summary": "Set or clear paths filters on jobs",
+        "description": "Requires the **Update Dynamic CI settings** permission.\n\nSets a paths filter on each job named in `filters`, and removes it from each job in `clear`. Name a job by its workflow file and its key under `jobs:`. Each filter applies to pull requests and the merge queue alike. A request names at most 500 jobs in all, across every `filters[].jobs` and `clear`.\n\nIt changes only the jobs it names. It never deletes a filter; one the request leaves with no jobs stays in the list, with no jobs. Sending the same body again changes nothing, so no `Idempotency-Key` is needed. A job that already has a different filter fails the request with `PATHS_FILTER_CONFLICT` unless `overwrite` is true. Any error means nothing was written.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetPathsFiltersRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "What the request did to each job",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetPathsFiltersResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`VALIDATION_FAILED` | `CI_HOST_UNSUPPORTED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "VALIDATION_FAILED": {
+                    "summary": "VALIDATION_FAILED",
+                    "value": {
+                      "error": {
+                        "code": "VALIDATION_FAILED",
+                        "message": "Invalid input: expected string, received undefined"
+                      }
+                    }
+                  },
+                  "CI_HOST_UNSUPPORTED": {
+                    "summary": "CI_HOST_UNSUPPORTED",
+                    "value": {
+                      "error": {
+                        "code": "CI_HOST_UNSUPPORTED",
+                        "message": "Dynamic CI does not support the repository host gitlab.example.com"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "AUTHENTICATION_REQUIRED": {
+                    "summary": "AUTHENTICATION_REQUIRED",
+                    "value": {
+                      "error": {
+                        "code": "AUTHENTICATION_REQUIRED",
+                        "message": "No credential was supplied"
+                      }
+                    }
+                  },
+                  "INVALID_TOKEN": {
+                    "summary": "INVALID_TOKEN",
+                    "value": {
+                      "error": {
+                        "code": "INVALID_TOKEN",
+                        "message": "The supplied token failed verification"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`INSUFFICIENT_PERMISSIONS`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INSUFFICIENT_PERMISSIONS": {
+                    "summary": "INSUFFICIENT_PERMISSIONS",
+                    "value": {
+                      "error": {
+                        "code": "INSUFFICIENT_PERMISSIONS",
+                        "message": "The supplied credential is missing the required permission"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`REPOSITORY_NOT_FOUND` | `CI_SCOPE_NOT_FOUND`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "REPOSITORY_NOT_FOUND": {
+                    "summary": "REPOSITORY_NOT_FOUND",
+                    "value": {
+                      "error": {
+                        "code": "REPOSITORY_NOT_FOUND",
+                        "message": "Repository not found"
+                      }
+                    }
+                  },
+                  "CI_SCOPE_NOT_FOUND": {
+                    "summary": "CI_SCOPE_NOT_FOUND",
+                    "value": {
+                      "error": {
+                        "code": "CI_SCOPE_NOT_FOUND",
+                        "message": "A workflow or job in the request does not belong to this repository"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "`PATHS_FILTER_CONFLICT`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "PATHS_FILTER_CONFLICT": {
+                    "summary": "PATHS_FILTER_CONFLICT",
+                    "value": {
+                      "error": {
+                        "code": "PATHS_FILTER_CONFLICT",
+                        "message": "1 job already has a different paths filter: .github/workflows/ci.yml test (job 3c4f8e21-6a1d-4b7e-9f02-5d8c1a2b3e4f, \"backend\"). Send \"overwrite\": true to replace them."
                       }
                     }
                   }
