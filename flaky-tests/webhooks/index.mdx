@@ -28,7 +28,7 @@ Trunk lets you create custom workflows with **event-triggered webhooks**. Flaky 
   www.svix.com
 </Card>
 
-Trunk publishes two Flaky Tests event types to Svix. Each event includes a full JSON schema with field descriptions visible in the Svix app portal.
+Trunk publishes three Flaky Tests event types to Svix. Each event includes a full JSON schema with field descriptions visible in the Svix app portal.
 
 ## Test collection events
 
@@ -78,6 +78,23 @@ Emitted when a test case changes status (e.g., becomes flaky or is resolved), as
 | `triggered_by.monitor_id` | string (UUID) | Unique identifier of the triggering monitor |
 | `triggered_by.monitor_type` | string | Type of monitor that triggered the change |
 | `triggered_by.monitor_status` | string | Status of the monitor at the time of the trigger |
+| `repository` | object | See `repository` fields above |
+| `test_case` | object | See `test_case` fields above |
+
+### `v2.test_case.quarantining_setting_changed`
+
+Emitted when someone sets a manual quarantining override on a test case. Fires on every change, including one that re-applies the value already in force. It does not fire when Trunk auto-quarantines a test.
+
+| Field | Type | Description |
+|---|---|---|
+| `type` | string | Always `v2.test_case.quarantining_setting_changed` |
+| `timestamp` | string (ISO 8601) | When the event occurred |
+| `previous_quarantining_setting` | string | The setting before the change (`UNSPECIFIED`, `ALWAYS_QUARANTINE`, or `NEVER_QUARANTINE`) |
+| `updated_quarantining_setting` | string | The setting after the change |
+| `reason` | string or null | The comment left with the override, or null |
+| `actor.email` | string | Email of the person who changed the setting |
+| `actor.full_name` | string | Name of the person who changed the setting |
+| `test_collection` | object | The test collection the test belongs to. Always present on this event |
 | `repository` | object | See `repository` fields above |
 | `test_case` | object | See `test_case` fields above |
 

@@ -60,6 +60,14 @@ All webhook payloads include an ISO 8601 `timestamp` field marking when the stat
 
 ***
 
+### Quarantining events
+
+`v2.test_case.quarantining_setting_changed` fires only when someone sets a manual quarantining override (`ALWAYS_QUARANTINE` or `NEVER_QUARANTINE`) on a test. It does **not** fire when Trunk auto-quarantines a test based on flakiness.
+
+To react to auto-quarantine, listen to `v2.test_case.status_changed` and check `new_status == "FLAKY"` in the payload.
+
+***
+
 ### Getting help
 
 If you or your team are running into issues with webhook subscriptions or payloads, contact [support@trunk.io](mailto:support@trunk.io) for assistance.
