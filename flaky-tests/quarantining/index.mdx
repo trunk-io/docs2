@@ -48,9 +48,7 @@ With quarantining enabled, the Analytics Uploader will compare failed test cases
 
 ### Quarantining settings
 
-A new [test collection](../test-collections) starts with quarantining enabled, unless your organization is still migrating, in which case it starts off. To change it, navigate to **Flaky Tests** → **Collections** → **[collection]** → **Settings** → **Quarantining**.
-
-On a repository, navigate to **Settings** → **Repositories** → **[repository]** → **Flaky Tests** → toggle **Enable Test Quarantining** on. This route is unavailable once your organization has fully migrated to collections.
+A new [test collection](../test-collections) starts with quarantining enabled. To change it, navigate to **Flaky Tests** → **Collections** → **[collection]** → **Settings** → **Quarantining**.
 
 <Frame>
 ![](/assets/flaky-tests/quarantining/enable_test_quarantining.png)
@@ -70,15 +68,13 @@ Here's what each of these options does:
 
 [Test Collections](../test-collections) have their own quarantining settings, which lets you apply different quarantining policies to different subsets of your test suite.
 
-While you are migrating, which settings apply is decided per upload: **if quarantining is enabled on the collection an upload was routed to, that collection's quarantining and flaky state are used. Otherwise the repository's are.**
-
 To configure collection quarantining, navigate to **Flaky Tests** → **Collections** → **[collection name]** → **Settings** → **Quarantining**.
 
 The same two toggles are available at the collection level:
 
 | Setting | Description |
 |---|---|
-| Enable Test Quarantining | Activates quarantining for this collection. When enabled, this setting overrides the repository-level quarantining setting for uploads that belong to this collection. New test collections have this enabled by default. |
+| Enable Test Quarantining | Activates quarantining for this collection. New test collections have this enabled by default. |
 | Auto-Quarantine Flaky Tests | Automatically quarantines any test in this collection that Trunk has identified as flaky. This option is only available when quarantining is enabled for the collection. |
 
 <Info>
@@ -300,7 +296,7 @@ Once quarantining is active, the **Quarantining** tab provides a central hub for
 
 ## Audit logs
 
-Trunk provides audit logs for all setting changes and overwrites for individual tests. On a collection, the audit log is on its **Settings** → **Quarantining** page. On a repository, navigate to **Settings** → **Repositories** → **[repository]** → **Flaky Tests** → **Audit logs** under the Enable Test Quarantining heading.
+Trunk provides audit logs for all setting changes and overwrites for individual tests. The audit log is on a collection's **Settings** → **Quarantining** page.
 
 <Frame>
 ![](/assets/flaky-tests/quarantining/qurantine-audit-logs.png)
