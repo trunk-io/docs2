@@ -38,7 +38,7 @@ Events for [test collections](/flaky-tests/test-collections) carry the same even
 
 **You cannot deduplicate on `test_case.id`.** Collection and repository events do not share a test-case ID space, so the same underlying test arrives under two unrelated IDs. `repository.id` is the only handle common to both, and it is omitted rather than guessed when an upload carries no repository.
 
-**While you are migrating, collection events are off.** A repository and a collection with monitors over the same tests detect independently, so one detection can produce two events. Switch collection events on from **Settings** → **Organization** → **Webhooks** once your consumer handles the payloads above. It is one switch for every collection event, not one per event type, and it disappears once you have finished migrating — at that point collection events are simply sent. See the [migration guide](/flaky-tests/get-started/migrate-to-test-collections#webhooks-while-you-migrate).
+**While you are migrating, collection events are off.** A repository and a collection with monitors over the same tests detect independently, so one detection can produce two events. Switch collection events on from **Settings** → **Organization** → **Webhooks** once your consumer handles the payloads above. It is one switch for every collection event, not one per event type, and it disappears once you have finished migrating — at that point collection events are simply sent.
 
 ## Event payloads
 
