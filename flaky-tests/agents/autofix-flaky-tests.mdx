@@ -1,73 +1,33 @@
 ---
-title: "Autofix Flaky Tests"
-description: "Investigate and fix flaky tests with Trunk's autofix agent."
-og:title: "Autofix flaky tests with Trunk"
+title: "Fix Flaky Tests with an Agent"
+description: "Give a coding agent the context it needs to fix a flaky test, from Trunk's API."
+og:title: "Fix flaky tests with an agent using the Trunk API"
 ---
-Trunk can investigate flaky tests in your codebase and help raise fix pull requests with suggested solutions.
+A coding agent such as Cursor or Claude Code can fix a flaky test when it has the right context: which test, when it became flaky, and how it fails. Trunk's [API](/api) provides all of it. Have your agent follow these steps.
 
-## Prerequisites
+## 1. Find the tests to fix
 
-To use the Autofix Flaky Tests feature, you'll need:
+Start the agent in one of two ways:
 
-1. Beta access via waitlist (reach out to us at [support@trunk.io](mailto:support@trunk.io))
-2. The **Investigate Flaky Tests** setting enabled on the repository, at **Settings** → **Repositories** → **[your repository]** → **General**
-3. Active installation of the [Trunk GitHub App](../../setup-and-administration/github-app-permissions)
+- **From a webhook.** Subscribe the agent's endpoint to the [`v2.test_case.status_changed`](../webhooks/index) event and act when `new_status` is `FLAKY`. Pass `test_case.id` to the calls below.
+- **On a schedule.** Call [`GET /v2/tests`](/api/tests/list-and-search-tests) with `status=flaky`, `newlyFlaky=true` and a `period`, narrowed with `testCollectionId` or `owner` if you like.
+
+## 2. Gather context
+
+| What the agent needs | Call |
+|---|---|
+| The test's name, file, owners, active monitors and failure rate | [`GET /v2/tests/{testId}`](/api/tests/get-a-test) with `include=metrics&period=7d` |
+| When the test became flaky, and which monitor flagged it | [`GET /v2/tests/{testId}/status-history`](/api/tests/list-a-tests-status-transitions) |
+| Failing runs, with branch, commit, pull request, CI job and build URL | [`GET /v2/tests/{testId}/test-runs`](/api/tests/list-a-tests-runs) with `conclusion=failure` |
+| The failure output | `GET /v2/ci-jobs` with the test's `repositoryId` and the run's `sha` as `commitSha`. Pick the job whose `name` matches the run's `jobName`; its `failure.logExcerpt` gives the failing lines. Read more of the log with `GET /v2/ci-jobs/{id}/log-lines`. |
 
 <Note>
-**Investigate Flaky Tests** is a per-repository setting, and only organization admins can change it. Turning it off disables every kind of investigation for that repository, including ones you start by hand and ones started through MCP.
+The failure output comes from CI Intelligence, so **CI Intelligence must be on** for the repository, at **Settings** → **Repositories**, with the [Trunk CI GitHub App](/setup/integrations/github/trunk-ci) installed. Logs are kept for 30 days. Without it, have the agent open the run's `buildUrl` instead.
 </Note>
 
-<Frame>
-![Setting to enable Flaky Test investigation](/assets/flaky-tests/agents/investigate-flaky-tests-setting.png)
-</Frame>
+## 3. Fix and track
 
-## Investigate Flaky Tests
+- Have the agent open a pull request that fixes the root cause, not one that raises a timeout or loosens an assertion.
+- To track the work, link the pull request's ticket with [`POST /v2/tests/{testId}/ticket`](/api/tests/link-a-ticket-to-a-test), or create one with [`POST /v2/tests/{testId}/create-ticket`](/api/tests/create-a-ticket-for-a-test).
 
-Start an investigation from a test's detail page in the Trunk app, or through the [MCP server](../reference/mcp-reference/fix-flaky-test). Trunk analyzes the failure patterns, failure output, and git history of the test to provide a number of insights.
-
-<Frame>
-![Results of a flaky test analysis](/assets/flaky-tests/agents/investigate-flaky-tests.png)
-</Frame>
-
-### Investigation limits
-
-Trunk caps how many investigations run through MCP, so an agent can't consume an unbounded amount of analysis. Two limits apply:
-
-| Limit                                        | Default |
-| -------------------------------------------- | ------- |
-| Investigations per repository, per month      | 100     |
-| Investigations per individual test, per month | 5       |
-
-Both are counted per calendar month and reset on the first of the month. The per-test limit keeps a single test from consuming the whole repository's budget.
-
-#### What counts against the limits
-
-- **Investigations started through MCP**, using the [`fix-flaky-test`](../reference/mcp-reference/fix-flaky-test) tool with `createNewInvestigation: true`.
-
-Only investigations that finish and produce a result are counted. One that fails or is skipped doesn't consume any of your budget.
-
-#### What doesn't count
-
-Investigations you start by hand from a test's detail page in the Trunk app are exempt from both limits. They never count against your budget, and you can still run them after a repository or test has hit its cap.
-
-<Tip>
-Both limits can be raised for your repositories. If you expect to run more investigations than the defaults allow — for example, driving fixes with an agent through MCP — contact us at [support@trunk.io](mailto:support@trunk.io) with the repositories you want raised and a rough estimate of your monthly volume.
-</Tip>
-
-### Skipped and failed analyses
-
-When Trunk skips or fails an analysis, the Analysis tab shows a banner explaining what happened. Common reasons an analysis is skipped:
-
-- **Monthly analysis limit reached.** The repository or the test has used all of its investigations for the current calendar month. See [Investigation limits](#investigation-limits). The banner shows how long ago the skip occurred.
-- **Analysis already in progress.** A previous run is still queued; Trunk skips a new one to avoid duplicates.
-
-If an analysis fails due to an internal error, the banner notes the failure without exposing internal details. In either case, you can request a new analysis once the blocking condition clears — and a manual analysis from the test's detail page is always available, even while a limit is reached.
-
-## What's next?
-
-- Continue to monitor your tests to confirm the flaky test fixes are effective
-- Investigations can be triggered and applied via [MCP](../reference/mcp-reference/fix-flaky-test)
-
-<Info>
-**Coming soon.** Set up Claude Routines to autofix flaky tests
-</Info>
+Keep monitoring the test afterwards to confirm the fix worked.
