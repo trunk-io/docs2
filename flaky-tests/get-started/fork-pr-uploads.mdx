@@ -15,6 +15,11 @@ A forked run can also read quarantined tests, so [quarantining](../quarantining/
 
 In the Trunk web app, open the collection, go to **Settings** → **Uploads**, and turn on **Accept uploads from forked pull requests**. Only organization admins can change this setting.
 
+<Frame>
+  <img className="block dark:hidden" src="/assets/flaky-tests/get-started/fork-pr-uploads-setting-light.png" alt="The Forked pull requests section of a collection's Uploads settings, with Accept uploads from forked pull requests turned on." />
+  <img className="hidden dark:block" src="/assets/flaky-tests/get-started/fork-pr-uploads-setting-dark.png" alt="The Forked pull requests section of a collection's Uploads settings, with Accept uploads from forked pull requests turned on." />
+</Frame>
+
 Trunk does not issue a separate identifier for this. The fork run addresses the collection by its [collection ID](../test-collections#the-collection-id), the same eight-character ID you already pass with `--test-collection-id`.
 
 ## 2. Upload from the fork workflow
