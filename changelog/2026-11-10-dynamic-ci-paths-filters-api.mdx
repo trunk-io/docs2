@@ -1,0 +1,17 @@
+---
+title: "Dynamic CI: Manage path filters through the v2 API"
+description: "New v2 endpoints list a repository's path filters and set or clear them on jobs in bulk."
+date: 2026-11-10
+category: Dynamic CI
+type: new-feature
+---
+
+**You can now read and set Dynamic CI path filters through the v2 API.** Dynamic CI is in private beta.
+
+### New features
+
+- **List path filters.** [List a repository's paths filters](/api/dynamicci/list-a-repositorys-paths-filters) returns every path filter in a repository, with the jobs each one gates.
+- **Set or clear path filters in bulk.** [Set or clear paths filters on jobs](/api/dynamicci/set-or-clear-paths-filters-on-jobs) applies a filter to up to 500 jobs per request, or removes it. Each filter covers pull requests and the merge queue. Requires the **Update Dynamic CI settings** permission.
+- **No accidental overwrites.** If a job already has a different filter, the request fails with `PATHS_FILTER_CONFLICT` unless you set `overwrite: true`. Any error means nothing was written.
+
+See [Path filters](/ci/dynamic-ci/configuration/path-filters) for the filter syntax and how filters affect a verdict.
