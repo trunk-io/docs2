@@ -28,7 +28,7 @@ Trunk lets you create custom workflows with **event-triggered webhooks**. Flaky 
   www.svix.com
 </Card>
 
-Trunk publishes three Flaky Tests event types to Svix. Each event includes a full JSON schema with field descriptions visible in the Svix app portal.
+Trunk publishes two Flaky Tests event types to Svix. Each event includes a full JSON schema with field descriptions visible in the Svix app portal.
 
 ## Test collection events
 
@@ -80,28 +80,6 @@ Emitted when a test case changes status (e.g., becomes flaky or is resolved), as
 | `triggered_by.monitor_status` | string | Status of the monitor at the time of the trigger |
 | `repository` | object | See `repository` fields above |
 | `test_case` | object | See `test_case` fields above |
-
-### `test_case.investigation_completed`
-
-Emitted when an AI-powered flaky test analysis finishes for a test case.
-
-| Field | Type | Description |
-|---|---|---|
-| `type` | string | Always `test_case.investigation_completed` |
-| `investigation_id` | string (UUID) | Unique identifier for the investigation |
-| `trigger` | string | How the investigation was initiated. One of `AUTOMATIC`, `MANUAL`, or `MCP` |
-| `confidence` | number | Overall confidence score (0-1) for the findings |
-| `created_at` | string (ISO 8601) | When the investigation completed |
-| `markdown_summary` | string | Markdown-formatted summary of findings and recommendations |
-| `failure_message` | string | The original failure message that triggered the investigation |
-| `facts` | array | Facts discovered during the investigation |
-| `facts[].fact_type` | string | Category of the fact (e.g., `GIT_BLAME`) |
-| `facts[].content` | string | Detailed description with citations to supporting evidence |
-| `facts[].confidence` | number | Confidence score (0-1) for this individual fact |
-| `repository` | object | See `repository` fields above |
-| `test_case` | object | See `test_case` fields above |
-
-Citations in `markdown_summary` and `facts[].content` are delivered as fully rendered links to the supporting evidence, so you can consume these fields directly without resolving placeholder tags.
 
 **Delivery reliability.** If the webhook delivery provider rate-limits a request, Trunk automatically retries with exponential backoff, so a transient spike rarely drops an event. This applies to every Flaky Tests webhook event and needs no configuration on your side.
 
