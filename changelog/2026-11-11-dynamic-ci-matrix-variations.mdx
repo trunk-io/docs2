@@ -1,0 +1,19 @@
+---
+title: "Dynamic CI: Skip single variations of a matrix job"
+description: "Opt a matrix job in to being decided variation by variation, so a pull request runs only the variations it is likely to break."
+date: 2026-11-11
+category: Dynamic CI
+type: new-feature
+---
+
+**Dynamic CI can now decide a matrix job variation by variation.** Dynamic CI is in private beta.
+
+### New features
+
+- **Decide variations separately.** Before, a matrix job ran or skipped as a whole. Now you can split it by one or more keys, such as OS or test suite. Each group learns from its own history, so a pull request runs only the groups it is likely to break. Turn it on under **Matrix variations** in a matrix job's settings in [Dynamic CI → Configuration](https://app.trunk.io/ci/dynamic-ci/configuration). See [Matrix jobs](/ci/dynamic-ci/configuration/matrices).
+- **Preview before you enforce.** The settings show each key's values with their 30-day failure rate and the groups your choice makes. In **Learning** mode, Trunk records a decision for each group and skips nothing.
+
+### Updates
+
+- **GitHub Actions.** Requires `trunk-io/dynamic-ci` v0.1.8 or later. The action sets an extra output that leaves skipped variations out of your matrix. See [Matrix jobs on GitHub Actions](/ci/dynamic-ci/getting-started/github-actions#matrix-jobs).
+- **Buildkite.** Requires the plugin v0.1.9 or later. You don't need to change your pipeline. The plugin leaves skipped variations out of the step it uploads. See [Matrix steps on Buildkite](/ci/dynamic-ci/getting-started/buildkite#matrix-steps).
