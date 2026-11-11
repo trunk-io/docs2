@@ -198,7 +198,6 @@
                 "group": "Getting Started",
                 "root": "flaky-tests/get-started/index",
                 "pages": [
-                  "flaky-tests/get-started/migrate-to-test-collections",
                   {
                     "group": "Test frameworks",
                     "root": "flaky-tests/get-started/frameworks",
@@ -877,7 +876,6 @@
                 },
                 "pages": [
                   "api/v1/migrate-merge-queue",
-                  "api/v1/migrate-flaky-tests",
                   {
                     "group": "Pull requests",
                     "pages": [
@@ -905,16 +903,6 @@
                     "group": "Merge queue metrics",
                     "pages": [
                       "GET /getMergeQueueMetrics"
-                    ]
-                  },
-                  {
-                    "group": "Tests",
-                    "pages": [
-                      "POST /flaky-tests/get-test-details",
-                      "POST /flaky-tests/link-ticket-to-test-case",
-                      "POST /flaky-tests/list-failing-tests",
-                      "POST /flaky-tests/list-unhealthy-tests",
-                      "POST /flaky-tests/list-quarantined-tests"
                     ]
                   }
                 ]

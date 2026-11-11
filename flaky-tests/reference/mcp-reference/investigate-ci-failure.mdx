@@ -48,7 +48,7 @@ Investigate the CI failure at https://github.com/trunk-io/trunk/actions/runs/123
 
 ## What the tool does
 
-- Looks up test result uploads Trunk has received for that run, including uploads to [test collections](/flaky-tests/test-collections). An upload recorded for both the repository and a collection while you [migrate](/flaky-tests/get-started/migrate-to-test-collections) is only read once
+- Looks up test result uploads Trunk has received for that run
 - Parses the test runs to extract test names, error messages, stdout and stderr
 - Filters out quarantined (known-flaky) tests so you only see real failures
 - Returns structured failure details you can act on

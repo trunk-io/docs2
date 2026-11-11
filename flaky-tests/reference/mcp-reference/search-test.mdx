@@ -28,15 +28,7 @@ The `search-test` tool looks up a test by part of its name, class, or file. It s
 
 ## Which tests are searched
 
-What the tool searches follows your organization's [migration to test collections](/flaky-tests/get-started/migrate-to-test-collections), and matches what the Trunk app shows you:
-
-| Organization | Searched |
-| --- | --- |
-| Not using test collections | The repository's tests |
-| Migrating to test collections | The repository's tests and its tests in every collection. The same test can appear in both lists |
-| Fully on test collections | The repository's tests in every collection |
-
-Passing `testCollectionShortId` searches only that collection.
+The tool searches the repository's tests in every [test collection](/flaky-tests/test-collections). Passing `testCollectionShortId` searches only that collection.
 
 ## Getting Parameter Values
 
