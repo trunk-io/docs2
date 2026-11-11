@@ -1,0 +1,16 @@
+---
+title: "Dynamic CI: Group matrix variations with the Group by picker"
+description: "Choose which matrix keys group a job's variations and watch the decision groups update as you pick."
+date: 2026-11-11
+category: Dynamic CI
+type: update
+---
+
+**Matrix variations in Dynamic CI have a redesigned setup.** Dynamic CI is in private beta.
+
+### Updates
+
+- **Group by picker.** In **Dynamic CI → Configuration**, expand a matrix job and click keys under **Matrix variations → Group by**. The **Decision groups** list regroups live as you pick, and each group gets its own run or skip decision. See [Matrix jobs](/ci/dynamic-ci/configuration/matrices).
+- **Start as one group.** Every matrix job starts as a single **All Variations** group, and the **Schedule** column shows **matrix: Group by none**. To decide the job as one unit again, unpick every key and save.
+- **Setup help in place.** **View YAML** opens the workflow file with the job's matrix highlighted. GitHub Actions jobs show a setup checklist of what your workflow still needs, and **Understanding variations** links to the right setup steps.
+- **Simpler choices.** The separate **Decide variations separately** option and per-key failure-rate stats are gone. Picking a key under **Group by** is now the only step to opt in.
