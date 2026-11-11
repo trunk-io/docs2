@@ -52,7 +52,7 @@ Emitted when a monitor activates or resolves for a test case.
 | `timestamp` | string (ISO 8601) | When the event occurred |
 | `monitor.id` | string (UUID) | Unique identifier for the monitor |
 | `monitor.type` | string | The type of monitor (e.g., `pass_on_retry`) |
-| `monitor.status` | string | Current monitor status (`active` or `resolved`) |
+| `monitor.status` | string | Current monitor status (`active` or `inactive`) |
 | `evidence` | object | Data supporting the status change; structure varies by monitor type |
 | `repository.id` | string (UUID) | Unique identifier for the repository |
 | `repository.html_url` | string | URL of the repository |
@@ -60,10 +60,12 @@ Emitted when a monitor activates or resolves for a test case.
 | `test_case.name` | string | Name of the test |
 | `test_case.classname` | string | Test classname |
 | `test_case.file_path` | string | File path of the test |
+| `test_case.parent` | string | The parent test suite or file |
 | `test_case.html_url` | string | URL to the test detail page in Trunk |
 | `test_case.codeowners` | array of strings | Code owners associated with the test |
 | `test_case.quarantined` | boolean | Whether the test is quarantined |
 | `test_case.variant` | string | Test variant name |
+| `test_case.bazel_label` | string | The Bazel label (target) of the test, when available. Omitted otherwise |
 
 ### `v2.test_case.status_changed`
 
@@ -80,28 +82,27 @@ Emitted when a test case changes status (e.g., becomes flaky or is resolved), as
 | `triggered_by.monitor_status` | string | Status of the monitor at the time of the trigger |
 | `repository` | object | See `repository` fields above |
 | `test_case` | object | See `test_case` fields above |
+| `test_case.failure_rate_last_7d` | number | The test's failure rate over the last 7 days, from 0 to 1 |
+| `test_case.pull_requests_impacted_last_7d` | number | Distinct pull requests the test failed on, unquarantined, while flaky or broken, in the last 7 days |
 
-### `test_case.investigation_completed`
+### `v2.test_case.quarantining_setting_changed`
 
-Emitted when an AI-powered flaky test analysis finishes for a test case.
+Emitted when someone sets a manual quarantining override on a test case. Fires on every change, including one that re-applies the value already in force. It does not fire when Trunk auto-quarantines a test.
 
 | Field | Type | Description |
 |---|---|---|
-| `type` | string | Always `test_case.investigation_completed` |
-| `investigation_id` | string (UUID) | Unique identifier for the investigation |
-| `trigger` | string | How the investigation was initiated. One of `AUTOMATIC`, `MANUAL`, or `MCP` |
-| `confidence` | number | Overall confidence score (0-1) for the findings |
-| `created_at` | string (ISO 8601) | When the investigation completed |
-| `markdown_summary` | string | Markdown-formatted summary of findings and recommendations |
-| `failure_message` | string | The original failure message that triggered the investigation |
-| `facts` | array | Facts discovered during the investigation |
-| `facts[].fact_type` | string | Category of the fact (e.g., `GIT_BLAME`) |
-| `facts[].content` | string | Detailed description with citations to supporting evidence |
-| `facts[].confidence` | number | Confidence score (0-1) for this individual fact |
+| `type` | string | Always `v2.test_case.quarantining_setting_changed` |
+| `timestamp` | string (ISO 8601) | When the event occurred |
+| `previous_quarantining_setting` | string | The setting before the change (`UNSPECIFIED`, `ALWAYS_QUARANTINE`, or `NEVER_QUARANTINE`) |
+| `updated_quarantining_setting` | string | The setting after the change |
+| `reason` | string or null | The comment left with the override, or null |
+| `actor.email` | string | Email of the person who changed the setting |
+| `actor.full_name` | string | Name of the person who changed the setting |
+| `test_collection` | object | The test collection the test belongs to. Always present on this event |
 | `repository` | object | See `repository` fields above |
 | `test_case` | object | See `test_case` fields above |
-
-Citations in `markdown_summary` and `facts[].content` are delivered as fully rendered links to the supporting evidence, so you can consume these fields directly without resolving placeholder tags.
+| `test_case.failure_rate_last_7d` | number | The test's failure rate over the last 7 days, from 0 to 1 |
+| `test_case.pull_requests_impacted_last_7d` | number | Distinct pull requests the test failed on, unquarantined, while flaky or broken, in the last 7 days |
 
 **Delivery reliability.** If the webhook delivery provider rate-limits a request, Trunk automatically retries with exponential backoff, so a transient spike rarely drops an event. This applies to every Flaky Tests webhook event and needs no configuration on your side.
 
