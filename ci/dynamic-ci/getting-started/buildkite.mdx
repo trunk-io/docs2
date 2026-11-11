@@ -8,7 +8,7 @@ og:title: "Set up Trunk Dynamic CI for Buildkite"
   <Step title="Configure Secrets in BuildKite: [Create a Trunk API key](/api/authentication#create-an-api-key) and add it to BuildKite's secret store named `TRUNK_API_TOKEN`">
     The key doesn't need any permissions.
   </Step>
-  <Step title="[Configure BuildKite to export CI data to Trunk](/setup/integrations/buildkite): connecting BuildKite's OTEL data allows us to learn the behavior of your CI jobs">
+  <Step title="Setup OpenTelemetry Export from BuildKite: Provides span data to the Dynamic CI system so we can learn about your pipelines and jobs. [Configure BuildKite to export CI data to Trunk](/setup/integrations/buildkite)">
   </Step>
   <Step title="Paste a BuildKite API token with the `read_builds` and `read_organizations` scopes into [Settings → Organization → Buildkite](https://app.trunk.io/settings/organization/buildkite). Use a token from a dedicated BuildKite user.">
   </Step>
