@@ -1,0 +1,66 @@
+---
+title: "Connect GitLab and create your queue"
+description: "Connect a GitLab group to Trunk through a service account, then create a merge queue for a GitLab project."
+og:title: "Connect GitLab and create your Trunk Merge Queue"
+groups: ["gitlab"]
+---
+
+Trunk acts on GitLab through a **service account** in one of your top-level groups. The service account has the **Maintainer** role on the group, so Trunk can open merge requests, push test branches, read pipelines and merge in every project the group contains, including subgroups and projects added later.
+
+## Prerequisites
+
+- The **admin** role in your Trunk organization
+- The **Owner** role on the GitLab top-level group that contains your project
+- Your project is on GitLab.com. Self-managed GitLab instances are not supported yet.
+
+## Connect GitLab
+
+Trunk creates the service account and its tokens for you.
+
+1. [Sign in to app.trunk.io](https://app.trunk.io/login) and go to **Settings** → **Integrations** → **GitLab**.
+2. Click **Connect GitLab** (or **Add Connection** if your organization already has one).
+3. Click **Connect with GitLab** and authorize Trunk on GitLab.com. Trunk asks for the `api` scope and uses your authorization only once, to set up its own service account. It then discards your authorization.
+4. Under **Choose a group**, select the top-level group that contains your project. Only top-level groups that you own are listed: Trunk connects a whole top-level group.
+5. Click **Create service account & connect**.
+
+Trunk then:
+
+- Creates a group service account named **Trunk Merge Queue** (GitLab chooses its username).
+- Gives it the **Maintainer** role on the group.
+- Issues its own access tokens for the account, with the `api` scope.
+
+<Note>
+  If you see "You are not an Owner of any top-level GitLab group" or "GitLab refused the request. You need the Owner role on this group to create a service account", ask a group Owner to complete these steps. They also need the **admin** role in Trunk: invite them in **Settings** → **Organization** → **Team**.
+</Note>
+
+## Create your first queue
+
+1. Open the **Merge Queue** tab. If your organization has no queues yet, it opens the setup form. Otherwise, open the actions menu and choose **Create queue**.
+2. Under **Select a repository**, pick your GitLab project. Enter the target branch to merge into (for example, `main`) in **Branch Name**.
+3. Click **Create Queue**.
+
+If GitLab isn't connected yet, the **Merge Queue** tab shows **Connect GitLab**, which opens the setup above.
+
+When you create the queue, Trunk adds a **project webhook** named `Trunk` to the GitLab project. It delivers push, merge request, comment, pipeline and job events to Trunk. You don't need to add a webhook yourself.
+
+<Note>
+  **Don't edit or delete the `Trunk` webhook.** Trunk signs its deliveries, so a hook that you add or edit by hand doesn't work. If GitLab disables the hook after repeated failed deliveries, re-enable it in the project's **Settings** → **Webhooks**. Trunk doesn't detect a disabled or missing hook, so queued merge requests stop moving until you fix it. If the hook is missing, [contact support](/setup-and-administration/support).
+</Note>
+
+## What you just did
+
+You connected a GitLab group to Trunk and created a queue for one project's target branch. Trunk can now see the project, but your queue won't merge anything until the project settings in the next step are in place.
+
+<Info>
+  **Need multiple queues?** You can create more queues for the same project that target other branches (for example, `release/v2`). See [Multiple queues per repository](/merge-queue/administration/advanced-settings#multiple-queues-per-repository).
+</Info>
+
+## Disconnecting GitLab
+
+To disconnect, open the connection in **Settings** → **Integrations** → **GitLab** and delete it. You can't disconnect while any of the group's projects has a merge queue: delete those queues first. Trunk revokes its tokens. It doesn't delete the service account: remove it from the group in GitLab yourself.
+
+## Next steps
+
+→ [**Configure project settings**](/merge-queue/getting-started/gitlab/configure-project-settings) - Set up protected branches and merge request settings so Trunk can merge.
+
+_Having trouble?_ See the [GitLab troubleshooting section](/merge-queue/getting-started/gitlab/test-your-setup#troubleshooting).

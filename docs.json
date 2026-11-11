@@ -104,7 +104,17 @@
                   "merge-queue/getting-started/install-and-create-your-queue",
                   "merge-queue/getting-started/configure-branch-protection",
                   "merge-queue/getting-started/configure-ci-status-checks",
-                  "merge-queue/getting-started/test-your-setup"
+                  "merge-queue/getting-started/test-your-setup",
+                  {
+                    "group": "GitLab",
+                    "root": "merge-queue/getting-started/gitlab",
+                    "pages": [
+                      "merge-queue/getting-started/gitlab/connect-and-create-your-queue",
+                      "merge-queue/getting-started/gitlab/configure-project-settings",
+                      "merge-queue/getting-started/gitlab/configure-ci-pipelines",
+                      "merge-queue/getting-started/gitlab/test-your-setup"
+                    ]
+                  }
                 ]
               },
               "merge-queue/migrating-from-github-merge-queue",
