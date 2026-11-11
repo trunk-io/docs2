@@ -1,0 +1,15 @@
+---
+title: "Flaky Tests: v1 webhook events and AI investigations retired"
+description: "Flaky Tests retires the v1 test status webhook events, AI investigations and the fix-flaky-test MCP tool. Use the v2 webhooks and API instead."
+date: 2026-11-11
+category: Flaky Tests
+type: update
+---
+
+**Flaky Tests now sends test status and quarantine updates through v2 webhook events only, and AI investigations are retired.**
+
+### Updates
+
+- **v2 webhook events replace v1.** `v2.test_case.status_changed` replaces `test_case.status_changed`, and `v2.test_case.quarantining_setting_changed` replaces `test_case.quarantining_setting_changed`. Both v2 events include the test's 7-day failure rate and impacted pull request count. If you subscribe to a v1 event, switch to its v2 event. See [Webhooks](/flaky-tests/webhooks/index).
+- **AI investigations retired.** The **Investigate Flaky Tests** setting and the `test_case.investigation_completed` webhook event are gone.
+- **`fix-flaky-test` MCP tool deprecated.** Coding agents can get a flaky test's details, status history, failing runs and failure output from the v2 API instead. See [Fix flaky tests with an agent](/flaky-tests/agents/autofix-flaky-tests).
