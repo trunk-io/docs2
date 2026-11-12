@@ -11,7 +11,7 @@ Trunk maps Evergreen to its CI model like this:
 | Evergreen | Trunk |
 | --- | --- |
 | Project | Pipeline |
-| Version (a commit, a patch, a pull request or a merge queue run) | Pipeline run |
+| Version (a commit, a patch, a pull request or a merge queue run, for each build initiator you subscribe to) | Pipeline run |
 | Task (with its build variant) | Job |
 | Task execution | Job attempt |
 
@@ -21,35 +21,118 @@ The repository must already exist in Trunk and have **CI Intelligence** turned o
 
 #### Create a Trunk API key
 
-An organization admin creates the key. In the Trunk app, go to [**Settings** → **Developer** → **API Keys**](https://app.trunk.io/settings/developer/api-tokens) and click **Create Key**. Use an API key here, not the organization API token shown on the same page.
+An organization admin creates the key. In the Trunk app, go to [**Settings** → **Developer** → **API Keys**](https://app.trunk.io/settings/developer/api-tokens) and click **Create Key**. Use an API key. The organization API token shown on the same page also works, but you cannot revoke it without changing it everywhere it is used.
 
 ![Create Api Key](/create-api-key.png "Create Api Key")
 
 #### Add the webhook subscriptions
 
-Add the subscriptions in your Evergreen **repo settings** if you can. A repo-level subscription applies to every branch project attached to the repo, including branches you add later. You can also add them to each project.
+Add the subscriptions in your Evergreen **repo settings** if you can. A repo-level subscription applies to every branch project attached to the repo, including branches you add later. You can also add them to each project instead. Do not add them in both places: Evergreen then sends each webhook twice.
 
-In the project or repo settings, open **Notifications** and add two subscriptions:
+In Evergreen, open the repo or project settings, select the **Notifications** tab and click **Add Subscription**. Add two subscriptions for each build initiator you want in Trunk:
 
-| Event | Notification method |
+| Event | Build Initiator | Notification Method |
+| --- | --- | --- |
+| **Any task finishes** | One of the values below | **Webhook** |
+| **Any version finishes** | The same value | **Webhook** |
+
+The **Build Initiator** field takes one value per subscription, and its default is **Commit**. Evergreen sends only the versions and tasks of that initiator. To send pull requests too, add a second pair with **Pull Request**, and so on:
+
+| Build Initiator | Versions sent |
 | --- | --- |
-| **Any task finishes** | Webhook |
-| **Any version finishes** | Webhook |
+| **Commit** | Commits on the tracked branch |
+| **Pull Request** | GitHub pull request patches |
+| **Patch** | Patches submitted with `evergreen patch` |
+| **Periodic Build** | Periodic builds |
 
-Give both subscriptions the same webhook settings:
+GitHub merge queue runs are not in this list. The **Commit Queue** option is Evergreen's old commit queue. To send merge queue runs, add the subscriptions with the API, as described in [Merge queue runs](#merge-queue-runs).
+
+Give every subscription the same webhook settings:
 
 | Field | Value |
 | --- | --- |
-| Webhook URL | `https://api.trunk.io/v2/ci/evergreen/v1/webhooks` |
-| HTTP header | `Authorization: Bearer <your Trunk API key>` |
-| Retries | `3` |
-| Timeout | `10` seconds |
+| **Webhook URL** | `https://api.trunk.io/v2/ci/evergreen/v1/webhooks` |
+| **Webhook Secret** | Leave it empty. Evergreen makes one when you save. |
+| **Retry count** | `3` |
+| **Max timeout (ms)** | `30000` |
+| **HTTP Headers** | Key `Authorization`, Value `Bearer <your Trunk API key>` |
+
+Evergreen stores the `Authorization` header as a secret and does not show it again after you save.
 
 Do not add the "fails", "first failure", "previously passing" or "runtime" events. Each one sends a subset of what **Any task finishes** and **Any version finishes** already send, so Trunk would receive the same data twice.
 
+#### Merge queue runs
+
+A GitHub merge queue version has the build initiator `github_merge_request`, which the subscription form does not offer. Add its two subscriptions with the [Evergreen REST API](https://github.com/evergreen-ci/evergreen/blob/main/docs/API/REST-V2-Usage.mdx) instead. You need permission to edit the project's or repo's settings.
+
+1. Find the ID of the repo or project. `GET /rest/v2/projects/<project identifier>` returns the project's `id`, and its `repo_ref_id` when the project is attached to a repo. Use the repo ID to cover every branch project of the repo, as above.
+2. Save this request body as `subscriptions.json`. Replace `<ID>` in both places in each subscription, and set a random `secret` for each one (the API does not make one):
+
+```json
+[
+  {
+    "resource_type": "TASK",
+    "trigger": "outcome",
+    "owner_type": "project",
+    "owner": "<ID>",
+    "selectors": [
+      { "type": "project", "data": "<ID>" },
+      { "type": "requester", "data": "github_merge_request" }
+    ],
+    "regex_selectors": [],
+    "subscriber": {
+      "type": "evergreen-webhook",
+      "target": {
+        "url": "https://api.trunk.io/v2/ci/evergreen/v1/webhooks",
+        "secret": "<random string>",
+        "retries": 3,
+        "min_delay_ms": 0,
+        "timeout_ms": 30000,
+        "headers": [{ "key": "Authorization", "value": "Bearer <your Trunk API key>" }]
+      }
+    }
+  },
+  {
+    "resource_type": "VERSION",
+    "trigger": "outcome",
+    "owner_type": "project",
+    "owner": "<ID>",
+    "selectors": [
+      { "type": "project", "data": "<ID>" },
+      { "type": "requester", "data": "github_merge_request" }
+    ],
+    "regex_selectors": [],
+    "subscriber": {
+      "type": "evergreen-webhook",
+      "target": {
+        "url": "https://api.trunk.io/v2/ci/evergreen/v1/webhooks",
+        "secret": "<another random string>",
+        "retries": 3,
+        "min_delay_ms": 0,
+        "timeout_ms": 30000,
+        "headers": [{ "key": "Authorization", "value": "Bearer <your Trunk API key>" }]
+      }
+    }
+  }
+]
+```
+
+3. Send it with your Evergreen API credentials:
+
+```bash
+curl -X POST "https://<your Evergreen host>/rest/v2/subscriptions" \
+  -H "Api-User: <your Evergreen user>" \
+  -H "Api-Key: <your Evergreen API key>" \
+  --data-binary @subscriptions.json
+```
+
+Evergreen saves the version subscription with the trigger `family-outcome`, because a merge queue version is a patch. Change these two subscriptions only with the API: the subscription form has no `github_merge_request` option. To remove one, send `DELETE /rest/v2/subscriptions?id=<subscription ID>`.
+
 ## Troubleshooting
 
-**Nothing arrives at all.** The endpoint answers `401` for an API key it does not recognize, and for a request without the `Authorization: Bearer <key>` header. Check the header first, then the repository gate below.
+**Nothing arrives at all.** The endpoint answers `403` for a request without the `Authorization: Bearer <key>` header, and `401` for an API key it does not recognize. Check the header first, then the repository gate below.
+
+**Only some versions arrive.** Each subscription sends one build initiator. Add a pair of subscriptions for each initiator you want, as described in [Add the webhook subscriptions](#add-the-webhook-subscriptions).
 
 **Versions arrive for one repository but not another.** Each version is matched to a Trunk repository by its repository name. Confirm that a repository with that name exists in your Trunk organization and has **CI Intelligence** on. If two repositories in your organization have the same name under different owners, Trunk cannot choose one and skips the version.
 
