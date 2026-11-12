@@ -11,7 +11,7 @@ Trunk maps Evergreen to its CI model like this:
 | Evergreen | Trunk |
 | --- | --- |
 | Project | Pipeline |
-| Version (a commit, a patch, a pull request or a merge queue run, for each build initiator you subscribe to) | Pipeline run |
+| Version (a commit, a patch or a pull request, for each build initiator you subscribe to) | Pipeline run |
 | Task (with its build variant) | Job |
 | Task execution | Job attempt |
 
@@ -41,8 +41,6 @@ The **Build Initiator** field takes one value per subscription, and its default 
 | **Patch** | Patches submitted with `evergreen patch` |
 | **Periodic Build** | Periodic builds |
 
-GitHub merge queue runs are not in this list. The **Commit Queue** option is Evergreen's old commit queue. To send merge queue runs, add the subscriptions with the API, as described in [Merge queue runs](#merge-queue-runs).
-
 Give every subscription the same webhook settings:
 
 | Field | Value |
@@ -57,76 +55,9 @@ Evergreen stores the `Authorization` header as a secret and does not show it aga
 
 Do not add the "fails", "first failure", "previously passing" or "runtime" events. Each one sends a subset of what **Any task finishes** and **Any version finishes** already send, so Trunk would receive the same data twice.
 
-#### Merge queue runs
-
-A GitHub merge queue version has the build initiator `github_merge_request`, which the subscription form does not offer. Add its two subscriptions with the [Evergreen REST API](https://github.com/evergreen-ci/evergreen/blob/main/docs/API/REST-V2-Usage.mdx) instead. You need permission to edit the project's or repo's settings.
-
-1. Find the ID of the repo or project. `GET /rest/v2/projects/<project identifier>` returns the project's `id`, and its `repo_ref_id` when the project is attached to a repo. Use the repo ID to cover every branch project of the repo, as above.
-2. Save this request body as `subscriptions.json`. Replace `<ID>` in both places in each subscription, and set a random `secret` for each one (the API does not make one):
-
-```json
-[
-  {
-    "resource_type": "TASK",
-    "trigger": "outcome",
-    "owner_type": "project",
-    "owner": "<ID>",
-    "selectors": [
-      { "type": "project", "data": "<ID>" },
-      { "type": "requester", "data": "github_merge_request" }
-    ],
-    "regex_selectors": [],
-    "subscriber": {
-      "type": "evergreen-webhook",
-      "target": {
-        "url": "https://api.trunk.io/v2/ci/evergreen/v1/webhooks",
-        "secret": "<random string>",
-        "retries": 3,
-        "min_delay_ms": 0,
-        "timeout_ms": 30000,
-        "headers": [{ "key": "Authorization", "value": "Bearer <your Trunk API key>" }]
-      }
-    }
-  },
-  {
-    "resource_type": "VERSION",
-    "trigger": "outcome",
-    "owner_type": "project",
-    "owner": "<ID>",
-    "selectors": [
-      { "type": "project", "data": "<ID>" },
-      { "type": "requester", "data": "github_merge_request" }
-    ],
-    "regex_selectors": [],
-    "subscriber": {
-      "type": "evergreen-webhook",
-      "target": {
-        "url": "https://api.trunk.io/v2/ci/evergreen/v1/webhooks",
-        "secret": "<another random string>",
-        "retries": 3,
-        "min_delay_ms": 0,
-        "timeout_ms": 30000,
-        "headers": [{ "key": "Authorization", "value": "Bearer <your Trunk API key>" }]
-      }
-    }
-  }
-]
-```
-
-3. Send it with your Evergreen API credentials:
-
-```bash
-curl -X POST "https://<your Evergreen host>/rest/v2/subscriptions" \
-  -H "Api-User: <your Evergreen user>" \
-  -H "Api-Key: <your Evergreen API key>" \
-  --data-binary @subscriptions.json
-```
-
-Evergreen saves the version subscription with the trigger `family-outcome`, because a merge queue version is a patch. Change these two subscriptions only with the API: the subscription form has no `github_merge_request` option. To remove one, send `DELETE /rest/v2/subscriptions?id=<subscription ID>`.
-
 ## Troubleshooting
 
-**Nothing arrives at all.** The endpoint answers `403` for a request without the `Authorization: Bearer <key>` header, and `401` for an API key it does not recognize. Check the header first, then the repository gate below.
+**Nothing arrives at all.** The endpoint answers `403` for a request without the `Authorization: Bearer <key>` header, and `401` for an API key it does not recognize. Check the header first, then the repository name match below.
 
 **Only some versions arrive.** Each subscription sends one build initiator. Add a pair of subscriptions for each initiator you want, as described in [Add the webhook subscriptions](#add-the-webhook-subscriptions).
 
