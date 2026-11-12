@@ -53,6 +53,25 @@ export default defineConfig({
 });
 ```
 
+### Include Retries
+
+If you use Playwright's `retries` option, set `includeRetries: true` so the report keeps each failed attempt, not only the final result:
+
+```typescript title="playwright.config.ts"
+export default defineConfig({
+  retries: 2,
+  reporter: [
+    ['junit', { outputFile: 'junit.xml', includeRetries: true }]
+  ],
+});
+```
+
+You can also set `PLAYWRIGHT_JUNIT_INCLUDE_RETRIES=1` instead.
+
+<Note>
+A test that fails and then passes on retry will now be detected by the [pass-on-retry monitor](/flaky-tests/detection/pass-on-retry-monitor), so expect more flaky tests. This is the recommended setup, because the results then show how the test actually behaves.
+</Note>
+
 ## Try It Locally
 
 ### The Validate Command
