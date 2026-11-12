@@ -1,0 +1,16 @@
+---
+title: "Flaky Tests: Catch Playwright pass-on-retry flakes"
+description: "Enable includeRetries on Playwright's JUnit reporter so Trunk sees every failed attempt and flags tests that only pass on retry."
+date: 2026-11-12
+category: Flaky Tests
+type: update
+---
+
+**Playwright tests that fail and then pass on retry can now be flagged as flaky.**
+
+### Updates
+
+- **Keep every attempt in your Playwright report.** Set `includeRetries: true` on Playwright's `junit` reporter, or set `PLAYWRIGHT_JUNIT_INCLUDE_RETRIES=1`. The report then records each failed attempt, not only the final result. See [Playwright: Include Retries](/flaky-tests/get-started/frameworks/playwright#include-retries).
+- **Retries feed the pass-on-retry monitor.** Trunk reads those attempts, so the [pass-on-retry monitor](/flaky-tests/detection/pass-on-retry-monitor) catches tests that only pass after a retry.
+
+Expect more tests to be flagged as flaky after you turn this on. We recommend it anyway, because your results then show how each test actually behaves.
