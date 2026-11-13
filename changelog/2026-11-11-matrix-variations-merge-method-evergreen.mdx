@@ -1,0 +1,20 @@
+---
+title: "Dynamic CI: Matrix variations, per-PR merge methods, and Evergreen"
+description: "Dynamic CI can skip single matrix variations and has a path filters API. Merge Queue lets each pull request choose its merge method, and CI Intelligence supports Evergreen."
+date: 2026-11-11
+category: Dynamic CI
+type: new-feature
+---
+
+**This week, Dynamic CI can skip part of a matrix job, Merge Queue lets each pull request choose its merge method, and CI Intelligence works with Evergreen.** Dynamic CI is in private beta.
+
+### New features
+
+- **Skip single matrix variations.** Dynamic CI can now decide a matrix job by variation, so a pull request runs only the variations it's likely to break. Choose the keys to split by, such as OS or test suite, in the job's settings. Requires `trunk-io/dynamic-ci` v0.1.8 or later on GitHub Actions, or the Buildkite plugin v0.1.9 or later. See [Matrix jobs](/ci/dynamic-ci/configuration/matrices).
+- **Choose a merge method per pull request.** Turn on **Allow choosing a merge method per pull request** in a queue's settings. Each pull request can then merge with squash, rebase, or a merge commit, using `/trunk merge --merge-method=` or the API. See [Advanced settings](/merge-queue/administration/advanced-settings#choosing-a-merge-method-per-pull-request).
+- **Evergreen for CI Intelligence.** Send Evergreen task and version webhooks to Trunk to see your Evergreen CI data in Trunk. See the [Evergreen guide](/setup/integrations/evergreen).
+
+### Updates
+
+- **Path filters API.** Read and set Dynamic CI path filters in bulk with [`GET /v2/dynamic-ci/paths-filters`](/api/dynamicci/list-a-repositorys-paths-filters) and `PATCH /v2/dynamic-ci/paths-filters`. See [Path filters](/ci/dynamic-ci/configuration/path-filters).
+- **API keys for Dynamic CI.** The GitHub Action and the Buildkite plugin authenticate with a Trunk [API key](/api/authentication#api-keys). The key needs no permissions. See the [Buildkite guide](/ci/dynamic-ci/getting-started/buildkite).
