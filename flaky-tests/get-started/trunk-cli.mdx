@@ -158,7 +158,7 @@ To update now, run `trunk update`. It works even when automatic updates are off,
 
 ## Telemetry
 
-The `trunk` CLI sends usage telemetry, such as the command name and its exit code, only while you're signed in with `trunk auth login`. An API key alone sends none. To turn telemetry off, set `TRUNK_TELEMETRY=0` or `DO_NOT_TRACK=1`. `trunk auth status` shows whether telemetry is on.
+The `trunk` CLI sends usage telemetry, such as the command name and its exit code, while you're signed in with `trunk auth login` or have an API key stored. A fork pull request upload with no API key sends none. To turn telemetry off, set `TRUNK_TELEMETRY=0` or `DO_NOT_TRACK=1`. `trunk auth status` shows whether telemetry is on.
 
 ## Environment variables
 
