@@ -429,14 +429,60 @@
         ]
       },
       {
+        "tab": "Workspaces",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "trunk-workspaces/index",
+              "trunk-workspaces/getting-started"
+            ]
+          },
+          {
+            "group": "Using workspaces",
+            "pages": [
+              "trunk-workspaces/workspaces/home",
+              "trunk-workspaces/workspaces/agent",
+              "trunk-workspaces/workspaces/cooperation",
+              "trunk-workspaces/workspaces/lifecycle",
+              "trunk-workspaces/workspaces/connect",
+              "trunk-workspaces/workspaces/share"
+            ]
+          },
+          {
+            "group": "Access policy",
+            "pages": [
+              "trunk-workspaces/access-policy/aws",
+              "trunk-workspaces/access-policy/tailscale",
+              "trunk-workspaces/access-policy/network-egress"
+            ]
+          },
+          {
+            "group": "Templating",
+            "pages": [
+              "trunk-workspaces/templating/lifecycle",
+              "trunk-workspaces/templating/environment-variables",
+              "trunk-workspaces/templating/tailscale",
+              "trunk-workspaces/templating/aws",
+              "trunk-workspaces/templating/composability"
+            ]
+          },
+          {
+            "group": "Reference",
+            "pages": [
+              "trunk-workspaces/desktop-reference"
+            ]
+          }
+        ]
+      },
+      {
         "tab": "Runners",
         "groups": [
           {
             "group": "Overview",
             "pages": [
-              "runners",
-              "runners/getting-started",
-              "runners/pricing"
+              "runners/index",
+              "runners/getting-started"
             ]
           },
           {
@@ -444,7 +490,8 @@
             "pages": [
               "runners/actions/runs-on",
               "runners/actions/sizes",
-              "runners/actions/templates"
+              "runners/actions/templates-and-regions",
+              "runners/actions/run-as"
             ]
           },
           {
@@ -457,13 +504,15 @@
           {
             "group": "Organization settings",
             "pages": [
+              "runners/settings/ci-defaults",
               "runners/settings/limits-and-priority"
             ]
           },
           {
             "group": "Reference",
             "pages": [
-              "runners/reference/runs-on-grammar"
+              "runners/reference/runs-on-grammar",
+              "runners/roadmap"
             ]
           }
         ]
@@ -917,53 +966,6 @@
                   }
                 ]
               }
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "Workspaces",
-        "groups": [
-          {
-            "group": "Overview",
-            "pages": [
-              "trunk-workspaces/index",
-              "trunk-workspaces/getting-started"
-            ]
-          },
-          {
-            "group": "Using workspaces",
-            "pages": [
-              "trunk-workspaces/workspaces/home",
-              "trunk-workspaces/workspaces/agent",
-              "trunk-workspaces/workspaces/cooperation",
-              "trunk-workspaces/workspaces/lifecycle",
-              "trunk-workspaces/workspaces/connect",
-              "trunk-workspaces/workspaces/share"
-            ]
-          },
-          {
-            "group": "Access policy",
-            "pages": [
-              "trunk-workspaces/access-policy/aws",
-              "trunk-workspaces/access-policy/tailscale",
-              "trunk-workspaces/access-policy/network-egress"
-            ]
-          },
-          {
-            "group": "Templating",
-            "pages": [
-              "trunk-workspaces/templating/lifecycle",
-              "trunk-workspaces/templating/environment-variables",
-              "trunk-workspaces/templating/tailscale",
-              "trunk-workspaces/templating/aws",
-              "trunk-workspaces/templating/composability"
-            ]
-          },
-          {
-            "group": "Reference",
-            "pages": [
-              "trunk-workspaces/desktop-reference"
             ]
           }
         ]
