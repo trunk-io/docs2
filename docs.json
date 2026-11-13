@@ -208,6 +208,7 @@
                 "group": "Getting Started",
                 "root": "flaky-tests/get-started/index",
                 "pages": [
+                  "flaky-tests/get-started/trunk-cli",
                   {
                     "group": "Test frameworks",
                     "root": "flaky-tests/get-started/frameworks",

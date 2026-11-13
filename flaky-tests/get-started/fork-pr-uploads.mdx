@@ -1,12 +1,12 @@
 ---
 title: "Uploads from Forked Pull Requests"
-description: "Upload test results and apply quarantining on pull requests from forks, which can't read your repository secrets or your Trunk API token."
+description: "Upload test results and apply quarantining on pull requests from forks, which can't read your repository secrets or your Trunk API key."
 og:title: "Uploading test results from fork pull requests to Trunk"
 ---
-CI on a pull request from a fork can't use your Trunk API token. GitHub Actions workflows triggered by `pull_request` events from a fork run with read-only permissions and can't read repository secrets, so `$TRUNK_API_TOKEN` is empty. Trunk lets these runs upload to a [test collection](../test-collections) without a token through an opt-in on the collection.
+CI on a pull request from a fork can't use your Trunk API key. GitHub Actions workflows triggered by `pull_request` events from a fork run with read-only permissions and can't read repository secrets, so the secret that holds your API key is empty. Trunk lets these runs upload to a [test collection](../test-collections) without a key through an opt-in on the collection.
 
 <Info>
-This is intended for public repositories that accept outside contributions. For private repositories or forks inside your organization, keep using `$TRUNK_API_TOKEN`.
+This is intended for public repositories that accept outside contributions. For private repositories or forks inside your organization, keep using your API key.
 </Info>
 
 A forked run can also read quarantined tests, so [quarantining](../quarantining/) works on fork pull requests the same way it does on your own branches.
@@ -37,7 +37,7 @@ jobs:
       - name: Upload Test Results to Trunk.io
         if: ${{ !cancelled() }}
         continue-on-error: true
-        uses: trunk-io/analytics-uploader@v2
+        uses: trunk-io/analytics-uploader@v3
         with:
           junit-paths: "**/junit.xml"
           org-slug: ${{ vars.TRUNK_ORG_SLUG }}
@@ -45,15 +45,20 @@ jobs:
           allow-forked-pr-uploads: true
 ```
 
-This needs `analytics-uploader` v2.1.4 or later, which the `@v2` tag already resolves to, and analytics-cli 0.15.5 or later. The action installs the latest CLI unless you pin an older one with `cli-version`.
+The action signs the upload in with the job's own `GITHUB_TOKEN`, which Trunk accepts only for a pull request from a fork. A run on a branch of your own repository still needs `token`.
 
-If you call the CLI directly, pass `--allow-forked-pr-uploads` together with `--test-collection-id`, or set `TRUNK_ALLOW_FORKED_PR_UPLOADS=true` and `TRUNK_TEST_COLLECTION_ID`:
+If you run [`trunk flakytests`](./trunk-cli) yourself, pass `--allow-forked-pr-uploads` together with `--test-collection-id`, or set `TRUNK_ALLOW_FORKED_PR_UPLOADS=true` and `TRUNK_TEST_COLLECTION_ID`. Set `GITHUB_TOKEN` on the step, because GitHub doesn't export it to commands:
 
-```sh
-./trunk-analytics-cli upload --junit-paths "test_output.xml" \
-   --org-url-slug <TRUNK_ORG_URL_SLUG> \
-   --test-collection-id <YOUR_COLLECTION_ID> \
-   --allow-forked-pr-uploads
+```yaml
+      - name: Upload Test Results to Trunk.io
+        if: ${{ !cancelled() }}
+        run: |
+          trunk flakytests upload --junit-paths "test_output.xml" \
+            --org-url-slug <TRUNK_ORG_URL_SLUG> \
+            --test-collection-id <YOUR_COLLECTION_ID> \
+            --allow-forked-pr-uploads
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
 ```
 
 `--allow-forked-pr-uploads` without a collection ID is an error, because the collection's own setting is what authorizes the upload.

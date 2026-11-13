@@ -3,7 +3,7 @@ title: "Other CI Providers"
 description: "Configure Flaky Tests using any CI Provider"
 og:title: "Using other CI providers with Trunk Flaky Tests"
 ---
-Trunk Flaky Tests integrates with your CI provider by adding an upload step in each of your testing CI jobs via the [Trunk Analytics CLI](../../reference/cli-reference).
+Trunk Flaky Tests integrates with your CI provider by adding an upload step in each of your testing CI jobs via the [`trunk` CLI](../trunk-cli).
 
 <Info>
 **Not using GitHub for source control?**
@@ -18,31 +18,33 @@ Before you start on these steps, see the [Test Frameworks](../frameworks/) docs 
 Work through the steps below in order. Once you've finished the last one, you're set up — navigate to [app.trunk.io](https://app.trunk.io) to see your results.
 
 <Steps>
-  <Step title={<a href="#trunk-organization-slug-and-token">Get your Trunk organization slug, token, and collection ID</a>} />
-  <Step title={<a href="#add-the-trunk-token-as-a-secret">Set your slug and token as a variable in CI</a>} />
+  <Step title={<a href="#trunk-organization-slug-and-api-key">Get your Trunk organization slug, API key, and collection ID</a>} />
+  <Step title={<a href="#add-the-api-key-as-a-secret">Store your slug and API key in CI</a>} />
   <Step title={<a href="#upload-to-trunk">Configure your CI to upload to Trunk</a>} />
   <Step title={<a href="#validate-your-uploads">Validate your uploads in Trunk</a>} />
 </Steps>
 
-## Trunk Organization Slug and Token
+<span id="trunk-organization-slug-and-token" />
 
-Before setting up uploads to Trunk, you must sign in to [app.trunk.io](https://app.trunk.io/login?intent=flaky%20tests) and obtain your Trunk organization slug, your token, and the ID of the test collection to upload to.
+## Trunk Organization Slug and API Key
+
+Before setting up uploads to Trunk, you must sign in to [app.trunk.io](https://app.trunk.io/login?intent=flaky%20tests) and obtain your Trunk organization slug, an API key, and the ID of the test collection to upload to.
 
 ### Trunk Slug
 
 You can find your organization slug under **Settings** → **Organization** → **General**. You'll save this as a variable in CI in a later step.
 
-### Trunk Token
+### Trunk API Key
 
-You can find your token under **Settings** → **Developer** → **API Keys**, in the **Organization API token (v1)** section. Since this is a secret, do not leak it publicly. Ensure you get your _organization token_, not an API key or a repo token.
+Create an API key under **Settings** → **Developer** → **API Keys** with the **Create Key** button, and select the **Upload test results** permission. The key starts with `trunk_v2_` and is shown only once. See [Create an API key](/flaky-tests/get-started/trunk-cli#create-an-api-key).
 
 ### Test Collection ID
 
 Create a [test collection](/flaky-tests/test-collections) under **Flaky Tests** → **Collections**, or open an existing one, and copy its ID from the collection's page header. It is not a secret, so you can include it directly in your upload command.
 
-## Add the Trunk Token as a Secret
+## Add the API Key as a Secret
 
-Store the Trunk slug and API token obtained in the previous step in your CI provider as a secret, environment variable, or an equivalent concept and name them `TRUNK_ORG_URL_SLUG` and `TRUNK_API_TOKEN` respectively.
+Store the API key in your CI provider as a secret named `TRUNK_API_KEY`. Store the organization slug as a variable named `TRUNK_ORG_URL_SLUG`.
 
 ## Upload to Trunk
 
@@ -58,71 +60,61 @@ Trunk can also detect test flakes on PR and merge branches. To best detect flaky
 
 ### Example Upload Script
 
-The following is an example of a script to upload test results after your tests run. Note: you must either run `trunk` from the repo root when uploading test results or pass a `--repo-root` argument.
+The following script installs the [`trunk` CLI](../trunk-cli), stores your API key, and uploads test results after your tests run. Run `trunk flakytests` from the repository root, or pass `--repo-root`.
 
 To find out how to produce the report files the uploader needs, see the instructions for your test framework in the [frameworks](../frameworks/) docs.
 
-You can install the Trunk Analytics CLI locally like this:
+```bash
+curl -fsSL https://install.trunk.io | sh
+TRUNK_ORG_API_KEY="$TRUNK_API_KEY" trunk auth api-key set
 
-<CodeGroup>
-```bash Linux (x64)
-SKU="trunk-analytics-cli-x86_64-unknown-linux.tar.gz"
-VERSION=$(curl -fsSL https://trunk.io/releases/analytics-cli/prod/channel.json | cut -d'"' -f4)
-curl -fL --retry 3 \
-  "https://trunk.io/releases/analytics-cli/prod/${VERSION}/${SKU}" \
-  | tar -xz
+<run your tests>
 
-chmod +x trunk-analytics-cli
+trunk flakytests upload --junit-paths <PATH_TO_REPORTS> \
+  --org-url-slug "$TRUNK_ORG_URL_SLUG" \
+  --test-collection-id <TRUNK_TEST_COLLECTION_ID>
 ```
-```bash Linux (arm64)
-SKU="trunk-analytics-cli-aarch64-unknown-linux.tar.gz"
-VERSION=$(curl -fsSL https://trunk.io/releases/analytics-cli/prod/channel.json | cut -d'"' -f4)
-curl -fL --retry 3 \
-  "https://trunk.io/releases/analytics-cli/prod/${VERSION}/${SKU}" \
-  | tar -xz
 
-chmod +x trunk-analytics-cli
-```
-```bash macOS (arm64)
-SKU="trunk-analytics-cli-aarch64-apple-darwin.tar.gz"
-VERSION=$(curl -fsSL https://trunk.io/releases/analytics-cli/prod/channel.json | cut -d'"' -f4)
-curl -fL --retry 3 \
-  "https://trunk.io/releases/analytics-cli/prod/${VERSION}/${SKU}" \
-  | tar -xz
-
-chmod +x trunk-analytics-cli
-```
-```bash macOS (x64)
-SKU="trunk-analytics-cli-x86_64-apple-darwin.tar.gz"
-VERSION=$(curl -fsSL https://trunk.io/releases/analytics-cli/prod/channel.json | cut -d'"' -f4)
-curl -fL --retry 3 \
-  "https://trunk.io/releases/analytics-cli/prod/${VERSION}/${SKU}" \
-  | tar -xz
-
-chmod +x trunk-analytics-cli
-```
-</CodeGroup>
-
-Then, you can validate the results using the `trunk-analytics-cli validate` command like this:
+To run your tests and upload in one step, so that [quarantined](../../quarantining/) failures don't fail the job, wrap the test command instead:
 
 ```bash
-./trunk-analytics-cli validate --junit-paths <PATH_TO_REPORTS>
-```
-
-Then upload them:
-
-```bash
-./trunk-analytics-cli upload --junit-paths <PATH_TO_REPORTS> \
-  --org-url-slug $TRUNK_ORG_URL_SLUG \
+trunk flakytests test --junit-paths <PATH_TO_REPORTS> \
+  --org-url-slug "$TRUNK_ORG_URL_SLUG" \
   --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
-  --token $TRUNK_API_TOKEN
+  -- <your test command>
 ```
 
-See the [uploader.md](../../reference/cli-reference.md) for all available command line arguments and usage.
+The installer supports Linux and macOS 14 or later. If it reports that its install directory isn't on your `PATH`, add it, or pass `--install-dir`. Most CI providers set `CI=true`, which turns off the CLI's automatic updates; to pin the CLI and the Trunk Analytics CLI it runs, see [Pin versions](../trunk-cli#pin-versions).
+
+<Tip>
+Run `trunk flakytests validate --junit-paths <PATH_TO_REPORTS>` on your reports before you upload to catch malformed JUnit XML early.
+</Tip>
+
+See the [CLI reference](../../reference/cli-reference) for all available command line arguments and usage.
+
+### Running trunk-analytics-cli directly
+
+You can also download the Trunk Analytics CLI and run it yourself, without the `trunk` CLI. Pass it the API key with `--token` or the `TRUNK_API_TOKEN` environment variable:
+
+```bash
+SKU="trunk-analytics-cli-x86_64-unknown-linux.tar.gz"
+VERSION=$(curl -fsSL --connect-timeout 10 --max-time 60 --retry 3 \
+  https://trunk.io/releases/analytics-cli/prod/channel.json | cut -d'"' -f4)
+curl -fL --connect-timeout 10 --max-time 60 --retry 3 \
+  "https://trunk.io/releases/analytics-cli/prod/${VERSION}/${SKU}" \
+  | tar -xz
+
+./trunk-analytics-cli upload --junit-paths <PATH_TO_REPORTS> \
+  --org-url-slug "$TRUNK_ORG_URL_SLUG" \
+  --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
+  --token "$TRUNK_API_KEY"
+```
+
+For the other platforms and for pinning a version, see [Manual Download](../../reference/cli-reference#manual-download).
 
 ### Environment Variables
 
-Set these environment variables before running `trunk-analytics-cli upload` on unsupported CI systems:
+Set these environment variables before running `trunk flakytests upload` on unsupported CI systems:
 
 <Info>
 **Config Requirement:** `CUSTOM` must be set to `true` for environment variables to take effect and override the auto-detection of CI.
@@ -167,4 +159,4 @@ Once your pipeline has run on a stable branch, navigate to [app.trunk.io](https:
 - The **Uploads** tab lists every report Trunk has ingested, with status and any warnings (missing file paths, malformed XML, and so on).
 - The **Tests** tab shows individual test cases once an upload has been processed.
 
-If a recent run isn't showing up, check your CI logs for upload errors and confirm your `TRUNK_API_TOKEN` and `TRUNK_ORG_URL_SLUG` secrets are set on the project running the pipeline and the collection ID is correct.
+If a recent run isn't showing up, check your CI logs for upload errors and confirm your `TRUNK_API_KEY` secret and `TRUNK_ORG_URL_SLUG` variable are set on the project running the pipeline, the key has the **Upload test results** permission, and the collection ID is correct.
