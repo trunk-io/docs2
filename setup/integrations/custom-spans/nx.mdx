@@ -1,0 +1,154 @@
+---
+title: "Nx"
+description: "Use the Trunk Nx plugin to see each Nx task under the CI job or step that ran it."
+og:title: "Send Nx task spans to Trunk CI"
+---
+
+The Trunk Nx plugin sends one [custom span](/setup/integrations/custom-spans) for each Nx task to Trunk. In the trace waterfall, you see each task (for example `web:lint`, `web:test` and `api:build`) under the job or step that ran Nx. You can see which task was slow, which task failed and which tasks came from the cache.
+
+The plugin works on GitHub Actions, Buildkite and Evergreen. It finds your CI provider and the job or step. It sets the ids and the attributes for you.
+
+## Example
+
+A pull request starts the GitHub Actions workflow **CI**. Its job **checks** has the step **Run checks and affected tasks**, which runs for 30 minutes. In that step, Nx runs `web:lint`, `web:test` and `api:build`, some of them on Nx Agents. `web:lint` comes from the cache. `web:test` fails. When the Nx command finishes, the plugin sends one span for each task.
+
+In the trace waterfall for the commit, the step **Run checks and affected tasks** now has an arrow. Expand it to see three bars: `web:lint` (cached), `web:test` (red) and `api:build`. Each bar starts and ends when its task started and ended. This is also true for tasks that ran on Nx Agents. Click a bar to see its attributes.
+
+## Set up
+
+#### Before you start
+
+- Use Nx 20.4 or later.
+- Trunk must already collect the CI data for your repository. To set this up, see [GitHub](/setup/integrations/github), [Buildkite](/setup/integrations/buildkite) or [Evergreen](/setup/integrations/evergreen).
+- Create a Trunk API key with the **Write CI data** permission, and add it to the secrets of your CI provider as `TRUNK_API_KEY`. See [Create a Trunk API key](/setup/integrations/custom-spans#create-a-trunk-api-key).
+
+#### Install the plugin
+
+Install the package:
+
+```bash
+npm install --save-dev @trunkio/nx-plugin
+```
+
+Add the plugin to `nx.json`:
+
+```json
+{
+  "plugins": ["@trunkio/nx-plugin"]
+}
+```
+
+Outside CI, or when `TRUNK_API_KEY` is not set, the plugin does nothing. So you can commit this change before you set up CI.
+
+#### Give the key to the Nx command
+
+Set `TRUNK_API_KEY` in the environment of the Nx command.
+
+<Tabs>
+  <Tab title="GitHub Actions">
+    Give the step that runs Nx a fixed `name:` that is unique in the job. Then pass the step name and the job's check run id. No environment variable gives these two values:
+
+    ```yaml
+    - name: Run checks and affected tasks
+      env:
+        TRUNK_API_KEY: ${{ secrets.TRUNK_API_KEY }}
+        TRUNK_GITHUB_CHECK_RUN_ID: ${{ job.check_run_id }}
+        TRUNK_GITHUB_STEP_NAME: Run checks and affected tasks
+      run: npx nx affected -t lint test build
+    ```
+
+    `TRUNK_GITHUB_STEP_NAME` must be the same as the step's `name:`. If one of the two variables is missing, the plugin logs a warning that tells you what to set, and sends nothing.
+  </Tab>
+  <Tab title="Buildkite">
+    Add `TRUNK_API_KEY` to the environment of the job, for example from your secrets manager. The plugin reads the build and job ids from the variables that Buildkite sets.
+
+    ```yaml
+    steps:
+      - label: "Run checks and affected tasks"
+        command: npx nx affected -t lint test build
+        secrets:
+          - TRUNK_API_KEY
+    ```
+  </Tab>
+  <Tab title="Evergreen">
+    Set `add_expansions_to_env: true` on the `shell.exec` command that runs Nx. The plugin then reads `version_id`, `task_id` and `execution` from the environment. Also set `TRUNK_API_KEY`, for example from a private project variable:
+
+    ```yaml
+    - command: shell.exec
+      params:
+        add_expansions_to_env: true
+        env:
+          TRUNK_API_KEY: ${trunk_api_key}
+        script: npx nx affected -t lint test build
+    ```
+  </Tab>
+</Tabs>
+
+## What the plugin sends
+
+The plugin sends the spans when the Nx command finishes. It sends one span for each task, under the job or step that ran Nx. The spans of the tasks are not nested under each other.
+
+| Attribute | Value |
+| --- | --- |
+| `trunk.cicd.work.name` | The task id, for example `web:test` |
+| `trunk.cicd.work.kind` | `task` |
+| `trunk.cicd.work.group` | The project, for example `web` |
+| `trunk.cicd.work.result` | `success`, `failure`, `skipped` or `cancelled`. A task from the local or remote cache is `success`. |
+| `trunk.cicd.work.cache` | `hit` for a task from the cache, `miss` for a task that ran |
+| `trunk.cicd.work.tool.name`, `trunk.cicd.work.tool.version` | `nx` and the installed Nx version |
+| `nx.task.target`, `nx.task.configuration`, `nx.task.hash` | The target, the configuration and the hash of the task |
+
+If the plugin cannot send the spans, it logs one warning. It does not make the Nx command fail.
+
+## Add your own attributes
+
+You can add your own attributes in two ways. Trunk shows them in the span details.
+
+**For all spans:** set the standard `OTEL_RESOURCE_ATTRIBUTES` variable in the environment of the Nx command:
+
+```yaml
+env:
+  OTEL_RESOURCE_ATTRIBUTES: team=payments,region=us-west
+```
+
+**For each task:** set the plugin option `attributes` to a module in your workspace. The path is relative to the workspace root:
+
+```json
+{
+  "plugins": [
+    {
+      "plugin": "@trunkio/nx-plugin",
+      "options": { "attributes": "tools/trunk-attributes.mjs" }
+    }
+  ]
+}
+```
+
+The default export of the module is a function. The function gets the Nx task and its result, and returns the attributes. The values can be strings, numbers or booleans. For example, to add the team that owns each project:
+
+```js tools/trunk-attributes.mjs
+const owners = { web: "frontend", api: "payments" };
+
+export default function (task, result) {
+  return { "team": owners[task.target.project] ?? "unknown" };
+}
+```
+
+If the function throws an error, the plugin logs one warning and sends the span without these attributes. Names that start with `trunk.` are for Trunk only: the plugin drops them and logs one warning.
+
+## Troubleshooting
+
+| Problem | What to do |
+| --- | --- |
+| No spans show, and the plugin logs nothing | Make sure that `TRUNK_API_KEY` is set in the environment of the Nx command. Without it, the plugin does nothing. |
+| GitHub Actions: no spans show under the step | Make sure that `TRUNK_GITHUB_STEP_NAME` is the same as the step's `name:` after GitHub replaces the expressions in it. Make sure that `TRUNK_GITHUB_CHECK_RUN_ID` comes from `${{ job.check_run_id }}` in the same job. |
+| Nx with Nx Agents: no spans for a run | If Nx Cloud cannot give the run summary at the end of the run, Nx does not call the plugin. To see this, run Nx with `NX_VERBOSE_LOGGING=true`. |
+
+For other problems, see [Custom spans troubleshooting](/setup/integrations/custom-spans#troubleshooting).
+
+## Limits
+
+- **Spans show after the command.** The plugin sends the spans when the Nx command finishes. They do not show while the command runs.
+- **No Nx Agent name.** Nx does not give the agent name to plugins, so the spans do not show which Nx Agent ran a task.
+- **No Nx Cloud data.** Trunk does not read your Nx Cloud data. The plugin sends only the task results that Nx gives it.
+- **Number of spans:** at most 10,000 custom spans for each job. Trunk drops the spans after that.

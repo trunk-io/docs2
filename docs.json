@@ -500,7 +500,14 @@
                 "root": "setup/integrations/github"
               },
               "setup/integrations/buildkite",
-              "setup/integrations/evergreen"
+              "setup/integrations/evergreen",
+              {
+                "group": "Custom spans",
+                "pages": [
+                  "setup/integrations/custom-spans/nx"
+                ],
+                "root": "setup/integrations/custom-spans"
+              }
             ]
           },
           {
