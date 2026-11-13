@@ -1444,7 +1444,16 @@
   },
   "seo": {
     "metatags": {
-      "robots": "noindex"
+      "canonical": "https://docs.trunk.io"
+    },
+    "organization": {
+      "name": "Trunk",
+      "url": "https://trunk.io",
+      "sameAs": [
+        "https://x.com/trunkio",
+        "https://github.com/trunk-io",
+        "https://linkedin.com/company/trunkio"
+      ]
     }
   },
   "redirects": [
