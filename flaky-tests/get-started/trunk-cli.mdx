@@ -1,0 +1,174 @@
+---
+title: "Trunk CLI"
+description: "Install the trunk CLI, store a Trunk API key, and upload test results to Trunk Flaky Tests with trunk flakytests."
+og:title: "Uploading test results with the trunk CLI"
+---
+The `trunk` CLI uploads your test results to Trunk Flaky Tests. You install it once, store a Trunk API key with it, and run `trunk flakytests` (or its alias, `trunk ft`) after your tests. The CLI downloads the [Trunk Analytics CLI](/flaky-tests/reference/cli-reference) (`trunk-analytics-cli`) on first use, runs it with your arguments, and passes it your credential.
+
+To upload from GitHub Actions, use the [`trunk-io/analytics-uploader` action](/flaky-tests/get-started/ci-providers/github-actions), which installs and runs the `trunk` CLI for you.
+
+## Install the trunk CLI
+
+<Tabs>
+<Tab title="macOS and Linux">
+```bash
+curl -fsSL https://install.trunk.io | sh
+```
+
+The installer supports:
+
+- Linux on x64 and arm64. One static build runs on any distribution, including Alpine and minimal containers.
+- macOS 14 (Sonoma) or later, on Apple silicon and Intel Macs.
+
+It installs `trunk` to `/usr/local/bin` when that directory is writable, and to `~/.local/bin` otherwise. It never runs `sudo`. If the install directory isn't on your `PATH`, the installer prints the line to add to your shell profile. Pass `--install-dir <DIR>` to install somewhere else.
+</Tab>
+<Tab title="Windows (experimental)">
+In PowerShell (Windows PowerShell 5.1 or PowerShell 7 and later):
+
+```powershell
+irm https://install.trunk.io/install.ps1 | iex
+```
+
+The installer puts `trunk.exe` in `%LOCALAPPDATA%\Programs\trunk\bin` and adds that directory to your user `PATH`. Open a new terminal before you run `trunk`. Windows on Arm gets the x64 build, which runs under emulation on Windows 11.
+
+On Windows, the CLI supports `trunk auth`, `trunk flakytests`, and `trunk update`. The Trunk Analytics CLI it runs there is an experimental build. The binary isn't code-signed, so a browser download can show a SmartScreen prompt; the installer doesn't trigger it.
+</Tab>
+</Tabs>
+
+Check the install:
+
+```bash
+trunk --version
+```
+
+It prints `trunk` and a version number, such as `trunk 1.2.3`.
+
+<Note>
+If you already have the older `trunk` CLI for Code Quality on your `PATH`, the installer warns you and installs the new CLI anyway. Make sure the new CLI's directory comes first on your `PATH`, or remove the old one. The older CLI prints a bare version number for `trunk --version`.
+</Note>
+
+## Create an API key
+
+`trunk flakytests` uploads with a Trunk API key that has the **Upload test results** permission.
+
+1. In the [Trunk app](https://app.trunk.io), navigate to **Settings** → **Developer** → **API Keys** and click the **Create Key** button.
+2. Name the key after what will use it, such as `flaky-tests-ci`.
+3. Select the **Upload test results** permission.
+4. Copy the key. It starts with `trunk_v2_` and is shown only once.
+
+See [API keys](/api/authentication#api-keys) for how keys and permissions work.
+
+## Store the API key
+
+Run `trunk auth api-key set` and paste the key at the prompt:
+
+```bash
+trunk auth api-key set
+```
+
+The prompt doesn't echo what you type. When the `TRUNK_ORG_API_KEY` environment variable is set, the command reads the key from it instead of prompting. Use it in CI, where there's no terminal to prompt on:
+
+```bash
+TRUNK_ORG_API_KEY="$TRUNK_API_KEY" trunk auth api-key set
+```
+
+The command checks the key with Trunk before it stores anything. If Trunk refuses the key, the command exits with an error and stores nothing. It doesn't check the key's permissions: uploads with a key that lacks **Upload test results** fail with `403`. The command never takes the key as an argument, so the key stays out of your shell history and process listings.
+
+The key is stored in `~/.config/trunk-cli/credentials.json` (`%APPDATA%\trunk-cli\credentials.json` on Windows), readable only by you. To remove it, run `trunk auth api-key clear`.
+
+<Info>
+`trunk auth login` signs you in as yourself, for commands such as `trunk mergequeue`. It doesn't authorize uploads: `trunk flakytests` uses only the stored API key.
+</Info>
+
+## Upload test results
+
+Run `trunk flakytests upload` after your tests, from the root of your repository:
+
+```bash
+trunk flakytests upload --junit-paths "**/junit.xml" \
+  --org-url-slug <TRUNK_ORG_URL_SLUG> \
+  --test-collection-id <TRUNK_TEST_COLLECTION_ID>
+```
+
+- `--org-url-slug` is your organization slug, from **Settings** → **Organization** → **General**.
+- `--test-collection-id` is the ID of the [test collection](/flaky-tests/test-collections) to upload to, from the collection's page header. It's required.
+
+To run your tests and upload their results in one step, wrap your test command with `trunk flakytests test`. Put the test command after `--`:
+
+```bash
+trunk flakytests test --junit-paths "**/junit.xml" \
+  --org-url-slug <TRUNK_ORG_URL_SLUG> \
+  --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
+  -- npm test
+```
+
+When every failure is a [quarantined](/flaky-tests/quarantining/) test, `trunk flakytests test` exits with `0`, so known flaky tests don't fail your build.
+
+`trunk flakytests` accepts every Trunk Analytics CLI command and option, such as `--bazel-bep-path`, `--xcresult-path`, `--variant`, and `validate`. See the [CLI reference](/flaky-tests/reference/cli-reference) for the full list, or run `trunk flakytests upload --help`.
+
+## Use the trunk CLI in CI
+
+Store the API key as a secret in your CI provider, such as `TRUNK_API_KEY`. Then add these steps to each job that runs tests:
+
+```bash
+curl -fsSL https://install.trunk.io | sh
+TRUNK_ORG_API_KEY="$TRUNK_API_KEY" trunk auth api-key set
+
+<run your tests>
+
+trunk flakytests upload --junit-paths "**/junit.xml" \
+  --org-url-slug <TRUNK_ORG_URL_SLUG> \
+  --test-collection-id <TRUNK_TEST_COLLECTION_ID>
+```
+
+If the installer reports that its directory isn't on your `PATH`, add the directory to `PATH` for the later steps, or pass `--install-dir` with a directory that is.
+
+Upload from jobs on pull requests and on your stable branches, such as `main`. For provider-specific setup, see [CI Providers](/flaky-tests/get-started/ci-providers/).
+
+You can skip `trunk auth api-key set` and set `TRUNK_API_TOKEN` to the API key on the `trunk flakytests` step instead. When `TRUNK_API_TOKEN` or `--token` is set, `trunk flakytests` passes it to the Trunk Analytics CLI unchanged.
+
+<Warning>
+On a self-hosted runner that keeps its home directory between jobs, the stored key stays in `~/.config/trunk-cli/credentials.json` for later jobs. Run `trunk auth api-key clear` at the end of the job, or set `TRUNK_API_TOKEN` instead of storing the key.
+</Warning>
+
+## Pin versions
+
+By default, the installer installs the latest `trunk` CLI, and `trunk flakytests` runs the latest Trunk Analytics CLI. To get the same versions on every run, pin them:
+
+- **trunk CLI.** Pass `--version` to the installer. A pinned install doesn't update itself.
+
+  ```bash
+  curl -fsSL https://install.trunk.io | sh -s -- --version <VERSION>
+  ```
+
+  On Windows, run `iex "& {$(irm https://install.trunk.io/install.ps1)} -Version <VERSION>"`.
+- **Trunk Analytics CLI.** Set `TRUNK_ANALYTICS_CLI_VERSION` to a version, such as `1.0.0`. The `trunk` CLI downloads each version once and caches it.
+
+Trunk Analytics CLI 1.0.0 and later accept only an API key. If you still upload with the legacy organization token, pin `TRUNK_ANALYTICS_CLI_VERSION` to a 0.17.x release and pass the token with `--token` or `TRUNK_API_TOKEN`. The `trunk` CLI passes a stored API key only to 1.0.0 and later.
+
+## Updates
+
+The `trunk` CLI updates itself. Once a day it checks for a new version in the background and switches to it on the next run. It doesn't check when:
+
+- `CI` is set to `true`. Most CI providers, including GitHub Actions, set it for you.
+- `TRUNK_NO_AUTO_UPDATE` is set to any value.
+- The install is pinned to a version.
+
+To update now, run `trunk update`. It works even when automatic updates are off, and it removes a version pin.
+
+## Telemetry
+
+The `trunk` CLI sends usage telemetry, such as the command name and its exit code, only while you're signed in with `trunk auth login`. An API key alone sends none. To turn telemetry off, set `TRUNK_TELEMETRY=0` or `DO_NOT_TRACK=1`. `trunk auth status` shows whether telemetry is on.
+
+## Environment variables
+
+| Variable | Use |
+| --- | --- |
+| `TRUNK_ORG_API_KEY` | The API key for `trunk auth api-key set` to store, instead of prompting for it. |
+| `TRUNK_API_TOKEN` | A credential to pass to the Trunk Analytics CLI as is, instead of the stored API key. |
+| `TRUNK_ORG_URL_SLUG` | Your organization slug, instead of `--org-url-slug`. |
+| `TRUNK_TEST_COLLECTION_ID` | The test collection ID, instead of `--test-collection-id`. |
+| `TRUNK_ANALYTICS_CLI_VERSION` | The Trunk Analytics CLI version to run. |
+| `TRUNK_NO_AUTO_UPDATE` | Any value turns off automatic updates. |
+| `TRUNK_TELEMETRY`, `DO_NOT_TRACK` | `TRUNK_TELEMETRY=0` or `DO_NOT_TRACK=1` turns off usage telemetry. |
+| `TRUNK_CREDENTIALS_FILE` | The path of the file the stored API key is kept in. |

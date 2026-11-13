@@ -3,7 +3,9 @@ title: "CLI Reference"
 description: "CLI tool for uploading test results to Trunk from CI, enabling flaky test detection and quarantining."
 og:title: "Trunk Flaky Tests CLI reference"
 ---
-Trunk detects and tracks flaky tests in your repos by receiving uploads from your test runs in CI, uploaded from the Trunk Analytics CLI. These uploads happen in the CI jobs used to run tests in your nightly CI, post-commit jobs, and PR checks.
+Trunk detects and tracks flaky tests in your repos by receiving uploads from your test runs in CI, uploaded by the Trunk Analytics CLI (`trunk-analytics-cli`). These uploads happen in the CI jobs used to run tests in your nightly CI, post-commit jobs, and PR checks.
+
+You run the Trunk Analytics CLI through the [`trunk` CLI](/flaky-tests/get-started/trunk-cli): `trunk flakytests` (or `trunk ft`) downloads it, runs it with your arguments, and passes it the API key you stored with `trunk auth api-key set`. `trunk flakytests <command>` takes the same commands and options as `trunk-analytics-cli <command>`.
 
 ## Guides
 
@@ -20,11 +22,28 @@ If you're setting up Trunk Flaky Tests for the first time, you can follow the gu
   />
 </Columns>
 
-The CLI should be **downloaded as part of your test workflow** in your CI system. Download the binary for your platform from `https://trunk.io/releases/analytics-cli/prod`, as shown in [Manual Download](#manual-download).
+## Install
 
-## Manual Download
+Install the `trunk` CLI and store an API key with the **Upload test results** permission:
 
-Releases are served from `https://trunk.io/releases/analytics-cli/prod`. `channel.json` there names the latest version (`{"latest": "x.y.z"}`), and each version's files live under `<version>/`. We provide executables for Linux and OS X. It’s a single file inside a tar and upon downloading the tar you will find a single binary - `trunk-analytics-cli` to use. To pin a version, set `VERSION` to it instead of reading `channel.json`.
+```bash
+curl -fsSL https://install.trunk.io | sh
+TRUNK_ORG_API_KEY="$TRUNK_API_KEY" trunk auth api-key set
+```
+
+See [Trunk CLI](/flaky-tests/get-started/trunk-cli) for Windows, pinning versions, and running in CI.
+
+## Running trunk-analytics-cli directly
+
+You can download the Trunk Analytics CLI and run it yourself, without the `trunk` CLI. Pass it an API key with the **Upload test results** permission, with `--token` or the `TRUNK_API_TOKEN` environment variable. In the examples on this page, replace `trunk flakytests` with `./trunk-analytics-cli` and add `--token "$TRUNK_API_KEY"`.
+
+<Info>
+The Trunk Analytics CLI 1.0.0 and later refuse the legacy organization token. To keep using it, pin a 0.17.x release by setting `VERSION` below.
+</Info>
+
+### Manual Download
+
+Releases are served from `https://trunk.io/releases/analytics-cli/prod`. `channel.json` there names the latest version (`{"latest": "x.y.z"}`), and each version's files live under `<version>/`. We provide executables for Linux and macOS. It’s a single file inside a tar and upon downloading the tar you will find a single binary - `trunk-analytics-cli` to use. To pin a version, set `VERSION` to it instead of reading `channel.json`.
 
 <Note>
 Releases are also published on [GitHub](https://github.com/trunk-io/analytics-cli/releases), but GitHub rate-limits downloads, so it is not a reliable source for CI. Download from `trunk.io` instead.
@@ -33,8 +52,9 @@ Releases are also published on [GitHub](https://github.com/trunk-io/analytics-cl
 <CodeGroup>
 ```bash Linux (x64)
 SKU="trunk-analytics-cli-x86_64-unknown-linux.tar.gz"
-VERSION=$(curl -fsSL https://trunk.io/releases/analytics-cli/prod/channel.json | cut -d'"' -f4)
-curl -fL --retry 3 \
+VERSION=$(curl -fsSL --connect-timeout 10 --max-time 60 --retry 3 \
+  https://trunk.io/releases/analytics-cli/prod/channel.json | cut -d'"' -f4)
+curl -fL --connect-timeout 10 --max-time 60 --retry 3 \
   "https://trunk.io/releases/analytics-cli/prod/${VERSION}/${SKU}" \
   | tar -xz
 
@@ -42,8 +62,9 @@ chmod +x trunk-analytics-cli
 ```
 ```bash Linux (arm64)
 SKU="trunk-analytics-cli-aarch64-unknown-linux.tar.gz"
-VERSION=$(curl -fsSL https://trunk.io/releases/analytics-cli/prod/channel.json | cut -d'"' -f4)
-curl -fL --retry 3 \
+VERSION=$(curl -fsSL --connect-timeout 10 --max-time 60 --retry 3 \
+  https://trunk.io/releases/analytics-cli/prod/channel.json | cut -d'"' -f4)
+curl -fL --connect-timeout 10 --max-time 60 --retry 3 \
   "https://trunk.io/releases/analytics-cli/prod/${VERSION}/${SKU}" \
   | tar -xz
 
@@ -51,8 +72,9 @@ chmod +x trunk-analytics-cli
 ```
 ```bash macOS (arm64)
 SKU="trunk-analytics-cli-aarch64-apple-darwin.tar.gz"
-VERSION=$(curl -fsSL https://trunk.io/releases/analytics-cli/prod/channel.json | cut -d'"' -f4)
-curl -fL --retry 3 \
+VERSION=$(curl -fsSL --connect-timeout 10 --max-time 60 --retry 3 \
+  https://trunk.io/releases/analytics-cli/prod/channel.json | cut -d'"' -f4)
+curl -fL --connect-timeout 10 --max-time 60 --retry 3 \
   "https://trunk.io/releases/analytics-cli/prod/${VERSION}/${SKU}" \
   | tar -xz
 
@@ -60,8 +82,9 @@ chmod +x trunk-analytics-cli
 ```
 ```bash macOS (x64)
 SKU="trunk-analytics-cli-x86_64-apple-darwin.tar.gz"
-VERSION=$(curl -fsSL https://trunk.io/releases/analytics-cli/prod/channel.json | cut -d'"' -f4)
-curl -fL --retry 3 \
+VERSION=$(curl -fsSL --connect-timeout 10 --max-time 60 --retry 3 \
+  https://trunk.io/releases/analytics-cli/prod/channel.json | cut -d'"' -f4)
+curl -fL --connect-timeout 10 --max-time 60 --retry 3 \
   "https://trunk.io/releases/analytics-cli/prod/${VERSION}/${SKU}" \
   | tar -xz
 
@@ -69,30 +92,22 @@ chmod +x trunk-analytics-cli
 ```
 </CodeGroup>
 
-## Organization Slug and Token
+## Organization Slug, API Key, and Test Collection
 
-The CLI requires your Trunk organization slug, token, and test collection ID, passed through `--org-url-slug`, `--token`, and `--test-collection-id`, to upload results to the correct organization and collection. They can alternatively be set via environment variables, `TRUNK_ORG_URL_SLUG`, `TRUNK_API_TOKEN`, and `TRUNK_TEST_COLLECTION_ID`, respectively.
+The CLI requires your Trunk organization slug and test collection ID, passed through `--org-url-slug` and `--test-collection-id`, to upload results to the correct organization and collection. They can alternatively be set via environment variables, `TRUNK_ORG_URL_SLUG` and `TRUNK_TEST_COLLECTION_ID`.
 
-You can find your organization slug under **Settings** → **Organization** → **General**. Your token is under **Settings** → **Developer** → **API Keys**, in the **Organization API token (v1)** section. The collection ID is on the collection's page; see [Test Collections](#test-collections).
+You can find your organization slug under **Settings** → **Organization** → **General**. The collection ID is on the collection's page; see [Test Collections](#test-collections).
+
+Uploads also need an API key with the **Upload test results** permission, created under **Settings** → **Developer** → **API Keys**. `trunk flakytests` uses the key stored with `trunk auth api-key set`. When you run the Trunk Analytics CLI directly, pass the key with `--token` or `TRUNK_API_TOKEN`.
 
 <Info>
 Your organization slug is the tail of your dashboard URL (`app.trunk.io/<org-slug>`). It defaults to your organization name with spaces replaced by hyphens. To change it, contact [help@trunk.io](mailto:help@trunk.io).
 </Info>
 
-<Tabs>
-<Tab title="Slug">
 <Frame caption="Make sure you are getting your Organization Slug, not the Organization Name.">
 <img className="block dark:hidden" src="/assets/flaky-tests/reference/org-slug-light.png" alt="The General page, with the organization slug in the URL field" />
 <img className="hidden dark:block" src="/assets/flaky-tests/reference/org-slug-dark.png" alt="The General page, with the organization slug in the URL field" />
 </Frame>
-</Tab>
-<Tab title="Token">
-<Frame caption="Make sure you copy the organization API token, not an API key or a repo token.">
-<img className="block dark:hidden" src="/assets/flaky-tests/reference/org-token-light.png" alt="The Organization API token (v1) section of the API Keys page" />
-<img className="hidden dark:block" src="/assets/flaky-tests/reference/org-token-dark.png" alt="The Organization API token (v1) section of the API Keys page" />
-</Frame>
-</Tab>
-</Tabs>
 
 ## Uploading Test Results
 
@@ -100,47 +115,43 @@ Your organization slug is the tail of your dashboard URL (`app.trunk.io/<org-slu
 The uploaded tests are processed by Trunk periodically, not in real-time. Wait for at least an hour after the initial upload before they’re displayed in the [Uploads tab](/flaky-tests/get-started#step-4-verify-integration). Multiple uploads are required before a test can be accurately detected as flaky.
 </Info>
 
-Trunk accepts uploads from three main report sources, [JUnit XML](https://github.com/testmoapp/junitxml), [Bazel Event Protocol JSONs](https://bazel.build/remote/bep#consuming-bep-text-json), and Swift (both XCode XCResult paths and the XML written by `swift test --xunit-output`). You can upload each of these test report sources using the `./trunk-analytics-cli upload` command like this:
+Trunk accepts uploads from three main report sources, [JUnit XML](https://github.com/testmoapp/junitxml), [Bazel Event Protocol JSONs](https://bazel.build/remote/bep#consuming-bep-text-json), and Swift (both XCode XCResult paths and the XML written by `swift test --xunit-output`). You can upload each of these test report sources using the `trunk flakytests upload` command like this:
 
 <Tabs>
 <Tab title="JUnit XML">
 Trunk can accept JUnit XMLs through the `--junit-paths` argument:
 
 ```
-./trunk-analytics-cli upload --junit-paths "test_output.xml" \
+trunk flakytests upload --junit-paths "test_output.xml" \
    --org-url-slug <TRUNK_ORG_URL_SLUG> \
-   --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
-   --token $TRUNK_API_TOKEN
+   --test-collection-id <TRUNK_TEST_COLLECTION_ID>
 ```
 </Tab>
 <Tab title="Bazel">
 Trunk can accept Bazel through the `--bazel-bep-path` argument:
 
 ```
-./trunk-analytics-cli upload --bazel-bep-path <BEP_JSON_PATH> \
+trunk flakytests upload --bazel-bep-path <BEP_JSON_PATH> \
    --org-url-slug <TRUNK_ORG_URL_SLUG> \
-   --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
-   --token $TRUNK_API_TOKEN
+   --test-collection-id <TRUNK_TEST_COLLECTION_ID>
 ```
 </Tab>
 <Tab title="XCode">
 Trunk can accept XCode through the `--xcresult-path` argument:
 
 ```
-./trunk-analytics-cli upload --xcresult-path <XCRESULT_PATH> \
+trunk flakytests upload --xcresult-path <XCRESULT_PATH> \
    --org-url-slug <TRUNK_ORG_URL_SLUG> \
-   --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
-   --token $TRUNK_API_TOKEN
+   --test-collection-id <TRUNK_TEST_COLLECTION_ID>
 ```
 </Tab>
 <Tab title="Swift">
 Trunk can accept the XML written by `swift test --xunit-output` through the `--swift-test-xunit-paths` argument:
 
 ```
-./trunk-analytics-cli upload --swift-test-xunit-paths "junit-swift-testing.xml,junit.xml" \
+trunk flakytests upload --swift-test-xunit-paths "junit-swift-testing.xml,junit.xml" \
    --org-url-slug <TRUNK_ORG_URL_SLUG> \
-   --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
-   --token $TRUNK_API_TOKEN
+   --test-collection-id <TRUNK_TEST_COLLECTION_ID>
 ```
 
 This XML carries no file path for any test case, so Trunk resolves each test to the file it is declared in by reading your checkout. See [Swift Testing](/flaky-tests/get-started/frameworks/swift-testing) for what a single `swift test` run writes and what the resolution requires.
@@ -156,10 +167,9 @@ For example, a test for a mobile app might be flaky on iOS but stable on Android
 You can specify a variant during upload using the `--variant` option:
 
 ```sh Upload an iOS variant
-./trunk-analytics-cli upload --junit-paths "test_output.xml" \
+trunk flakytests upload --junit-paths "test_output.xml" \
    --org-url-slug <TRUNK_ORG_URL_SLUG> \
    --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
-   --token $TRUNK_API_TOKEN \
    --variant ios
 ```
 
@@ -175,10 +185,9 @@ Variant names are displayed in brackets next to test names in your dashboard:
 [Test collections](/flaky-tests/test-collections) group tests so they can be configured and reviewed together, with their own flake detection and quarantining. Every upload names the collection it belongs to, by passing its ID with `--test-collection-id`:
 
 ```sh Upload to a test collection
-./trunk-analytics-cli upload --junit-paths "test_output.xml" \
+trunk flakytests upload --junit-paths "test_output.xml" \
    --org-url-slug <TRUNK_ORG_URL_SLUG> \
-   --test-collection-id <COLLECTION_ID> \
-   --token $TRUNK_API_TOKEN
+   --test-collection-id <COLLECTION_ID>
 ```
 
 The collection ID is eight alphanumeric characters, and you copy it from the collection in the Trunk app. `--org-url-slug` is still required — the collection ID is an addition to it, not a replacement.
@@ -188,8 +197,6 @@ You can set the ID as the `TRUNK_TEST_COLLECTION_ID` environment variable instea
 <Note>
 Each invocation uploads to a single collection. To send the same results to more than one collection, run the upload once per collection.
 </Note>
-
-When a collection ID is passed, the links printed at the end of a run point at the collection rather than the repository. Pass `--hide-test-collection-links` to keep the repository links.
 
 ## Running and Quarantining Tests
 
@@ -202,44 +209,40 @@ This is especially useful for [Quarantining](../quarantining/), where the Trunk 
 Trunk can accept JUnit XMLs through the `--junit-paths` argument:
 
 ```
-./trunk-analytics-cli test --junit-paths "test_output.xml" \
+trunk flakytests test --junit-paths "test_output.xml" \
    --org-url-slug <TRUNK_ORG_URL_SLUG> \
    --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
-   --token $TRUNK_API_TOKEN \
-   <YOUR_TEST_COMMAND>
+   -- <YOUR_TEST_COMMAND>
 ```
 </Tab>
 <Tab title="Bazel">
 Trunk can accept Bazel through the `--bazel-bep-path` argument:
 
 ```
-./trunk-analytics-cli test --bazel-bep-path <BEP_JSON_PATH> \
+trunk flakytests test --bazel-bep-path <BEP_JSON_PATH> \
    --org-url-slug <TRUNK_ORG_URL_SLUG> \
    --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
-   --token $TRUNK_API_TOKEN \
-   <YOUR_TEST_COMMAND>
+   -- <YOUR_TEST_COMMAND>
 ```
 </Tab>
 <Tab title="XCode">
 Trunk can accept XCode through the `--xcresult-path` argument:
 
 ```
-./trunk-analytics-cli test --xcresult-path <XCRESULT_PATH> \
+trunk flakytests test --xcresult-path <XCRESULT_PATH> \
    --org-url-slug <TRUNK_ORG_URL_SLUG> \
    --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
-   --token $TRUNK_API_TOKEN \
-   <YOUR_TEST_COMMAND>
+   -- <YOUR_TEST_COMMAND>
 ```
 </Tab>
 <Tab title="Swift">
 Trunk can accept the XML written by `swift test --xunit-output` through the `--swift-test-xunit-paths` argument:
 
 ```
-./trunk-analytics-cli test --swift-test-xunit-paths "junit-swift-testing.xml,junit.xml" \
+trunk flakytests test --swift-test-xunit-paths "junit-swift-testing.xml,junit.xml" \
    --org-url-slug <TRUNK_ORG_URL_SLUG> \
    --test-collection-id <TRUNK_TEST_COLLECTION_ID> \
-   --token $TRUNK_API_TOKEN \
-   <YOUR_TEST_COMMAND>
+   -- <YOUR_TEST_COMMAND>
 ```
 </Tab>
 </Tabs>
@@ -265,7 +268,7 @@ You can validate the test reports produced by your test frameworks before you se
 You can run the validate command like this:
 
 ```
-./trunk-analytics-cli validate --junit-paths "test_output.xml"
+trunk flakytests validate --junit-paths "test_output.xml"
 ```
 
 The `validate` command will output any problems with your reports so you can address them before setting up Trunk in CI.
@@ -289,13 +292,13 @@ The CLI is preconfigured to work with a set [ci-providers](/flaky-tests/get-star
 
 ## Full command reference
 
-The `trunk` command-line tool can upload and analyze test results. The `trunk-analytics-cli` command accepts the following subcommands:
+`trunk flakytests` (alias `trunk ft`) and `trunk-analytics-cli` accept the following subcommands:
 
-| Command                              | Description                                                                                                                                                                                         |
-| ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `trunk-analytics-cli upload`         | Upload data to Trunk Flaky Tests.                                                                                                                                                                   |
-| `trunk-analytics-cli validate`       | Validates if the provided JUnit XML files and prints any errors.                                                                                                                                    |
-| `trunk-analytics-cli test <COMMAND>` | Runs tests using the provided command, uploads results, checks whether the failures are [quarantined](../quarantining/#updates-in-ci) tests, and correct the exit code based on that. |
+| Command | Description |
+| --- | --- |
+| `trunk flakytests upload` | Upload data to Trunk Flaky Tests. |
+| `trunk flakytests validate` | Validates if the provided JUnit XML files and prints any errors. |
+| `trunk flakytests test -- <COMMAND>` | Runs tests using the provided command, uploads results, checks whether the failures are [quarantined](../quarantining/#updates-in-ci) tests, and correct the exit code based on that. |
 
 The `upload` and `test` commands accept the following options:
 
@@ -307,7 +310,7 @@ The `upload` and `test` commands accept the following options:
 | `--swift-test-xunit-paths <PATHS>` | Comma-separated list of glob patterns to files written by `swift test --xunit-output`, resolved against the repository root like `--junit-paths`. This XML carries no file path, so each test is attributed to the file it is declared in, resolved from your checkout. Can also be set with the `TRUNK_SWIFT_TEST_XUNIT_PATHS` environment variable. See [Swift Testing](/flaky-tests/get-started/frameworks/swift-testing). |
 | `--use-experimental-xcresult-test-locations` | **Beta.** Take each `.xcresult` test's file from where it is declared rather than from the failure that surfaced it, which also gives passing tests a file. macOS only. See [XCTest](/flaky-tests/get-started/frameworks/xctest#attributing-tests-to-their-declaring-file). |
 | `--org-url-slug <ORG_URL_SLUG>` | Trunk organization slug, from **Settings** → **Organization** → **General**. |
-| `--token <TOKEN>` | Trunk organization API token (not an API key or a repo token), from the **Organization API token (v1)** section of **Settings** → **Developer** → **API Keys**. Defaults to the `TRUNK_API_TOKEN` variable. |
+| `--token <TOKEN>` | An API key with the **Upload test results** permission, from **Settings** → **Developer** → **API Keys**. Defaults to the `TRUNK_API_TOKEN` variable. `trunk flakytests` sets it for you from the key stored with `trunk auth api-key set`, so pass it only when you run the Trunk Analytics CLI directly. The Trunk Analytics CLI 1.0.0 and later refuse the legacy organization token. |
 | `-h, --help` | Additional detailed description of the `upload` command. |
 | `--repo-root` | Path to the repository root. Defaults to the current directory. |
 | `--repo-url <REPO_URL>` | Value to override URL of repository. **Optional**. |
@@ -319,15 +322,15 @@ The `upload` and `test` commands accept the following options:
 | `--allow-empty-test-results` | Don't fail commands if test results are empty or missing. Use it when you sometimes skip all tests for certain CI jobs. Defaults to `true`. |
 | `--variant <VARIANT_NAME>` | Upload tests to a specific variant group. **Optional**. |
 | `--test-collection-id <COLLECTION_ID>` | Upload to a [test collection](/flaky-tests/test-collections), in addition to (not instead of) `--org-url-slug`. Can also be set with the `TRUNK_TEST_COLLECTION_ID` environment variable. **Required**. |
-| `--hide-test-collection-links` | Print repository links at the end of a run instead of test collection links. Only has an effect when a collection ID is passed. Can also be set with the `TRUNK_HIDE_TEST_COLLECTION_LINKS=true` environment variable. **Optional**. |
-| `--allow-forked-pr-uploads` | Upload from a forked pull request, whose CI can't read your API token. Requires `--test-collection-id`, and the collection must have forked pull request uploads turned on. See [Uploads from Forked Pull Requests](/flaky-tests/get-started/fork-pr-uploads). Can also be set with the `TRUNK_ALLOW_FORKED_PR_UPLOADS=true` environment variable. **Optional**. |
+| `--allow-forked-pr-uploads` | Upload from a forked pull request, whose CI can't read your API key. Requires `--test-collection-id`, and the collection must have forked pull request uploads turned on. Works only in a GitHub Actions run of a pull request from a fork, with the job's `GITHUB_TOKEN` in the environment. See [Uploads from Forked Pull Requests](/flaky-tests/get-started/fork-pr-uploads). Can also be set with the `TRUNK_ALLOW_FORKED_PR_UPLOADS=true` environment variable. **Optional**. |
+| `--disable-quarantining` | Report every test failure in the exit code, even for quarantined tests. Can also be set with the `TRUNK_DISABLE_QUARANTINING=true` environment variable. **Optional**. |
 | `--test-process-exit-code` `<EXIT_CODE>` | Specify the exit code of the test previously run. This is used by the upload command to identify errors that happen outside of the context of the test execution (such as build errors). |
 | `--dry-run` | Write the test results bundle to a local `./bundle_upload` directory instead of uploading it to Trunk. [Quarantining](../quarantining/#quarantining-without-uploading) still runs and still determines the exit code. Can also be set with the `TRUNK_DRY_RUN=true` environment variable. **Optional**. |
 
 <Info>
 **Memory Overhead**
 
-Running tests via `trunk-analytics-cli test` adds negligible memory overhead.
+Running tests via `trunk flakytests test` adds negligible memory overhead.
 
 This subcommand is a thin wrapper around your existing test command and doesn't modify or parallelize test execution.
 
