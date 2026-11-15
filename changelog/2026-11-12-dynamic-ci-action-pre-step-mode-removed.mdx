@@ -1,0 +1,13 @@
+---
+title: "Dynamic CI: GitHub Action runs as a filter job only"
+description: "The trunk-io/dynamic-ci GitHub Action no longer offers pre-step mode. Use a filter job to gate your downstream jobs."
+date: 2026-11-12
+category: Dynamic CI
+type: update
+---
+
+**The `trunk-io/dynamic-ci` GitHub Action now runs only as a filter job.** Dynamic CI is in private beta.
+
+### Updates
+
+- **Pre-step mode removed.** The action no longer offers pre-step mode. Run it in a single filter job that writes one output per job, then read those outputs in each downstream job's `if:` condition. If you used pre-step mode, move to a filter job. See the [action reference](/ci/dynamic-ci/dynamic-ci-action-reference) and the [GitHub Actions guide](/ci/dynamic-ci/getting-started/github-actions).
