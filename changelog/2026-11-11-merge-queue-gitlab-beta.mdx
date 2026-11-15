@@ -1,0 +1,20 @@
+---
+title: "Merge Queue: GitLab support in beta"
+description: "Trunk Merge Queue now works with merge requests on GitLab.com, in beta."
+date: 2026-11-11
+category: Merge Queue
+type: new-feature
+---
+
+**Trunk Merge Queue now works with merge requests on GitLab.com.** GitLab support is in beta.
+
+### New features
+
+- **Connect a GitLab group.** Connect a top-level group from **Settings** → **Integrations** → **GitLab**. Trunk creates a service account for you, and it covers every project and subgroup in the group. See [Connect GitLab and create your queue](/merge-queue/getting-started/gitlab/connect-and-create-your-queue).
+- **Queue merge requests.** Trunk tests each merge request in a draft merge request, reads your GitLab CI pipelines, and merges it with GitLab's own merge checks. See the [GitLab setup guide](/merge-queue/getting-started/gitlab).
+
+### Good to know
+
+- Set required statuses in the Trunk web app. A GitLab queue needs at least one. See [Configure CI pipelines and required statuses](/merge-queue/getting-started/gitlab/configure-ci-pipelines).
+- Use the **Merge commit** merge method and turn off merge trains. See [Configure project settings](/merge-queue/getting-started/gitlab/configure-project-settings).
+- Self-managed GitLab, direct to queue, stacked merge requests and the **Rebase** merge method aren't available on GitLab yet.
