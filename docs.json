@@ -862,7 +862,52 @@
                   "GET /v2/tests/{testId}/status-history",
                   "GET /v2/tests/{testId}/test-runs",
                   "POST /v2/tests/{testId}/ticket",
-                  "POST /v2/tests/{testId}/create-ticket"
+                  "POST /v2/tests/{testId}/create-ticket",
+                  "GET /v2/tests/{testId}/ticket",
+                  "DELETE /v2/tests/{testId}/ticket",
+                  "POST /v2/tests/{testId}/quarantine",
+                  "POST /v2/tests/quarantine",
+                  "POST /v2/tests/{testId}/mark-flaky",
+                  "POST /v2/tests/{testId}/unmark-flaky",
+                  "POST /v2/tests/{testId}/add-labels",
+                  "POST /v2/tests/{testId}/remove-labels"
+                ]
+              },
+              {
+                "group": "Monitors",
+                "openapi": {
+                  "source": "/openapi-v2.json",
+                  "directory": "/api"
+                },
+                "pages": [
+                  "GET /v2/monitors",
+                  "GET /v2/monitors/{monitorId}",
+                  "POST /v2/test-collections/{id}/monitors",
+                  "PATCH /v2/monitors/{monitorId}"
+                ]
+              },
+              {
+                "group": "Monitored tests",
+                "openapi": {
+                  "source": "/openapi-v2.json",
+                  "directory": "/api"
+                },
+                "pages": [
+                  "GET /v2/monitors/{monitorId}/tests",
+                  "POST /v2/monitors/{monitorId}/tests/{testId}/mute",
+                  "POST /v2/monitors/{monitorId}/tests/{testId}/unmute",
+                  "POST /v2/monitors/{monitorId}/tests/mute",
+                  "POST /v2/monitors/{monitorId}/tests/unmute"
+                ]
+              },
+              {
+                "group": "Detection events",
+                "openapi": {
+                  "source": "/openapi-v2.json",
+                  "directory": "/api"
+                },
+                "pages": [
+                  "GET /v2/detection-events"
                 ]
               },
               {

@@ -36,7 +36,7 @@ Keys start with `trunk_v2_`, so you can add that prefix to your secret scanner. 
 Permissions are the scopes of an API key. A key without permissions can still:
 
 - Read your organization's merge queues, pull requests, and repositories. So a dashboard or a Prometheus scrape needs no permissions.
-- Call every Flaky Tests endpoint in this reference, including writes, such as creating a test collection or a ticket.
+- Read Flaky Tests collections, tests, monitors, and detection events, and create a test collection.
 
 Each permission adds writes:
 
@@ -48,6 +48,12 @@ Each permission adds writes:
 | **Merge PRs with direct to queue** | Send a pull request to the queue before branch protection is satisfied. The queue's own tests still run and still gate the merge. | A submit that sends `direct: true`; a queue-entry update that sends `direct` |
 | **Update Merge Queue settings** | Change queue settings; pause, resume, or drain a queue; and create or delete queues. | [Create](/api/mergequeues/create-a-merge-queue), [delete](/api/mergequeues/delete-a-merge-queue), [update configuration](/api/mergequeues/update-a-merge-queues-configuration), [switch modes](/api/mergequeues/switch-a-merge-queues-mode), [pause](/api/mergequeues/pause-a-merge-queue), [resume](/api/mergequeues/resume-a-merge-queue), [drain](/api/mergequeues/drain-a-merge-queue) |
 | **Upload test results** (Flaky Tests) | Upload test results from CI, including looking up which tests are quarantined before the upload. | Test-results uploads through the API. The Trunk Analytics CLI and `trunk-io/analytics-uploader` don't use it yet |
+| **Quarantine tests** (Flaky Tests) | Always or never quarantine a test whatever its monitors decided, or clear that override, for one test or many at once. | [One test](/api/tests/set-a-tests-quarantine-override), [many tests](/api/tests/set-quarantine-overrides-on-many-tests) |
+| **Flag tests** (Flaky Tests) | Mark a test flaky by hand or clear that mark, and add or remove a test's labels. | [Mark flaky](/api/tests/mark-a-test-flaky), [clear the mark](/api/tests/clear-a-tests-flaky-mark), [add labels](/api/tests/add-labels-to-a-test), [remove labels](/api/tests/remove-labels-from-a-test) |
+| **Manage monitors** (Flaky Tests) | Create monitors and change their settings, including turning a monitor off for every test. | [Create](/api/testcollections/create-a-monitor), [edit](/api/monitors/edit-a-monitor) |
+| **Mute monitors** (Flaky Tests) | Mute or unmute a monitor for one test or for many at once. | [Mute one test](/api/monitortests/mute-a-monitor-for-one-test), [unmute one test](/api/monitortests/unmute-a-monitor-for-one-test), [mute many](/api/monitortests/mute-a-monitor-for-many-tests), [unmute many](/api/monitortests/unmute-a-monitor-for-many-tests) |
+| **Link tickets** (Flaky Tests) | Link an existing ticket in the connected ticketing provider to a test, or unlink it. | [Link](/api/tests/link-a-ticket-to-a-test), [unlink](/api/tests/unlink-a-tests-ticket) |
+| **Create tickets** (Flaky Tests) | File a new ticket for a test in the connected ticketing provider and link it to the test. | [Create a ticket](/api/tests/create-a-ticket-for-a-test) |
 
 A request's permissions come from its body as well as its endpoint. For example, a submit that sets a priority needs both **Merge and cancel PRs** and **Set priority on PRs**. If the key doesn't have a permission that the request needs, the API returns `403 INSUFFICIENT_PERMISSIONS` and changes nothing.
 
