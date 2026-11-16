@@ -37,8 +37,6 @@ Permissions are the scopes of an API key. A key without permissions can still:
 
 - Read your organization's merge queues, pull requests, and repositories. So a dashboard or a Prometheus scrape needs no permissions.
 - Read Flaky Tests collections, tests, monitors, and detection events, and create a test collection.
-- Read Dynamic CI's job decisions, paths filters, and forced jobs.
-- Read CI jobs, workflow runs, and failure clusters. A failure's log excerpt text needs **Read CI logs**.
 
 Each permission adds writes:
 
@@ -56,10 +54,6 @@ Each permission adds writes:
 | **Mute monitors** (Flaky Tests) | Mute or unmute a monitor for one test or for many at once. | [Mute one test](/api/monitortests/mute-a-monitor-for-one-test), [unmute one test](/api/monitortests/unmute-a-monitor-for-one-test), [mute many](/api/monitortests/mute-a-monitor-for-many-tests), [unmute many](/api/monitortests/unmute-a-monitor-for-many-tests) |
 | **Link tickets** (Flaky Tests) | Link an existing ticket in the connected ticketing provider to a test, or unlink it. | [Link](/api/tests/link-a-ticket-to-a-test), [unlink](/api/tests/unlink-a-tests-ticket) |
 | **Create tickets** (Flaky Tests) | File a new ticket for a test in the connected ticketing provider and link it to the test. | [Create a ticket](/api/tests/create-a-ticket-for-a-test) |
-| **Generate Dynamic CI plans** (Dynamic CI) | Ask Dynamic CI which jobs a pull request or merge queue run can skip, for GitHub Actions and Buildkite. | [GitHub Actions](/api/dynamicci/generate-a-ci-skip-plan), [Buildkite](/api/dynamicci/generate-a-ci-skip-plan-for-a-buildkite-pipeline) |
-| **Force CI jobs to run** (Dynamic CI) | Make Dynamic CI run jobs on a pull request that it would otherwise skip. | [Replace force overrides](/api/dynamicci/replace-a-pull-requests-force-overrides) |
-| **Update Dynamic CI settings** (Dynamic CI) | Change a repository's Dynamic CI configuration. | [Set paths filters](/api/dynamicci/set-or-clear-paths-filters-on-jobs) |
-| **Read CI logs** (CI) | Read the log lines of CI jobs. | [Log lines](/api/cijobs/list-a-ci-jobs-log-lines); the log excerpt text on a failed job in [List CI jobs](/api/cijobs/list-the-ci-jobs-on-a-commit) |
 
 A request's permissions come from its body as well as its endpoint. For example, a submit that sets a priority needs both **Merge and cancel PRs** and **Set priority on PRs**. If the key doesn't have a permission that the request needs, the API returns `403 INSUFFICIENT_PERMISSIONS` and changes nothing.
 
