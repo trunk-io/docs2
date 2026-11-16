@@ -124,6 +124,15 @@ A tab marked `"hidden": true` is invisible to everyone, authorized users
 included, but its pages stay reachable by URL and still render that tab's own
 sidebar. That is how Changelog works.
 
+## Search indexing
+
+Mintlify adds `<meta name="robots" content="noindex">` to every page it counts
+as hidden: a page in a hidden tab, a `hidden: true` page, or one missing from
+`docs.json`. `docs.json` sets `seo.indexing` to `"all"` so the Changelog, whose
+tab is hidden, is still indexed. With that setting, a page stays out of search
+only if its frontmatter says `noindex: true`, so give every `hidden: true` page
+`noindex: true` as well.
+
 ## Verifying a change
 
 Mintlify's checks pass on things that are visibly broken — an out-of-range prop
