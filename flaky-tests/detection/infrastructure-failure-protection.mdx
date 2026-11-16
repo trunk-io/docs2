@@ -21,15 +21,15 @@ Uploads excluded due to infrastructure failure protection will appear in the **U
 
 ## Configuring Infrastructure Failure Protection
 
-Administrators can enable this feature in repository settings:
+Each [test collection](/flaky-tests/test-collections) has its own Infrastructure Failure Protection settings:
 
-1. Click on your profile and open **Settings**
-2. Select your repository from the left navigation
-3. Locate **Infrastructure Failure Protection** under Flaky Tests
-4. Toggle **Enable Protection** to on
-5. Set your **Failure Threshold** percentage (default: 80%)
+1. Navigate to **Tests** → **[your collection]** → **Settings** → **Uploads**.
+2. Toggle **Enable Protection** on.
+3. Set the **Failure Threshold** percentage (default: 80%).
+4. Set the **Minimum Test Count**: an upload with fewer tests than this is never treated as an infrastructure failure (default: 10).
+5. Click **Apply Changes**.
 
-The threshold determines what percentage of test failures triggers infrastructure failure detection. A threshold of 80% is a reasonable starting point for most repositories—adjust based on your test suite size and typical failure patterns.
+The threshold determines what percentage of test failures triggers infrastructure failure detection. A threshold of 80% is a reasonable starting point for most collections. Adjust it based on your test suite size and typical failure patterns.
 
 ## Trade-offs
 

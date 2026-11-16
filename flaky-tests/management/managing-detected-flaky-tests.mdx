@@ -23,7 +23,7 @@ Go through these guides first to start detecting flaky tests.
 - Member access to the Trunk app to view and edit tests; Admin access if you also need to configure ticketing or webhook integrations
 
 <Info>
-This workflow is the same whether your tests are organized by repository or by [test collection](/flaky-tests/test-collections) — labels, tickets, monitors, muting, flagging and quarantining all work per scope. A collection's **Tests** tab additionally filters by repository, since a collection can span several.
+Labels, tickets, monitors, muting, flagging and quarantining all work per [test collection](/flaky-tests/test-collections). A collection's **Tests** tab also filters by repository, since a collection can span several.
 </Info>
 
 ### Step 1: Organize tests with labels
@@ -93,7 +93,7 @@ If automated detection hasn't caught a test you know is flaky, you can manually 
 
 Flaky tests slow down CI and have a high negative impact on merge queue throughput. You can minimize or eliminate this CI slowdown by [quarantining](../quarantining/) flaky tests at runtime.
 
-* Enable quarantining for your repo at **Settings** → **[your repo]** → **Enable Test Quarantining**.
+* Enable quarantining for your collection: navigate to **Tests** → **[your collection]** → **Settings** → **Quarantining** and toggle **Enable Test Quarantining** on.
 * Manually quarantine flaky tests by going to the test details page, clicking **Quarantine**, and setting the status to **Always**. Leave a comment detailing why you are quarantining this test to keep your team informed. The comment and quarantine status change will appear in the timeline on the test details page.
 
 After quarantining a test, Trunk will ignore the test result (pass/fail) on CI runs, preventing this flaky test from failing CI.
@@ -104,13 +104,13 @@ After quarantining a test, Trunk will ignore the test result (pass/fail) on CI r
 
 ### Step 7: Automation
 
-Trunk has [webhooks](../webhooks/) and [Flaky Tests APIs](../reference/api-reference) that can be used to build custom workflows around ticket creation, linking existing tickets to Trunk, sending notifications, and dealing with quarantined tests.
+Trunk has [webhooks](../webhooks/) and [APIs](/api) that can be used to build custom workflows around ticket creation, linking existing tickets to Trunk, sending notifications, and dealing with quarantined tests.
 
 There is also built-in automation support that handles tasks such as assigning flaky test ownership, ticket creation, and quarantining (so that unblocking CI is not a manual process).&#x20;
 
 * [`CODEOWNERS` files](../dashboard#code-owners) can automatically assign ownership of test flakes.
 * Tickets can be [auto-created using webhooks](../webhooks/) as triggers, similar to Slack or MS Teams notifications.
-* Automatically quarantine flaky tests by enabling **Settings** → **[your repo]** → **Auto-Quarantine Flaky Tests**.
+* Automatically quarantine flaky tests: navigate to **Tests** → **[your collection]** → **Settings** → **Quarantining** and toggle **Auto-Quarantine Flaky Tests** on.
 
 You can customize how flaky and quarantined tests are handled to suit your team and organization best.
 

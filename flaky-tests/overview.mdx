@@ -25,7 +25,7 @@ You can see an overview of Trunk Flaky Tests in this video.
 
 Your dashboard shows a comprehensive overview of your test suite's health at a glance. It lets you see important impact metrics like the number of flaky tests, PRs impacted by flaky tests, and PRs rescued by quarantining flaky tests.
 
-<Frame caption="Key metrics for a collection or repository">
+<Frame caption="Key metrics for a collection">
 <img className="block dark:hidden" src="/assets/flaky-tests/key-metrics-light.png" alt="" />
 <img className="hidden dark:block" src="/assets/flaky-tests/key-metrics-dark.png" alt="" />
 </Frame>
@@ -47,14 +47,7 @@ To learn more, [see how Flaky Tests does detection](/flaky-tests/detection).
 
 ## Stay in sync
 
-<Frame caption="PR comment linking to PR Test Summary">
-<img className="block dark:hidden" src="/assets/_shared/github-comment-light.png" alt="PR comment linking to PR Test Summary" />
-<img className="hidden dark:block" src="/assets/_shared/github-comment-dark.png" alt="PR comment linking to PR Test Summary" />
-</Frame>
-
-Flaky Tests helps everyone in your team stay in sync about flaky test failures with [GitHub PR comments](./management/github-pull-request-comments), so no time is wasted debugging failures from known flaky tests.
-
-To learn more, [see our docs about GitHub Comments and Test Summaries](./management/github-pull-request-comments).
+The [Trunk browser extension](/merge-queue/browser-extensions#test-details-panel) shows a pull request's test results, including which failures are quarantined or flaky, in the sidebar of the GitHub pull request page, so no time is wasted debugging failures from known flaky tests.
 
 <Tip>
 Press <kbd>⌘</kbd> <kbd>K</kbd> (macOS) or <kbd>Ctrl</kbd> <kbd>K</kbd> (Windows and Linux) anywhere in the Trunk app to open the command palette. Start typing to jump to Merge Queue, Flaky Tests, your account settings, or any connected repository by name.

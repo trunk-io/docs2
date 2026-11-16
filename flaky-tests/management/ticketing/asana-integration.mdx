@@ -60,16 +60,7 @@ When Trunk closes a ticket, it marks the task complete and moves it to your conf
 
 You can create a new ticket for any test listed in Flaky Tests.
 
-There are 2 ways to create a new ticket in the Flaky Tests dashboard:
-
-* Click on the options menu for any test case on the repo overview dashboard
-
-<Frame>
-<img className="block dark:hidden" src="/assets/flaky-tests/management/ticketing/create-ticket-button-light.png" alt="" />
-<img className="hidden dark:block" src="/assets/flaky-tests/management/ticketing/create-ticket-button-dark.png" alt="" />
-</Frame>
-
-* Use the Create ticket button in the top left corner of the [test case details](../../dashboard#test-case-details) page.
+To create one, open the test from your collection's **Tests** tab and click the **Create Ticket** button on its [details page](../../dashboard#test-case-details).
 
 Before you create the ticket, you get a preview of the title and description.
 
@@ -102,7 +93,7 @@ Date and reference fields are not supported and do not appear in the list. Formu
   Custom fields belong to a project, so changing the selected **Project** clears every configured default. Choose the project first, then set defaults.
 </Note>
 
-Field defaults are saved per repository. When you open the **Create Ticket** modal, all configured defaults are pre-filled and can be overridden before submitting.
+Field defaults are saved with the integration, so every collection that uses it gets the same defaults. When you open the **Create Ticket** modal, all configured defaults are pre-filled and can be overridden before submitting.
 
 ### Requiring fields at ticket creation
 
