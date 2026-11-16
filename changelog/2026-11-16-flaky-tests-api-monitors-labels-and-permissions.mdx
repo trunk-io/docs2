@@ -1,0 +1,24 @@
+---
+title: "Flaky Tests: Monitors, labels and flaky marks in the v2 API"
+description: "Manage monitors, mute them per test, mark tests flaky, label tests and read detection events through the v2 API, with new API key permissions."
+date: 2026-11-16
+category: Flaky Tests
+type: new-feature
+---
+
+**You can now manage monitors and flag tests from the v2 API, not only from the web app.**
+
+### New features
+
+- **Monitors.** [List](/api/monitors/list-monitors), [get](/api/monitors/get-a-monitor), [create](/api/testcollections/create-a-monitor) and [edit](/api/monitors/edit-a-monitor) a test collection's monitors. Turning a monitor off through the API deactivates it on every test, as it does in the web app.
+- **Mute a monitor for some tests.** [Mute](/api/monitortests/mute-a-monitor-for-one-test) or [unmute](/api/monitortests/unmute-a-monitor-for-one-test) a monitor for one test, or [mute](/api/monitortests/mute-a-monitor-for-many-tests) and [unmute](/api/monitortests/unmute-a-monitor-for-many-tests) it for many at once. A mute lasts up to 30 days or has no end. [List a monitor's tests](/api/monitortests/list-a-monitors-tests) to see where it is active.
+- **Mark tests flaky.** [Mark a test flaky](/api/tests/mark-a-test-flaky) or [clear the mark](/api/tests/clear-a-tests-flaky-mark), as **Flag as Flaky** does in the web app.
+- **Label tests.** [Add](/api/tests/add-labels-to-a-test) or [remove](/api/tests/remove-labels-from-a-test) a test's labels. A new label name creates the label.
+- **Detection events.** [List detection events](/api/detectionevents/list-detection-events) to see each verdict your monitors recorded on a test, over a window of up to 30 days.
+
+### Updates
+
+- **New API key permissions.** Flaky Tests writes now need a matching permission on the API key: **Quarantine tests**, **Flag tests**, **Manage monitors**, **Mute monitors**, **Link tickets** and **Create tickets**. A key without permissions can still read collections, tests, monitors and detection events. If a key lacks a permission, the API returns `403 INSUFFICIENT_PERMISSIONS`. See [Permissions](/api/authentication#permissions).
+- **Read a pull request's impacted targets.** A new v2 endpoint returns the impacted targets uploaded for a pull request.
+
+See the [API reference](/api) for all v2 endpoints.
