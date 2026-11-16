@@ -306,7 +306,6 @@
                 "pages": [
                   "flaky-tests/management/managing-detected-flaky-tests",
                   "flaky-tests/management/test-labels",
-                  "flaky-tests/management/github-pull-request-comments",
                   {
                     "group": "Ticketing",
                     "root": "flaky-tests/management/ticketing",
@@ -1539,23 +1538,51 @@
     },
     {
       "source": "/flaky-tests/reference/api-reference/get-the-details-of-a-test-case",
-      "destination": "/api/v1/get-the-details-of-a-test-case"
+      "destination": "/api/tests/get-a-test"
     },
     {
       "source": "/flaky-tests/reference/api-reference/link-a-ticket-to-a-test-case",
-      "destination": "/api/v1/link-a-ticket-to-a-test-case"
+      "destination": "/api/tests/link-a-ticket-to-a-test"
     },
     {
       "source": "/flaky-tests/reference/api-reference/get-a-list-of-distinct-tests-that-failed-in-the-given-time-range",
-      "destination": "/api/v1/get-a-list-of-distinct-tests-that-failed-in-the-given-time-range"
+      "destination": "/api/tests/list-and-search-tests"
     },
     {
       "source": "/flaky-tests/reference/api-reference/get-a-list-of-unhealthy-tests",
-      "destination": "/api/v1/get-a-list-of-unhealthy-tests"
+      "destination": "/api/tests/list-and-search-tests"
     },
     {
       "source": "/flaky-tests/reference/api-reference/get-a-list-of-quarantined-tests",
-      "destination": "/api/v1/get-a-list-of-quarantined-tests"
+      "destination": "/api/tests/list-and-search-tests"
+    },
+    {
+      "source": "/api/v1/get-the-details-of-a-test-case",
+      "destination": "/api/tests/get-a-test"
+    },
+    {
+      "source": "/api/v1/link-a-ticket-to-a-test-case",
+      "destination": "/api/tests/link-a-ticket-to-a-test"
+    },
+    {
+      "source": "/api/v1/get-a-list-of-distinct-tests-that-failed-in-the-given-time-range",
+      "destination": "/api/tests/list-and-search-tests"
+    },
+    {
+      "source": "/api/v1/get-a-list-of-unhealthy-tests",
+      "destination": "/api/tests/list-and-search-tests"
+    },
+    {
+      "source": "/api/v1/get-a-list-of-quarantined-tests",
+      "destination": "/api/tests/list-and-search-tests"
+    },
+    {
+      "source": "/flaky-tests/management/github-pull-request-comments",
+      "destination": "/merge-queue/browser-extensions"
+    },
+    {
+      "source": "/flaky-tests/get-started/migrate-to-test-collections",
+      "destination": "/flaky-tests/test-collections"
     },
     {
       "source": "/merge-queue/reference/api-v2/:slug*",
@@ -2359,7 +2386,7 @@
     },
     {
       "source": "/test-analytics/github-pull-request-comments",
-      "destination": "/flaky-tests/management/github-pull-request-comments"
+      "destination": "/merge-queue/browser-extensions"
     },
     {
       "source": "/runtimes",
@@ -2831,7 +2858,7 @@
     },
     {
       "source": "/flaky-tests/github-pull-request-comments",
-      "destination": "/flaky-tests/management/github-pull-request-comments"
+      "destination": "/merge-queue/browser-extensions"
     },
     {
       "source": "/merge-queue/anti-flake-protection",

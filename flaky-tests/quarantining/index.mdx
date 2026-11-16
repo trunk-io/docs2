@@ -48,7 +48,7 @@ With quarantining enabled, the Analytics Uploader will compare failed test cases
 
 ### Quarantining settings
 
-A new [test collection](../test-collections) starts with quarantining enabled. To change it, navigate to **Flaky Tests** → **Collections** → **[collection]** → **Settings** → **Quarantining**.
+A new [test collection](../test-collections) starts with quarantining enabled. To change it, navigate to **Tests** → **[your collection]** → **Settings** → **Quarantining**.
 
 <Frame>
 ![](/assets/flaky-tests/quarantining/enable_test_quarantining.png)
@@ -61,21 +61,9 @@ Here's what each of these options does:
 | Enable Test Quarantining | This primary toggle activates the quarantining feature set, unlocking both manual override options and the ability to enable auto-quarantining. For any quarantining to work, the [necessary configurations](#updates-in-ci) must also be made in your CI pipeline. |
 | Auto-Quarantine Flaky Tests | When enabled, any test already identified by Trunk as "flaky" will be automatically quarantined. This saves you from having to manually quarantine each flaky test as it's discovered. |
 | Manual Quarantine Permissions | Controls who can set **Always Quarantine** or **Never Quarantine** overrides on individual tests. Set to **Anyone** to allow any user with repository access, or **Admins only** to restrict to organization admins. Disabled when **Enable Test Quarantining** is off. Only admins can change this setting. |
-| Manual Test Status Override Permissions | Controls who can use [Flag as Flaky](../detection/flag-as-flaky) to set a test's status. Set to **Anyone** to allow any user with repository access, or **Admins only** to restrict to organization admins. Only admins can change this setting. |
-| Summary Flaky Tests Reports | When enabled, Trunk posts [pull request comments](../management/github-pull-request-comments) on each PR summarizing tests that passed, failed, flaked, were skipped, or were quarantined. Enabled by default. |
+| Flag as Flaky Permissions | Controls who can use [Flag as Flaky](../detection/flag-as-flaky) to set a test's status. Set to **Anyone** to allow any user with repository access, or **Admins only** to restrict to organization admins. Only admins can change this setting. |
 
-### Collection-level quarantining settings
-
-[Test Collections](../test-collections) have their own quarantining settings, which lets you apply different quarantining policies to different subsets of your test suite.
-
-To configure collection quarantining, navigate to **Flaky Tests** → **Collections** → **[collection name]** → **Settings** → **Quarantining**.
-
-The same two toggles are available at the collection level:
-
-| Setting | Description |
-|---|---|
-| Enable Test Quarantining | Activates quarantining for this collection. New test collections have this enabled by default. |
-| Auto-Quarantine Flaky Tests | Automatically quarantines any test in this collection that Trunk has identified as flaky. This option is only available when quarantining is enabled for the collection. |
+Each collection has its own quarantining settings, so you can apply different quarantining policies to different subsets of your test suite.
 
 <Info>
 Only organization admins can change collection quarantining settings. Members can view the settings page but cannot toggle the controls.
@@ -306,7 +294,7 @@ Trunk provides audit logs for all setting changes and overwrites for individual 
 
 For advanced use cases, you can interact with quarantining features programmatically.
 
-* API: Use the [Flaky Tests API](../reference/api-reference) to fetch a list of all currently quarantined tests in your project.
+* API: Use [List and search tests](/api/tests/list-and-search-tests), filtered by quarantine state, to fetch the quarantined tests in a collection.
 * Webhooks: Subscribe to the `v2.test_case.quarantining_setting_changed` event to trigger automated workflows whenever a test's quarantine override is modified. Learn more about [Webhooks](https://www.svix.com/event-types/us/org_2eQPL41Ew5XSHxiXZIamIUIXg8H/#v2.test_case.quarantining_setting_changed).
 
 <Info>

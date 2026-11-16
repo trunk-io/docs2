@@ -82,12 +82,12 @@ operations no page lists, do not add these three to the sidebar. Their
 descriptions in the spec start with "**Internal.**", which marks them.
 
 The legacy Flaky Tests endpoints (`/flaky-tests/*` in `openapi.json`) are
-hidden the same way, as `hidden: true` pages under `api/v1/` that keep their
-generated `/api/v1/<slug>` URLs, and so are the two Flaky Tests migration
-guides (`api/v1/migrate-flaky-tests`,
-`flaky-tests/get-started/migrate-to-test-collections`). Don't link them from
-other pages or add them back to the sidebar. The exceptions are `api/v1.mdx`'s
-link to the Flaky Tests migration guide and the changelog's old links.
+retired, so no page renders them; their old `/api/v1/<slug>` URLs redirect to
+the matching API pages. They stay in `openapi.json` because it is
+exported from trunk1's public-api (`build_docs`), which still defines them as
+stubs. Don't add pages for them. The Flaky Tests migration guide
+(`api/v1/migrate-flaky-tests`) is `hidden: true`; link it only from
+`api/v1.mdx` (the changelog's old links aside).
 
 ## Redirects
 
