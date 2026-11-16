@@ -5484,6 +5484,22 @@
     {
       "source": "/web-app/upload-check",
       "destination": "/code-quality/overview/prevent-new-issues"
+    },
+    {
+      "source": "/check/configuration/configuring-existing-linters/clang-tidy-setup",
+      "destination": "/code-quality/overview/linters/supported/clang-tidy"
+    },
+    {
+      "source": "/cli/upgrades",
+      "destination": "/code-quality/overview/linters/upgrades"
+    },
+    {
+      "source": "/v1/getMergeQueueMetrics",
+      "destination": "/api/v1/get-prometheus-format-metrics-for-a-merge-queue"
+    },
+    {
+      "source": "/welcome",
+      "destination": "/"
     }
   ],
   "interaction": {
