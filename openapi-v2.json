@@ -2463,8 +2463,8 @@
       },
       "RerunVia": {
         "type": "string",
-        "enum": ["web", "api"],
-        "description": "Where the re-run was requested: the Trunk web app or the API.",
+        "enum": ["web", "api", "auto"],
+        "description": "Where the re-run was requested: the Trunk web app, the API, or the queue's automatic re-run rules.",
         "example": "api"
       },
       "RerunMode": {
