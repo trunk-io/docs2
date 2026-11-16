@@ -106,6 +106,12 @@ link to the Flaky Tests migration guide and the changelog's old links.
   requests every source signed out; a daily job runs it against docs.trunk.io,
   because a change on Mintlify's side would pass the static check.
 - The site root is `/`; there is no `/welcome`.
+- A URL with no page does not return a 404. Because some pages are gated,
+  Mintlify sends it to `app.trunk.io/mintlify-login`, and Google records a
+  redirect to a sign-in page. So when a page moves or is deleted, add a
+  redirect for its old URL. The redirects at the end of the list map URLs
+  from the GitBook site (`/check/*`, `/merge/*`, `/references/cli/*` and so
+  on), taken from the Wayback Machine, to their current pages.
 - A destination inside an OpenAPI `directory` that `docs.json` names (such as
   `/api/v1/...`) is a generated endpoint page with no `.mdx` file. The check
   accepts it without looking for a file.
@@ -123,6 +129,15 @@ secret, just not displayed.
 A tab marked `"hidden": true` is invisible to everyone, authorized users
 included, but its pages stay reachable by URL and still render that tab's own
 sidebar. That is how Changelog works.
+
+## Search indexing
+
+Mintlify adds `<meta name="robots" content="noindex">` to every page it counts
+as hidden: a page in a hidden tab, a `hidden: true` page, or one missing from
+`docs.json`. `docs.json` sets `seo.indexing` to `"all"` so the Changelog, whose
+tab is hidden, is still indexed. With that setting, a page stays out of search
+only if its frontmatter says `noindex: true`, so give every `hidden: true` page
+`noindex: true` as well.
 
 ## Verifying a change
 

@@ -1490,6 +1490,7 @@
     }
   },
   "seo": {
+    "indexing": "all",
     "metatags": {
       "canonical": "https://docs.trunk.io"
     },
@@ -2903,6 +2904,2602 @@
     {
       "source": "/ci/dynamic-ci/settings",
       "destination": "/ci/dynamic-ci/configuration/mode"
+    },
+    {
+      "source": "/actions",
+      "destination": "/code-quality/overview/getting-started/commands-reference/actions"
+    },
+    {
+      "source": "/actions/configuration",
+      "destination": "/code-quality/overview/getting-started/configuration/actions/notifications"
+    },
+    {
+      "source": "/actions/git-hooks",
+      "destination": "/code-quality/overview/getting-started/actions/git-hooks"
+    },
+    {
+      "source": "/actions/logging-and-troubleshooting",
+      "destination": "/code-quality/overview/getting-started/configuration/actions/logging-and-troubleshooting"
+    },
+    {
+      "source": "/actions/notifications",
+      "destination": "/code-quality/overview/getting-started/configuration/actions/notifications"
+    },
+    {
+      "source": "/administration/community",
+      "destination": "/setup-and-administration/support"
+    },
+    {
+      "source": "/administration/integration-for-slack",
+      "destination": "/setup/integrations/slack/personal-notifications"
+    },
+    {
+      "source": "/administration/manage-members-and-organizations",
+      "destination": "/setup-and-administration/managing-your-organization"
+    },
+    {
+      "source": "/administration/single-sign-on-saml",
+      "destination": "/setup-and-administration/managing-your-organization"
+    },
+    {
+      "source": "/administration/support",
+      "destination": "/setup-and-administration/support"
+    },
+    {
+      "source": "/adminstration/billing",
+      "destination": "/setup-and-administration/billing"
+    },
+    {
+      "source": "/adminstration/community",
+      "destination": "/setup-and-administration/support"
+    },
+    {
+      "source": "/adminstration/single-sign-on-saml",
+      "destination": "/setup-and-administration/managing-your-organization"
+    },
+    {
+      "source": "/adminstration/support",
+      "destination": "/setup-and-administration/support"
+    },
+    {
+      "source": "/ai-devops-agent/overview",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/ai-devops-assistant/overview",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/apis/merge",
+      "destination": "/api"
+    },
+    {
+      "source": "/apis/webhooks",
+      "destination": "/api/webhooks"
+    },
+    {
+      "source": "/apis/webhooks/webhook-reference",
+      "destination": "/api/webhooks"
+    },
+    {
+      "source": "/billing",
+      "destination": "/setup-and-administration/billing"
+    },
+    {
+      "source": "/check/actions",
+      "destination": "/code-quality/overview/getting-started/commands-reference/actions"
+    },
+    {
+      "source": "/check/advanced-setup",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/check/advanced-setup/actions",
+      "destination": "/code-quality/overview/getting-started/commands-reference/actions"
+    },
+    {
+      "source": "/check/advanced-setup/actions/configuration",
+      "destination": "/code-quality/overview/getting-started/configuration/actions/notifications"
+    },
+    {
+      "source": "/check/advanced-setup/actions/git-hooks",
+      "destination": "/code-quality/overview/getting-started/actions/git-hooks"
+    },
+    {
+      "source": "/check/advanced-setup/actions/logging-and-troubleshooting",
+      "destination": "/code-quality/overview/getting-started/configuration/actions/logging-and-troubleshooting"
+    },
+    {
+      "source": "/check/advanced-setup/actions/notifications",
+      "destination": "/code-quality/overview/getting-started/configuration/actions/notifications"
+    },
+    {
+      "source": "/check/advanced-setup/cli",
+      "destination": "/code-quality/overview/getting-started/install"
+    },
+    {
+      "source": "/check/advanced-setup/cli/caching",
+      "destination": "/code-quality/overview/getting-started/caching"
+    },
+    {
+      "source": "/check/advanced-setup/cli/cli-options",
+      "destination": "/code-quality/overview/getting-started/commands-reference/code-quality"
+    },
+    {
+      "source": "/check/advanced-setup/cli/compatibility",
+      "destination": "/code-quality/overview/getting-started/compatibility"
+    },
+    {
+      "source": "/check/advanced-setup/cli/github-codespaces",
+      "destination": "/code-quality/overview/ide-integration/github-codespaces"
+    },
+    {
+      "source": "/check/advanced-setup/cli/init-in-a-git-repo",
+      "destination": "/code-quality/overview/initialize-trunk"
+    },
+    {
+      "source": "/check/advanced-setup/cli/upgrade",
+      "destination": "/code-quality/overview/getting-started/install"
+    },
+    {
+      "source": "/check/advanced-setup/cli/windows-beta",
+      "destination": "/code-quality/overview/getting-started/install"
+    },
+    {
+      "source": "/check/advanced-setup/plugins",
+      "destination": "/code-quality/overview/getting-started/configuration/plugins/external-repositories"
+    },
+    {
+      "source": "/check/advanced-setup/plugins/exported-configs",
+      "destination": "/code-quality/overview/getting-started/configuration/plugins/exported-configs"
+    },
+    {
+      "source": "/check/advanced-setup/plugins/external-repositories",
+      "destination": "/code-quality/overview/getting-started/configuration/plugins/external-repositories"
+    },
+    {
+      "source": "/check/advanced-setup/runtimes",
+      "destination": "/code-quality/overview/getting-started/configuration/runtimes"
+    },
+    {
+      "source": "/check/advanced-setup/tools",
+      "destination": "/code-quality/overview/getting-started/configuration/tools"
+    },
+    {
+      "source": "/check/advanced-setup/tools/configuration",
+      "destination": "/code-quality/overview/linters/configure-linters"
+    },
+    {
+      "source": "/check/check-cloud-ci-integration",
+      "destination": "/code-quality/overview/prevent-new-issues"
+    },
+    {
+      "source": "/check/check-cloud-ci-integration/continuous-integration",
+      "destination": "/code-quality/overview/prevent-new-issues"
+    },
+    {
+      "source": "/check/check-cloud-ci-integration/continuous-integration/upload-trunk-check-results",
+      "destination": "/code-quality/overview/prevent-new-issues"
+    },
+    {
+      "source": "/check/check-cloud-ci-integration/get-started",
+      "destination": "/code-quality/overview/prevent-new-issues"
+    },
+    {
+      "source": "/check/ci",
+      "destination": "/code-quality/overview/prevent-new-issues"
+    },
+    {
+      "source": "/check/cli/init-in-a-git-repo",
+      "destination": "/code-quality/overview/initialize-trunk"
+    },
+    {
+      "source": "/check/cli/install-trunk",
+      "destination": "/code-quality/overview/getting-started/install"
+    },
+    {
+      "source": "/check/command-line",
+      "destination": "/code-quality/overview/getting-started/commands-reference/code-quality"
+    },
+    {
+      "source": "/check/config",
+      "destination": "/code-quality/overview/linters/configure-linters"
+    },
+    {
+      "source": "/check/configuration/configuring-existing-linters",
+      "destination": "/code-quality/overview/linters/configure-linters"
+    },
+    {
+      "source": "/check/configuration/custom-linters",
+      "destination": "/code-quality/overview/linters/custom-linters"
+    },
+    {
+      "source": "/check/configuration/custom-linters-1",
+      "destination": "/code-quality/overview/linters/custom-linters"
+    },
+    {
+      "source": "/check/configuration/custom-linters-1/commands",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/commands"
+    },
+    {
+      "source": "/check/configuration/custom-linters-1/commands/custom-parsers",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/output-parsing"
+    },
+    {
+      "source": "/check/configuration/custom-linters-1/commands/definition",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/definitions"
+    },
+    {
+      "source": "/check/configuration/custom-linters-1/commands/output-types",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/output"
+    },
+    {
+      "source": "/check/configuration/custom-linters-1/dependencies",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/dependencies"
+    },
+    {
+      "source": "/check/configuration/custom-linters-1/enabling",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/auto-enable"
+    },
+    {
+      "source": "/check/configuration/custom-linters-1/files",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/files-and-caching"
+    },
+    {
+      "source": "/check/configuration/custom-linters-1/reference",
+      "destination": "/code-quality/overview/linters/custom-linters"
+    },
+    {
+      "source": "/check/configuration/custom-linters-1/reference/lint-config",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/definitions"
+    },
+    {
+      "source": "/check/configuration/custom-linters-1/reference/linter-definition",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/definitions"
+    },
+    {
+      "source": "/check/configuration/custom-linters/commands",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/commands"
+    },
+    {
+      "source": "/check/configuration/custom-linters/commands/definition",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/definitions"
+    },
+    {
+      "source": "/check/configuration/custom-linters/commands/output-types",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/output"
+    },
+    {
+      "source": "/check/configuration/custom-linters/custom-parsers",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/output-parsing"
+    },
+    {
+      "source": "/check/configuration/custom-linters/enabling",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/auto-enable"
+    },
+    {
+      "source": "/check/configuration/custom-linters/files",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/files-and-caching"
+    },
+    {
+      "source": "/check/configuration/custom-linters/output-types",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/output"
+    },
+    {
+      "source": "/check/configuration/custom-linters/reference",
+      "destination": "/code-quality/overview/linters/custom-linters"
+    },
+    {
+      "source": "/check/configuration/custom-linters/reference/lint-config",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/definitions"
+    },
+    {
+      "source": "/check/configuration/custom-linters/reference/linter-definition",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/definitions"
+    },
+    {
+      "source": "/check/configuration/debugging",
+      "destination": "/code-quality/overview/debugging"
+    },
+    {
+      "source": "/check/configuration/hold-the-line",
+      "destination": "/code-quality/overview/prevent-new-issues"
+    },
+    {
+      "source": "/check/configuration/ignoring-issues",
+      "destination": "/code-quality/overview/linters/ignoring-issues-and-files"
+    },
+    {
+      "source": "/check/configuration/sharing-linters",
+      "destination": "/code-quality/overview/linters/shared-configs"
+    },
+    {
+      "source": "/check/configuration/skipping-checks",
+      "destination": "/code-quality/overview/linters/ignoring-issues-and-files"
+    },
+    {
+      "source": "/check/continuous-integration",
+      "destination": "/code-quality/overview/prevent-new-issues"
+    },
+    {
+      "source": "/check/custom-linters",
+      "destination": "/code-quality/overview/linters/custom-linters"
+    },
+    {
+      "source": "/check/custom-parsers",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/output-parsing"
+    },
+    {
+      "source": "/check/debugging",
+      "destination": "/code-quality/overview/debugging"
+    },
+    {
+      "source": "/check/faq",
+      "destination": "/code-quality/overview/debugging"
+    },
+    {
+      "source": "/check/get-started-1",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/check/get-started-cli",
+      "destination": "/code-quality/overview/getting-started/install"
+    },
+    {
+      "source": "/check/get-started/github-integration",
+      "destination": "/code-quality/overview/prevent-new-issues"
+    },
+    {
+      "source": "/check/git_hooks",
+      "destination": "/code-quality/overview/getting-started/actions/git-hooks"
+    },
+    {
+      "source": "/check/ide-integration",
+      "destination": "/code-quality/overview/ide-integration/vscode"
+    },
+    {
+      "source": "/check/ide-integration/neovim-plugin",
+      "destination": "/code-quality/overview/ide-integration/neovim"
+    },
+    {
+      "source": "/check/ide-integration/vs-code",
+      "destination": "/code-quality/overview/ide-integration/vscode"
+    },
+    {
+      "source": "/check/ignoring-issues",
+      "destination": "/code-quality/overview/linters/ignoring-issues-and-files"
+    },
+    {
+      "source": "/check/overview",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/check/plugins",
+      "destination": "/code-quality/overview/getting-started/configuration/plugins/external-repositories"
+    },
+    {
+      "source": "/check/reference",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/check/reference/components",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/check/reference/glob-path-pattern",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/check/reference/neovim-plugin",
+      "destination": "/code-quality/overview/ide-integration/neovim"
+    },
+    {
+      "source": "/check/reference/trunk-yaml",
+      "destination": "/code-quality/overview/linters/configure-linters"
+    },
+    {
+      "source": "/check/reference/under-the-hood",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/check/reference/usage-data",
+      "destination": "/code-quality/overview/getting-started/configuration/telemetry"
+    },
+    {
+      "source": "/check/runtimes",
+      "destination": "/code-quality/overview/getting-started/configuration/runtimes"
+    },
+    {
+      "source": "/check/suppressing-issues",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/check/under-the-hood/performance",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/check/upload-trunk-check-results",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/check/usage/supported-linters",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/ci",
+      "destination": "/"
+    },
+    {
+      "source": "/ci-analytics",
+      "destination": "/"
+    },
+    {
+      "source": "/ci-analytics/api",
+      "destination": "/"
+    },
+    {
+      "source": "/ci-analytics/ci-analytics",
+      "destination": "/"
+    },
+    {
+      "source": "/ci-analytics/github-actions",
+      "destination": "/"
+    },
+    {
+      "source": "/ci-analytics/jenkins",
+      "destination": "/"
+    },
+    {
+      "source": "/ci-analytics/pull-request-metrics",
+      "destination": "/"
+    },
+    {
+      "source": "/ci-analytics/setup",
+      "destination": "/"
+    },
+    {
+      "source": "/ci-analytics/setup/api",
+      "destination": "/"
+    },
+    {
+      "source": "/ci-analytics/setup/github-actions",
+      "destination": "/"
+    },
+    {
+      "source": "/ci-analytics/setup/jenkins",
+      "destination": "/"
+    },
+    {
+      "source": "/ci-analytics/using-the-analysis-ui",
+      "destination": "/"
+    },
+    {
+      "source": "/ci-debugger",
+      "destination": "/"
+    },
+    {
+      "source": "/ci-debugger/buildkite-quickstart",
+      "destination": "/"
+    },
+    {
+      "source": "/ci-debugger/commandline",
+      "destination": "/"
+    },
+    {
+      "source": "/ci-debugger/faq",
+      "destination": "/"
+    },
+    {
+      "source": "/ci-debugger/github-actions-quickstart",
+      "destination": "/"
+    },
+    {
+      "source": "/ci-debugger/gitlab-quickstart",
+      "destination": "/"
+    },
+    {
+      "source": "/ci-debugger/jenkins-quickstart",
+      "destination": "/"
+    },
+    {
+      "source": "/cli/ca",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/cli/caching",
+      "destination": "/code-quality/overview/getting-started/caching"
+    },
+    {
+      "source": "/cli/commands-reference/actions",
+      "destination": "/code-quality/overview/getting-started/commands-reference/actions"
+    },
+    {
+      "source": "/cli/commands-reference/code-quality",
+      "destination": "/code-quality/overview/getting-started/commands-reference/code-quality"
+    },
+    {
+      "source": "/cli/commands-reference/merge",
+      "destination": "/merge-queue/reference/merge-queue-cli-reference"
+    },
+    {
+      "source": "/cli/configuration/actions/logging-and-troubleshooting",
+      "destination": "/code-quality/overview/getting-started/configuration/actions/logging-and-troubleshooting"
+    },
+    {
+      "source": "/cli/configuration/actions/notifications",
+      "destination": "/code-quality/overview/getting-started/configuration/actions/notifications"
+    },
+    {
+      "source": "/cli/configuration/lint/auto-enable",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/auto-enable"
+    },
+    {
+      "source": "/cli/configuration/lint/definitions",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/definitions"
+    },
+    {
+      "source": "/cli/configuration/lint/files-and-caching",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/files-and-caching"
+    },
+    {
+      "source": "/cli/configuration/lint/output",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/output"
+    },
+    {
+      "source": "/cli/configuration/lint/output-p",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/cli/configuration/merge",
+      "destination": "/code-quality/overview/getting-started/configuration/merge"
+    },
+    {
+      "source": "/cli/configuration/per-user-overrides",
+      "destination": "/code-quality/overview/getting-started/configuration/per-user-overrides"
+    },
+    {
+      "source": "/cli/configuration/runtimes",
+      "destination": "/code-quality/overview/getting-started/configuration/runtimes"
+    },
+    {
+      "source": "/cli/configuration/telemetry",
+      "destination": "/code-quality/overview/getting-started/configuration/telemetry"
+    },
+    {
+      "source": "/cli/getting-started/announce",
+      "destination": "/code-quality/overview/getting-started/announce"
+    },
+    {
+      "source": "/cli/getting-started/tools",
+      "destination": "/code-quality/overview/getting-started/tools"
+    },
+    {
+      "source": "/cli/github-codespaces",
+      "destination": "/code-quality/overview/ide-integration/github-codespaces"
+    },
+    {
+      "source": "/cli/init-in-a-git-repo",
+      "destination": "/code-quality/overview/initialize-trunk"
+    },
+    {
+      "source": "/cli/install-trunk",
+      "destination": "/code-quality/overview/getting-started/install"
+    },
+    {
+      "source": "/cli/upgrade",
+      "destination": "/code-quality/overview/getting-started/install"
+    },
+    {
+      "source": "/code-quality/advanced-setup",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/code-quality/advanced-setup/actions",
+      "destination": "/code-quality/overview/getting-started/commands-reference/actions"
+    },
+    {
+      "source": "/code-quality/advanced-setup/actions/configuration",
+      "destination": "/code-quality/overview/getting-started/configuration/actions/notifications"
+    },
+    {
+      "source": "/code-quality/advanced-setup/actions/git-hooks",
+      "destination": "/code-quality/overview/getting-started/actions/git-hooks"
+    },
+    {
+      "source": "/code-quality/advanced-setup/actions/logging-and-troubleshooting",
+      "destination": "/code-quality/overview/getting-started/configuration/actions/logging-and-troubleshooting"
+    },
+    {
+      "source": "/code-quality/advanced-setup/actions/notifications",
+      "destination": "/code-quality/overview/getting-started/configuration/actions/notifications"
+    },
+    {
+      "source": "/code-quality/advanced-setup/cli",
+      "destination": "/code-quality/overview/getting-started/install"
+    },
+    {
+      "source": "/code-quality/advanced-setup/cli/caching",
+      "destination": "/code-quality/overview/getting-started/caching"
+    },
+    {
+      "source": "/code-quality/advanced-setup/cli/cli-options",
+      "destination": "/code-quality/overview/getting-started/commands-reference/code-quality"
+    },
+    {
+      "source": "/code-quality/advanced-setup/cli/compatibility",
+      "destination": "/code-quality/overview/getting-started/compatibility"
+    },
+    {
+      "source": "/code-quality/advanced-setup/cli/github-codespaces",
+      "destination": "/code-quality/overview/ide-integration/github-codespaces"
+    },
+    {
+      "source": "/code-quality/advanced-setup/cli/init-in-a-git-repo",
+      "destination": "/code-quality/overview/initialize-trunk"
+    },
+    {
+      "source": "/code-quality/advanced-setup/cli/install-trunk",
+      "destination": "/code-quality/overview/getting-started/install"
+    },
+    {
+      "source": "/code-quality/advanced-setup/cli/upgrade",
+      "destination": "/code-quality/overview/getting-started/install"
+    },
+    {
+      "source": "/code-quality/advanced-setup/cli/windows-beta",
+      "destination": "/code-quality/overview/getting-started/install"
+    },
+    {
+      "source": "/code-quality/advanced-setup/plugins",
+      "destination": "/code-quality/overview/getting-started/configuration/plugins/external-repositories"
+    },
+    {
+      "source": "/code-quality/advanced-setup/plugins/exported-configs",
+      "destination": "/code-quality/overview/getting-started/configuration/plugins/exported-configs"
+    },
+    {
+      "source": "/code-quality/advanced-setup/plugins/external-repositories",
+      "destination": "/code-quality/overview/getting-started/configuration/plugins/external-repositories"
+    },
+    {
+      "source": "/code-quality/advanced-setup/runtimes",
+      "destination": "/code-quality/overview/getting-started/configuration/runtimes"
+    },
+    {
+      "source": "/code-quality/advanced-setup/tools",
+      "destination": "/code-quality/overview/getting-started/configuration/tools"
+    },
+    {
+      "source": "/code-quality/advanced-setup/tools/configuration",
+      "destination": "/code-quality/overview/linters/configure-linters"
+    },
+    {
+      "source": "/code-quality/ci",
+      "destination": "/code-quality/overview/prevent-new-issues"
+    },
+    {
+      "source": "/code-quality/ci-setup/manual-setup",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/code-quality/ci/general",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/code-quality/ci/general/upload-trunk-check-results",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/code-quality/configuration",
+      "destination": "/code-quality/overview/linters/configure-linters"
+    },
+    {
+      "source": "/code-quality/configuration/custom-linters",
+      "destination": "/code-quality/overview/linters/custom-linters"
+    },
+    {
+      "source": "/code-quality/configuration/hold-the-line",
+      "destination": "/code-quality/overview/prevent-new-issues"
+    },
+    {
+      "source": "/code-quality/configuration/integrating-linters",
+      "destination": "/code-quality/overview/linters/custom-linters"
+    },
+    {
+      "source": "/code-quality/configuration/integrating-linters/commands",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/commands"
+    },
+    {
+      "source": "/code-quality/configuration/integrating-linters/commands/custom-parsers",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/output-parsing"
+    },
+    {
+      "source": "/code-quality/configuration/integrating-linters/commands/definition",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/definitions"
+    },
+    {
+      "source": "/code-quality/configuration/integrating-linters/commands/output-types",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/output"
+    },
+    {
+      "source": "/code-quality/configuration/integrating-linters/dependencies",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/dependencies"
+    },
+    {
+      "source": "/code-quality/configuration/integrating-linters/enabling",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/auto-enable"
+    },
+    {
+      "source": "/code-quality/configuration/integrating-linters/files",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/files-and-caching"
+    },
+    {
+      "source": "/code-quality/configuration/integrating-linters/reference",
+      "destination": "/code-quality/overview/linters/custom-linters"
+    },
+    {
+      "source": "/code-quality/configuration/integrating-linters/reference/lint-config",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/definitions"
+    },
+    {
+      "source": "/code-quality/configuration/integrating-linters/reference/linter-definition",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/definitions"
+    },
+    {
+      "source": "/code-quality/configuration/sharing-linters",
+      "destination": "/code-quality/overview/linters/shared-configs"
+    },
+    {
+      "source": "/code-quality/configuration/skipping-checks",
+      "destination": "/code-quality/overview/linters/ignoring-issues-and-files"
+    },
+    {
+      "source": "/code-quality/configuration/supported",
+      "destination": "/code-quality/overview/linters/supported"
+    },
+    {
+      "source": "/code-quality/configuration/supported/actionlint",
+      "destination": "/code-quality/overview/linters/supported/actionlint"
+    },
+    {
+      "source": "/code-quality/configuration/supported/ansible-lint",
+      "destination": "/code-quality/overview/linters/supported/ansible-lint"
+    },
+    {
+      "source": "/code-quality/configuration/supported/autopep8",
+      "destination": "/code-quality/overview/linters/supported/autopep8"
+    },
+    {
+      "source": "/code-quality/configuration/supported/bandit",
+      "destination": "/code-quality/overview/linters/supported/bandit"
+    },
+    {
+      "source": "/code-quality/configuration/supported/biome",
+      "destination": "/code-quality/overview/linters/supported/biome"
+    },
+    {
+      "source": "/code-quality/configuration/supported/black",
+      "destination": "/code-quality/overview/linters/supported/black"
+    },
+    {
+      "source": "/code-quality/configuration/supported/brakeman",
+      "destination": "/code-quality/overview/linters/supported/brakeman"
+    },
+    {
+      "source": "/code-quality/configuration/supported/buf",
+      "destination": "/code-quality/overview/linters/supported/buf"
+    },
+    {
+      "source": "/code-quality/configuration/supported/buildifier",
+      "destination": "/code-quality/overview/linters/supported/buildifier"
+    },
+    {
+      "source": "/code-quality/configuration/supported/cfnlint",
+      "destination": "/code-quality/overview/linters/supported/cfnlint"
+    },
+    {
+      "source": "/code-quality/configuration/supported/checkov",
+      "destination": "/code-quality/overview/linters/supported/checkov"
+    },
+    {
+      "source": "/code-quality/configuration/supported/circleci",
+      "destination": "/code-quality/overview/linters/supported/circleci"
+    },
+    {
+      "source": "/code-quality/configuration/supported/clang-format",
+      "destination": "/code-quality/overview/linters/supported/clang-format"
+    },
+    {
+      "source": "/code-quality/configuration/supported/clang-tidy",
+      "destination": "/code-quality/overview/linters/supported/clang-tidy"
+    },
+    {
+      "source": "/code-quality/configuration/supported/clippy",
+      "destination": "/code-quality/overview/linters/supported/clippy"
+    },
+    {
+      "source": "/code-quality/configuration/supported/cmake-format",
+      "destination": "/code-quality/overview/linters/supported/cmake-format"
+    },
+    {
+      "source": "/code-quality/configuration/supported/codespell",
+      "destination": "/code-quality/overview/linters/supported/codespell"
+    },
+    {
+      "source": "/code-quality/configuration/supported/cspell",
+      "destination": "/code-quality/overview/linters/supported/cspell"
+    },
+    {
+      "source": "/code-quality/configuration/supported/cue-fmt",
+      "destination": "/code-quality/overview/linters/supported/cue-fmt"
+    },
+    {
+      "source": "/code-quality/configuration/supported/dart",
+      "destination": "/code-quality/overview/linters/supported/dart"
+    },
+    {
+      "source": "/code-quality/configuration/supported/deno",
+      "destination": "/code-quality/overview/linters/supported/deno"
+    },
+    {
+      "source": "/code-quality/configuration/supported/detekt",
+      "destination": "/code-quality/overview/linters/supported/detekt"
+    },
+    {
+      "source": "/code-quality/configuration/supported/djlint",
+      "destination": "/code-quality/overview/linters/supported/djlint"
+    },
+    {
+      "source": "/code-quality/configuration/supported/dotenv-linter",
+      "destination": "/code-quality/overview/linters/supported/dotenv-linter"
+    },
+    {
+      "source": "/code-quality/configuration/supported/dotnet-format",
+      "destination": "/code-quality/overview/linters/supported/dotnet-format"
+    },
+    {
+      "source": "/code-quality/configuration/supported/dustilock",
+      "destination": "/code-quality/overview/linters/supported/dustilock"
+    },
+    {
+      "source": "/code-quality/configuration/supported/eslint",
+      "destination": "/code-quality/overview/linters/supported/eslint"
+    },
+    {
+      "source": "/code-quality/configuration/supported/flake8",
+      "destination": "/code-quality/overview/linters/supported/flake8"
+    },
+    {
+      "source": "/code-quality/configuration/supported/git-diff-check",
+      "destination": "/code-quality/overview/linters/supported/git-diff-check"
+    },
+    {
+      "source": "/code-quality/configuration/supported/gitleaks",
+      "destination": "/code-quality/overview/linters/supported/gitleaks"
+    },
+    {
+      "source": "/code-quality/configuration/supported/gofmt",
+      "destination": "/code-quality/overview/linters/supported/gofmt"
+    },
+    {
+      "source": "/code-quality/configuration/supported/gofumpt",
+      "destination": "/code-quality/overview/linters/supported/gofumpt"
+    },
+    {
+      "source": "/code-quality/configuration/supported/goimports",
+      "destination": "/code-quality/overview/linters/supported/goimports"
+    },
+    {
+      "source": "/code-quality/configuration/supported/gokart",
+      "destination": "/code-quality/overview/linters/supported/gokart"
+    },
+    {
+      "source": "/code-quality/configuration/supported/golangci-lint",
+      "destination": "/code-quality/overview/linters/supported/golangci-lint"
+    },
+    {
+      "source": "/code-quality/configuration/supported/golines",
+      "destination": "/code-quality/overview/linters/supported/golines"
+    },
+    {
+      "source": "/code-quality/configuration/supported/google-java-format",
+      "destination": "/code-quality/overview/linters/supported/google-java-format"
+    },
+    {
+      "source": "/code-quality/configuration/supported/graphql-schema-linter",
+      "destination": "/code-quality/overview/linters/supported/graphql-schema-linter"
+    },
+    {
+      "source": "/code-quality/configuration/supported/hadolint",
+      "destination": "/code-quality/overview/linters/supported/hadolint"
+    },
+    {
+      "source": "/code-quality/configuration/supported/haml-lint",
+      "destination": "/code-quality/overview/linters/supported/haml-lint"
+    },
+    {
+      "source": "/code-quality/configuration/supported/isort",
+      "destination": "/code-quality/overview/linters/supported/isort"
+    },
+    {
+      "source": "/code-quality/configuration/supported/iwyu",
+      "destination": "/code-quality/overview/linters/supported/iwyu"
+    },
+    {
+      "source": "/code-quality/configuration/supported/ktlint",
+      "destination": "/code-quality/overview/linters/supported/ktlint"
+    },
+    {
+      "source": "/code-quality/configuration/supported/kube-linter",
+      "destination": "/code-quality/overview/linters/supported/kube-linter"
+    },
+    {
+      "source": "/code-quality/configuration/supported/markdown-link-check",
+      "destination": "/code-quality/overview/linters/supported/markdown-link-check"
+    },
+    {
+      "source": "/code-quality/configuration/supported/markdown-table-prettify",
+      "destination": "/code-quality/overview/linters/supported/markdown-table-prettify"
+    },
+    {
+      "source": "/code-quality/configuration/supported/markdownlint",
+      "destination": "/code-quality/overview/linters/supported/markdownlint"
+    },
+    {
+      "source": "/code-quality/configuration/supported/mypy",
+      "destination": "/code-quality/overview/linters/supported/mypy"
+    },
+    {
+      "source": "/code-quality/configuration/supported/nancy",
+      "destination": "/code-quality/overview/linters/supported/nancy"
+    },
+    {
+      "source": "/code-quality/configuration/supported/nixpkgs-fmt",
+      "destination": "/code-quality/overview/linters/supported/nixpkgs-fmt"
+    },
+    {
+      "source": "/code-quality/configuration/supported/opa",
+      "destination": "/code-quality/overview/linters/supported/opa"
+    },
+    {
+      "source": "/code-quality/configuration/supported/osv-scanner",
+      "destination": "/code-quality/overview/linters/supported/osv-scanner"
+    },
+    {
+      "source": "/code-quality/configuration/supported/oxipng",
+      "destination": "/code-quality/overview/linters/supported/oxipng"
+    },
+    {
+      "source": "/code-quality/configuration/supported/perlcritic",
+      "destination": "/code-quality/overview/linters/supported/perlcritic"
+    },
+    {
+      "source": "/code-quality/configuration/supported/perltidy",
+      "destination": "/code-quality/overview/linters/supported/perltidy"
+    },
+    {
+      "source": "/code-quality/configuration/supported/php-cs-fixer",
+      "destination": "/code-quality/overview/linters/supported/php-cs-fixer"
+    },
+    {
+      "source": "/code-quality/configuration/supported/phpstan",
+      "destination": "/code-quality/overview/linters/supported/phpstan"
+    },
+    {
+      "source": "/code-quality/configuration/supported/pmd",
+      "destination": "/code-quality/overview/linters/supported/pmd"
+    },
+    {
+      "source": "/code-quality/configuration/supported/pragma-once",
+      "destination": "/code-quality/overview/linters/supported/pragma-once"
+    },
+    {
+      "source": "/code-quality/configuration/supported/pre-commit-hooks",
+      "destination": "/code-quality/overview/linters/supported/pre-commit-hooks"
+    },
+    {
+      "source": "/code-quality/configuration/supported/prettier",
+      "destination": "/code-quality/overview/linters/supported/prettier"
+    },
+    {
+      "source": "/code-quality/configuration/supported/prisma",
+      "destination": "/code-quality/overview/linters/supported/prisma"
+    },
+    {
+      "source": "/code-quality/configuration/supported/psscriptanalyzer",
+      "destination": "/code-quality/overview/linters/supported/psscriptanalyzer"
+    },
+    {
+      "source": "/code-quality/configuration/supported/pylint",
+      "destination": "/code-quality/overview/linters/supported/pylint"
+    },
+    {
+      "source": "/code-quality/configuration/supported/pyright",
+      "destination": "/code-quality/overview/linters/supported/pyright"
+    },
+    {
+      "source": "/code-quality/configuration/supported/regal",
+      "destination": "/code-quality/overview/linters/supported/regal"
+    },
+    {
+      "source": "/code-quality/configuration/supported/remark-lint",
+      "destination": "/code-quality/overview/linters/supported/remark-lint"
+    },
+    {
+      "source": "/code-quality/configuration/supported/renovate",
+      "destination": "/code-quality/overview/linters/supported/renovate"
+    },
+    {
+      "source": "/code-quality/configuration/supported/rome",
+      "destination": "/code-quality/overview/linters/supported/rome"
+    },
+    {
+      "source": "/code-quality/configuration/supported/rubocop",
+      "destination": "/code-quality/overview/linters/supported/rubocop"
+    },
+    {
+      "source": "/code-quality/configuration/supported/ruff",
+      "destination": "/code-quality/overview/linters/supported/ruff"
+    },
+    {
+      "source": "/code-quality/configuration/supported/rufo",
+      "destination": "/code-quality/overview/linters/supported/rufo"
+    },
+    {
+      "source": "/code-quality/configuration/supported/rustfmt",
+      "destination": "/code-quality/overview/linters/supported/rustfmt"
+    },
+    {
+      "source": "/code-quality/configuration/supported/scalafmt",
+      "destination": "/code-quality/overview/linters/supported/scalafmt"
+    },
+    {
+      "source": "/code-quality/configuration/supported/semgrep",
+      "destination": "/code-quality/overview/linters/supported/semgrep"
+    },
+    {
+      "source": "/code-quality/configuration/supported/shellcheck",
+      "destination": "/code-quality/overview/linters/supported/shellcheck"
+    },
+    {
+      "source": "/code-quality/configuration/supported/shfmt",
+      "destination": "/code-quality/overview/linters/supported/shfmt"
+    },
+    {
+      "source": "/code-quality/configuration/supported/sort-package-json",
+      "destination": "/code-quality/overview/linters/supported/sort-package-json"
+    },
+    {
+      "source": "/code-quality/configuration/supported/sourcery",
+      "destination": "/code-quality/overview/linters/supported/sourcery"
+    },
+    {
+      "source": "/code-quality/configuration/supported/sql-formatter",
+      "destination": "/code-quality/overview/linters/supported/sql-formatter"
+    },
+    {
+      "source": "/code-quality/configuration/supported/sqlfluff",
+      "destination": "/code-quality/overview/linters/supported/sqlfluff"
+    },
+    {
+      "source": "/code-quality/configuration/supported/sqlfmt",
+      "destination": "/code-quality/overview/linters/supported/sqlfmt"
+    },
+    {
+      "source": "/code-quality/configuration/supported/standardrb",
+      "destination": "/code-quality/overview/linters/supported/standardrb"
+    },
+    {
+      "source": "/code-quality/configuration/supported/stringslint",
+      "destination": "/code-quality/overview/linters/supported/stringslint"
+    },
+    {
+      "source": "/code-quality/configuration/supported/stylelint",
+      "destination": "/code-quality/overview/linters/supported/stylelint"
+    },
+    {
+      "source": "/code-quality/configuration/supported/stylua",
+      "destination": "/code-quality/overview/linters/supported/stylua"
+    },
+    {
+      "source": "/code-quality/configuration/supported/svgo",
+      "destination": "/code-quality/overview/linters/supported/svgo"
+    },
+    {
+      "source": "/code-quality/configuration/supported/swiftformat",
+      "destination": "/code-quality/overview/linters/supported/swiftformat"
+    },
+    {
+      "source": "/code-quality/configuration/supported/swiftlint",
+      "destination": "/code-quality/overview/linters/supported/swiftlint"
+    },
+    {
+      "source": "/code-quality/configuration/supported/taplo",
+      "destination": "/code-quality/overview/linters/supported/taplo"
+    },
+    {
+      "source": "/code-quality/configuration/supported/terraform",
+      "destination": "/code-quality/overview/linters/supported/terraform"
+    },
+    {
+      "source": "/code-quality/configuration/supported/terragrunt",
+      "destination": "/code-quality/overview/linters/supported/terragrunt"
+    },
+    {
+      "source": "/code-quality/configuration/supported/terrascan",
+      "destination": "/code-quality/overview/linters/supported/terrascan"
+    },
+    {
+      "source": "/code-quality/configuration/supported/tflint",
+      "destination": "/code-quality/overview/linters/supported/tflint"
+    },
+    {
+      "source": "/code-quality/configuration/supported/tfsec",
+      "destination": "/code-quality/overview/linters/supported/tfsec"
+    },
+    {
+      "source": "/code-quality/configuration/supported/tofu",
+      "destination": "/code-quality/overview/linters/supported/tofu"
+    },
+    {
+      "source": "/code-quality/configuration/supported/trivy",
+      "destination": "/code-quality/overview/linters/supported/trivy"
+    },
+    {
+      "source": "/code-quality/configuration/supported/trufflehog",
+      "destination": "/code-quality/overview/linters/supported/trufflehog"
+    },
+    {
+      "source": "/code-quality/configuration/supported/txtpbfmt",
+      "destination": "/code-quality/overview/linters/supported/txtpbfmt"
+    },
+    {
+      "source": "/code-quality/configuration/supported/vale",
+      "destination": "/code-quality/overview/linters/supported/vale"
+    },
+    {
+      "source": "/code-quality/configuration/supported/yamllint",
+      "destination": "/code-quality/overview/linters/supported/yamllint"
+    },
+    {
+      "source": "/code-quality/configuration/supported/yapf",
+      "destination": "/code-quality/overview/linters/supported/yapf"
+    },
+    {
+      "source": "/code-quality/faq",
+      "destination": "/code-quality/overview/debugging"
+    },
+    {
+      "source": "/code-quality/ide-integration",
+      "destination": "/code-quality/overview/ide-integration/vscode"
+    },
+    {
+      "source": "/code-quality/ide-integration/github-codespaces",
+      "destination": "/code-quality/overview/ide-integration/github-codespaces"
+    },
+    {
+      "source": "/code-quality/ide-integration/neovim",
+      "destination": "/code-quality/overview/ide-integration/neovim"
+    },
+    {
+      "source": "/code-quality/ide-integration/neovim-plugin",
+      "destination": "/code-quality/overview/ide-integration/neovim"
+    },
+    {
+      "source": "/code-quality/ide-integration/vs-code",
+      "destination": "/code-quality/overview/ide-integration/vscode"
+    },
+    {
+      "source": "/code-quality/licensing",
+      "destination": "/code-quality/overview/licensing"
+    },
+    {
+      "source": "/code-quality/linte",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/code-quality/linters",
+      "destination": "/code-quality/overview/linters"
+    },
+    {
+      "source": "/code-quality/linters/custom-linters",
+      "destination": "/code-quality/overview/linters/custom-linters"
+    },
+    {
+      "source": "/code-quality/linters/ignoring-is",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/code-quality/linters/manage-linters",
+      "destination": "/code-quality/overview/linters/manage-linters"
+    },
+    {
+      "source": "/code-quality/linters/s",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/code-quality/linters/shared-configs",
+      "destination": "/code-quality/overview/linters/shared-configs"
+    },
+    {
+      "source": "/code-quality/linters/suppor",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/code-quality/linters/supported/actionlint",
+      "destination": "/code-quality/overview/linters/supported/actionlint"
+    },
+    {
+      "source": "/code-quality/linters/supported/ansible-lint",
+      "destination": "/code-quality/overview/linters/supported/ansible-lint"
+    },
+    {
+      "source": "/code-quality/linters/supported/autopep8",
+      "destination": "/code-quality/overview/linters/supported/autopep8"
+    },
+    {
+      "source": "/code-quality/linters/supported/ban",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/code-quality/linters/supported/bandit",
+      "destination": "/code-quality/overview/linters/supported/bandit"
+    },
+    {
+      "source": "/code-quality/linters/supported/biome",
+      "destination": "/code-quality/overview/linters/supported/biome"
+    },
+    {
+      "source": "/code-quality/linters/supported/black",
+      "destination": "/code-quality/overview/linters/supported/black"
+    },
+    {
+      "source": "/code-quality/linters/supported/brakeman",
+      "destination": "/code-quality/overview/linters/supported/brakeman"
+    },
+    {
+      "source": "/code-quality/linters/supported/buf",
+      "destination": "/code-quality/overview/linters/supported/buf"
+    },
+    {
+      "source": "/code-quality/linters/supported/buildifier",
+      "destination": "/code-quality/overview/linters/supported/buildifier"
+    },
+    {
+      "source": "/code-quality/linters/supported/cfnlint",
+      "destination": "/code-quality/overview/linters/supported/cfnlint"
+    },
+    {
+      "source": "/code-quality/linters/supported/checkov",
+      "destination": "/code-quality/overview/linters/supported/checkov"
+    },
+    {
+      "source": "/code-quality/linters/supported/circleci",
+      "destination": "/code-quality/overview/linters/supported/circleci"
+    },
+    {
+      "source": "/code-quality/linters/supported/clang-format",
+      "destination": "/code-quality/overview/linters/supported/clang-format"
+    },
+    {
+      "source": "/code-quality/linters/supported/clang-tidy",
+      "destination": "/code-quality/overview/linters/supported/clang-tidy"
+    },
+    {
+      "source": "/code-quality/linters/supported/clippy",
+      "destination": "/code-quality/overview/linters/supported/clippy"
+    },
+    {
+      "source": "/code-quality/linters/supported/cmake-format",
+      "destination": "/code-quality/overview/linters/supported/cmake-format"
+    },
+    {
+      "source": "/code-quality/linters/supported/codespell",
+      "destination": "/code-quality/overview/linters/supported/codespell"
+    },
+    {
+      "source": "/code-quality/linters/supported/cspell",
+      "destination": "/code-quality/overview/linters/supported/cspell"
+    },
+    {
+      "source": "/code-quality/linters/supported/cue-fmt",
+      "destination": "/code-quality/overview/linters/supported/cue-fmt"
+    },
+    {
+      "source": "/code-quality/linters/supported/dart",
+      "destination": "/code-quality/overview/linters/supported/dart"
+    },
+    {
+      "source": "/code-quality/linters/supported/deno",
+      "destination": "/code-quality/overview/linters/supported/deno"
+    },
+    {
+      "source": "/code-quality/linters/supported/detekt",
+      "destination": "/code-quality/overview/linters/supported/detekt"
+    },
+    {
+      "source": "/code-quality/linters/supported/djlint",
+      "destination": "/code-quality/overview/linters/supported/djlint"
+    },
+    {
+      "source": "/code-quality/linters/supported/dotenv-linter",
+      "destination": "/code-quality/overview/linters/supported/dotenv-linter"
+    },
+    {
+      "source": "/code-quality/linters/supported/dotnet-format",
+      "destination": "/code-quality/overview/linters/supported/dotnet-format"
+    },
+    {
+      "source": "/code-quality/linters/supported/dustilock",
+      "destination": "/code-quality/overview/linters/supported/dustilock"
+    },
+    {
+      "source": "/code-quality/linters/supported/eslint",
+      "destination": "/code-quality/overview/linters/supported/eslint"
+    },
+    {
+      "source": "/code-quality/linters/supported/flake8",
+      "destination": "/code-quality/overview/linters/supported/flake8"
+    },
+    {
+      "source": "/code-quality/linters/supported/git-diff-check",
+      "destination": "/code-quality/overview/linters/supported/git-diff-check"
+    },
+    {
+      "source": "/code-quality/linters/supported/gitleaks",
+      "destination": "/code-quality/overview/linters/supported/gitleaks"
+    },
+    {
+      "source": "/code-quality/linters/supported/gofmt",
+      "destination": "/code-quality/overview/linters/supported/gofmt"
+    },
+    {
+      "source": "/code-quality/linters/supported/gofumpt",
+      "destination": "/code-quality/overview/linters/supported/gofumpt"
+    },
+    {
+      "source": "/code-quality/linters/supported/goimports",
+      "destination": "/code-quality/overview/linters/supported/goimports"
+    },
+    {
+      "source": "/code-quality/linters/supported/gokart",
+      "destination": "/code-quality/overview/linters/supported/gokart"
+    },
+    {
+      "source": "/code-quality/linters/supported/golangci-lint",
+      "destination": "/code-quality/overview/linters/supported/golangci-lint"
+    },
+    {
+      "source": "/code-quality/linters/supported/golines",
+      "destination": "/code-quality/overview/linters/supported/golines"
+    },
+    {
+      "source": "/code-quality/linters/supported/google-java-format",
+      "destination": "/code-quality/overview/linters/supported/google-java-format"
+    },
+    {
+      "source": "/code-quality/linters/supported/graphql-schema-linter",
+      "destination": "/code-quality/overview/linters/supported/graphql-schema-linter"
+    },
+    {
+      "source": "/code-quality/linters/supported/hadolint",
+      "destination": "/code-quality/overview/linters/supported/hadolint"
+    },
+    {
+      "source": "/code-quality/linters/supported/haml-lint",
+      "destination": "/code-quality/overview/linters/supported/haml-lint"
+    },
+    {
+      "source": "/code-quality/linters/supported/iwyu",
+      "destination": "/code-quality/overview/linters/supported/iwyu"
+    },
+    {
+      "source": "/code-quality/linters/supported/ktlint",
+      "destination": "/code-quality/overview/linters/supported/ktlint"
+    },
+    {
+      "source": "/code-quality/linters/supported/kube-linter",
+      "destination": "/code-quality/overview/linters/supported/kube-linter"
+    },
+    {
+      "source": "/code-quality/linters/supported/markdown-link-check",
+      "destination": "/code-quality/overview/linters/supported/markdown-link-check"
+    },
+    {
+      "source": "/code-quality/linters/supported/markdown-table-prettify",
+      "destination": "/code-quality/overview/linters/supported/markdown-table-prettify"
+    },
+    {
+      "source": "/code-quality/linters/supported/markdownlint",
+      "destination": "/code-quality/overview/linters/supported/markdownlint"
+    },
+    {
+      "source": "/code-quality/linters/supported/markdownlint-cli2",
+      "destination": "/code-quality/overview/linters/supported/markdownlint-cli2"
+    },
+    {
+      "source": "/code-quality/linters/supported/mypy",
+      "destination": "/code-quality/overview/linters/supported/mypy"
+    },
+    {
+      "source": "/code-quality/linters/supported/nancy",
+      "destination": "/code-quality/overview/linters/supported/nancy"
+    },
+    {
+      "source": "/code-quality/linters/supported/nixpkgs-fmt",
+      "destination": "/code-quality/overview/linters/supported/nixpkgs-fmt"
+    },
+    {
+      "source": "/code-quality/linters/supported/opa",
+      "destination": "/code-quality/overview/linters/supported/opa"
+    },
+    {
+      "source": "/code-quality/linters/supported/osv-scanner",
+      "destination": "/code-quality/overview/linters/supported/osv-scanner"
+    },
+    {
+      "source": "/code-quality/linters/supported/oxipng",
+      "destination": "/code-quality/overview/linters/supported/oxipng"
+    },
+    {
+      "source": "/code-quality/linters/supported/perlcritic",
+      "destination": "/code-quality/overview/linters/supported/perlcritic"
+    },
+    {
+      "source": "/code-quality/linters/supported/perltidy",
+      "destination": "/code-quality/overview/linters/supported/perltidy"
+    },
+    {
+      "source": "/code-quality/linters/supported/php-cs-fixer",
+      "destination": "/code-quality/overview/linters/supported/php-cs-fixer"
+    },
+    {
+      "source": "/code-quality/linters/supported/phpstan",
+      "destination": "/code-quality/overview/linters/supported/phpstan"
+    },
+    {
+      "source": "/code-quality/linters/supported/pmd",
+      "destination": "/code-quality/overview/linters/supported/pmd"
+    },
+    {
+      "source": "/code-quality/linters/supported/pragma-once",
+      "destination": "/code-quality/overview/linters/supported/pragma-once"
+    },
+    {
+      "source": "/code-quality/linters/supported/pre-commit-hooks",
+      "destination": "/code-quality/overview/linters/supported/pre-commit-hooks"
+    },
+    {
+      "source": "/code-quality/linters/supported/prettier",
+      "destination": "/code-quality/overview/linters/supported/prettier"
+    },
+    {
+      "source": "/code-quality/linters/supported/prisma",
+      "destination": "/code-quality/overview/linters/supported/prisma"
+    },
+    {
+      "source": "/code-quality/linters/supported/psscriptanalyzer",
+      "destination": "/code-quality/overview/linters/supported/psscriptanalyzer"
+    },
+    {
+      "source": "/code-quality/linters/supported/pylint",
+      "destination": "/code-quality/overview/linters/supported/pylint"
+    },
+    {
+      "source": "/code-quality/linters/supported/pyright",
+      "destination": "/code-quality/overview/linters/supported/pyright"
+    },
+    {
+      "source": "/code-quality/linters/supported/regal",
+      "destination": "/code-quality/overview/linters/supported/regal"
+    },
+    {
+      "source": "/code-quality/linters/supported/remark-lint",
+      "destination": "/code-quality/overview/linters/supported/remark-lint"
+    },
+    {
+      "source": "/code-quality/linters/supported/renovate",
+      "destination": "/code-quality/overview/linters/supported/renovate"
+    },
+    {
+      "source": "/code-quality/linters/supported/rome",
+      "destination": "/code-quality/overview/linters/supported/rome"
+    },
+    {
+      "source": "/code-quality/linters/supported/rubocop",
+      "destination": "/code-quality/overview/linters/supported/rubocop"
+    },
+    {
+      "source": "/code-quality/linters/supported/ruff",
+      "destination": "/code-quality/overview/linters/supported/ruff"
+    },
+    {
+      "source": "/code-quality/linters/supported/rufo",
+      "destination": "/code-quality/overview/linters/supported/rufo"
+    },
+    {
+      "source": "/code-quality/linters/supported/rustfmt",
+      "destination": "/code-quality/overview/linters/supported/rustfmt"
+    },
+    {
+      "source": "/code-quality/linters/supported/scalafmt",
+      "destination": "/code-quality/overview/linters/supported/scalafmt"
+    },
+    {
+      "source": "/code-quality/linters/supported/semgrep",
+      "destination": "/code-quality/overview/linters/supported/semgrep"
+    },
+    {
+      "source": "/code-quality/linters/supported/shellcheck",
+      "destination": "/code-quality/overview/linters/supported/shellcheck"
+    },
+    {
+      "source": "/code-quality/linters/supported/shfmt",
+      "destination": "/code-quality/overview/linters/supported/shfmt"
+    },
+    {
+      "source": "/code-quality/linters/supported/sort-package-json",
+      "destination": "/code-quality/overview/linters/supported/sort-package-json"
+    },
+    {
+      "source": "/code-quality/linters/supported/sql-formatter",
+      "destination": "/code-quality/overview/linters/supported/sql-formatter"
+    },
+    {
+      "source": "/code-quality/linters/supported/sqlfmt",
+      "destination": "/code-quality/overview/linters/supported/sqlfmt"
+    },
+    {
+      "source": "/code-quality/linters/supported/squawk",
+      "destination": "/code-quality/overview/linters/supported/squawk"
+    },
+    {
+      "source": "/code-quality/linters/supported/standardrb",
+      "destination": "/code-quality/overview/linters/supported/standardrb"
+    },
+    {
+      "source": "/code-quality/linters/supported/stringslint",
+      "destination": "/code-quality/overview/linters/supported/stringslint"
+    },
+    {
+      "source": "/code-quality/linters/supported/stylelint",
+      "destination": "/code-quality/overview/linters/supported/stylelint"
+    },
+    {
+      "source": "/code-quality/linters/supported/svgo",
+      "destination": "/code-quality/overview/linters/supported/svgo"
+    },
+    {
+      "source": "/code-quality/linters/supported/swiftformat",
+      "destination": "/code-quality/overview/linters/supported/swiftformat"
+    },
+    {
+      "source": "/code-quality/linters/supported/swiftlint",
+      "destination": "/code-quality/overview/linters/supported/swiftlint"
+    },
+    {
+      "source": "/code-quality/linters/supported/taplo",
+      "destination": "/code-quality/overview/linters/supported/taplo"
+    },
+    {
+      "source": "/code-quality/linters/supported/terraform",
+      "destination": "/code-quality/overview/linters/supported/terraform"
+    },
+    {
+      "source": "/code-quality/linters/supported/terragrunt",
+      "destination": "/code-quality/overview/linters/supported/terragrunt"
+    },
+    {
+      "source": "/code-quality/linters/supported/terrascan",
+      "destination": "/code-quality/overview/linters/supported/terrascan"
+    },
+    {
+      "source": "/code-quality/linters/supported/tfsec",
+      "destination": "/code-quality/overview/linters/supported/tfsec"
+    },
+    {
+      "source": "/code-quality/linters/supported/tofu",
+      "destination": "/code-quality/overview/linters/supported/tofu"
+    },
+    {
+      "source": "/code-quality/linters/supported/trivy",
+      "destination": "/code-quality/overview/linters/supported/trivy"
+    },
+    {
+      "source": "/code-quality/linters/supported/trufflehog",
+      "destination": "/code-quality/overview/linters/supported/trufflehog"
+    },
+    {
+      "source": "/code-quality/linters/supported/txtpbfmt",
+      "destination": "/code-quality/overview/linters/supported/txtpbfmt"
+    },
+    {
+      "source": "/code-quality/linters/supported/vale",
+      "destination": "/code-quality/overview/linters/supported/vale"
+    },
+    {
+      "source": "/code-quality/linters/supported/yamllint",
+      "destination": "/code-quality/overview/linters/supported/yamllint"
+    },
+    {
+      "source": "/code-quality/linters/supported/yapf",
+      "destination": "/code-quality/overview/linters/supported/yapf"
+    },
+    {
+      "source": "/code-quality/reference",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/code-quality/reference/components",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/code-quality/reference/glob-path-pattern",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/code-quality/reference/trunk-yaml",
+      "destination": "/code-quality/overview/linters/configure-linters"
+    },
+    {
+      "source": "/code-quality/reference/under-the-hood",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/code-quality/reference/usage-data",
+      "destination": "/code-quality/overview/getting-started/configuration/telemetry"
+    },
+    {
+      "source": "/code-quality/reference/user-yaml",
+      "destination": "/code-quality/overview/getting-started/configuration/per-user-overrides"
+    },
+    {
+      "source": "/code-quality/s",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/code-quality/security",
+      "destination": "/setup-and-administration/security"
+    },
+    {
+      "source": "/code-quality/setup-and-installation",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/code-quality/setup-and-installation/deal-with-existing-issues",
+      "destination": "/code-quality/overview/deal-with-existing-issues"
+    },
+    {
+      "source": "/code-quality/setup-and-installation/github-integration",
+      "destination": "/code-quality/overview/prevent-new-issues"
+    },
+    {
+      "source": "/code-quality/setup-and-installation/openai-codex-support",
+      "destination": "/setup-and-administration/support"
+    },
+    {
+      "source": "/code-quality/setup-and-installation/prevent-new-is",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/community",
+      "destination": "/setup-and-administration/support"
+    },
+    {
+      "source": "/docs/actions-notifications",
+      "destination": "/code-quality/overview/getting-started/configuration/actions/notifications"
+    },
+    {
+      "source": "/docs/actions-troubleshooting",
+      "destination": "/code-quality/overview/getting-started/configuration/actions/logging-and-troubleshooting"
+    },
+    {
+      "source": "/docs/admin-billing",
+      "destination": "/setup-and-administration/billing"
+    },
+    {
+      "source": "/docs/admin-saml",
+      "destination": "/setup-and-administration/managing-your-organization"
+    },
+    {
+      "source": "/docs/billing",
+      "destination": "/setup-and-administration/billing"
+    },
+    {
+      "source": "/docs/check-git-hook",
+      "destination": "/code-quality/overview/getting-started/actions/git-hooks"
+    },
+    {
+      "source": "/docs/check-under-the-hood",
+      "destination": "/code-quality/overview/debugging"
+    },
+    {
+      "source": "/docs/ci",
+      "destination": "/code-quality/overview/prevent-new-issues"
+    },
+    {
+      "source": "/docs/ci-debugger",
+      "destination": "/"
+    },
+    {
+      "source": "/docs/community",
+      "destination": "/setup-and-administration/support"
+    },
+    {
+      "source": "/docs/compatibility",
+      "destination": "/code-quality/overview/getting-started/compatibility"
+    },
+    {
+      "source": "/docs/components",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/docs/custom-parsers",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/output-parsing"
+    },
+    {
+      "source": "/docs/exported-configs",
+      "destination": "/code-quality/overview/getting-started/configuration/plugins/exported-configs"
+    },
+    {
+      "source": "/docs/introduction",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/docs/merge-faq",
+      "destination": "/merge-queue/merge-queue"
+    },
+    {
+      "source": "/docs/overview-1",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/docs/prevent-duplicate-runtimes",
+      "destination": "/code-quality/overview/getting-started/configuration/runtimes"
+    },
+    {
+      "source": "/docs/reference",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/docs/reference-command-line",
+      "destination": "/code-quality/overview/getting-started/commands-reference/code-quality"
+    },
+    {
+      "source": "/docs/reference-glob-path-pattern",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/docs/reference-user-trunk-yaml",
+      "destination": "/code-quality/overview/getting-started/configuration/per-user-overrides"
+    },
+    {
+      "source": "/docs/refererence-user-yaml",
+      "destination": "/code-quality/overview/getting-started/configuration/per-user-overrides"
+    },
+    {
+      "source": "/docs/runtimes",
+      "destination": "/code-quality/overview/getting-started/configuration/runtimes"
+    },
+    {
+      "source": "/docs/slack-integration",
+      "destination": "/setup/integrations/slack/personal-notifications"
+    },
+    {
+      "source": "/docs/support",
+      "destination": "/setup-and-administration/support"
+    },
+    {
+      "source": "/docs/supressing-issues",
+      "destination": "/code-quality/overview/linters/ignoring-issues-and-files"
+    },
+    {
+      "source": "/docs/upload-check-results",
+      "destination": "/code-quality/overview/prevent-new-issues"
+    },
+    {
+      "source": "/docs/usage-data",
+      "destination": "/code-quality/overview/getting-started/configuration/telemetry"
+    },
+    {
+      "source": "/docs/using-the-webapp",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/docs/webapp",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/edit/actions",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/edit/get-started",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/edit/initialize-trunk-in-a-git-repo",
+      "destination": "/code-quality/overview/initialize-trunk"
+    },
+    {
+      "source": "/edit/introduction",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/edit/overview",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/flaky-tests/buildkite-quickstart",
+      "destination": "/flaky-tests/get-started/ci-providers/buildkite"
+    },
+    {
+      "source": "/flaky-tests/circleci-quickstart",
+      "destination": "/flaky-tests/get-started/ci-providers/circleci"
+    },
+    {
+      "source": "/flaky-tests/create-tickets",
+      "destination": "/flaky-tests/management/ticketing"
+    },
+    {
+      "source": "/flaky-tests/detection/threshold-monitor",
+      "destination": "/flaky-tests/detection/failure-rate-monitor"
+    },
+    {
+      "source": "/flaky-tests/flaky-tests",
+      "destination": "/flaky-tests/overview"
+    },
+    {
+      "source": "/flaky-tests/frameworks",
+      "destination": "/flaky-tests/get-started/frameworks"
+    },
+    {
+      "source": "/flaky-tests/frameworks/cucumber",
+      "destination": "/flaky-tests/get-started/frameworks"
+    },
+    {
+      "source": "/flaky-tests/frameworks/unittest",
+      "destination": "/flaky-tests/get-started/frameworks"
+    },
+    {
+      "source": "/flaky-tests/get-started/ci-provide",
+      "destination": "/flaky-tests/get-started/ci-providers"
+    },
+    {
+      "source": "/flaky-tests/get-started/ci-providers/teamcity",
+      "destination": "/flaky-tests/get-started/ci-providers"
+    },
+    {
+      "source": "/flaky-tests/get-started/frameworks/an",
+      "destination": "/flaky-tests/get-started/frameworks"
+    },
+    {
+      "source": "/flaky-tests/get-started/frameworks/cucumber",
+      "destination": "/flaky-tests/get-started/frameworks"
+    },
+    {
+      "source": "/flaky-tests/get-started/frameworks/go-junit-report",
+      "destination": "/flaky-tests/get-started/frameworks/gotestsum"
+    },
+    {
+      "source": "/flaky-tests/get-started/test-collections",
+      "destination": "/flaky-tests/test-collections"
+    },
+    {
+      "source": "/flaky-tests/github-actions-quickstart",
+      "destination": "/flaky-tests/get-started/ci-providers/github-actions"
+    },
+    {
+      "source": "/flaky-tests/jira-integration",
+      "destination": "/flaky-tests/management/ticketing/jira-integration"
+    },
+    {
+      "source": "/flaky-tests/other-ci-providers-quickstart",
+      "destination": "/flaky-tests/get-started/ci-providers"
+    },
+    {
+      "source": "/flaky-tests/overview/dashboard",
+      "destination": "/flaky-tests/dashboard"
+    },
+    {
+      "source": "/flaky-tests/semaphore-ci-quickstart",
+      "destination": "/flaky-tests/get-started/ci-providers/semaphoreci"
+    },
+    {
+      "source": "/flaky-tests/ticketing-integrations/other-ticketing-platforms",
+      "destination": "/flaky-tests/management/ticketing/other-ticketing-platforms"
+    },
+    {
+      "source": "/flaky-tests/trunk-flaky-tests-cli",
+      "destination": "/flaky-tests/reference/cli-reference"
+    },
+    {
+      "source": "/flaky-tests/use-mcp-server/configuration",
+      "destination": "/flaky-tests/reference/mcp-reference"
+    },
+    {
+      "source": "/flaky-tests/use-mcp-server/configuration/claude-code-cli",
+      "destination": "/flaky-tests/reference/mcp-reference/configuration/claude-code-cli"
+    },
+    {
+      "source": "/flaky-tests/use-mcp-server/configuration/cursor-ide",
+      "destination": "/flaky-tests/reference/mcp-reference/configuration/cursor-ide"
+    },
+    {
+      "source": "/flaky-tests/use-mcp-server/configuration/gemini-cli",
+      "destination": "/flaky-tests/reference/mcp-reference/configuration/gemini-cli"
+    },
+    {
+      "source": "/flaky-tests/use-mcp-server/configuration/github-copilot-ide",
+      "destination": "/flaky-tests/reference/mcp-reference/configuration/github-copilot-ide"
+    },
+    {
+      "source": "/flaky-tests/use-mcp-server/mcp-tool-reference/get-root-cause-analysis",
+      "destination": "/flaky-tests/reference/mcp-reference"
+    },
+    {
+      "source": "/flaky-tests/use-mcp-server/mcp-tool-reference/set-up-test-uploads",
+      "destination": "/flaky-tests/reference/mcp-reference"
+    },
+    {
+      "source": "/getting-started",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/getting-started/configure",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/integration-for-slack",
+      "destination": "/setup/integrations/slack/personal-notifications"
+    },
+    {
+      "source": "/merge-graph/impacted-targets",
+      "destination": "/merge-queue/optimizations/parallel-queues/api"
+    },
+    {
+      "source": "/merge-graph/reference",
+      "destination": "/merge-queue/merge-queue"
+    },
+    {
+      "source": "/merge-graph/using-the-webapp",
+      "destination": "/merge-queue/using-the-queue/monitor-queue-status"
+    },
+    {
+      "source": "/merge-queue/administration/webhooks",
+      "destination": "/merge-queue/webhooks"
+    },
+    {
+      "source": "/merge-queue/common-problems",
+      "destination": "/merge-queue/reference/common-problems"
+    },
+    {
+      "source": "/merge-queue/concepts-and-optimizations/anti-flake-protection",
+      "destination": "/merge-queue/optimizations/anti-flake-protection"
+    },
+    {
+      "source": "/merge-queue/concepts-and-optimizations/common-problems",
+      "destination": "/merge-queue/reference/common-problems"
+    },
+    {
+      "source": "/merge-queue/concepts-and-optimizations/parallel-queues/api",
+      "destination": "/merge-queue/optimizations/parallel-queues/api"
+    },
+    {
+      "source": "/merge-queue/concepts-and-optimizations/parallel-queues/bazel",
+      "destination": "/merge-queue/optimizations/parallel-queues/bazel"
+    },
+    {
+      "source": "/merge-queue/concepts-and-optimizations/parallel-queues/nx",
+      "destination": "/merge-queue/optimizations/parallel-queues/nx"
+    },
+    {
+      "source": "/merge-queue/how-does-it-work",
+      "destination": "/merge-queue/merge-queue"
+    },
+    {
+      "source": "/merge-queue/managing-merge-queue/command-line",
+      "destination": "/merge-queue/reference/merge-queue-cli-reference"
+    },
+    {
+      "source": "/merge-queue/managing-merge-queue/common-problems",
+      "destination": "/merge-queue/reference/common-problems"
+    },
+    {
+      "source": "/merge-queue/managing-merge-queue/integration-for-slack",
+      "destination": "/merge-queue/integration-for-slack"
+    },
+    {
+      "source": "/merge-queue/managing-merge-queue/merge-queue-cli-reference",
+      "destination": "/merge-queue/reference/merge-queue-cli-reference"
+    },
+    {
+      "source": "/merge-queue/managing-merge-queue/stacked-pull-requests",
+      "destination": "/merge-queue/using-the-queue/stacked-pull-requests"
+    },
+    {
+      "source": "/merge-queue/merge",
+      "destination": "/merge-queue/merge-queue"
+    },
+    {
+      "source": "/merge-queue/metrics",
+      "destination": "/merge-queue/administration/metrics"
+    },
+    {
+      "source": "/merge-queue/parallel-queues/api",
+      "destination": "/merge-queue/optimizations/parallel-queues/api"
+    },
+    {
+      "source": "/merge-queue/parallel-queues/bazel",
+      "destination": "/merge-queue/optimizations/parallel-queues/bazel"
+    },
+    {
+      "source": "/merge-queue/parallel-queues/nx",
+      "destination": "/merge-queue/optimizations/parallel-queues/nx"
+    },
+    {
+      "source": "/merge-queue/pending-failure-depth",
+      "destination": "/merge-queue/optimizations/pending-failure-depth"
+    },
+    {
+      "source": "/merge-queue/pr-prioritization",
+      "destination": "/merge-queue/optimizations/priority-merging"
+    },
+    {
+      "source": "/merge-queue/predictive-testing",
+      "destination": "/merge-queue/optimizations/predictive-testing"
+    },
+    {
+      "source": "/merge-queue/set-up-trunk-merge/advanced-settings",
+      "destination": "/merge-queue/administration/advanced-settings"
+    },
+    {
+      "source": "/merge-queue/set-up-trunk-merge/integrat",
+      "destination": "/merge-queue/getting-started"
+    },
+    {
+      "source": "/merge-queue/set-up-trunk-merge/migrating-from-github-merge-queue",
+      "destination": "/merge-queue/migrating-from-github-merge-queue"
+    },
+    {
+      "source": "/merge-queue/using-the-webapp",
+      "destination": "/merge-queue/using-the-queue/monitor-queue-status"
+    },
+    {
+      "source": "/merge/anti-flake-protection",
+      "destination": "/merge-queue/optimizations/anti-flake-protection"
+    },
+    {
+      "source": "/merge/batching",
+      "destination": "/merge-queue/optimizations/batching"
+    },
+    {
+      "source": "/merge/command-line",
+      "destination": "/merge-queue/reference/merge-queue-cli-reference"
+    },
+    {
+      "source": "/merge/common-problems",
+      "destination": "/merge-queue/reference/common-problems"
+    },
+    {
+      "source": "/merge/configuration",
+      "destination": "/merge-queue/getting-started"
+    },
+    {
+      "source": "/merge/faq",
+      "destination": "/merge-queue/merge-queue"
+    },
+    {
+      "source": "/merge/how-does-it-work",
+      "destination": "/merge-queue/merge-queue"
+    },
+    {
+      "source": "/merge/impacted-targets",
+      "destination": "/merge-queue/optimizations/parallel-queues/api"
+    },
+    {
+      "source": "/merge/integration-for-slack",
+      "destination": "/merge-queue/integration-for-slack"
+    },
+    {
+      "source": "/merge/legacy",
+      "destination": "/merge-queue/merge-queue"
+    },
+    {
+      "source": "/merge/legacy/configuration",
+      "destination": "/merge-queue/getting-started"
+    },
+    {
+      "source": "/merge/legacy/getting-started",
+      "destination": "/merge-queue/getting-started"
+    },
+    {
+      "source": "/merge/legacy/integration-for-slack",
+      "destination": "/merge-queue/integration-for-slack"
+    },
+    {
+      "source": "/merge/legacy/migrating-from-merge-v1-to-v2",
+      "destination": "/merge-queue/merge-queue"
+    },
+    {
+      "source": "/merge/legacy/reference",
+      "destination": "/merge-queue/merge-queue"
+    },
+    {
+      "source": "/merge/legacy/using-the-webapp",
+      "destination": "/merge-queue/using-the-queue/monitor-queue-status"
+    },
+    {
+      "source": "/merge/optimistic-merging",
+      "destination": "/merge-queue/optimizations/optimistic-merging"
+    },
+    {
+      "source": "/merge/overview",
+      "destination": "/merge-queue/merge-queue"
+    },
+    {
+      "source": "/merge/parallel-queues",
+      "destination": "/merge-queue/optimizations/parallel-queues"
+    },
+    {
+      "source": "/merge/parallel-queues/api",
+      "destination": "/merge-queue/optimizations/parallel-queues/api"
+    },
+    {
+      "source": "/merge/parallel-queues/bazel",
+      "destination": "/merge-queue/optimizations/parallel-queues/bazel"
+    },
+    {
+      "source": "/merge/parallel-queues/nx",
+      "destination": "/merge-queue/optimizations/parallel-queues/nx"
+    },
+    {
+      "source": "/merge/pending-failure-depth",
+      "destination": "/merge-queue/optimizations/pending-failure-depth"
+    },
+    {
+      "source": "/merge/pr-prioritization",
+      "destination": "/merge-queue/optimizations/priority-merging"
+    },
+    {
+      "source": "/merge/predictive-testing",
+      "destination": "/merge-queue/optimizations/predictive-testing"
+    },
+    {
+      "source": "/merge/reference",
+      "destination": "/merge-queue/merge-queue"
+    },
+    {
+      "source": "/merge/reference/legacy",
+      "destination": "/merge-queue/merge-queue"
+    },
+    {
+      "source": "/merge/reference/legacy/configuration",
+      "destination": "/merge-queue/getting-started"
+    },
+    {
+      "source": "/merge/reference/legacy/getting-started",
+      "destination": "/merge-queue/getting-started"
+    },
+    {
+      "source": "/merge/reference/legacy/integration-for-slack",
+      "destination": "/merge-queue/integration-for-slack"
+    },
+    {
+      "source": "/merge/reference/legacy/migrating-from-merge-v1-to-v2",
+      "destination": "/merge-queue/merge-queue"
+    },
+    {
+      "source": "/merge/reference/legacy/reference",
+      "destination": "/merge-queue/merge-queue"
+    },
+    {
+      "source": "/merge/reference/legacy/using-the-webapp",
+      "destination": "/merge-queue/using-the-queue/monitor-queue-status"
+    },
+    {
+      "source": "/merge/set-up-trunk-merge",
+      "destination": "/merge-queue/getting-started"
+    },
+    {
+      "source": "/merge/set-up-trunk-merge/advanced-settings",
+      "destination": "/merge-queue/administration/advanced-settings"
+    },
+    {
+      "source": "/merge/set-up-trunk-merge/configuration",
+      "destination": "/merge-queue/getting-started"
+    },
+    {
+      "source": "/merge/set-up-trunk-merge/impacted-targets",
+      "destination": "/merge-queue/optimizations/parallel-queues/api"
+    },
+    {
+      "source": "/merge/set-up-trunk-merge/integration-for-slack",
+      "destination": "/merge-queue/integration-for-slack"
+    },
+    {
+      "source": "/merge/using-the-webapp",
+      "destination": "/merge-queue/using-the-queue/monitor-queue-status"
+    },
+    {
+      "source": "/merge/using-trunk-merge-with-bazel-projects",
+      "destination": "/merge-queue/optimizations/parallel-queues/bazel"
+    },
+    {
+      "source": "/merge/using-trunk-merge-with-nx-projects",
+      "destination": "/merge-queue/optimizations/parallel-queues/nx"
+    },
+    {
+      "source": "/overview",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/plugins/exported-configs",
+      "destination": "/code-quality/overview/getting-started/configuration/plugins/exported-configs"
+    },
+    {
+      "source": "/plugins/external-repositories",
+      "destination": "/code-quality/overview/getting-started/configuration/plugins/external-repositories"
+    },
+    {
+      "source": "/pricing-and-security/security",
+      "destination": "/setup-and-administration/security"
+    },
+    {
+      "source": "/recipes",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/recipes/data",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/reference",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/reference/cli",
+      "destination": "/code-quality/overview/getting-started/install"
+    },
+    {
+      "source": "/reference/components",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/reference/glob-path-pattern",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/reference/glob-path-patterns",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/reference/usage-data",
+      "destination": "/code-quality/overview/getting-started/configuration/telemetry"
+    },
+    {
+      "source": "/reference/user-yaml",
+      "destination": "/code-quality/overview/getting-started/configuration/per-user-overrides"
+    },
+    {
+      "source": "/reference/vs-code",
+      "destination": "/code-quality/overview/ide-integration/vscode"
+    },
+    {
+      "source": "/references",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/references/apis/ci-analytics",
+      "destination": "/"
+    },
+    {
+      "source": "/references/apis/flaky-tests",
+      "destination": "/api"
+    },
+    {
+      "source": "/references/apis/merge",
+      "destination": "/api"
+    },
+    {
+      "source": "/references/apis/webhooks",
+      "destination": "/api/webhooks"
+    },
+    {
+      "source": "/references/cli",
+      "destination": "/code-quality/overview/getting-started/install"
+    },
+    {
+      "source": "/references/cli/caching",
+      "destination": "/code-quality/overview/getting-started/caching"
+    },
+    {
+      "source": "/references/cli/commands-reference",
+      "destination": "/code-quality/overview/getting-started/commands-reference/code-quality"
+    },
+    {
+      "source": "/references/cli/commands-reference/actions",
+      "destination": "/code-quality/overview/getting-started/commands-reference/actions"
+    },
+    {
+      "source": "/references/cli/commands-reference/code-quality",
+      "destination": "/code-quality/overview/getting-started/commands-reference/code-quality"
+    },
+    {
+      "source": "/references/cli/commands-reference/merge",
+      "destination": "/merge-queue/reference/merge-queue-cli-reference"
+    },
+    {
+      "source": "/references/cli/compatibility",
+      "destination": "/code-quality/overview/getting-started/compatibility"
+    },
+    {
+      "source": "/references/cli/configuration",
+      "destination": "/code-quality/overview/linters/configure-linters"
+    },
+    {
+      "source": "/references/cli/configuration/actions",
+      "destination": "/code-quality/overview/getting-started/commands-reference/actions"
+    },
+    {
+      "source": "/references/cli/configuration/actions/logging-and-troubleshooting",
+      "destination": "/code-quality/overview/getting-started/configuration/actions/logging-and-troubleshooting"
+    },
+    {
+      "source": "/references/cli/configuration/actions/notifications",
+      "destination": "/code-quality/overview/getting-started/configuration/actions/notifications"
+    },
+    {
+      "source": "/references/cli/configuration/lint",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/references/cli/configuration/lint/auto-enable",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/auto-enable"
+    },
+    {
+      "source": "/references/cli/configuration/lint/definitions",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/definitions"
+    },
+    {
+      "source": "/references/cli/configuration/lint/dependencies",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/dependencies"
+    },
+    {
+      "source": "/references/cli/configuration/lint/files-and-caching",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/files-and-caching"
+    },
+    {
+      "source": "/references/cli/configuration/lint/output-parsing",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/output-parsing"
+    },
+    {
+      "source": "/references/cli/configuration/merge",
+      "destination": "/code-quality/overview/getting-started/configuration/merge"
+    },
+    {
+      "source": "/references/cli/configuration/per-user-overrides",
+      "destination": "/code-quality/overview/getting-started/configuration/per-user-overrides"
+    },
+    {
+      "source": "/references/cli/configuration/plugins",
+      "destination": "/code-quality/overview/getting-started/configuration/plugins/external-repositories"
+    },
+    {
+      "source": "/references/cli/configuration/plugins/exported-configs",
+      "destination": "/code-quality/overview/getting-started/configuration/plugins/exported-configs"
+    },
+    {
+      "source": "/references/cli/configuration/plugins/external-repositories",
+      "destination": "/code-quality/overview/getting-started/configuration/plugins/external-repositories"
+    },
+    {
+      "source": "/references/cli/configuration/telemetry",
+      "destination": "/code-quality/overview/getting-started/configuration/telemetry"
+    },
+    {
+      "source": "/references/cli/configuration/tools",
+      "destination": "/code-quality/overview/getting-started/configuration/tools"
+    },
+    {
+      "source": "/references/cli/getting-started",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/references/cli/getting-started/actions",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/references/cli/getting-started/announce",
+      "destination": "/code-quality/overview/getting-started/announce"
+    },
+    {
+      "source": "/references/cli/getting-started/caching",
+      "destination": "/code-quality/overview/getting-started/caching"
+    },
+    {
+      "source": "/references/cli/getting-started/commands-reference",
+      "destination": "/code-quality/overview/getting-started/commands-reference/code-quality"
+    },
+    {
+      "source": "/references/cli/getting-started/commands-reference/actions",
+      "destination": "/code-quality/overview/getting-started/commands-reference/actions"
+    },
+    {
+      "source": "/references/cli/getting-started/commands-reference/code-quality",
+      "destination": "/code-quality/overview/getting-started/commands-reference/code-quality"
+    },
+    {
+      "source": "/references/cli/getting-started/compatibility",
+      "destination": "/code-quality/overview/getting-started/compatibility"
+    },
+    {
+      "source": "/references/cli/getting-started/configuration",
+      "destination": "/code-quality/overview/linters/configure-linters"
+    },
+    {
+      "source": "/references/cli/getting-started/configuration/actions",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/references/cli/getting-started/configuration/actions/logging-and-troubleshooting",
+      "destination": "/code-quality/overview/getting-started/configuration/actions/logging-and-troubleshooting"
+    },
+    {
+      "source": "/references/cli/getting-started/configuration/actions/notifications",
+      "destination": "/code-quality/overview/getting-started/configuration/actions/notifications"
+    },
+    {
+      "source": "/references/cli/getting-started/configuration/lint",
+      "destination": "/code-quality/overview"
+    },
+    {
+      "source": "/references/cli/getting-started/configuration/lint/auto-enable",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/auto-enable"
+    },
+    {
+      "source": "/references/cli/getting-started/configuration/lint/commands",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/commands"
+    },
+    {
+      "source": "/references/cli/getting-started/configuration/lint/definitions",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/definitions"
+    },
+    {
+      "source": "/references/cli/getting-started/configuration/lint/dependencies",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/dependencies"
+    },
+    {
+      "source": "/references/cli/getting-started/configuration/lint/files-and-caching",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/files-and-caching"
+    },
+    {
+      "source": "/references/cli/getting-started/configuration/lint/output",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/output"
+    },
+    {
+      "source": "/references/cli/getting-started/configuration/lint/output-parsing",
+      "destination": "/code-quality/overview/getting-started/configuration/lint/output-parsing"
+    },
+    {
+      "source": "/references/cli/getting-started/configuration/merge",
+      "destination": "/code-quality/overview/getting-started/configuration/merge"
+    },
+    {
+      "source": "/references/cli/getting-started/configuration/per-user-overrides",
+      "destination": "/code-quality/overview/getting-started/configuration/per-user-overrides"
+    },
+    {
+      "source": "/references/cli/getting-started/configuration/plugins",
+      "destination": "/code-quality/overview/getting-started/configuration/plugins/external-repositories"
+    },
+    {
+      "source": "/references/cli/getting-started/configuration/plugins/exported-configs",
+      "destination": "/code-quality/overview/getting-started/configuration/plugins/exported-configs"
+    },
+    {
+      "source": "/references/cli/getting-started/configuration/plugins/external-repositories",
+      "destination": "/code-quality/overview/getting-started/configuration/plugins/external-repositories"
+    },
+    {
+      "source": "/references/cli/getting-started/configuration/runtimes",
+      "destination": "/code-quality/overview/getting-started/configuration/runtimes"
+    },
+    {
+      "source": "/references/cli/getting-started/configuration/telemetry",
+      "destination": "/code-quality/overview/getting-started/configuration/telemetry"
+    },
+    {
+      "source": "/references/cli/getting-started/configuration/tools",
+      "destination": "/code-quality/overview/getting-started/configuration/tools"
+    },
+    {
+      "source": "/references/cli/getting-started/install",
+      "destination": "/code-quality/overview/getting-started/install"
+    },
+    {
+      "source": "/references/cli/getting-started/tools",
+      "destination": "/code-quality/overview/getting-started/tools"
+    },
+    {
+      "source": "/references/cli/install",
+      "destination": "/code-quality/overview/getting-started/install"
+    },
+    {
+      "source": "/runtimes/prevent-duplicate-runtimes",
+      "destination": "/code-quality/overview/getting-started/configuration/runtimes"
+    },
+    {
+      "source": "/setup-and-configuration",
+      "destination": "/setup-and-administration/connecting-to-trunk"
+    },
+    {
+      "source": "/setup-and-configuration/connecting-to-trunk",
+      "destination": "/setup-and-administration/connecting-to-trunk"
+    },
+    {
+      "source": "/setup-and-configuration/github-app-permissions",
+      "destination": "/setup/integrations/github/trunk-app"
+    },
+    {
+      "source": "/setup-and-configuration/integration-for-slack",
+      "destination": "/setup/integrations/slack/personal-notifications"
+    },
+    {
+      "source": "/setup-and-configuration/managing-your-organization",
+      "destination": "/setup-and-administration/managing-your-organization"
+    },
+    {
+      "source": "/setup-and-configuration/managing-your-organization/github-app-permissions",
+      "destination": "/setup/integrations/github/trunk-app"
+    },
+    {
+      "source": "/tools/configuration",
+      "destination": "/code-quality/overview/linters/configure-linters"
+    },
+    {
+      "source": "/tools/running-linters-with-tools",
+      "destination": "/code-quality/overview/getting-started/configuration/tools"
+    },
+    {
+      "source": "/using-trunk/cli-commands",
+      "destination": "/code-quality/overview/getting-started/commands-reference/code-quality"
+    },
+    {
+      "source": "/web-app",
+      "destination": "/setup-and-administration/connecting-to-trunk"
+    },
+    {
+      "source": "/web-app/github-app-permissions",
+      "destination": "/setup/integrations/github/trunk-app"
+    },
+    {
+      "source": "/web-app/integration-for-slack",
+      "destination": "/setup/integrations/slack/personal-notifications"
+    },
+    {
+      "source": "/web-app/overview",
+      "destination": "/setup-and-administration/connecting-to-trunk"
+    },
+    {
+      "source": "/web-app/upload-check",
+      "destination": "/code-quality/overview/prevent-new-issues"
+    },
+    {
+      "source": "/check/configuration/configuring-existing-linters/clang-tidy-setup",
+      "destination": "/code-quality/overview/linters/supported/clang-tidy"
+    },
+    {
+      "source": "/cli/upgrades",
+      "destination": "/code-quality/overview/linters/upgrades"
+    },
+    {
+      "source": "/v1/getMergeQueueMetrics",
+      "destination": "/api/v1/get-prometheus-format-metrics-for-a-merge-queue"
+    },
+    {
+      "source": "/welcome",
+      "destination": "/"
     }
   ],
   "interaction": {
