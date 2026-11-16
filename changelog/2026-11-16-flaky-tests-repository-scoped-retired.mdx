@@ -1,0 +1,17 @@
+---
+title: "Flaky Tests: Repository-scoped Flaky Tests retired"
+description: "Every organization now uses test collections. Repository-scoped views, pull request comments and the legacy Flaky Tests endpoints are retired."
+date: 2026-11-16
+category: Flaky Tests
+type: update
+---
+
+**Every organization is now on [test collections](/flaky-tests/test-collections).**
+
+### Updates
+
+- **Repository-scoped Flaky Tests is retired.** Flake detection, quarantining and ticketing settings now live on each collection. Find them in the collection's **Settings** tab.
+- **Pull request comments are retired.** Flaky Tests no longer posts test summary comments on pull requests.
+- **Legacy Flaky Tests endpoints are retired.** The `/v1/flaky-tests/*` endpoints still accept requests but no longer return results. Switch to the [v2 test collection endpoints](/api). See [Migrate Flaky Tests from the legacy API](/api/v1/migrate-flaky-tests) for an endpoint map.
+
+Links to the retired pages now redirect to their current equivalents.
