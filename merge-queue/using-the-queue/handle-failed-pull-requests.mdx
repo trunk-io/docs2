@@ -56,7 +56,7 @@ Trunk Merge Queue will automatically restart failed PRs when it can under certai
 ![](/assets/merge-queue/using-the-queue/merge-pr-details-action.png)
 </Frame>
 
-There are a couple of reasons you might want to manually retry a PR. First, if a PR ends up in the `PENDING_FAILURE` state because of something transient like a CI runner disconnecting or flakey tests, you can retry the PR right away instead of waiting for PRs in front of it to pass or fail.
+There are a couple of reasons you might want to manually retry a PR. First, if a PR ends up in the `PENDING_FAILURE` state because of something transient like a CI runner disconnecting or flaky tests, you can retry the PR right away instead of waiting for PRs in front of it to pass or fail.
 
 Another reason to restart a PR is if the proper tests don't get kicked off due to a failure in the CI system. For example, if GitHub has an outage and is not triggering workflows or actions properly.
 
