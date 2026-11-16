@@ -823,7 +823,8 @@
                   "directory": "/api"
                 },
                 "pages": [
-                  "PUT /v2/impacted-targets"
+                  "PUT /v2/impacted-targets",
+                  "GET /v2/pull-requests/{id}/impacted-targets"
                 ]
               },
               {
@@ -862,7 +863,52 @@
                   "GET /v2/tests/{testId}/status-history",
                   "GET /v2/tests/{testId}/test-runs",
                   "POST /v2/tests/{testId}/ticket",
-                  "POST /v2/tests/{testId}/create-ticket"
+                  "POST /v2/tests/{testId}/create-ticket",
+                  "GET /v2/tests/{testId}/ticket",
+                  "DELETE /v2/tests/{testId}/ticket",
+                  "POST /v2/tests/{testId}/quarantine",
+                  "POST /v2/tests/quarantine",
+                  "POST /v2/tests/{testId}/mark-flaky",
+                  "POST /v2/tests/{testId}/unmark-flaky",
+                  "POST /v2/tests/{testId}/add-labels",
+                  "POST /v2/tests/{testId}/remove-labels"
+                ]
+              },
+              {
+                "group": "Monitors",
+                "openapi": {
+                  "source": "/openapi-v2.json",
+                  "directory": "/api"
+                },
+                "pages": [
+                  "GET /v2/monitors",
+                  "GET /v2/monitors/{monitorId}",
+                  "POST /v2/test-collections/{id}/monitors",
+                  "PATCH /v2/monitors/{monitorId}"
+                ]
+              },
+              {
+                "group": "Monitored tests",
+                "openapi": {
+                  "source": "/openapi-v2.json",
+                  "directory": "/api"
+                },
+                "pages": [
+                  "GET /v2/monitors/{monitorId}/tests",
+                  "POST /v2/monitors/{monitorId}/tests/{testId}/mute",
+                  "POST /v2/monitors/{monitorId}/tests/{testId}/unmute",
+                  "POST /v2/monitors/{monitorId}/tests/mute",
+                  "POST /v2/monitors/{monitorId}/tests/unmute"
+                ]
+              },
+              {
+                "group": "Detection events",
+                "openapi": {
+                  "source": "/openapi-v2.json",
+                  "directory": "/api"
+                },
+                "pages": [
+                  "GET /v2/detection-events"
                 ]
               },
               {
@@ -872,8 +918,46 @@
                   "directory": "/api"
                 },
                 "pages": [
+                  "POST /v2/dynamic-ci/generate-plan",
+                  "POST /v2/dynamic-ci/generate-buildkite-plan",
+                  "GET /v2/dynamic-ci/pr-jobs",
+                  "GET /v2/dynamic-ci/force-overrides",
+                  "PUT /v2/dynamic-ci/force-overrides",
                   "GET /v2/dynamic-ci/paths-filters",
                   "PATCH /v2/dynamic-ci/paths-filters"
+                ]
+              },
+              {
+                "group": "CI jobs",
+                "openapi": {
+                  "source": "/openapi-v2.json",
+                  "directory": "/api"
+                },
+                "pages": [
+                  "GET /v2/ci-jobs",
+                  "GET /v2/ci-jobs/{id}/annotations",
+                  "GET /v2/ci-jobs/{id}/log-lines",
+                  "GET /v2/pull-requests/{id}/ci-commits"
+                ]
+              },
+              {
+                "group": "CI workflow runs",
+                "openapi": {
+                  "source": "/openapi-v2.json",
+                  "directory": "/api"
+                },
+                "pages": [
+                  "GET /v2/ci-workflow-runs"
+                ]
+              },
+              {
+                "group": "CI failure clusters",
+                "openapi": {
+                  "source": "/openapi-v2.json",
+                  "directory": "/api"
+                },
+                "pages": [
+                  "GET /v2/ci-failure-clusters/{id}"
                 ]
               },
               "api/webhooks",
