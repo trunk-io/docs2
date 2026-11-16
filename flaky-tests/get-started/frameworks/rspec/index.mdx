@@ -56,6 +56,14 @@ If a failing test raises `RSpec::Core::MultipleExceptionError`, only one of the 
 
 ### Environment Variables
 
+Set these variables to upload test results:
+
+| Environment Variable | Description |
+| --- | --- |
+| `TRUNK_ORG_URL_SLUG` | Your Trunk organization URL slug |
+| `TRUNK_API_TOKEN` | Your Trunk organization API token |
+| `TRUNK_TEST_COLLECTION_ID` | The ID of the [test collection](/flaky-tests/test-collections) to upload to, copied from the collection in the Trunk app |
+
 These optional environment variables can be set in your project to change the behavior of the RSpec plugin.
 
 ### Repository metadata variables:
