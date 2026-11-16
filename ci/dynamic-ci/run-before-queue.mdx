@@ -4,28 +4,28 @@ sidebarTitle: "Run Before Queue"
 description: "Make Trunk run a job that Dynamic CI skipped on a pull request's head commit before the pull request enters the merge queue."
 ---
 
-Dynamic CI can skip a job on every push of a pull request. **Run before queue** makes sure that some jobs run once more, on the pull request's head commit, before the pull request enters the merge queue.
+Dynamic CI can skip a job on every push of a pull request. **Run Before Queue** makes sure that some jobs run once more, on the pull request's head commit, before the pull request enters the merge queue.
 
-When a pull request is submitted to the merge queue and is otherwise ready, Trunk starts a run of each Run before queue job that did not run on the head commit. The pull request stays **Not Ready** until Trunk has started those runs.
+When a pull request is submitted to the merge queue and is otherwise ready, Trunk starts a run of each Run Before Queue job that did not run on the head commit. The pull request stays **Not Ready** until Trunk has started those runs.
 
 <Note>
-  Run before queue makes sure a job **runs**. It does not make sure the job passes. To block a pull request on the result, make the job a required status check.
+  Run Before Queue makes sure a job **runs**. It does not make sure the job passes. To block a pull request on the result, make the job a required status check.
 </Note>
 
 ## How it works
 
 1. You submit a pull request to the merge queue.
 2. GitHub reports the pull request as mergeable (its required checks and approvals pass).
-3. For each Run before queue job that did not run on the head commit, Trunk:
+3. For each Run Before Queue job that did not run on the head commit, Trunk:
    - Waits for runs of that workflow that are still in progress on the head commit. Trunk never cancels a run.
    - **GitHub Actions:** reruns the whole workflow run on the head commit.
    - **Buildkite:** creates a new build of the pipeline on the head commit.
-4. In that run, Dynamic CI runs the Run before queue jobs, every job they depend on (`needs:` or `depends_on`), and every job you force-ran. It skips all other jobs.
+4. In that run, Dynamic CI runs the Run Before Queue jobs, every job they depend on (`needs:` or `depends_on`), and every job you force-ran. It skips all other jobs.
 5. When Dynamic CI starts the jobs, the pull request continues to the merge queue. If a job is a required status check, GitHub keeps the pull request not mergeable until the job passes.
 
-After Trunk starts Run before queue for a pull request, each later push to that pull request runs its Run before queue jobs in that push's own CI. This continues while the pull request is still submitted.
+After Trunk starts Run Before Queue for a pull request, each later push to that pull request runs its Run Before Queue jobs in that push's own CI. This continues while the pull request is still submitted.
 
-Run before queue does not change how Dynamic CI skips the job while the pull request is in development. A pull request that is not submitted to the merge queue never starts Run before queue.
+Run Before Queue does not change how Dynamic CI skips the job while the pull request is in development. A pull request that is not submitted to the merge queue never starts Run Before Queue.
 
 <Warning>
   Trunk reruns the whole workflow. A job that does not use the Dynamic CI gate runs again in that rerun.
@@ -35,7 +35,7 @@ Run before queue does not change how Dynamic CI skips the job while the pull req
 
 1. Open **Dynamic CI → Configuration → Jobs**, or the job's **Dynamic CI** tab on its CI job page.
 2. Open the job.
-3. Under **Run before queue**, select a setting:
+3. Under **Run Before Queue**, select a setting:
 
 | Setting | Behavior |
 | --- | --- |
@@ -56,7 +56,7 @@ The setting is available only for repositories whose Dynamic CI mode is not **Di
 
 Sometimes Trunk cannot start a run. For example, the workflow run is older than 30 days, the workflow is disabled, or Trunk does not have permission. Then the pull request stays **Not Ready**, and Trunk sends a Slack message through your merge queue's Slack integration:
 
-> Run before queue on `abc123` (CI workflow): could not start Docker build — the run is older than 30 days. Push, or force-run it with Save and Rerun.
+> Run Before Queue on `abc123` (CI workflow): could not start Docker build — the run is older than 30 days. Push, or force-run it with Save and Rerun.
 
 To continue, do one of these:
 
@@ -70,11 +70,11 @@ Trunk accepts the job's run whenever it happens on the head commit.
 
 On the pull request page in the Trunk web app and in the browser extension:
 
-- **Merge Activity** shows one entry for each workflow that Trunk started. For example: "Run before queue on `abc123` (CI workflow): started Lint and Docker build."
+- **Merge Activity** shows one entry for each workflow that Trunk started. For example: "Run Before Queue on `abc123` (CI workflow): started Lint and Docker build."
 - **The readiness line** under the queue status says why the pull request is not ready:
-  - "Waiting for run-before-queue jobs" while Trunk waits for the runs.
-  - "Run before queue failed to start: …" with the jobs, the reason and the fix.
-  - "Run before queue status unavailable" when Trunk cannot get the status.
+  - "Waiting for Run Before Queue jobs." while Trunk waits for the runs.
+  - "Run Before Queue failed to start: …" with the jobs, the reason and the fix.
+  - "Run Before Queue status is unavailable right now. The merge queue still checks it before this pull request enters the queue." when Trunk cannot get the status. You do not need to do anything.
 
 ## Related
 
