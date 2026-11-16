@@ -823,7 +823,8 @@
                   "directory": "/api"
                 },
                 "pages": [
-                  "PUT /v2/impacted-targets"
+                  "PUT /v2/impacted-targets",
+                  "GET /v2/pull-requests/{id}/impacted-targets"
                 ]
               },
               {
