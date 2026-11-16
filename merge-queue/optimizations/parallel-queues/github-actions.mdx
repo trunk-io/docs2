@@ -65,6 +65,8 @@ Impacted targets apply to one commit. Upload again on every push, or the queue k
 
 The upload answers `202`, and the queue picks the targets up shortly after. To confirm, once the pull request is in a queue, read it with an API key through [`GET /v2/pull-requests/{id}`](/api/pullrequests/get-a-pull-request) and check that `queueEntry.readiness.hasImpactedTargets` is `true`.
 
+To reuse the targets after the pull request merges, for example to run only the post-merge jobs they affect, read them back with an API key through [`GET /v2/pull-requests/{id}/impacted-targets`](/api/pullrequests/get-a-pull-requests-impacted-targets). It returns the targets uploaded for the pull request's head commit, so a squash merge doesn't change the answer. The GitHub Actions login can't make this read.
+
 The [Bazel](/merge-queue/optimizations/parallel-queues/bazel) and [Nx](/merge-queue/optimizations/parallel-queues/nx) actions compute the targets and upload them in one step. With `auth: github-actions`, they log in through `trunk-io/login` and upload through the v2 API. For other build tools, write the targets to a file and upload it as above.
 
 Declare the pull request's impact with one of:
