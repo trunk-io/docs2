@@ -1249,6 +1249,13 @@
                 "message": "needs 1 more approving review",
                 "have": 0,
                 "need": 1
+              },
+              {
+                "code": "other",
+                "message": "the commit author email rule in ruleset `Acme policy` may not be satisfied",
+                "ruleType": "commit_author_email_pattern",
+                "rulesetName": "Acme policy",
+                "rulesetUrl": "https://github.com/acme/widgets/rules/42"
               }
             ]
           }
@@ -1289,6 +1296,21 @@
             "minimum": 0,
             "description": "`stackNeedsRebase` only: the number of the pull request this branch must be rebased onto.",
             "example": 3
+          },
+          "ruleType": {
+            "type": "string",
+            "description": "`other` only: the type of the ruleset rule that may be blocking the merge, as GitHub names it (for example `commit_author_email_pattern`). Open-ended: a rule type GitHub adds later passes through unchanged.",
+            "example": "commit_author_email_pattern"
+          },
+          "rulesetName": {
+            "type": "string",
+            "description": "`other` only: the name of the ruleset that holds the rule.",
+            "example": "Acme policy"
+          },
+          "rulesetUrl": {
+            "type": "string",
+            "description": "`other` only: GitHub's page for the ruleset. Present only when it is an `https://github.com` URL.",
+            "example": "https://github.com/acme/widgets/rules/42"
           }
         },
         "required": ["code", "message"],
@@ -1309,7 +1331,7 @@
           "stackNeedsRebase",
           "other"
         ],
-        "description": "Why the pull request is not mergeable. `behind`, `pending`, and `awaitingCheck` resolve without author action (Trunk updates the branch; GitHub is still computing; a required check is still running); the rest need the author to act. `stackNeedsRebase` means a PR in the middle of this GitHub stack was pushed to without rebasing the ones above it. `other` is any other block; its `message` names a ruleset rule when Trunk has one.",
+        "description": "Why the pull request is not mergeable. `behind`, `pending`, and `awaitingCheck` resolve without author action (Trunk updates the branch; GitHub is still computing; a required check is still running); the rest need the author to act. `stackNeedsRebase` means a PR in the middle of this GitHub stack was pushed to without rebasing the ones above it. `other` is any other block; when Trunk can name the ruleset rule behind it, `ruleType`, `rulesetName` and `rulesetUrl` say which, and `message` names it.",
         "example": "reviewRequired"
       },
       "PullRequestCi": {
@@ -2463,8 +2485,8 @@
       },
       "RerunVia": {
         "type": "string",
-        "enum": ["web", "api"],
-        "description": "Where the re-run was requested: the Trunk web app or the API.",
+        "enum": ["web", "api", "auto"],
+        "description": "Where the re-run was requested: the Trunk web app, the API, or the queue's automatic re-run rules.",
         "example": "api"
       },
       "RerunMode": {
@@ -3535,6 +3557,12 @@
             "example": {
               "build-image": ["amd64", "arm64"]
             }
+          },
+          "rbqDispatchId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Set by Trunk's Run Before Queue on a build it created (`TRUNK_RBQ_DISPATCH_ID`). Send it unchanged when the variable is present.",
+            "example": "3f9d2c1e-7a4b-4e8f-9c2d-5b6a7e8f9a0b"
           }
         },
         "required": [
