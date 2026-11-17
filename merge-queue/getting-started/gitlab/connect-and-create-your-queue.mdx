@@ -38,7 +38,7 @@ Trunk then:
 The setup page also lets you create a service account yourself and paste in its personal access token. We don't recommend it: Trunk can't rotate or replace a token that you paste in.
 
 <Warning>
-  **When a pasted token expires, the queue stops merging, and you can't swap in a new token.** The only fix is to start over: delete every queue on the group's projects, [disconnect](#disconnecting-gitlab), connect again with **Connect with GitLab**, and create the queues again. The queues' settings and the merge requests in them don't carry over. Before you paste in a token, check its expiration date, which the connection's page in **Settings** → **Integrations** → **GitLab** also shows.
+  **When a pasted token expires, the queue stops merging.** You can't swap in a new token, before or after it expires. The only fix is to start over: delete every queue on the group's projects, [disconnect](#disconnecting-gitlab), connect again with **Connect with GitLab** (which needs a group Owner), and create the queues again. The queues' settings and the merge requests in them don't carry over. If you paste in a token anyway, give it the longest lifetime your group allows. The connection's page in **Settings** → **Integrations** → **GitLab** shows when it expires.
 </Warning>
 
 ## Create your first queue
@@ -67,10 +67,12 @@ You connected a GitLab group to Trunk and created a queue for one project's targ
 
 To disconnect, open the connection in **Settings** → **Integrations** → **GitLab** and delete it. You can't disconnect while any of the group's projects has a merge queue: delete those queues first.
 
-Trunk revokes the tokens it created. Clean up the rest in GitLab yourself:
+Deleting a project's last queue doesn't remove the project's `Trunk` webhook. Trunk receives the project's events and ignores them. Remove the webhook in the project's **Settings** → **Webhooks** if you don't plan to create another queue there. Trunk adds a new one when you do.
 
-- **Remove the `Trunk` webhook** from each project that had a queue, in the project's **Settings** → **Webhooks**. Trunk doesn't remove it when you delete a queue or disconnect, so the project keeps sending events that Trunk refuses, and its webhook page shows failed deliveries. If you delete a project's only queue and keep the connection, remove the webhook then too. Trunk adds a new one if you create a queue on the project again.
-- **Remove the service account** from the group.
+When you disconnect, Trunk revokes the tokens it created. Clean up the rest in GitLab yourself:
+
+- **Remove the `Trunk` webhook** from each project that had a queue, in the project's **Settings** → **Webhooks**. Trunk doesn't remove it when you disconnect, so the project keeps sending events that Trunk now refuses, and its webhook page shows failed deliveries.
+- **Delete the service account** in the group's **Settings** → **Service accounts**.
 - **Revoke a token you pasted in.** Trunk stops using it but leaves it valid in GitLab.
 
 ## Next steps
