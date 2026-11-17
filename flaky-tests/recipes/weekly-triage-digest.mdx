@@ -1,0 +1,143 @@
+---
+title: "Post a Weekly Flaky Test Digest"
+description: "Every week, post the tests that turned flaky, broken or healthy to Slack, grouped by owner."
+og:title: "Post a weekly flaky test digest to Slack with the Trunk API"
+---
+A webhook tells you about each test the moment its status changes. A weekly digest shows the week as a whole: which tests got worse, which recovered, and which team owns each one. That's what a triage meeting needs. Trunk's [API](/api) has everything the digest needs, so a short script on a schedule can build it.
+
+## 1. Find the tests whose status changed
+
+Every test in [`GET /v2/tests`](/api/tests/list-and-search-tests) has a `status` (`healthy`, `flaky` or `broken`) and a `statusSince`, the time that status began. A test changed this week if its `statusSince` is within the last seven days. Make two lists, paging through each with `nextCursor`:
+
+- **Turned flaky or broken.** Call it with `status=flaky,broken`, `include=metrics` and `period=7d`. The metrics give each test's failure rate for the week.
+- **Turned healthy.** Call it with `status=healthy`.
+
+Add `owner` or `testCollectionId` to send a digest for one team or one collection.
+
+<Note>
+Use `statusSince` rather than `newlyFlaky=true`. `newlyFlaky` returns only tests that became flaky for the first time. It leaves out a test that was fixed and then turned flaky again, and a test that turned broken.
+</Note>
+
+## 2. Compare with the start of the week
+
+A test can change status more than once in a week. For example, it can turn flaky on Monday and recover on Thursday. For each test from step 1, call [`GET /v2/tests/{testId}/status-history`](/api/tests/list-a-tests-status-transitions) with `startedAfter` set to the start of the week. Transitions are listed newest first, so the last one's `fromStatus` was the test's status when the week began.
+
+- If that status is the same as the test's current `status`, the test changed and then changed back. Leave it out.
+- Otherwise, report the test as `fromStatus` → `status`, such as `healthy → flaky` or `broken → healthy`.
+
+Each transition's `activeMonitors` lists the monitors that flagged the test, if you want to show why it changed.
+
+## 3. Group by owner and post to Slack
+
+Each test has `codeowners`, such as `@acme/payments`. Group the tests by owner. A test with more than one owner goes under each of them, and a test with none goes under **Unowned**. Then post the groups to a Slack [incoming webhook](https://api.slack.com/messaging/webhooks). Each test's `url` links to its page in Trunk.
+
+This script does all three steps. It needs Node.js 18 or later and an [API key](/api/authentication#api-keys). Reading tests needs no permissions, so leave them all off.
+
+```javascript flaky-digest.mjs
+const API = "https://api.trunk.io/v2";
+const headers = { Authorization: `Bearer ${process.env.TRUNK_API_KEY}` };
+const weekStart = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+const SEVERITY = { healthy: 0, flaky: 1, broken: 2 };
+
+async function get(path, params) {
+  const url = new URL(API + path);
+  for (const [key, value] of Object.entries(params)) url.searchParams.set(key, value);
+  const res = await fetch(url, { headers });
+  if (!res.ok) throw new Error(`${res.status} ${path}: ${await res.text()}`);
+  return res.json();
+}
+
+async function changedThisWeek(params) {
+  const tests = [];
+  let cursor;
+  do {
+    const page = await get("/tests", { ...params, limit: 100, ...(cursor && { cursor }) });
+    tests.push(...page.data.filter((t) => t.statusSince && new Date(t.statusSince) >= weekStart));
+    cursor = page.nextCursor;
+  } while (cursor);
+  return tests;
+}
+
+const candidates = [
+  ...(await changedThisWeek({ status: "flaky,broken", include: "metrics", period: "7d" })),
+  ...(await changedThisWeek({ status: "healthy" })),
+];
+
+const changes = [];
+for (const test of candidates) {
+  const history = await get(`/tests/${test.id}/status-history`, {
+    startedAfter: weekStart.toISOString(),
+    limit: 100,
+  });
+  const from = history.data.at(-1)?.fromStatus;
+  if (from && from !== test.status) changes.push({ ...test, from });
+}
+
+const byOwner = new Map();
+for (const test of changes) {
+  for (const owner of test.codeowners.length ? test.codeowners : ["Unowned"]) {
+    byOwner.set(owner, [...(byOwner.get(owner) ?? []), test]);
+  }
+}
+
+const escape = (text) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const line = (t) => {
+  const rate = t.metrics ? `, ${Math.round(t.metrics.failureRate * 100)}% of ${t.metrics.runCount} runs failed` : "";
+  return `• <${t.url}|${escape(t.name)}>: ${t.from} → ${t.status}${rate}`;
+};
+
+const blocks = [{ type: "header", text: { type: "plain_text", text: "Flaky tests this week" } }];
+if (byOwner.size === 0) {
+  blocks.push({ type: "section", text: { type: "mrkdwn", text: "No test changed status this week." } });
+}
+for (const [owner, tests] of [...byOwner].sort(([a], [b]) => a.localeCompare(b)).slice(0, 49)) {
+  tests.sort((a, b) => SEVERITY[b.status] - SEVERITY[a.status]);
+  const more = tests.length > 10 ? `\n…and ${tests.length - 10} more` : "";
+  blocks.push({
+    type: "section",
+    text: { type: "mrkdwn", text: `*${escape(owner)}*\n${tests.slice(0, 10).map(line).join("\n")}${more}` },
+  });
+}
+
+const res = await fetch(process.env.SLACK_WEBHOOK_URL, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ text: "Flaky tests this week", blocks }),
+});
+if (!res.ok) throw new Error(`Slack: ${res.status} ${await res.text()}`);
+```
+
+The script lists up to 10 tests for each owner, worst first, and up to 49 owners, which stays within Slack's limits for one message. To send each team its own digest, run the script once per team with `owner` added to both `changedThisWeek` calls and that team's webhook URL.
+
+## 4. Run it every week
+
+Run the script from any scheduler, such as cron or a scheduled CI job. This GitHub Actions workflow posts every Monday at 14:00 UTC. Store the API key and the Slack webhook URL as repository secrets:
+
+```yaml .github/workflows/flaky-digest.yml
+name: Weekly flaky test digest
+on:
+  schedule:
+    - cron: "0 14 * * 1"
+  workflow_dispatch:
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node flaky-digest.mjs
+        env:
+          TRUNK_API_KEY: ${{ secrets.TRUNK_API_KEY }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+```
+
+Step 1 reads every healthy test, which takes one request per 100 tests. Requests share your organization's [rate limit](/api/rate-limits). For a large organization, narrow the healthy list with `owner` or `testCollectionId`, or run the digest outside working hours.
+
+## Related
+
+- [Fix Flaky Tests with an Agent](../agents/autofix-flaky-tests). Hand the tests in your digest to a coding agent.
+- [Alert When a Test Escalates](./alert-on-test-escalation). Get an alert as soon as a test gets worse, instead of once a week.
+- [Managing Detected Flaky Tests](../management/managing-detected-flaky-tests). Build a triage process around the digest.
