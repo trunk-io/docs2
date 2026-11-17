@@ -968,6 +968,154 @@
                 ]
               }
             ]
+          },
+          {
+            "group": "Beta",
+            "tag": "Beta",
+            "pages": [
+              {
+                "group": "Runners",
+                "pages": [
+                  {
+                    "group": "Usage",
+                    "openapi": {
+                      "source": "/openapi-v2beta-runners.json",
+                      "directory": "/api/beta/runners"
+                    },
+                    "pages": [
+                      "GET /usage",
+                      "GET /live",
+                      "POST /usage/job-measurements"
+                    ]
+                  },
+                  {
+                    "group": "CI jobs",
+                    "openapi": {
+                      "source": "/openapi-v2beta-runners.json",
+                      "directory": "/api/beta/runners"
+                    },
+                    "pages": [
+                      "GET /ci/job-log",
+                      "GET /ci/job-metrics"
+                    ]
+                  },
+                  {
+                    "group": "CI experiments",
+                    "openapi": {
+                      "source": "/openapi-v2beta-runners.json",
+                      "directory": "/api/beta/runners"
+                    },
+                    "pages": [
+                      "POST /ci/experiments/preflight",
+                      "POST /ci/experiments",
+                      "POST /ci/experiments/pull-request"
+                    ]
+                  },
+                  {
+                    "group": "CI configuration",
+                    "openapi": {
+                      "source": "/openapi-v2beta-runners.json",
+                      "directory": "/api/beta/runners"
+                    },
+                    "pages": [
+                      "GET /ci-config",
+                      "PUT /ci-config",
+                      "GET /ci-config/regions",
+                      "GET /repo-regions",
+                      "PUT /repo-regions/{githubOrgId}/{repo}",
+                      "DELETE /repo-regions/{githubOrgId}/{repo}"
+                    ]
+                  },
+                  {
+                    "group": "Runner groups",
+                    "openapi": {
+                      "source": "/openapi-v2beta-runners.json",
+                      "directory": "/api/beta/runners"
+                    },
+                    "pages": [
+                      "GET /runner-groups",
+                      "GET /repo-runner-groups"
+                    ]
+                  },
+                  {
+                    "group": "Cache",
+                    "openapi": {
+                      "source": "/openapi-v2beta-runners.json",
+                      "directory": "/api/beta/runners"
+                    },
+                    "pages": [
+                      "GET /cache/usage",
+                      "GET /cache/repos/{owner}/{repo}/usage",
+                      "GET /cache/repos/{owner}/{repo}/entries",
+                      "GET /cache/repos/{owner}/{repo}/evictions",
+                      "GET /cache/repos/{owner}/{repo}/purges",
+                      "POST /cache/repos/{owner}/{repo}/purges",
+                      "GET /cache/repos/{owner}/{repo}/purges/{purgeId}"
+                    ]
+                  },
+                  {
+                    "group": "Cache settings",
+                    "openapi": {
+                      "source": "/openapi-v2beta-runners.json",
+                      "directory": "/api/beta/runners"
+                    },
+                    "pages": [
+                      "GET /cache-settings",
+                      "PUT /cache-settings/{githubOrgId}/{repo}",
+                      "DELETE /cache-settings/{githubOrgId}/{repo}"
+                    ]
+                  },
+                  {
+                    "group": "Templates",
+                    "openapi": {
+                      "source": "/openapi-v2beta-runners.json",
+                      "directory": "/api/beta/runners"
+                    },
+                    "pages": [
+                      "GET /templates",
+                      "POST /templates",
+                      "GET /templates/{id}",
+                      "PATCH /templates/{id}",
+                      "DELETE /templates/{id}",
+                      "GET /templates/{id}/files",
+                      "POST /templates/{id}/draft",
+                      "DELETE /templates/{id}/draft",
+                      "POST /templates/{id}/publish",
+                      "POST /templates/{id}/module-updates",
+                      "POST /templates/{id}/extract-module",
+                      "POST /templates/{id}/make-template",
+                      "POST /templates/{id}/restore-template"
+                    ]
+                  },
+                  {
+                    "group": "Template builds",
+                    "openapi": {
+                      "source": "/openapi-v2beta-runners.json",
+                      "directory": "/api/beta/runners"
+                    },
+                    "pages": [
+                      "GET /builds",
+                      "GET /templates/{id}/builds",
+                      "GET /templates/{id}/regions/{region}/build-logs",
+                      "GET /templates/{id}/regions/{region}/build-logs/facets",
+                      "POST /templates/{id}/regions/{region}/rebuild",
+                      "POST /templates/{id}/regions/{region}/rollback",
+                      "POST /templates/{id}/regions/{region}/end-hold"
+                    ]
+                  },
+                  {
+                    "group": "OpenAPI document",
+                    "openapi": {
+                      "source": "/openapi-v2beta-runners.json",
+                      "directory": "/api/beta/runners"
+                    },
+                    "pages": [
+                      "GET /openapi.json"
+                    ]
+                  }
+                ]
+              }
+            ]
           }
         ]
       },

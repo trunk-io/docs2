@@ -1,0 +1,6758 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Trunk Runners API (beta)",
+    "description": "The public Runners routes. A route that is not here is not public, and it refuses every client but the Trunk web app.",
+    "version": "0.1.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.trunk.io/v2beta/runners",
+      "description": "Production"
+    }
+  ],
+  "paths": {
+    "/builds": {
+      "get": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "List the organization's template builds",
+        "operationId": "get_org_builds",
+        "parameters": [
+          {
+            "name": "region",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "includeSuperseded",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The template builds of the organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicOrgBuilds"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `RUNNERS_TEMPLATE_BUILD_LOGS_WITHHELD`, `RUNNERS_TEMPLATE_BUILD_NOT_STARTED`, `RUNNERS_TEMPLATE_IS_MODULE`, `RUNNERS_TEMPLATE_NOT_COMPOSABLE`, `RUNNERS_TEMPLATE_NOT_FOUND`, `RUNNERS_TEMPLATE_READ_UNAVAILABLE`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cache-settings": {
+      "get": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "List the per-repository cache settings",
+        "operationId": "get_cache_settings",
+        "responses": {
+          "200": {
+            "description": "The per-repository cache settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicRepoCacheSettings"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `RUNNERS_REPOSITORY_ADMIN_REQUIRED`, `RUNNERS_REPOSITORY_ADMIN_UNVERIFIABLE`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cache-settings/{githubOrgId}/{repo}": {
+      "put": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "Set a repository's cache setting",
+        "operationId": "put_cache_setting",
+        "parameters": [
+          {
+            "name": "githubOrgId",
+            "in": "path",
+            "description": "Numeric GitHub organization id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "repo",
+            "in": "path",
+            "description": "Repository name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "A JSON object; unknown keys are refused",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The saved setting",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicRepoCacheSetting"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_CACHE_REPO_MAX_GIB_OUT_OF_RANGE`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `RUNNERS_REPOSITORY_ADMIN_REQUIRED`, `RUNNERS_REPOSITORY_ADMIN_UNVERIFIABLE`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "Reset a repository's cache setting",
+        "operationId": "delete_cache_setting",
+        "parameters": [
+          {
+            "name": "githubOrgId",
+            "in": "path",
+            "description": "Numeric GitHub organization id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "repo",
+            "in": "path",
+            "description": "Repository name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The repository follows the organization"
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `RUNNERS_REPOSITORY_ADMIN_REQUIRED`, `RUNNERS_REPOSITORY_ADMIN_UNVERIFIABLE`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cache/repos/{owner}/{repo}/entries": {
+      "get": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "List a repository's cache entries",
+        "operationId": "list_cache_entries",
+        "parameters": [
+          {
+            "name": "owner",
+            "in": "path",
+            "description": "Repository owner",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "repo",
+            "in": "path",
+            "description": "Repository name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "region",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "namespace",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "scope",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "keyPrefix",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "key",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "One page of cache entries",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicCacheEntries"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_CACHE_INVALID`, `RUNNERS_CACHE_INVALID_CURSOR`, `RUNNERS_CACHE_INVALID_PAGE_REQUEST`, `RUNNERS_CACHE_PURGE_NOT_FOUND`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cache/repos/{owner}/{repo}/evictions": {
+      "get": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "List a repository's cache evictions",
+        "operationId": "list_cache_evictions",
+        "parameters": [
+          {
+            "name": "owner",
+            "in": "path",
+            "description": "Repository owner",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "repo",
+            "in": "path",
+            "description": "Repository name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "region",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "since",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The cache evictions of the repository",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicCacheEvictions"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_CACHE_INVALID`, `RUNNERS_CACHE_INVALID_CURSOR`, `RUNNERS_CACHE_INVALID_PAGE_REQUEST`, `RUNNERS_CACHE_PURGE_NOT_FOUND`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cache/repos/{owner}/{repo}/purges": {
+      "get": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "List a repository's cache purges",
+        "operationId": "list_cache_purges",
+        "parameters": [
+          {
+            "name": "owner",
+            "in": "path",
+            "description": "Repository owner",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "repo",
+            "in": "path",
+            "description": "Repository name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "region",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The cache purges of the repository",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicCachePurges"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_CACHE_INVALID`, `RUNNERS_CACHE_INVALID_CURSOR`, `RUNNERS_CACHE_INVALID_PAGE_REQUEST`, `RUNNERS_CACHE_PURGE_NOT_FOUND`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "Purge a repository's cache",
+        "operationId": "create_cache_purge",
+        "parameters": [
+          {
+            "name": "owner",
+            "in": "path",
+            "description": "Repository owner",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "repo",
+            "in": "path",
+            "description": "Repository name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "region",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "A JSON object; unknown keys are refused",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The started purge",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicCachePurge"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_CACHE_INVALID`, `RUNNERS_CACHE_INVALID_CURSOR`, `RUNNERS_CACHE_INVALID_PAGE_REQUEST`, `RUNNERS_CACHE_PURGE_NOT_FOUND`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cache/repos/{owner}/{repo}/purges/{purgeId}": {
+      "get": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "Get a cache purge",
+        "operationId": "get_cache_purge",
+        "parameters": [
+          {
+            "name": "owner",
+            "in": "path",
+            "description": "Repository owner",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "repo",
+            "in": "path",
+            "description": "Repository name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "purgeId",
+            "in": "path",
+            "description": "Purge id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "region",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "One cache purge",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicCachePurge"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_CACHE_INVALID`, `RUNNERS_CACHE_INVALID_CURSOR`, `RUNNERS_CACHE_INVALID_PAGE_REQUEST`, `RUNNERS_CACHE_PURGE_NOT_FOUND`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cache/repos/{owner}/{repo}/usage": {
+      "get": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "Get a repository's cache usage",
+        "operationId": "get_repo_cache_usage",
+        "parameters": [
+          {
+            "name": "owner",
+            "in": "path",
+            "description": "Repository owner",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "repo",
+            "in": "path",
+            "description": "Repository name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "region",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The cache usage of the repository",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicCacheRepoUsage"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_CACHE_INVALID`, `RUNNERS_CACHE_INVALID_CURSOR`, `RUNNERS_CACHE_INVALID_PAGE_REQUEST`, `RUNNERS_CACHE_PURGE_NOT_FOUND`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cache/usage": {
+      "get": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "Get the organization's cache usage",
+        "operationId": "get_cache_usage",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "settings",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The cache usage of the organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicCacheUsage"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_CACHE_INVALID`, `RUNNERS_CACHE_INVALID_CURSOR`, `RUNNERS_CACHE_INVALID_PAGE_REQUEST`, `RUNNERS_CACHE_PURGE_NOT_FOUND`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ci-config": {
+      "get": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "Get the CI configuration",
+        "operationId": "get_ci_config",
+        "responses": {
+          "200": {
+            "description": "The CI configuration of the organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicCiConfig"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_CI_CONFIG_INVALID`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `RUNNERS_REPOSITORY_NOT_FOUND`, `RUNNERS_TEMPLATE_IS_MODULE`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "Update the CI configuration",
+        "operationId": "put_ci_config",
+        "requestBody": {
+          "description": "A JSON object; unknown keys are refused",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The saved CI configuration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicCiConfig"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_CACHE_REPO_MAX_GIB_OUT_OF_RANGE`, `RUNNERS_CI_CONFIG_INVALID`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `RUNNERS_REPOSITORY_NOT_FOUND`, `RUNNERS_TEMPLATE_IS_MODULE`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ci-config/regions": {
+      "get": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "List the regions CI can use",
+        "operationId": "get_ci_regions",
+        "responses": {
+          "200": {
+            "description": "The regions that CI can use",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicCiRegions"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_CI_CONFIG_INVALID`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `RUNNERS_REPOSITORY_NOT_FOUND`, `RUNNERS_TEMPLATE_IS_MODULE`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ci/experiments": {
+      "post": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "Start a CI experiment",
+        "operationId": "post_experiment",
+        "requestBody": {
+          "description": "A JSON object; unknown keys are refused",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "The started experiment",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicCiExperiment"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_CI_EXPERIMENTS_NOT_ENABLED`, `RUNNERS_CI_EXPERIMENT_CANNOT_START`, `RUNNERS_CI_EXPERIMENT_COMMIT_NOT_IN_REPOSITORY`, `RUNNERS_CI_EXPERIMENT_JOB_NOT_FOUND`, `RUNNERS_CI_EXPERIMENT_NO_DEFAULT_BRANCH`, `RUNNERS_CI_EXPERIMENT_ON_NOT_REWRITABLE`, `RUNNERS_CI_EXPERIMENT_PERMISSIONS_NOT_GRANTED`, `RUNNERS_CI_EXPERIMENT_PULL_REQUEST_FILE_CHANGED`, `RUNNERS_CI_EXPERIMENT_PULL_REQUEST_JOB_NOT_ELIGIBLE`, `RUNNERS_CI_EXPERIMENT_PULL_REQUEST_NO_DEFAULT_BRANCH`, `RUNNERS_CI_EXPERIMENT_PULL_REQUEST_RUNS_ON_IS_EXPRESSION`, `RUNNERS_CI_EXPERIMENT_PULL_REQUEST_RUNS_ON_UNCHANGED`, `RUNNERS_CI_EXPERIMENT_PULL_REQUEST_TREE_TRUNCATED`, `RUNNERS_CI_EXPERIMENT_PULL_REQUEST_UNAVAILABLE`, `RUNNERS_CI_EXPERIMENT_REQUEST_CONFLICT`, `RUNNERS_CI_EXPERIMENT_REUSABLE_WORKFLOW_JOB`, `RUNNERS_CI_EXPERIMENT_RUNS_ON_NOT_REWRITABLE`, `RUNNERS_CI_EXPERIMENT_TARGET_NOT_FOUND`, `RUNNERS_CI_EXPERIMENT_TEMPLATE_NOT_FOUND`, `RUNNERS_CI_EXPERIMENT_UNAVAILABLE`, `RUNNERS_CI_EXPERIMENT_WORKFLOW_NOT_REWRITABLE`, `RUNNERS_CI_RUN_GITHUB_ACCOUNT_NOT_FOUND`, `RUNNERS_CI_RUN_GITHUB_NOT_LINKED`, `RUNNERS_CI_RUN_WRITE_REQUIRED`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ci/experiments/preflight": {
+      "post": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "Check whether a CI experiment can start",
+        "operationId": "post_preflight",
+        "requestBody": {
+          "description": "A JSON object; unknown keys are refused",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Whether an experiment can start now",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicCiExperimentPreflight"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_CI_EXPERIMENTS_NOT_ENABLED`, `RUNNERS_CI_EXPERIMENT_CANNOT_START`, `RUNNERS_CI_EXPERIMENT_COMMIT_NOT_IN_REPOSITORY`, `RUNNERS_CI_EXPERIMENT_JOB_NOT_FOUND`, `RUNNERS_CI_EXPERIMENT_NO_DEFAULT_BRANCH`, `RUNNERS_CI_EXPERIMENT_ON_NOT_REWRITABLE`, `RUNNERS_CI_EXPERIMENT_PERMISSIONS_NOT_GRANTED`, `RUNNERS_CI_EXPERIMENT_PULL_REQUEST_FILE_CHANGED`, `RUNNERS_CI_EXPERIMENT_PULL_REQUEST_JOB_NOT_ELIGIBLE`, `RUNNERS_CI_EXPERIMENT_PULL_REQUEST_NO_DEFAULT_BRANCH`, `RUNNERS_CI_EXPERIMENT_PULL_REQUEST_RUNS_ON_IS_EXPRESSION`, `RUNNERS_CI_EXPERIMENT_PULL_REQUEST_RUNS_ON_UNCHANGED`, `RUNNERS_CI_EXPERIMENT_PULL_REQUEST_TREE_TRUNCATED`, `RUNNERS_CI_EXPERIMENT_PULL_REQUEST_UNAVAILABLE`, `RUNNERS_CI_EXPERIMENT_REQUEST_CONFLICT`, `RUNNERS_CI_EXPERIMENT_REUSABLE_WORKFLOW_JOB`, `RUNNERS_CI_EXPERIMENT_RUNS_ON_NOT_REWRITABLE`, `RUNNERS_CI_EXPERIMENT_TARGET_NOT_FOUND`, `RUNNERS_CI_EXPERIMENT_TEMPLATE_NOT_FOUND`, `RUNNERS_CI_EXPERIMENT_UNAVAILABLE`, `RUNNERS_CI_EXPERIMENT_WORKFLOW_NOT_REWRITABLE`, `RUNNERS_CI_RUN_GITHUB_ACCOUNT_NOT_FOUND`, `RUNNERS_CI_RUN_GITHUB_NOT_LINKED`, `RUNNERS_CI_RUN_WRITE_REQUIRED`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ci/experiments/pull-request": {
+      "post": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "Open a pull request from a CI experiment",
+        "operationId": "post_pull_request",
+        "requestBody": {
+          "description": "A JSON object; unknown keys are refused",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "The opened pull request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicCiExperimentPullRequest"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_CI_EXPERIMENTS_NOT_ENABLED`, `RUNNERS_CI_EXPERIMENT_CANNOT_START`, `RUNNERS_CI_EXPERIMENT_COMMIT_NOT_IN_REPOSITORY`, `RUNNERS_CI_EXPERIMENT_JOB_NOT_FOUND`, `RUNNERS_CI_EXPERIMENT_NO_DEFAULT_BRANCH`, `RUNNERS_CI_EXPERIMENT_ON_NOT_REWRITABLE`, `RUNNERS_CI_EXPERIMENT_PERMISSIONS_NOT_GRANTED`, `RUNNERS_CI_EXPERIMENT_PULL_REQUEST_FILE_CHANGED`, `RUNNERS_CI_EXPERIMENT_PULL_REQUEST_JOB_NOT_ELIGIBLE`, `RUNNERS_CI_EXPERIMENT_PULL_REQUEST_NO_DEFAULT_BRANCH`, `RUNNERS_CI_EXPERIMENT_PULL_REQUEST_RUNS_ON_IS_EXPRESSION`, `RUNNERS_CI_EXPERIMENT_PULL_REQUEST_RUNS_ON_UNCHANGED`, `RUNNERS_CI_EXPERIMENT_PULL_REQUEST_TREE_TRUNCATED`, `RUNNERS_CI_EXPERIMENT_PULL_REQUEST_UNAVAILABLE`, `RUNNERS_CI_EXPERIMENT_REQUEST_CONFLICT`, `RUNNERS_CI_EXPERIMENT_REUSABLE_WORKFLOW_JOB`, `RUNNERS_CI_EXPERIMENT_RUNS_ON_NOT_REWRITABLE`, `RUNNERS_CI_EXPERIMENT_TARGET_NOT_FOUND`, `RUNNERS_CI_EXPERIMENT_TEMPLATE_NOT_FOUND`, `RUNNERS_CI_EXPERIMENT_UNAVAILABLE`, `RUNNERS_CI_EXPERIMENT_WORKFLOW_NOT_REWRITABLE`, `RUNNERS_CI_RUN_GITHUB_ACCOUNT_NOT_FOUND`, `RUNNERS_CI_RUN_GITHUB_NOT_LINKED`, `RUNNERS_CI_RUN_WRITE_REQUIRED`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ci/job-log": {
+      "get": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "Get a CI job's log",
+        "operationId": "get_job_log",
+        "parameters": [
+          {
+            "name": "githubHost",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "owner",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "repo",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "jobId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "One page of the job log",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicJobLog"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ci/job-metrics": {
+      "get": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "Get the runner metrics of a CI job",
+        "operationId": "get_job_metrics",
+        "parameters": [
+          {
+            "name": "githubHost",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "owner",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "repo",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "jobId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The metrics of the runner that ran the job",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicJobMetrics"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/live": {
+      "get": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "List the live runners",
+        "operationId": "get_live",
+        "responses": {
+          "200": {
+            "description": "The live runners of the organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicLiveRunners"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/openapi.json": {
+      "get": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "Get this OpenAPI document",
+        "operationId": "get_runners_spec",
+        "responses": {
+          "200": {
+            "description": "This document",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/repo-regions": {
+      "get": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "List the per-repository CI regions",
+        "operationId": "get_repo_regions",
+        "responses": {
+          "200": {
+            "description": "The per-repository CI regions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicRepoRegions"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_CI_CONFIG_INVALID`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `RUNNERS_REPOSITORY_NOT_FOUND`, `RUNNERS_TEMPLATE_IS_MODULE`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/repo-regions/{githubOrgId}/{repo}": {
+      "put": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "Set a repository's CI region",
+        "operationId": "put_repo_region",
+        "parameters": [
+          {
+            "name": "githubOrgId",
+            "in": "path",
+            "description": "Numeric GitHub organization id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "repo",
+            "in": "path",
+            "description": "Repository name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "A JSON object; unknown keys are refused",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The saved region",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicRepoRegion"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_CI_CONFIG_INVALID`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `RUNNERS_REPOSITORY_NOT_FOUND`, `RUNNERS_TEMPLATE_IS_MODULE`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "Reset a repository's CI region",
+        "operationId": "delete_repo_region",
+        "parameters": [
+          {
+            "name": "githubOrgId",
+            "in": "path",
+            "description": "Numeric GitHub organization id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "repo",
+            "in": "path",
+            "description": "Repository name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The repository follows the organization default"
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_CI_CONFIG_INVALID`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `RUNNERS_REPOSITORY_NOT_FOUND`, `RUNNERS_TEMPLATE_IS_MODULE`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/repo-runner-groups": {
+      "get": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "List repositories with their runner group",
+        "operationId": "get_repo_runner_groups",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "nonBlocking",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "misconfigured",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "runnerGroupId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "githubOrgId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "One page of repositories with their runner group",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicRepoRunnerGroupPage"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `RUNNERS_RUNNER_GROUP_INVALID`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/runner-groups": {
+      "get": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "List the runner groups",
+        "operationId": "get_runner_groups",
+        "responses": {
+          "200": {
+            "description": "The runner group pool",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicRunnerGroupPool"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `RUNNERS_RUNNER_GROUP_INVALID`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/templates": {
+      "get": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "List templates",
+        "operationId": "list_templates",
+        "parameters": [
+          {
+            "name": "kind",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The templates of the organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PublicTemplate"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `RUNNERS_TEMPLATE_INVALID`, `RUNNERS_TEMPLATE_NOT_FOUND`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "Create a template",
+        "operationId": "create_template",
+        "requestBody": {
+          "description": "A JSON object; unknown keys are refused",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "The created template",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicTemplateDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `RUNNERS_TEMPLATE_BUNDLE_TOO_LARGE`, `RUNNERS_TEMPLATE_CHECKOUT_NO_SOURCE`, `RUNNERS_TEMPLATE_DRAFT_PENDING`, `RUNNERS_TEMPLATE_IMPORT_NAME_TAKEN`, `RUNNERS_TEMPLATE_INCLUDED`, `RUNNERS_TEMPLATE_INCLUDE_NOT_MODULE`, `RUNNERS_TEMPLATE_INVALID`, `RUNNERS_TEMPLATE_INVALID_IMPORT`, `RUNNERS_TEMPLATE_INVALID_STEPS`, `RUNNERS_TEMPLATE_KIND_IMMUTABLE`, `RUNNERS_TEMPLATE_LEGACY_FIELD_REMOVED`, `RUNNERS_TEMPLATE_MANAGED_ELSEWHERE`, `RUNNERS_TEMPLATE_MODULE_IMPORT_FAILED`, `RUNNERS_TEMPLATE_MODULE_IN_USE`, `RUNNERS_TEMPLATE_MODULE_NOT_FOUND`, `RUNNERS_TEMPLATE_MODULE_NOT_PINNED`, `RUNNERS_TEMPLATE_MODULE_NOT_PUBLIC`, `RUNNERS_TEMPLATE_NAME_OR_INCLUDES_CONFLICT`, `RUNNERS_TEMPLATE_NEEDS_CONVERSION`, `RUNNERS_TEMPLATE_NEEDS_MODULE_EDITOR`, `RUNNERS_TEMPLATE_NOT_FOUND`, `RUNNERS_TEMPLATE_NO_DRAFT`, `RUNNERS_TEMPLATE_NO_INSTALLATION`, `RUNNERS_TEMPLATE_REGIONS_NEED_ADMIN`, `RUNNERS_TEMPLATE_STALE`, `RUNNERS_TEMPLATE_UNPROCESSABLE`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/templates/{id}": {
+      "get": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "Get a template",
+        "operationId": "get_template",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Template id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "One template",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicTemplateDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `RUNNERS_TEMPLATE_INVALID`, `RUNNERS_TEMPLATE_NOT_FOUND`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "Delete a template",
+        "operationId": "delete_template",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Template id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The template is deleted"
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `RUNNERS_TEMPLATE_BUNDLE_TOO_LARGE`, `RUNNERS_TEMPLATE_CHECKOUT_NO_SOURCE`, `RUNNERS_TEMPLATE_DRAFT_PENDING`, `RUNNERS_TEMPLATE_IMPORT_NAME_TAKEN`, `RUNNERS_TEMPLATE_INCLUDED`, `RUNNERS_TEMPLATE_INCLUDE_NOT_MODULE`, `RUNNERS_TEMPLATE_INVALID`, `RUNNERS_TEMPLATE_INVALID_IMPORT`, `RUNNERS_TEMPLATE_INVALID_STEPS`, `RUNNERS_TEMPLATE_KIND_IMMUTABLE`, `RUNNERS_TEMPLATE_LEGACY_FIELD_REMOVED`, `RUNNERS_TEMPLATE_MANAGED_ELSEWHERE`, `RUNNERS_TEMPLATE_MODULE_IMPORT_FAILED`, `RUNNERS_TEMPLATE_MODULE_IN_USE`, `RUNNERS_TEMPLATE_MODULE_NOT_FOUND`, `RUNNERS_TEMPLATE_MODULE_NOT_PINNED`, `RUNNERS_TEMPLATE_MODULE_NOT_PUBLIC`, `RUNNERS_TEMPLATE_NAME_OR_INCLUDES_CONFLICT`, `RUNNERS_TEMPLATE_NEEDS_CONVERSION`, `RUNNERS_TEMPLATE_NEEDS_MODULE_EDITOR`, `RUNNERS_TEMPLATE_NOT_FOUND`, `RUNNERS_TEMPLATE_NO_DRAFT`, `RUNNERS_TEMPLATE_NO_INSTALLATION`, `RUNNERS_TEMPLATE_REGIONS_NEED_ADMIN`, `RUNNERS_TEMPLATE_STALE`, `RUNNERS_TEMPLATE_UNPROCESSABLE`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "Update a template",
+        "operationId": "patch_template",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Template id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "A JSON object; unknown keys are refused",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The changed template",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicTemplateDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `RUNNERS_TEMPLATE_BUNDLE_TOO_LARGE`, `RUNNERS_TEMPLATE_CHECKOUT_NO_SOURCE`, `RUNNERS_TEMPLATE_DRAFT_PENDING`, `RUNNERS_TEMPLATE_IMPORT_NAME_TAKEN`, `RUNNERS_TEMPLATE_INCLUDED`, `RUNNERS_TEMPLATE_INCLUDE_NOT_MODULE`, `RUNNERS_TEMPLATE_INVALID`, `RUNNERS_TEMPLATE_INVALID_IMPORT`, `RUNNERS_TEMPLATE_INVALID_STEPS`, `RUNNERS_TEMPLATE_KIND_IMMUTABLE`, `RUNNERS_TEMPLATE_LEGACY_FIELD_REMOVED`, `RUNNERS_TEMPLATE_MANAGED_ELSEWHERE`, `RUNNERS_TEMPLATE_MODULE_IMPORT_FAILED`, `RUNNERS_TEMPLATE_MODULE_IN_USE`, `RUNNERS_TEMPLATE_MODULE_NOT_FOUND`, `RUNNERS_TEMPLATE_MODULE_NOT_PINNED`, `RUNNERS_TEMPLATE_MODULE_NOT_PUBLIC`, `RUNNERS_TEMPLATE_NAME_OR_INCLUDES_CONFLICT`, `RUNNERS_TEMPLATE_NEEDS_CONVERSION`, `RUNNERS_TEMPLATE_NEEDS_MODULE_EDITOR`, `RUNNERS_TEMPLATE_NOT_FOUND`, `RUNNERS_TEMPLATE_NO_DRAFT`, `RUNNERS_TEMPLATE_NO_INSTALLATION`, `RUNNERS_TEMPLATE_REGIONS_NEED_ADMIN`, `RUNNERS_TEMPLATE_STALE`, `RUNNERS_TEMPLATE_UNPROCESSABLE`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/templates/{id}/builds": {
+      "get": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "List a template's builds",
+        "operationId": "get_template_builds",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Template id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "region",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "includeSuperseded",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The builds of the template",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicTemplateBuilds"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `RUNNERS_TEMPLATE_BUILD_LOGS_WITHHELD`, `RUNNERS_TEMPLATE_BUILD_NOT_STARTED`, `RUNNERS_TEMPLATE_IS_MODULE`, `RUNNERS_TEMPLATE_NOT_COMPOSABLE`, `RUNNERS_TEMPLATE_NOT_FOUND`, `RUNNERS_TEMPLATE_READ_UNAVAILABLE`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/templates/{id}/draft": {
+      "post": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "Save a template draft",
+        "operationId": "save_template_draft",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Template id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "A JSON object; unknown keys are refused",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The template with its draft",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicTemplateDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The draft needs confirmed approvals, or its settings conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncludeConflict"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_GITHUB_UNREADABLE`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `RUNNERS_TEMPLATE_APPROVALS_UNCONFIRMED`, `RUNNERS_TEMPLATE_CONFLICT`, `RUNNERS_TEMPLATE_INCLUDE_CROSSES_SOURCE`, `RUNNERS_TEMPLATE_INCLUDE_CYCLE`, `RUNNERS_TEMPLATE_INCLUDE_DUPLICATE`, `RUNNERS_TEMPLATE_INCLUDE_NOT_FOUND`, `RUNNERS_TEMPLATE_INCLUDE_NOT_TEMPLATE`, `RUNNERS_TEMPLATE_INCLUDE_TOO_DEEP`, `RUNNERS_TEMPLATE_INHERITED_GRANT_NEEDS_ADMIN`, `RUNNERS_TEMPLATE_MANAGED_ELSEWHERE`, `RUNNERS_TEMPLATE_MODULE_CANNOT_INCLUDE`, `RUNNERS_TEMPLATE_NEEDS_MODULE_EDITOR`, `RUNNERS_TEMPLATE_REPOSITORY_CHECK_UNAVAILABLE`, `RUNNERS_TEMPLATE_REPOSITORY_HOST_NOT_SUPPORTED`, `RUNNERS_TEMPLATE_REPOSITORY_NOT_READABLE`, `RUNNERS_TEMPLATE_SETTING_CONFLICT`, `RUNNERS_TEMPLATE_STALE`, `RUNNERS_TEMPLATE_UNPROCESSABLE`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "Discard a template draft",
+        "operationId": "discard_template_draft",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Template id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The draft is discarded"
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_GITHUB_UNREADABLE`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `RUNNERS_TEMPLATE_APPROVALS_UNCONFIRMED`, `RUNNERS_TEMPLATE_CONFLICT`, `RUNNERS_TEMPLATE_INCLUDE_CROSSES_SOURCE`, `RUNNERS_TEMPLATE_INCLUDE_CYCLE`, `RUNNERS_TEMPLATE_INCLUDE_DUPLICATE`, `RUNNERS_TEMPLATE_INCLUDE_NOT_FOUND`, `RUNNERS_TEMPLATE_INCLUDE_NOT_TEMPLATE`, `RUNNERS_TEMPLATE_INCLUDE_TOO_DEEP`, `RUNNERS_TEMPLATE_INHERITED_GRANT_NEEDS_ADMIN`, `RUNNERS_TEMPLATE_MANAGED_ELSEWHERE`, `RUNNERS_TEMPLATE_MODULE_CANNOT_INCLUDE`, `RUNNERS_TEMPLATE_NEEDS_MODULE_EDITOR`, `RUNNERS_TEMPLATE_REPOSITORY_CHECK_UNAVAILABLE`, `RUNNERS_TEMPLATE_REPOSITORY_HOST_NOT_SUPPORTED`, `RUNNERS_TEMPLATE_REPOSITORY_NOT_READABLE`, `RUNNERS_TEMPLATE_SETTING_CONFLICT`, `RUNNERS_TEMPLATE_STALE`, `RUNNERS_TEMPLATE_UNPROCESSABLE`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/templates/{id}/extract-module": {
+      "post": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "Extract a module from a template",
+        "operationId": "extract_module",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Template id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "A JSON object; unknown keys are refused",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The template after the split",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicTemplateDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `RUNNERS_TEMPLATE_MODULE_IMPORT_NOT_FOUND`, `RUNNERS_TEMPLATE_MODULE_NOT_LOCKED`, `RUNNERS_TEMPLATE_MODULE_UPDATE_FAILED`, `RUNNERS_TEMPLATE_MODULE_UPDATE_MOVED`, `RUNNERS_TEMPLATE_MODULE_UPDATE_UNAVAILABLE`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/templates/{id}/files": {
+      "get": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "List the files a template export writes",
+        "operationId": "get_template_files",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Template id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sourceId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The files an export of the template writes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicTemplateFiles"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `RUNNERS_TEMPLATE_INVALID`, `RUNNERS_TEMPLATE_NOT_FOUND`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/templates/{id}/make-template": {
+      "post": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "Make a template from a module",
+        "operationId": "make_template",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Template id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "A JSON object; unknown keys are refused",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "The new template",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicTemplateDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `RUNNERS_TEMPLATE_MODULE_IMPORT_NOT_FOUND`, `RUNNERS_TEMPLATE_MODULE_NOT_LOCKED`, `RUNNERS_TEMPLATE_MODULE_UPDATE_FAILED`, `RUNNERS_TEMPLATE_MODULE_UPDATE_MOVED`, `RUNNERS_TEMPLATE_MODULE_UPDATE_UNAVAILABLE`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/templates/{id}/module-updates": {
+      "post": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "Update a template's modules",
+        "operationId": "post_module_update",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Template id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "A JSON object; unknown keys are refused",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The module update or its preview",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicModuleUpdate"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `RUNNERS_TEMPLATE_MODULE_IMPORT_NOT_FOUND`, `RUNNERS_TEMPLATE_MODULE_NOT_LOCKED`, `RUNNERS_TEMPLATE_MODULE_UPDATE_FAILED`, `RUNNERS_TEMPLATE_MODULE_UPDATE_MOVED`, `RUNNERS_TEMPLATE_MODULE_UPDATE_UNAVAILABLE`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/templates/{id}/publish": {
+      "post": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "Publish a template",
+        "operationId": "publish_template",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Template id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "A JSON object; unknown keys are refused",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The published template",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicTemplateDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_GITHUB_UNREADABLE`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `RUNNERS_TEMPLATE_APPROVALS_UNCONFIRMED`, `RUNNERS_TEMPLATE_CONFLICT`, `RUNNERS_TEMPLATE_INCLUDE_CROSSES_SOURCE`, `RUNNERS_TEMPLATE_INCLUDE_CYCLE`, `RUNNERS_TEMPLATE_INCLUDE_DUPLICATE`, `RUNNERS_TEMPLATE_INCLUDE_NOT_FOUND`, `RUNNERS_TEMPLATE_INCLUDE_NOT_TEMPLATE`, `RUNNERS_TEMPLATE_INCLUDE_TOO_DEEP`, `RUNNERS_TEMPLATE_INHERITED_GRANT_NEEDS_ADMIN`, `RUNNERS_TEMPLATE_MANAGED_ELSEWHERE`, `RUNNERS_TEMPLATE_MODULE_CANNOT_INCLUDE`, `RUNNERS_TEMPLATE_NEEDS_MODULE_EDITOR`, `RUNNERS_TEMPLATE_REPOSITORY_CHECK_UNAVAILABLE`, `RUNNERS_TEMPLATE_REPOSITORY_HOST_NOT_SUPPORTED`, `RUNNERS_TEMPLATE_REPOSITORY_NOT_READABLE`, `RUNNERS_TEMPLATE_SETTING_CONFLICT`, `RUNNERS_TEMPLATE_STALE`, `RUNNERS_TEMPLATE_UNPROCESSABLE`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/templates/{id}/regions/{region}/build-logs": {
+      "get": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "Get a template build's logs",
+        "operationId": "get_template_build_logs",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Template id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "region",
+            "in": "path",
+            "description": "Region id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "buildId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "severityAtLeast",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "source",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "unit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "container",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The logs of one build",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicBuildLogs"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `RUNNERS_TEMPLATE_BUILD_LOGS_WITHHELD`, `RUNNERS_TEMPLATE_BUILD_NOT_STARTED`, `RUNNERS_TEMPLATE_IS_MODULE`, `RUNNERS_TEMPLATE_NOT_COMPOSABLE`, `RUNNERS_TEMPLATE_NOT_FOUND`, `RUNNERS_TEMPLATE_READ_UNAVAILABLE`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/templates/{id}/regions/{region}/build-logs/facets": {
+      "get": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "List a template build's units and containers",
+        "operationId": "get_template_build_log_facets",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Template id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "region",
+            "in": "path",
+            "description": "Region id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "buildId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The units and containers of one build",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicBuildLogFacets"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `RUNNERS_TEMPLATE_BUILD_LOGS_WITHHELD`, `RUNNERS_TEMPLATE_BUILD_NOT_STARTED`, `RUNNERS_TEMPLATE_IS_MODULE`, `RUNNERS_TEMPLATE_NOT_COMPOSABLE`, `RUNNERS_TEMPLATE_NOT_FOUND`, `RUNNERS_TEMPLATE_READ_UNAVAILABLE`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/templates/{id}/regions/{region}/end-hold": {
+      "post": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "End a template release hold",
+        "operationId": "end_hold",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Template id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "region",
+            "in": "path",
+            "description": "Region id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The result of the release action",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicReleaseActionResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `RUNNERS_TEMPLATE_BUILD_CAP_REACHED`, `RUNNERS_TEMPLATE_BUNDLE_TOO_LARGE`, `RUNNERS_TEMPLATE_NOT_BUILDABLE`, `RUNNERS_TEMPLATE_NOT_HELD`, `RUNNERS_TEMPLATE_NO_PREVIOUS_RELEASE`, `RUNNERS_TEMPLATE_RELEASE_CHANGED`, `RUNNERS_TEMPLATE_RELEASE_CONFLICT`, `RUNNERS_TEMPLATE_RELEASE_ENV_UNORDERED`, `RUNNERS_TEMPLATE_UNHASHED`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/templates/{id}/regions/{region}/rebuild": {
+      "post": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "Rebuild a template in a region",
+        "operationId": "rebuild",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Template id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "region",
+            "in": "path",
+            "description": "Region id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The result of the release action",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicReleaseActionResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `RUNNERS_TEMPLATE_BUILD_CAP_REACHED`, `RUNNERS_TEMPLATE_BUNDLE_TOO_LARGE`, `RUNNERS_TEMPLATE_NOT_BUILDABLE`, `RUNNERS_TEMPLATE_NOT_HELD`, `RUNNERS_TEMPLATE_NO_PREVIOUS_RELEASE`, `RUNNERS_TEMPLATE_RELEASE_CHANGED`, `RUNNERS_TEMPLATE_RELEASE_CONFLICT`, `RUNNERS_TEMPLATE_RELEASE_ENV_UNORDERED`, `RUNNERS_TEMPLATE_UNHASHED`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/templates/{id}/regions/{region}/rollback": {
+      "post": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "Roll back a template in a region",
+        "operationId": "rollback",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Template id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "region",
+            "in": "path",
+            "description": "Region id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "A JSON object; unknown keys are refused",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The result of the release action",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicReleaseActionResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `RUNNERS_TEMPLATE_BUILD_CAP_REACHED`, `RUNNERS_TEMPLATE_BUNDLE_TOO_LARGE`, `RUNNERS_TEMPLATE_NOT_BUILDABLE`, `RUNNERS_TEMPLATE_NOT_HELD`, `RUNNERS_TEMPLATE_NO_PREVIOUS_RELEASE`, `RUNNERS_TEMPLATE_RELEASE_CHANGED`, `RUNNERS_TEMPLATE_RELEASE_CONFLICT`, `RUNNERS_TEMPLATE_RELEASE_ENV_UNORDERED`, `RUNNERS_TEMPLATE_UNHASHED`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/templates/{id}/restore-template": {
+      "post": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "Restore a template",
+        "operationId": "restore_template",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Template id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The restored template",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicTemplateDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `RUNNERS_TEMPLATE_MODULE_IMPORT_NOT_FOUND`, `RUNNERS_TEMPLATE_MODULE_NOT_LOCKED`, `RUNNERS_TEMPLATE_MODULE_UPDATE_FAILED`, `RUNNERS_TEMPLATE_MODULE_UPDATE_MOVED`, `RUNNERS_TEMPLATE_MODULE_UPDATE_UNAVAILABLE`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/usage": {
+      "get": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "Get the organization's runner usage",
+        "operationId": "get_usage",
+        "parameters": [
+          {
+            "name": "window",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The usage of the organization in the window",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicUsage"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `RUNNERS_USAGE_UNAVAILABLE`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/usage/job-measurements": {
+      "post": {
+        "tags": [
+          "Runners"
+        ],
+        "summary": "Get the measurements of CI jobs",
+        "operationId": "post_job_measurements",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublicJobMeasurementsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The measurements of the jobs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicJobMeasurements"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`UNAUTHORIZED`: no user credential or no organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "A refusal in the envelope. Codes: `INSUFFICIENT_PERMISSIONS`, `INTERNAL_ERROR`, `RUNNERS_ORGANIZATION_NOT_FOUND`, `UPSTREAM_ERROR`, `VALIDATION_FAILED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnersErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "DraftCodedError": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "IncludeConflict": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "error",
+              "approvals"
+            ],
+            "properties": {
+              "approvals": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/PublicApproval"
+                }
+              },
+              "error": {
+                "$ref": "#/components/schemas/DraftCodedError"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "error",
+              "conflict"
+            ],
+            "properties": {
+              "conflict": {
+                "$ref": "#/components/schemas/PublicSettingConflict"
+              },
+              "error": {
+                "$ref": "#/components/schemas/DraftCodedError"
+              }
+            }
+          }
+        ]
+      },
+      "PublicAdapterCacheSettings": {
+        "type": "object",
+        "properties": {
+          "actions": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "bazel": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "go": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "gradle": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "nix": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "nx": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "sccache": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          }
+        }
+      },
+      "PublicAdapterShareScopes": {
+        "type": "object",
+        "properties": {
+          "bazel": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "go": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "gradle": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "nix": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "nx": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "sccache": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "PublicAmounts": {
+        "type": "object",
+        "required": [
+          "jobs",
+          "vcpuHours",
+          "memoryGibHours"
+        ],
+        "properties": {
+          "jobs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "memoryGibHours": {
+            "type": "number",
+            "format": "double"
+          },
+          "vcpuHours": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "PublicApproval": {
+        "type": "object",
+        "required": [
+          "kind",
+          "grantId",
+          "label",
+          "templateId",
+          "sourceTemplateId"
+        ],
+        "properties": {
+          "grantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "sourceTemplateId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "templateId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "PublicBuildAccess": {
+        "type": "object",
+        "required": [
+          "scope",
+          "repositories"
+        ],
+        "properties": {
+          "repositories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "scope": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicBuildLogEntry": {
+        "type": "object",
+        "required": [
+          "timestamp",
+          "severityText",
+          "severityNumber",
+          "source",
+          "systemdUnit",
+          "containerName",
+          "body"
+        ],
+        "properties": {
+          "body": {
+            "type": "string"
+          },
+          "containerName": {
+            "type": "string"
+          },
+          "severityNumber": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "severityText": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "systemdUnit": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicBuildLogFacets": {
+        "type": "object",
+        "required": [
+          "units",
+          "containers"
+        ],
+        "properties": {
+          "containers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "units": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "PublicBuildLogs": {
+        "type": "object",
+        "required": [
+          "templateId",
+          "region",
+          "build",
+          "window",
+          "logs"
+        ],
+        "properties": {
+          "build": {
+            "$ref": "#/components/schemas/PublicBuildLogsBuild"
+          },
+          "logs": {
+            "$ref": "#/components/schemas/PublicBuildLogsPage"
+          },
+          "region": {
+            "type": "string"
+          },
+          "templateId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "window": {
+            "$ref": "#/components/schemas/PublicBuildLogsWindow"
+          }
+        }
+      },
+      "PublicBuildLogsBuild": {
+        "type": "object",
+        "required": [
+          "buildId",
+          "status",
+          "current",
+          "nightlyRebuild",
+          "attempts"
+        ],
+        "properties": {
+          "attempts": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "buildId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "buildStartedAt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "builtAt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "current": {
+            "type": "boolean"
+          },
+          "failedAt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "nightlyRebuild": {
+            "type": "boolean"
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicBuildLogsPage": {
+        "type": "object",
+        "required": [
+          "entries"
+        ],
+        "properties": {
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicBuildLogEntry"
+            }
+          },
+          "nextCursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "PublicBuildLogsWindow": {
+        "type": "object",
+        "required": [
+          "startedAt",
+          "endedAt",
+          "retentionExpiresAt",
+          "beyondRetention",
+          "truncated"
+        ],
+        "properties": {
+          "beyondRetention": {
+            "type": "boolean"
+          },
+          "endedAt": {
+            "type": "string"
+          },
+          "retentionExpiresAt": {
+            "type": "string"
+          },
+          "startedAt": {
+            "type": "string"
+          },
+          "truncated": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PublicCacheCaps": {
+        "type": "object",
+        "description": "A cache cap for each cache type, in GiB; an adapter with no value is left out.",
+        "properties": {
+          "actions": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "bazel": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "go": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "gradle": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nix": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nx": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "sccache": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "PublicCacheEntries": {
+        "type": "object",
+        "required": [
+          "entries"
+        ],
+        "properties": {
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicCacheEntry"
+            }
+          },
+          "nextCursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "totalBytes": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "double"
+          },
+          "totalCount": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "double"
+          }
+        }
+      },
+      "PublicCacheEntry": {
+        "type": "object",
+        "required": [
+          "namespace",
+          "scope",
+          "key",
+          "version",
+          "sizeBytes",
+          "createdAt",
+          "lastAccessedAt",
+          "expiresAt"
+        ],
+        "properties": {
+          "createdAt": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "lastAccessedAt": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "scope": {
+            "$ref": "#/components/schemas/PublicCacheEntryScope"
+          },
+          "sizeBytes": {
+            "type": "number",
+            "format": "double"
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicCacheEntryScope": {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicCacheEvictionDay": {
+        "type": "object",
+        "required": [
+          "day",
+          "namespace",
+          "reason",
+          "entries",
+          "bytes"
+        ],
+        "properties": {
+          "bytes": {
+            "type": "number",
+            "format": "double"
+          },
+          "day": {
+            "type": "string"
+          },
+          "entries": {
+            "type": "number",
+            "format": "double"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicCacheEvictions": {
+        "type": "object",
+        "required": [
+          "days"
+        ],
+        "properties": {
+          "days": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicCacheEvictionDay"
+            }
+          }
+        }
+      },
+      "PublicCacheNamespace": {
+        "type": "object",
+        "required": [
+          "namespace",
+          "entries",
+          "bytes",
+          "oldestLastAccessedAt"
+        ],
+        "properties": {
+          "bytes": {
+            "type": "number",
+            "format": "double"
+          },
+          "capBytes": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "double"
+          },
+          "entries": {
+            "type": "number",
+            "format": "double"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "oldestLastAccessedAt": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicCachePolicy": {
+        "type": "object",
+        "required": [
+          "entryTtlDays",
+          "capBytes"
+        ],
+        "properties": {
+          "capBytes": {
+            "type": "number",
+            "format": "double"
+          },
+          "entryTtlDays": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "PublicCachePurge": {
+        "type": "object",
+        "required": [
+          "id",
+          "state",
+          "requestedAt",
+          "requestedBy",
+          "filter",
+          "deletedEntries",
+          "deletedBytes"
+        ],
+        "properties": {
+          "deletedBytes": {
+            "type": "number",
+            "format": "double"
+          },
+          "deletedEntries": {
+            "type": "number",
+            "format": "double"
+          },
+          "filter": {
+            "$ref": "#/components/schemas/PublicCachePurgeFilter"
+          },
+          "finishedAt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "requestedAt": {
+            "type": "string"
+          },
+          "requestedBy": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicCachePurgeFilter": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "keyPrefix": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "namespace": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "scope": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "version": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "PublicCachePurges": {
+        "type": "object",
+        "required": [
+          "purges"
+        ],
+        "properties": {
+          "purges": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicCachePurge"
+            }
+          }
+        }
+      },
+      "PublicCacheRepoUsage": {
+        "type": "object",
+        "required": [
+          "policy",
+          "namespaces"
+        ],
+        "properties": {
+          "namespaces": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicCacheNamespace"
+            }
+          },
+          "policy": {
+            "$ref": "#/components/schemas/PublicCachePolicy"
+          },
+          "sharedCaps": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/PublicCacheSharedCap"
+            }
+          }
+        }
+      },
+      "PublicCacheSharedCap": {
+        "type": "object",
+        "required": [
+          "namespaces",
+          "bytes",
+          "capBytes"
+        ],
+        "properties": {
+          "bytes": {
+            "type": "number",
+            "format": "double"
+          },
+          "capBytes": {
+            "type": "number",
+            "format": "double"
+          },
+          "namespaces": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "PublicCacheUsage": {
+        "type": "object",
+        "required": [
+          "totals",
+          "totalsTruncated",
+          "repositories",
+          "other",
+          "unavailableRegions",
+          "skipped"
+        ],
+        "properties": {
+          "nextCursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "other": {
+            "default": null
+          },
+          "repositories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicRepoUsage"
+            }
+          },
+          "skipped": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "totals": {
+            "$ref": "#/components/schemas/PublicUsageTotals"
+          },
+          "totalsTruncated": {
+            "type": "boolean"
+          },
+          "unavailableRegions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "PublicCapUsage": {
+        "type": "object",
+        "required": [
+          "namespaces",
+          "bytes",
+          "capBytes"
+        ],
+        "properties": {
+          "bytes": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "capBytes": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "namespaces": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "PublicCiConfig": {
+        "type": "object",
+        "description": "The relay's `KilnCiConfig`: `defaultSize` and `ciTokenAnchor` are not on it.",
+        "required": [
+          "sharedCacheEnabled",
+          "adapterCacheSettings",
+          "adapterCacheShareScopes"
+        ],
+        "properties": {
+          "adapterCacheSettings": {
+            "$ref": "#/components/schemas/PublicOrgAdapterCacheSettings"
+          },
+          "adapterCacheShareScopes": {
+            "$ref": "#/components/schemas/PublicOrgAdapterShareScopes"
+          },
+          "cacheMaxGibByAdapter": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PublicCacheCaps",
+                "description": "The org's cache cap in GiB for each cache type, or `null` when no type has one (ADR-0086\n§Update 2026-11-13)."
+              }
+            ]
+          },
+          "cacheMaxGibEffectiveByAdapter": {
+            "$ref": "#/components/schemas/PublicEffectiveCacheCaps"
+          },
+          "cacheRepoMaxGibLimit": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Absent, with the next field, when the staff flags could not be read."
+          },
+          "defaultRegion": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "defaultTemplateId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "pollMode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "priorityRefConditions": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PublicPriorityRefConditions"
+              }
+            ]
+          },
+          "sharedCacheEnabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PublicCiExperiment": {
+        "type": "object",
+        "required": [
+          "branch",
+          "commitSha",
+          "branchUrl",
+          "actionsUrl"
+        ],
+        "properties": {
+          "actionsUrl": {
+            "type": "string"
+          },
+          "branch": {
+            "type": "string"
+          },
+          "branchUrl": {
+            "type": "string"
+          },
+          "commitSha": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicCiExperimentPreflight": {
+        "type": "object",
+        "required": [
+          "canStart"
+        ],
+        "properties": {
+          "canStart": {
+            "type": "boolean"
+          },
+          "commitSha": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "headBranch": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "reason": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PublicPreflightReason"
+              }
+            ]
+          }
+        }
+      },
+      "PublicCiExperimentPullRequest": {
+        "type": "object",
+        "required": [
+          "number",
+          "branch",
+          "reusedExisting"
+        ],
+        "properties": {
+          "branch": {
+            "type": "string"
+          },
+          "number": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "reusedExisting": {
+            "type": "boolean"
+          },
+          "url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "PublicCiRegions": {
+        "type": "object",
+        "required": [
+          "regions"
+        ],
+        "properties": {
+          "regions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "PublicCiRunner": {
+        "type": "object",
+        "required": [
+          "status",
+          "region",
+          "cpu",
+          "memoryBytes",
+          "createdAt"
+        ],
+        "properties": {
+          "cpu": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "memoryBytes": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "region": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "stoppedAt": {
+            "type": "string"
+          },
+          "templateName": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicConflict": {
+        "type": "object",
+        "required": [
+          "setting",
+          "templateId",
+          "sources"
+        ],
+        "properties": {
+          "setting": {
+            "type": "string"
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicConflictSource"
+            }
+          },
+          "templateId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "PublicConflictSource": {
+        "type": "object",
+        "required": [
+          "templateId",
+          "templateName",
+          "value"
+        ],
+        "properties": {
+          "templateId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "templateName": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicContentSummary": {
+        "type": "object",
+        "required": [
+          "envVarKeys",
+          "checkoutRepositories",
+          "scriptCount"
+        ],
+        "properties": {
+          "checkoutRepositories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "envVarKeys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "scriptCount": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "PublicDraft": {
+        "type": "object",
+        "required": [
+          "steps",
+          "modules",
+          "envVars",
+          "envVarKeys"
+        ],
+        "properties": {
+          "envVarKeys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "envVars": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicEnvVar"
+            }
+          },
+          "modules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicModuleImport"
+            }
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicStep"
+            }
+          },
+          "templateIncludes": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/PublicTemplateInclude"
+            }
+          }
+        }
+      },
+      "PublicDraftConflictSource": {
+        "type": "object",
+        "required": [
+          "templateId",
+          "templateName",
+          "value"
+        ],
+        "properties": {
+          "templateId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "templateName": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicDroppedRepository": {
+        "type": "object",
+        "required": [
+          "repository",
+          "reason"
+        ],
+        "properties": {
+          "reason": {
+            "type": "string"
+          },
+          "repository": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicEffectiveCacheCaps": {
+        "type": "object",
+        "description": "The effective cache cap of every cache type, in GiB.",
+        "required": [
+          "actions",
+          "bazel",
+          "sccache",
+          "nix",
+          "gradle",
+          "nx",
+          "go"
+        ],
+        "properties": {
+          "actions": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "bazel": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "go": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "gradle": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nix": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nx": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "sccache": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "PublicEnvVar": {
+        "type": "object",
+        "required": [
+          "key"
+        ],
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "value": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "PublicHold": {
+        "type": "object",
+        "required": [
+          "region",
+          "setAt",
+          "servedIsCurrent"
+        ],
+        "properties": {
+          "region": {
+            "type": "string"
+          },
+          "servedIsCurrent": {
+            "type": "boolean"
+          },
+          "setAt": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicInheritedGrant": {
+        "type": "object",
+        "required": [
+          "kind",
+          "grantId",
+          "label",
+          "sourceTemplateId",
+          "approved"
+        ],
+        "properties": {
+          "approved": {
+            "type": "boolean"
+          },
+          "grantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "sourceTemplateId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "PublicJobLog": {
+        "type": "object",
+        "required": [
+          "lines",
+          "more",
+          "runnerEnded"
+        ],
+        "properties": {
+          "cursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicJobLogLine"
+            }
+          },
+          "more": {
+            "type": "boolean"
+          },
+          "runnerEnded": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PublicJobLogLine": {
+        "type": "object",
+        "required": [
+          "timestamp",
+          "body"
+        ],
+        "properties": {
+          "body": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicJobMeasurement": {
+        "type": "object",
+        "required": [
+          "githubOwner",
+          "repo",
+          "jobId",
+          "size",
+          "memory",
+          "vcpu",
+          "memoryGib"
+        ],
+        "properties": {
+          "completedAt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "cpuMean": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "double"
+          },
+          "githubOwner": {
+            "type": "string"
+          },
+          "jobId": {
+            "type": "string"
+          },
+          "memory": {
+            "type": "string"
+          },
+          "memoryGib": {
+            "type": "number",
+            "format": "double"
+          },
+          "memoryPeak": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "double"
+          },
+          "repo": {
+            "type": "string"
+          },
+          "size": {
+            "type": "string"
+          },
+          "startedAt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "vcpu": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "PublicJobMeasurements": {
+        "type": "object",
+        "required": [
+          "jobs"
+        ],
+        "properties": {
+          "jobs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicJobMeasurement"
+            }
+          }
+        }
+      },
+      "PublicJobMeasurementsRequest": {
+        "type": "object",
+        "required": [
+          "jobIds"
+        ],
+        "properties": {
+          "jobIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "PublicJobMetrics": {
+        "type": "object",
+        "required": [
+          "runner",
+          "window",
+          "cpu",
+          "memory",
+          "swap",
+          "network",
+          "diskIo",
+          "filesystem"
+        ],
+        "properties": {
+          "cpu": {
+            "$ref": "#/components/schemas/PublicMultiMetric"
+          },
+          "diskIo": {
+            "$ref": "#/components/schemas/PublicMultiMetric"
+          },
+          "filesystem": {
+            "$ref": "#/components/schemas/PublicMultiMetric"
+          },
+          "memory": {
+            "$ref": "#/components/schemas/PublicScalarMetric"
+          },
+          "network": {
+            "$ref": "#/components/schemas/PublicMultiMetric"
+          },
+          "runner": {
+            "$ref": "#/components/schemas/PublicCiRunner"
+          },
+          "swap": {
+            "$ref": "#/components/schemas/PublicScalarMetric"
+          },
+          "window": {
+            "$ref": "#/components/schemas/PublicTelemetryWindow"
+          }
+        }
+      },
+      "PublicLiveRunners": {
+        "type": "object",
+        "required": [
+          "totals",
+          "shapes"
+        ],
+        "properties": {
+          "shapes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicLiveShape"
+            }
+          },
+          "totals": {
+            "$ref": "#/components/schemas/PublicLiveTotals"
+          }
+        }
+      },
+      "PublicLiveShape": {
+        "type": "object",
+        "required": [
+          "size",
+          "memory",
+          "vcpu",
+          "memoryGib",
+          "runners"
+        ],
+        "properties": {
+          "memory": {
+            "type": "string"
+          },
+          "memoryGib": {
+            "type": "number",
+            "format": "double"
+          },
+          "runners": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "size": {
+            "type": "string"
+          },
+          "vcpu": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "PublicLiveTotals": {
+        "type": "object",
+        "required": [
+          "runners",
+          "vcpu",
+          "memoryGib"
+        ],
+        "properties": {
+          "memoryGib": {
+            "type": "number",
+            "format": "double"
+          },
+          "runners": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "vcpu": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "PublicMetricPoint": {
+        "type": "object",
+        "required": [
+          "t",
+          "v"
+        ],
+        "properties": {
+          "t": {
+            "type": "string"
+          },
+          "v": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "PublicMetricSeries": {
+        "type": "object",
+        "required": [
+          "label",
+          "points"
+        ],
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "points": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicMetricPoint"
+            }
+          }
+        }
+      },
+      "PublicModuleImport": {
+        "type": "object",
+        "required": [
+          "reference",
+          "moduleIdentity",
+          "importName",
+          "pins"
+        ],
+        "properties": {
+          "importName": {
+            "type": "string"
+          },
+          "lockedCommit": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "moduleIdentity": {
+            "type": "string"
+          },
+          "pins": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicModulePin"
+            }
+          },
+          "reference": {
+            "type": "string"
+          },
+          "templateId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          }
+        }
+      },
+      "PublicModulePin": {
+        "type": "object",
+        "required": [
+          "identity",
+          "commit",
+          "followedRef"
+        ],
+        "properties": {
+          "commit": {
+            "type": "string"
+          },
+          "followedRef": {
+            "type": "string"
+          },
+          "identity": {
+            "type": "string"
+          },
+          "syncedCommit": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "PublicModuleRef": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "reference": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "PublicModuleUpdate": {
+        "type": "object",
+        "required": [
+          "templateId",
+          "moduleIdentity",
+          "modules",
+          "changed",
+          "preview",
+          "warnings"
+        ],
+        "properties": {
+          "changed": {
+            "type": "boolean"
+          },
+          "fromLockedCommit": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "moduleIdentity": {
+            "type": "string"
+          },
+          "modules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicUpdatedModule"
+            }
+          },
+          "preview": {
+            "type": "boolean"
+          },
+          "templateId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "toLockedCommit": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "PublicMultiMetric": {
+        "type": "object",
+        "required": [
+          "unit",
+          "points",
+          "series"
+        ],
+        "properties": {
+          "points": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicMetricPoint"
+            }
+          },
+          "series": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicMetricSeries"
+            }
+          },
+          "unit": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicNamespaceUsage": {
+        "type": "object",
+        "required": [
+          "namespace",
+          "entries",
+          "bytes"
+        ],
+        "properties": {
+          "bytes": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "entries": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicOrgAdapterCacheSettings": {
+        "type": "object",
+        "required": [
+          "actions",
+          "bazel",
+          "sccache",
+          "nix",
+          "gradle",
+          "nx",
+          "go"
+        ],
+        "properties": {
+          "actions": {
+            "type": "boolean"
+          },
+          "bazel": {
+            "type": "boolean"
+          },
+          "go": {
+            "type": "boolean"
+          },
+          "gradle": {
+            "type": "boolean"
+          },
+          "nix": {
+            "type": "boolean"
+          },
+          "nx": {
+            "type": "boolean"
+          },
+          "sccache": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PublicOrgAdapterShareScopes": {
+        "type": "object",
+        "required": [
+          "bazel",
+          "sccache",
+          "nix",
+          "gradle",
+          "nx",
+          "go"
+        ],
+        "properties": {
+          "bazel": {
+            "type": "string"
+          },
+          "go": {
+            "type": "string"
+          },
+          "gradle": {
+            "type": "string"
+          },
+          "nix": {
+            "type": "string"
+          },
+          "nx": {
+            "type": "string"
+          },
+          "sccache": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicOrgBuild": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PublicTemplateBuild"
+          },
+          {
+            "type": "object",
+            "required": [
+              "templateId",
+              "templateName"
+            ],
+            "properties": {
+              "templateId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "templateName": {
+                "type": "string"
+              },
+              "templateSourceRef": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "PublicOrgBuilds": {
+        "type": "object",
+        "required": [
+          "builds",
+          "queuedSince"
+        ],
+        "properties": {
+          "builds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicOrgBuild"
+            }
+          },
+          "nextCursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "queuedSince": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicOwner": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PublicAmounts"
+          },
+          {
+            "type": "object",
+            "required": [
+              "githubOwner"
+            ],
+            "properties": {
+              "githubOwner": {
+                "type": "string"
+              },
+              "repos": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/PublicRepo"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "PublicPreflightReason": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicPriorityRefConditions": {
+        "type": "object",
+        "required": [
+          "include",
+          "exclude"
+        ],
+        "properties": {
+          "exclude": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "include": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "PublicRejection": {
+        "type": "object",
+        "required": [
+          "region",
+          "kind",
+          "createdAt"
+        ],
+        "properties": {
+          "createdAt": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "region": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicRelease": {
+        "type": "object",
+        "required": [
+          "region",
+          "id",
+          "buildHash",
+          "format",
+          "current",
+          "createdAt"
+        ],
+        "properties": {
+          "buildHash": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "current": {
+            "type": "boolean"
+          },
+          "format": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "region": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicReleaseActionResult": {
+        "type": "object",
+        "required": [
+          "region"
+        ],
+        "properties": {
+          "outcome": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "rebuild": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "region": {
+            "type": "string"
+          },
+          "rejected": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "PublicRendered": {
+        "type": "object",
+        "required": [
+          "segments",
+          "creationSegments",
+          "envVars",
+          "defaultPorts"
+        ],
+        "properties": {
+          "creationSegments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicSegment"
+            }
+          },
+          "defaultPorts": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 0
+            }
+          },
+          "defaultWorkdir": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "envVars": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicRenderedEnvVar"
+            }
+          },
+          "segments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicSegment"
+            }
+          },
+          "tailscaleTag": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "PublicRenderedEnvVar": {
+        "type": "object",
+        "required": [
+          "key",
+          "source"
+        ],
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "value": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "PublicRepo": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PublicAmounts"
+          },
+          {
+            "type": "object",
+            "required": [
+              "repo"
+            ],
+            "properties": {
+              "repo": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "PublicRepoCacheSetting": {
+        "type": "object",
+        "description": "The relay's `KilnRepoCacheSetting`: each adapter key present, `null` when unset.",
+        "required": [
+          "githubOrgId",
+          "owner",
+          "repo",
+          "sharedCacheEnabled"
+        ],
+        "properties": {
+          "adapterCacheSettings": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PublicAdapterCacheSettings"
+              }
+            ]
+          },
+          "adapterCacheShareScopes": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PublicAdapterShareScopes"
+              }
+            ]
+          },
+          "cacheMaxGibByAdapter": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PublicCacheCaps",
+                "description": "This repository's cache cap in GiB for each cache type, or `null` when no type has one\n(ADR-0086 §Update 2026-11-13)."
+              }
+            ]
+          },
+          "cacheMaxGibEffectiveByAdapter": {
+            "$ref": "#/components/schemas/PublicEffectiveCacheCaps"
+          },
+          "cacheRepoMaxGibLimit": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Absent, with the next field, when the staff flags or the org values could not be read."
+          },
+          "githubOrgId": {
+            "type": "string"
+          },
+          "owner": {
+            "type": "string"
+          },
+          "repo": {
+            "type": "string"
+          },
+          "sharedCacheEnabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PublicRepoCacheSettings": {
+        "type": "object",
+        "required": [
+          "repositories"
+        ],
+        "properties": {
+          "cacheRepoMaxGibLimit": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The highest cache cap a write may set; absent when the staff flags were not read."
+          },
+          "repositories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicRepoCacheSetting"
+            }
+          }
+        }
+      },
+      "PublicRepoRegion": {
+        "type": "object",
+        "required": [
+          "githubOrgId",
+          "owner",
+          "repo",
+          "region",
+          "skippedByDefaultTemplate"
+        ],
+        "properties": {
+          "githubOrgId": {
+            "type": "string"
+          },
+          "owner": {
+            "type": "string"
+          },
+          "region": {
+            "type": "string"
+          },
+          "repo": {
+            "type": "string"
+          },
+          "skippedByDefaultTemplate": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PublicRepoRegions": {
+        "type": "object",
+        "required": [
+          "repositories"
+        ],
+        "properties": {
+          "repositories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicRepoRegion"
+            }
+          }
+        }
+      },
+      "PublicRepoRunnerGroup": {
+        "type": "object",
+        "required": [
+          "githubOrgId",
+          "owner",
+          "repo",
+          "problems"
+        ],
+        "properties": {
+          "forkPullRequests": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "githubOrgId": {
+            "type": "string"
+          },
+          "owner": {
+            "type": "string"
+          },
+          "private": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "problems": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "repo": {
+            "type": "string"
+          },
+          "runnerGroupId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "runnerGroupName": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "PublicRepoRunnerGroupPage": {
+        "type": "object",
+        "required": [
+          "status",
+          "repositories",
+          "unavailable"
+        ],
+        "properties": {
+          "repositories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicRepoRunnerGroup"
+            }
+          },
+          "status": {
+            "type": "string"
+          },
+          "total": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64",
+            "minimum": 0
+          },
+          "unavailable": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicUnavailableOrg"
+            }
+          }
+        }
+      },
+      "PublicRepoUsage": {
+        "type": "object",
+        "required": [
+          "owner",
+          "repo",
+          "entries",
+          "bytes",
+          "regions",
+          "settings"
+        ],
+        "properties": {
+          "bytes": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "caps": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/PublicCapUsage"
+            }
+          },
+          "entries": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "namespaces": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/PublicNamespaceUsage"
+            }
+          },
+          "owner": {
+            "type": "string"
+          },
+          "regions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "repo": {
+            "type": "string"
+          },
+          "settings": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicResolved": {
+        "type": "object",
+        "required": [
+          "steps",
+          "env",
+          "checkouts"
+        ],
+        "properties": {
+          "checkouts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicResolvedCheckout"
+            }
+          },
+          "env": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicResolvedEnv"
+            }
+          },
+          "modules": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/PublicResolvedModule"
+            }
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicResolvedStep"
+            }
+          }
+        }
+      },
+      "PublicResolvedCheckout": {
+        "type": "object",
+        "required": [
+          "repository",
+          "phase"
+        ],
+        "properties": {
+          "module": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PublicModuleRef"
+              }
+            ]
+          },
+          "path": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "phase": {
+            "type": "string"
+          },
+          "ref": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "repository": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicResolvedEnv": {
+        "type": "object",
+        "required": [
+          "key",
+          "module",
+          "overrides"
+        ],
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "module": {
+            "$ref": "#/components/schemas/PublicModuleRef"
+          },
+          "overrides": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicModuleRef"
+            }
+          },
+          "value": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "PublicResolvedModule": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "importedBy": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PublicModuleRef"
+              }
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "reference": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "PublicResolvedSettings": {
+        "type": "object",
+        "required": [
+          "ports"
+        ],
+        "properties": {
+          "ports": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicSettingPort"
+            }
+          },
+          "tailscaleTag": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PublicSettingValue"
+              }
+            ]
+          },
+          "workdir": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PublicSettingValue"
+              }
+            ]
+          }
+        }
+      },
+      "PublicResolvedStep": {
+        "type": "object",
+        "required": [
+          "phase",
+          "module",
+          "stepIndex",
+          "kind",
+          "summary"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "module": {
+            "$ref": "#/components/schemas/PublicModuleRef"
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "phase": {
+            "type": "string"
+          },
+          "run": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "stepIndex": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "summary": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicRunnerGroup": {
+        "type": "object",
+        "required": [
+          "id",
+          "githubOrgId",
+          "githubOrgLogin",
+          "githubRunnerGroupId",
+          "name",
+          "visibility",
+          "allowsPublicRepositories",
+          "managedByKiln",
+          "isDefault",
+          "inherited",
+          "isGithubDefault",
+          "isCatchall",
+          "isPublicCatchall"
+        ],
+        "properties": {
+          "allowsPublicRepositories": {
+            "type": "boolean"
+          },
+          "assignedRepositoryCount": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64",
+            "minimum": 0
+          },
+          "githubOrgId": {
+            "type": "string"
+          },
+          "githubOrgLogin": {
+            "type": "string"
+          },
+          "githubRunnerGroupId": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "inherited": {
+            "type": "boolean"
+          },
+          "isCatchall": {
+            "type": "boolean"
+          },
+          "isDefault": {
+            "type": "boolean"
+          },
+          "isGithubDefault": {
+            "type": "boolean"
+          },
+          "isPublicCatchall": {
+            "type": "boolean"
+          },
+          "managedByKiln": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "presentInGithub": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "visibility": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicRunnerGroupPool": {
+        "type": "object",
+        "required": [
+          "runnerGroups",
+          "unavailable"
+        ],
+        "properties": {
+          "runnerGroups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicRunnerGroup"
+            }
+          },
+          "unavailable": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicUnavailableOrg"
+            }
+          }
+        }
+      },
+      "PublicScalarMetric": {
+        "type": "object",
+        "required": [
+          "unit",
+          "points"
+        ],
+        "properties": {
+          "points": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicMetricPoint"
+            }
+          },
+          "unit": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicSegment": {
+        "type": "object",
+        "required": [
+          "source",
+          "script"
+        ],
+        "properties": {
+          "script": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicSeriesPoint": {
+        "type": "object",
+        "required": [
+          "bucketStart",
+          "githubOwner",
+          "vcpuHours",
+          "memoryGibHours"
+        ],
+        "properties": {
+          "bucketStart": {
+            "type": "string"
+          },
+          "githubOwner": {
+            "type": "string"
+          },
+          "memoryGibHours": {
+            "type": "number",
+            "format": "double"
+          },
+          "vcpuHours": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "PublicSettingConflict": {
+        "type": "object",
+        "required": [
+          "setting",
+          "templateId",
+          "sources"
+        ],
+        "properties": {
+          "setting": {
+            "type": "string"
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicDraftConflictSource"
+            }
+          },
+          "templateId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "PublicSettingPort": {
+        "type": "object",
+        "required": [
+          "port",
+          "sourceTemplateId"
+        ],
+        "properties": {
+          "port": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "sourceTemplateId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "PublicSettingValue": {
+        "type": "object",
+        "required": [
+          "value",
+          "sourceTemplateId"
+        ],
+        "properties": {
+          "sourceTemplateId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicShape": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PublicAmounts"
+          },
+          {
+            "type": "object",
+            "required": [
+              "size",
+              "memory",
+              "vcpu",
+              "memoryGib"
+            ],
+            "properties": {
+              "memory": {
+                "type": "string"
+              },
+              "memoryGib": {
+                "type": "number",
+                "format": "double"
+              },
+              "size": {
+                "type": "string"
+              },
+              "vcpu": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          }
+        ]
+      },
+      "PublicShapeName": {
+        "type": "object",
+        "required": [
+          "size",
+          "memory"
+        ],
+        "properties": {
+          "memory": {
+            "type": "string"
+          },
+          "size": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicStep": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "on",
+              "run",
+              "type"
+            ],
+            "properties": {
+              "name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "on": {
+                "type": "string"
+              },
+              "run": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "script"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "on",
+              "repo",
+              "allBranches",
+              "submodules",
+              "type"
+            ],
+            "properties": {
+              "allBranches": {
+                "type": "boolean"
+              },
+              "depth": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "format": "int32",
+                "minimum": 0
+              },
+              "on": {
+                "type": "string"
+              },
+              "path": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "ref": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "repo": {
+                "type": "string"
+              },
+              "shallowSince": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "submodules": {
+                "type": "boolean"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "checkout"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "PublicTelemetryWindow": {
+        "type": "object",
+        "required": [
+          "startedAt",
+          "endedAt",
+          "beyondRetention",
+          "truncated"
+        ],
+        "properties": {
+          "beyondRetention": {
+            "type": "boolean"
+          },
+          "endedAt": {
+            "type": "string"
+          },
+          "retentionExpiresAt": {
+            "type": "string"
+          },
+          "startedAt": {
+            "type": "string"
+          },
+          "truncated": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PublicTemplate": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "everPublished",
+          "composed",
+          "hardened",
+          "effectivelyHardened",
+          "managedBy",
+          "previewDroppedRepositories",
+          "hasEnvVars",
+          "exportWritesEnv",
+          "hasDraft",
+          "createdAt",
+          "updatedAt",
+          "kind",
+          "hashed",
+          "buildRegions",
+          "served",
+          "previous",
+          "hold",
+          "rejections",
+          "snapshots",
+          "autoRebuildNightly"
+        ],
+        "properties": {
+          "autoRebuildNightly": {
+            "type": "boolean"
+          },
+          "buildAccess": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PublicBuildAccess"
+              }
+            ]
+          },
+          "buildRegions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "composed": {
+            "type": "boolean"
+          },
+          "contentSummary": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PublicContentSummary"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "effectivelyHardened": {
+            "type": "boolean"
+          },
+          "everPublished": {
+            "type": "boolean"
+          },
+          "exportRefusal": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "exportWritesEnv": {
+            "type": "boolean"
+          },
+          "hardened": {
+            "type": "boolean"
+          },
+          "hasDraft": {
+            "type": "boolean"
+          },
+          "hasEnvVars": {
+            "type": "boolean"
+          },
+          "hashed": {
+            "type": "boolean"
+          },
+          "hold": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicHold"
+            }
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "managedBy": {
+            "type": "string"
+          },
+          "modules": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/PublicModuleImport"
+            }
+          },
+          "name": {
+            "type": "string"
+          },
+          "needsAttention": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "previewDroppedRepositories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicDroppedRepository"
+            }
+          },
+          "previewExpiresAt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "previous": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicRelease"
+            }
+          },
+          "rejections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicRejection"
+            }
+          },
+          "served": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicRelease"
+            }
+          },
+          "snapshots": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicTemplateSnapshot"
+            }
+          },
+          "sourceCommitSha": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "sourceId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "sourcePath": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "sourceRef": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "templateIncludes": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/PublicTemplateInclude"
+            }
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicTemplateBuild": {
+        "type": "object",
+        "required": [
+          "attemptId",
+          "region",
+          "slot",
+          "trigger",
+          "status",
+          "buildHash",
+          "queuedAt",
+          "current"
+        ],
+        "properties": {
+          "attemptId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "buildEndedAt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "buildHash": {
+            "type": "string"
+          },
+          "buildId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "buildStartedAt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "current": {
+            "type": "boolean"
+          },
+          "diskGib": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          },
+          "endedAt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "memoryBytes": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "queuedAt": {
+            "type": "string"
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "region": {
+            "type": "string"
+          },
+          "slot": {
+            "type": "string"
+          },
+          "sourceCommitSha": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "type": "string"
+          },
+          "trigger": {
+            "type": "string"
+          },
+          "vcpu": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "PublicTemplateBuilds": {
+        "type": "object",
+        "required": [
+          "templateId",
+          "builds"
+        ],
+        "properties": {
+          "builds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicTemplateBuild"
+            }
+          },
+          "nextCursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "templateId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "PublicTemplateDetail": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PublicTemplate"
+          },
+          {
+            "type": "object",
+            "required": [
+              "isDefault",
+              "diskGib",
+              "buildSize",
+              "envVars",
+              "envVarKeys",
+              "defaultPorts",
+              "unreadable",
+              "etag"
+            ],
+            "properties": {
+              "buildSize": {
+                "type": "string"
+              },
+              "buildTimeoutMinutes": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "format": "int32",
+                "minimum": 0
+              },
+              "conflicts": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "$ref": "#/components/schemas/PublicConflict"
+                }
+              },
+              "defaultPorts": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "format": "int32",
+                  "minimum": 0
+                }
+              },
+              "defaultWorkdir": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "diskGib": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "draft": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PublicDraft"
+                  }
+                ]
+              },
+              "draftResolved": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PublicResolved"
+                  }
+                ]
+              },
+              "draftResolvedReason": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "draftResolvedReasonCode": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "envVarKeys": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "envVars": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/PublicEnvVar"
+                }
+              },
+              "etag": {
+                "type": "string"
+              },
+              "inheritedGrants": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "$ref": "#/components/schemas/PublicInheritedGrant"
+                }
+              },
+              "isDefault": {
+                "type": "boolean"
+              },
+              "rendered": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PublicRendered"
+                  }
+                ]
+              },
+              "resolved": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PublicResolved"
+                  }
+                ]
+              },
+              "resolvedReason": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "resolvedReasonCode": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "resolvedSettings": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PublicResolvedSettings"
+                  }
+                ]
+              },
+              "steps": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "$ref": "#/components/schemas/PublicStep"
+                }
+              },
+              "tailscaleTag": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "unreadable": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "PublicTemplateFile": {
+        "type": "object",
+        "required": [
+          "path",
+          "content"
+        ],
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicTemplateFiles": {
+        "type": "object",
+        "required": [
+          "files"
+        ],
+        "properties": {
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicTemplateFile"
+            }
+          },
+          "refusal": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "PublicTemplateInclude": {
+        "type": "object",
+        "required": [
+          "templateId",
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "templateId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "PublicTemplateSnapshot": {
+        "type": "object",
+        "required": [
+          "region",
+          "status",
+          "current",
+          "queued"
+        ],
+        "properties": {
+          "buildStartedAt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "builtAt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "current": {
+            "type": "boolean"
+          },
+          "failedAt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "previousBuildId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "previousReadyAt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "queued": {
+            "type": "boolean"
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "region": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicTopRun": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PublicAmounts"
+          },
+          {
+            "type": "object",
+            "required": [
+              "githubOwner",
+              "repo",
+              "runId",
+              "lastCompletedAt",
+              "mainShape"
+            ],
+            "properties": {
+              "githubOwner": {
+                "type": "string"
+              },
+              "lastCompletedAt": {
+                "type": "string"
+              },
+              "mainShape": {
+                "$ref": "#/components/schemas/PublicShapeName"
+              },
+              "repo": {
+                "type": "string"
+              },
+              "runAttempt": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "format": "int32"
+              },
+              "runId": {
+                "type": "string"
+              },
+              "runUrl": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "PublicUnavailableOrg": {
+        "type": "object",
+        "required": [
+          "githubOrgLogin",
+          "reason"
+        ],
+        "properties": {
+          "githubOrgLogin": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicUpdatedModule": {
+        "type": "object",
+        "required": [
+          "identity",
+          "contentChanged",
+          "changedFiles"
+        ],
+        "properties": {
+          "changedFiles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "contentChanged": {
+            "type": "boolean"
+          },
+          "fromCommit": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "identity": {
+            "type": "string"
+          },
+          "toCommit": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "PublicUsage": {
+        "type": "object",
+        "required": [
+          "window",
+          "windowStart",
+          "windowEnd",
+          "bucket",
+          "totals",
+          "series",
+          "byGithubOwner",
+          "sizeMix"
+        ],
+        "properties": {
+          "bucket": {
+            "type": "string"
+          },
+          "byGithubOwner": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicOwner"
+            }
+          },
+          "series": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicSeriesPoint"
+            }
+          },
+          "sizeMix": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicShape"
+            }
+          },
+          "topRuns": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicTopRun"
+            }
+          },
+          "totals": {
+            "$ref": "#/components/schemas/PublicAmounts"
+          },
+          "window": {
+            "type": "string"
+          },
+          "windowEnd": {
+            "type": "string"
+          },
+          "windowStart": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicUsageTotals": {
+        "type": "object",
+        "required": [
+          "entries",
+          "bytes",
+          "repositories"
+        ],
+        "properties": {
+          "bytes": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "entries": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "repositories": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        }
+      },
+      "RunnersErrorBody": {
+        "type": "object",
+        "description": "The `RunnersError` envelope as the spec describes it (TRD-0106 §11.3).",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/RunnersErrorDetail"
+          }
+        }
+      },
+      "RunnersErrorDetail": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "x-trunk-token": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-trunk-token"
+      }
+    }
+  },
+  "security": [
+    {
+      "x-trunk-token": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Runners",
+      "description": "Trunk Runners: usage, cache, templates and runner configuration"
+    }
+  ]
+}
