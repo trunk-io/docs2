@@ -1,0 +1,251 @@
+---
+title: "Route Flaky Tests to Their Owners"
+description: "When a test turns flaky, file a ticket for its code owners and tell their team in Slack"
+og:title: "Routing flaky tests to their owners with the Trunk API"
+---
+A flaky test gets fixed fastest when the team that owns it hears about it right away. Trunk already knows each test's code owners from your `CODEOWNERS` file. This recipe uses that to route every newly flaky test to its owners: it files a ticket in your tracker, assigns it to the team, and posts in the team's Slack channel.
+
+It's a small service you run yourself, built from one webhook and two API calls:
+
+| Step | What it uses |
+|---|---|
+| Hear that a test turned flaky | The [`v2.test_case.status_changed`](../webhooks/index) webhook |
+| Read the test and its code owners | [Get a test](/api/tests/get-a-test) |
+| File and assign a ticket | [Create a ticket for a test](/api/tests/create-a-ticket-for-a-test) |
+| Tell the owning team | Slack's [`chat.postMessage`](https://api.slack.com/methods/chat.postMessage) |
+
+<Tip>
+If you only need tickets, and not per-team routing or Slack messages, [automatic ticketing](../management/ticketing/automatic-ticketing) does it with no code.
+</Tip>
+
+## Before you begin
+
+You need:
+
+- **A ticketing integration set as the test collection's default.** Connect [Jira](../management/ticketing/jira-integration), [Linear](../management/ticketing/linear-integration), or [Asana](../management/ticketing/asana-integration), and select it in the collection's ticketing settings. Without a default, creating a ticket fails with `TICKETING_NOT_CONFIGURED`.
+- **An API key with the Create tickets permission.** See [Create an API key](/api/authentication#create-an-api-key). Reading tests needs no permission.
+- **A Slack bot token** with the `chat:write` scope, and the bot invited to each team's channel.
+- **A webhook endpoint** subscribed to `v2.test_case.status_changed`, pointed at the service you build below. See [Webhooks](../webhooks/index) to add one, and copy its signing secret.
+
+## 1. Map code owners to teams
+
+Trunk returns each test's owners exactly as they appear in your `CODEOWNERS` file, such as `@acme/payments`. Keep a map from those owners to where each team wants to hear about flaky tests:
+
+```typescript
+type Team = {
+  slackChannel: string; // channel ID
+  slackGroup?: string; // Slack user group ID, to @-mention the team
+  assignee?: unknown; // the tracker's assignee value; see step 4
+};
+
+const TEAMS: Record<string, Team> = {
+  "@acme/payments": {
+    slackChannel: "C0PAYMENTS",
+    slackGroup: "S0PAYONCALL",
+    assignee: { accountId: "5b10ac8d82e05b22cc7d4ef5" }, // Jira
+  },
+  "@acme/web": {
+    slackChannel: "C0WEB",
+    slackGroup: "S0WEBONCALL",
+    assignee: "0a8e4852-8514-4f48-a7e6-266b756e0343", // Linear
+  },
+};
+
+// Tests with no owner, or an owner missing from the map, go here.
+const FALLBACK: Team = { slackChannel: "C0CIHEALTH" };
+```
+
+Mentioning the team's Slack user group is what makes the message an assignment and not just a notification.
+
+## 2. Receive the webhook
+
+Verify the signature, then act only when a test moves *into* the flaky state. Respond quickly and do the work in the background, so a slow ticket call doesn't time out the delivery:
+
+```typescript
+import express from "express";
+import { Webhook } from "svix";
+
+const app = express();
+const webhook = new Webhook(process.env.TRUNK_WEBHOOK_SECRET!);
+
+app.post("/trunk", express.raw({ type: "application/json" }), (req, res) => {
+  let event;
+  try {
+    event = webhook.verify(req.body.toString(), {
+      "svix-id": req.header("svix-id")!,
+      "svix-timestamp": req.header("svix-timestamp")!,
+      "svix-signature": req.header("svix-signature")!,
+    }) as any;
+  } catch {
+    return res.status(400).end();
+  }
+  res.status(204).end();
+
+  if (
+    event.type === "v2.test_case.status_changed" &&
+    event.new_status === "FLAKY" &&
+    event.previous_status !== "FLAKY"
+  ) {
+    routeFlakyTest(event.test_case.id).catch(console.error);
+  }
+});
+
+app.listen(3000);
+```
+
+## 3. Read the test
+
+Fetch the test before acting. Webhooks can arrive late or be retried, so this confirms the test is still flaky, gets its owners, and shows whether a ticket is already linked. Adding `include=metrics` returns its recent failure rate for the Slack message:
+
+```typescript
+const TRUNK = "https://api.trunk.io/v2";
+const headers = {
+  Authorization: `Bearer ${process.env.TRUNK_API_KEY}`,
+  "Content-Type": "application/json",
+};
+
+const getTest = async (testId: string) => {
+  const res = await fetch(
+    `${TRUNK}/tests/${testId}?include=metrics&period=7d`,
+    { headers },
+  );
+  if (!res.ok) throw new Error(`Get a test: ${res.status}`);
+  return res.json();
+};
+```
+
+The fields this recipe uses:
+
+| Field | Use |
+|---|---|
+| `status` | Stop if it is no longer `flaky` |
+| `codeowners` | Pick the team |
+| `ticket` | Skip filing if a ticket is already linked |
+| `activeMonitors[].monitorType` | Which monitor flagged the test |
+| `metrics.failureRate`, `metrics.failureCount`, `metrics.runCount` | How flaky it is |
+| `quarantineState` | Whether its failures are blocking CI |
+| `url` | Link to the test in Trunk |
+
+## 4. File and assign a ticket
+
+Call **Create a ticket for a test**. Trunk files the ticket in the collection's default ticketing integration, writes the title and description, and links the ticket to the test. The description includes the test's location, failure rate, owners, and most common failure reasons.
+
+Set the assignee through `fields`, using the shape your tracker expects. Anything you pass is merged over the default fields saved on the integration:
+
+| Tracker | `fields` for the assignee |
+|---|---|
+| Jira | `{ "assignee": { "accountId": "<Atlassian account ID>" } }` |
+| Linear | `{ "assignee": "<Linear user ID>" }` |
+
+```typescript
+const createTicket = async (testId: string, assignee?: unknown) => {
+  const res = await fetch(`${TRUNK}/tests/${testId}/create-ticket`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ fields: assignee ? { assignee } : {} }),
+  });
+  if (res.status === 201) return res.json();
+
+  // The ticket may have been filed even though the call timed out.
+  if (res.status === 504) return (await getTest(testId)).ticket;
+
+  // Another delivery already filed one.
+  const { error } = await res.json();
+  if (error?.code === "TEST_ALREADY_LINKED") return (await getTest(testId)).ticket;
+
+  throw new Error(`Create a ticket: ${res.status} ${error?.code}`);
+};
+```
+
+The response is the linked ticket, including its `key`, `url`, `status`, and `assignee`.
+
+<Warning>
+Don't retry a `504` blindly. The ticket can be filed after the call times out, so read the test first: if its `ticket` is set, the ticket exists.
+</Warning>
+
+## 5. Tell the owning team
+
+Post to the team's channel with the test, why it was flagged, and the ticket:
+
+```typescript
+const notifyTeam = async (team: Team, owner: string, test: any, ticket: any) => {
+  const mention = team.slackGroup
+    ? `<!subteam^${team.slackGroup}> this test is yours (\`${owner}\` in CODEOWNERS).`
+    : "This test has no owner. Claim it and add it to CODEOWNERS.";
+  const m = test.metrics ?? {};
+  const monitors = test.activeMonitors.map((a: any) => a.monitorType).join(", ");
+
+  await fetch("https://slack.com/api/chat.postMessage", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.SLACK_BOT_TOKEN}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      channel: team.slackChannel,
+      text: [
+        `:warning: *Newly flaky:* \`${test.name}\` (${test.file})`,
+        mention,
+        `• Last 7 days: ${m.failureCount} failures in ${m.runCount} runs (${((m.failureRate ?? 0) * 100).toFixed(1)}%), flagged by \`${monitors}\``,
+        `• Quarantined: ${test.quarantineState === "quarantined" ? "yes" : "no"}`,
+        ticket ? `• Ticket: <${ticket.url}|${ticket.key}>` : "• Ticket: not created",
+        `• <${test.url}|View in Trunk>`,
+      ].join("\n"),
+    }),
+  });
+};
+```
+
+## Put it together
+
+```typescript
+const routeFlakyTest = async (testId: string) => {
+  const test = await getTest(testId);
+  if (test.status !== "flaky") return;
+
+  const owner = test.codeowners.find((o: string) => o in TEAMS);
+  const team = owner ? TEAMS[owner] : FALLBACK;
+
+  let ticket = test.ticket;
+  if (!ticket) {
+    try {
+      ticket = await createTicket(testId, team.assignee);
+    } catch (err) {
+      console.error(err); // still tell the team
+    }
+  }
+
+  await notifyTeam(team, owner ?? test.codeowners[0] ?? "none", test, ticket);
+};
+```
+
+A test can list several owners. This picks the first one found in your map. To notify every owning team instead, post once per matching owner and keep the single ticket, since a test carries at most one.
+
+## Test it
+
+You don't have to wait for a test to turn flaky. Find a flaky test with [List and search tests](/api/tests/list-and-search-tests), then call `routeFlakyTest` with its `id`:
+
+```bash
+curl "https://api.trunk.io/v2/tests?status=flaky&limit=5" \
+  -H "Authorization: Bearer $TRUNK_API_KEY"
+```
+
+To test the whole path, including signature checks, send an example `v2.test_case.status_changed` event from your webhook endpoint's **Testing** tab.
+
+## Troubleshooting
+
+| Error | Cause | Fix |
+|---|---|---|
+| `409 TICKETING_NOT_CONFIGURED` | The test's collection has no default ticketing integration | Set one in the collection's ticketing settings |
+| `409 TEST_ALREADY_LINKED` | A ticket is already linked to the test | Use the linked ticket from Get a test, as the code above does |
+| `422 TICKET_FIELDS_REJECTED` | The tracker refused a field you sent, or a required field is missing | The error includes the tracker's message. Fix the field, or set a default on the integration |
+| `403 INSUFFICIENT_PERMISSIONS` | The API key lacks **Create tickets** | Add the permission to the key |
+| `502 UPSTREAM_ERROR` | The tracker didn't answer | Retry after the `Retry-After` header, if present |
+| The ticket was filed without an assignee | Jira refused the assignee, so Trunk filed the ticket without your `fields` | Check that the account can be assigned issues in the project |
+
+## Related
+
+- [Webhooks](../webhooks/index). The full event catalog and field reference.
+- [Alert When a Test Escalates](./alert-on-test-escalation). Slack alerts when a test gets worse.
+- [Automatic ticketing](../management/ticketing/automatic-ticketing). Tickets with no code.
+- [Get a test](/api/tests/get-a-test) and [Create a ticket for a test](/api/tests/create-a-ticket-for-a-test). The endpoints this recipe calls.
