@@ -342,8 +342,8 @@
                 "group": "Recipes",
                 "root": "flaky-tests/recipes/index",
                 "pages": [
-                  "flaky-tests/recipes/autofix-ci-failures",
                   "flaky-tests/recipes/autofix-flaky-tests",
+                  "flaky-tests/recipes/autofix-ci-failures",
                   "flaky-tests/recipes/tighten-test-timeouts",
                   "flaky-tests/recipes/release-branch-test-health",
                   "flaky-tests/recipes/never-quarantine-protected-paths",
