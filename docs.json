@@ -340,23 +340,17 @@
               },
               {
                 "group": "Recipes",
+                "root": "flaky-tests/recipes/index",
                 "pages": [
-                  "flaky-tests/recipes/alert-on-test-escalation",
-                  "flaky-tests/recipes/weekly-triage-digest",
+                  "flaky-tests/recipes/autofix-ci-failures",
+                  "flaky-tests/recipes/autofix-flaky-tests",
+                  "flaky-tests/recipes/tighten-test-timeouts",
+                  "flaky-tests/recipes/release-branch-test-health",
+                  "flaky-tests/recipes/never-quarantine-protected-paths",
                   "flaky-tests/recipes/explain-failed-pr-tests",
                   "flaky-tests/recipes/route-flaky-tests-to-owners",
-                  "flaky-tests/recipes/never-quarantine-protected-paths"
-                ]
-              },
-              {
-                "group": "Agents",
-                "root": "flaky-tests/agents/index",
-                "pages": [
-                  "flaky-tests/agents/autofix-flaky-tests",
-                  "flaky-tests/agents/release-branch-test-health",
-                  "flaky-tests/agents/autofix-ci-failures",
-                  "flaky-tests/agents/tighten-test-timeouts",
-                  "links/mcp-reference"
+                  "flaky-tests/recipes/alert-on-test-escalation",
+                  "flaky-tests/recipes/weekly-triage-digest"
                 ]
               },
               {
@@ -1659,6 +1653,14 @@
   },
   "redirects": [
     {
+      "source": "/flaky-tests/agents",
+      "destination": "/flaky-tests/recipes"
+    },
+    {
+      "source": "/flaky-tests/agents/:slug*",
+      "destination": "/flaky-tests/recipes/:slug*"
+    },
+    {
       "source": "/setup-and-administration/apis",
       "destination": "/api"
     },
@@ -2812,11 +2814,11 @@
     },
     {
       "source": "/flaky-tests/autofix-ci-failures",
-      "destination": "/flaky-tests/agents/autofix-ci-failures"
+      "destination": "/flaky-tests/recipes/autofix-ci-failures"
     },
     {
       "source": "/flaky-tests/autofix-flaky-tests",
-      "destination": "/flaky-tests/agents/autofix-flaky-tests"
+      "destination": "/flaky-tests/recipes/autofix-flaky-tests"
     },
     {
       "source": "/flaky-tests/infrastructure-failure-protection",
@@ -3056,11 +3058,11 @@
     },
     {
       "source": "/flaky-tests/use-mcp-server/mcp-tool-reference/fix-flaky-test",
-      "destination": "/flaky-tests/agents/autofix-flaky-tests"
+      "destination": "/flaky-tests/recipes/autofix-flaky-tests"
     },
     {
       "source": "/flaky-tests/reference/mcp-reference/fix-flaky-test",
-      "destination": "/flaky-tests/agents/autofix-flaky-tests"
+      "destination": "/flaky-tests/recipes/autofix-flaky-tests"
     },
     {
       "source": "/dynamic-ci",

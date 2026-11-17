@@ -9,7 +9,7 @@ Quarantine keeps flaky tests from blocking CI. For some code, that's the wrong t
 - An optional webhook handler puts the override back as soon as someone changes it, and tells your team in Slack.
 - A check confirms that no test under your paths is quarantined.
 
-## Before you start
+## Before you begin
 
 - [Quarantining](../quarantining/index#enable-quarantining) must be on for each test collection. An override has no effect in a collection where quarantining is off.
 - Create an [API key](/api/authentication#api-keys) with the **Quarantine tests** permission. Reading tests needs no permission. If a collection's **Manual Quarantine Permissions** setting is **Admins only**, an API key still works, since only an admin can create one.
