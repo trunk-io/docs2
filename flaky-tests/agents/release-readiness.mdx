@@ -3,60 +3,66 @@ title: "Gate a Release with an Agent"
 description: "Have an agent report the flaky and failing tests on a release branch, and block the release on them."
 og:title: "Gate a release on flaky and failing tests using the Trunk API"
 ---
-Before you cut a release, an agent can check whether the release branch's tests are healthy: which tests failed there, and whether each one is broken, flaky or quarantined. Trunk's [API](/api) provides both. Have your agent follow these steps.
+Before you cut a release, an agent can check whether the release's tests are healthy: which tests failed, and whether each one is broken, flaky or quarantined. Start from one of two lists of failed tests, then enrich each test with Trunk's [API](/api).
 
-## 1. Choose when to run
+## 1. Find the tests that failed
 
-- **After a release test job.** If a scheduled or manual job tests the release branch, run the agent when the job finishes. Pass it the job's build URL and job name.
-- **Before tagging.** Run the agent as a required step before your tag or publish job. Pass it the release branch and the time it was cut.
+Choose the approach that fits how you test releases.
 
-## 2. Find the tests that matter
+### From a pre-release workflow
 
-Narrow every `GET /v2/tests` call below to the collection that holds the release branch's results with `testCollectionId`. To check only one team's tests, add `owner`.
+If a workflow tests the release before you cut it, have the analytics CLI write a summary of the upload, and give that file to the agent.
 
-### From a release test job
+1. In the workflow, upload the results with analytics CLI **1.0.0 or newer**, adding `--summary-output-file trunk-summary.json`.
+2. Pass `trunk-summary.json` to the agent, for example as a workflow artifact.
 
-When the agent knows the job, list the tests that failed in it:
+The summary lists every failed test in the upload:
 
-1. List the tests that failed anywhere recently with [`GET /v2/tests`](/api/tests/list-and-search-tests), using `sort=lastFailureAt` and a `period` that covers the job, such as `1d`.
-2. For each test, call [`GET /v2/tests/{testId}/test-runs`](/api/tests/list-a-tests-runs) with `branches=<release branch>` and `conclusion=failure`. Keep the runs whose `buildUrl` and `jobName` match the job.
-
-Every test with a matching run failed in the job, including a test that broke for the first time on the release branch.
+- `failures` holds the failed tests that weren't quarantined, and `quarantined` the ones that were. Both are grouped by file.
+- Each test has its `name`, `file`, `failureMessage`, `failureText` and `link`.
+- The last segment of `link` (`…/tests/<testId>`) is the test's ID in the API. Use it in the calls below, not the test's `id` field, which is the CLI's own ID.
 
 <Note>
-`buildUrl` and `jobName` are what your test uploader recorded. On GitHub Actions, `buildUrl` is the workflow run's URL and `jobName` is the job's ID in the workflow file, not its display name. Read one run first to see the values your CI records.
+The summary reports each test's final result in the report. A test that your runner retried and then passed counts as passed.
 </Note>
 
-### From the release branch
+### From a failure count monitor on release branches
 
-Without a job, choose the cases that matter for your release. List each case's tests with [`GET /v2/tests`](/api/tests/list-and-search-tests), then check each test's runs on the branch with [`GET /v2/tests/{testId}/test-runs`](/api/tests/list-a-tests-runs), using `branches=<release branch>`, `conclusion=failure` and `startedAfter=<cut time>`.
+Have Trunk label every test that fails on a release branch, then start from that label.
 
-| Case | `GET /v2/tests` filters |
+1. In the collection that holds the release branch's results, create a [failure count monitor](../detection/failure-count-monitor):
+   - **Branches:** the release branch, or a pattern such as `release/*`.
+   - **Failure count:** `1`.
+   - **Resolution timeout:** long enough to cover your release cycle, so a test stays labeled after a single failure. The web app allows up to 14 days.
+   - **Action:** **Apply labels**, with a label such as `failed-on-release`. See [Automatic labeling from monitors](../management/test-labels#automatic-labeling-from-monitors).
+2. Have the agent list the labeled tests with [`GET /v2/tests`](/api/tests/list-and-search-tests), using `testCollectionId` and `label=failed-on-release`.
+
+The label stays on a test until the resolution timeout passes with no new failures on a matching branch.
+
+## 2. Enrich each test
+
+| What the agent needs | Call |
 |---|---|
-| Broken tests that failed on the release branch | `status=broken` |
-| Quarantined tests that failed on the release branch | `quarantineState=quarantined` |
-| Tests that failed on the release branch's latest commit | `sort=lastFailureAt` and a `period`. Keep the runs whose `sha` is the latest commit |
-| Flaky tests that failed on the release branch | `status=flaky` |
-| Tests that became flaky since the cut | `status=flaky`, `newlyFlaky=true` and a `period` |
-
-`branches` takes globs, so `release/*` covers every release branch.
+| The test's status, quarantine state, owners and failure rate | [`GET /v2/tests/{testId}`](/api/tests/get-a-test) with `include=metrics&period=7d`. A `404` means Trunk has no record of the test yet, so it's new |
+| When it became broken or flaky, and which monitor flagged it | [`GET /v2/tests/{testId}/status-history`](/api/tests/list-a-tests-status-transitions) |
+| Its failing runs on the release branch, with commit, CI job and build URL | [`GET /v2/tests/{testId}/test-runs`](/api/tests/list-a-tests-runs) with `branches=<release branch>` and `conclusion=failure` |
 
 <Note>
-A test's `status` and `quarantineState` describe it across every branch. Use the test's `quarantineState`, not the run's: a run's `quarantineState` records what the upload reported for that run.
+Read quarantine from the test's `quarantineState`, not the run's. A run's `quarantineState` records what its upload reported.
 </Note>
 
 ## 3. Decide and report
 
-For each test that failed, decide a verdict from the test's current state. Adjust these to your release policy:
+Decide a verdict for each test from its current state. Adjust these to your release policy:
 
 | The test is | Verdict |
 |---|---|
 | Quarantined | Warn |
 | `flaky` | Warn |
-| `broken`, or `healthy` (a new failure) | Block |
+| `broken`, `healthy` or new | Block |
 
 - Exit non-zero on **Block**, so the tag or publish job doesn't run.
-- Post a report grouped by verdict. For each test, give its name, `codeowners`, the number of failures and a link to the latest failing run (`buildUrl`). [`GET /v2/tests/{testId}/status-history`](/api/tests/list-a-tests-status-transitions) shows when it became broken or flaky.
+- Post a report grouped by verdict. For each test, give its name, `codeowners`, failure rate and a link to its latest failing run.
 - Track blockers with [`POST /v2/tests/{testId}/add-labels`](/api/tests/add-labels-to-a-test), for example `release-blocker`, and [`POST /v2/tests/{testId}/create-ticket`](/api/tests/create-a-ticket-for-a-test). To fix them, see [Fix Flaky Tests with an Agent](./autofix-flaky-tests).
 - Don't let the agent quarantine tests or mark them flaky to pass the gate. A person decides to override it.
 
