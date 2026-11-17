@@ -98,7 +98,7 @@ app.listen(3000);
 Fetch the test before acting. Webhooks can arrive late or be retried, so this confirms the test is still flaky, gets its owners, and shows whether a ticket is already linked. Adding `include=metrics` returns its recent failure rate for the Slack message:
 
 ```typescript expandable
-const TRUNK = "https://api.trunk.io/v2";
+const API = "https://api.trunk.io/v2";
 const headers = {
   Authorization: `Bearer ${process.env.TRUNK_API_KEY}`,
   "Content-Type": "application/json",
@@ -106,7 +106,7 @@ const headers = {
 
 const getTest = async (testId: string) => {
   const res = await fetch(
-    `${TRUNK}/tests/${testId}?include=metrics&period=7d`,
+    `${API}/tests/${testId}?include=metrics&period=7d`,
     { headers },
   );
   if (!res.ok) throw new Error(`Get a test: ${res.status}`);
@@ -139,7 +139,7 @@ Set the assignee through `fields`, using the shape your tracker expects. Anythin
 
 ```typescript expandable
 const createTicket = async (testId: string, assignee?: unknown) => {
-  const res = await fetch(`${TRUNK}/tests/${testId}/create-ticket`, {
+  const res = await fetch(`${API}/tests/${testId}/create-ticket`, {
     method: "POST",
     headers,
     body: JSON.stringify({ fields: assignee ? { assignee } : {} }),

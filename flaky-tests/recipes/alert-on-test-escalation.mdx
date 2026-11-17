@@ -35,19 +35,14 @@ Use this when consistently failing tests deserve a louder, separate signal than 
 **2. Filter the transformation to escalations.** In your Slack endpoint's transformation, cancel the webhook unless the status got worse. This example ranks the three statuses and only sends a message when `new_status` is more severe than `previous_status`, so recoveries and resolutions stay quiet:
 
 ```javascript expandable
-// Status values are uppercase (HEALTHY, FLAKY, BROKEN), matching the payload.
 const SEVERITY = { HEALTHY: 0, FLAKY: 1, BROKEN: 2 };
 
 function handler(webhook) {
   const { previous_status = "HEALTHY", new_status = "HEALTHY" } = webhook.payload;
-
-  // Only alert when the test got worse, not when it recovered.
   if (SEVERITY[new_status] <= SEVERITY[previous_status]) {
     webhook.cancel = true;
     return webhook;
   }
-
-  // summarizeTestCase() is defined in the Slack integration guide.
   webhook.payload = summarizeTestCase(webhook.payload);
   return webhook;
 }
@@ -61,8 +56,6 @@ function handler(webhook) {
     webhook.cancel = true;
     return webhook;
   }
-
-  // summarizeTestCase() is defined in the Slack integration guide.
   webhook.payload = summarizeTestCase(webhook.payload);
   return webhook;
 }
@@ -90,29 +83,17 @@ Use this when you want to know about every detection event on a test, including 
 
 ```javascript expandable
 function handler(webhook) {
-  const { monitor } = webhook.payload;
-
-  // Only alert when a monitor starts flagging the test.
+  const { monitor, test_case } = webhook.payload;
   if (!monitor || monitor.status !== "active") {
     webhook.cancel = true;
     return webhook;
   }
-
   webhook.payload = {
     blocks: [
-      {
-        type: "header",
-        text: { type: "plain_text", text: `Monitor active: ${webhook.payload.test_case.name}` },
-      },
+      { type: "header", text: { type: "plain_text", text: `Monitor active: ${test_case.name}` } },
       {
         type: "section",
-        text: {
-          type: "mrkdwn",
-          text: [
-            `Monitor type: \`${monitor.type}\``,
-            `Test Details: ${webhook.payload.test_case.html_url}`,
-          ].join("\n"),
-        },
+        text: { type: "mrkdwn", text: `Monitor type: \`${monitor.type}\`\nTest details: ${test_case.html_url}` },
       },
     ],
   };
