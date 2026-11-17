@@ -7,15 +7,15 @@ A webhook tells you about each test the moment its status changes. A weekly dige
 
 ## 1. Find the tests whose status changed
 
-Every test in [`GET /v2/tests`](/api/tests/list-and-search-tests) has a `status` (`healthy`, `flaky` or `broken`) and a `statusSince`, the time that status began. A test changed this week if its `statusSince` is within the last seven days. Make two lists, paging through each with `nextCursor`:
+Every test has a `status` (`healthy`, `flaky` or `broken`) and a `statusSince`, the time that status began. A test changed this week if its `statusSince` is within the last seven days. Don't look for those tests by listing every test. An organization can have hundreds of thousands of healthy tests. Make two short lists instead, paging through each with `nextCursor`:
 
-- **Turned flaky or broken.** Call it with `status=flaky,broken`, `include=metrics` and `period=7d`. The metrics give each test's failure rate for the week.
-- **Turned healthy.** Call it with `status=healthy`.
+- **Turned flaky or broken.** Call [`GET /v2/tests`](/api/tests/list-and-search-tests) with `status=flaky,broken`, `include=metrics` and `period=7d`. The metrics give each test's failure rate for the week.
+- **Turned healthy.** A test recovers when a monitor stops flagging it, and the monitor records that as an event. Call [`GET /v2/detection-events`](/api/detectionevents/list-detection-events) with `isClassificationEvent=true`, `monitorStatus=inactive` and `detectedAfter` set to the start of the week. For each test in those events that isn't in the first list, call [`GET /v2/tests/{testId}`](/api/tests/get-a-test) with `include=metrics&period=7d`.
 
-Add `owner` or `testCollectionId` to send a digest for one team or one collection.
+From both lists, keep the tests whose `statusSince` is within the week. Add `testCollectionId` to the list calls to send a digest for one collection.
 
 <Note>
-Use `statusSince` rather than `newlyFlaky=true`. `newlyFlaky` returns only tests that became flaky for the first time. It leaves out a test that was fixed and then turned flaky again, and a test that turned broken.
+Use `statusSince` rather than `newlyFlaky=true`. `newlyFlaky` returns only tests that became flaky for the first time. It leaves out a test that was fixed and then turned flaky again, and a test that turned broken. Detection events don't include a test someone [flagged as flaky](../management/managing-detected-flaky-tests) by hand. So if someone clears that flag and the test turns healthy, the test isn't in the digest.
 </Note>
 
 ## 2. Compare with the start of the week
@@ -43,35 +43,53 @@ async function get(path, params) {
   const url = new URL(API + path);
   for (const [key, value] of Object.entries(params)) url.searchParams.set(key, value);
   const res = await fetch(url, { headers });
+  if (res.status === 404) return null;
   if (!res.ok) throw new Error(`${res.status} ${path}: ${await res.text()}`);
   return res.json();
 }
 
-async function changedThisWeek(params) {
-  const tests = [];
+async function listAll(path, params) {
+  const rows = [];
   let cursor;
   do {
-    const page = await get("/tests", { ...params, limit: 100, ...(cursor && { cursor }) });
-    tests.push(...page.data.filter((t) => t.statusSince && new Date(t.statusSince) >= weekStart));
+    const page = await get(path, { ...params, limit: 100, ...(cursor && { cursor }) });
+    rows.push(...page.data);
     cursor = page.nextCursor;
   } while (cursor);
-  return tests;
+  return rows;
 }
 
-const candidates = [
-  ...(await changedThisWeek({ status: "flaky,broken", include: "metrics", period: "7d" })),
-  ...(await changedThisWeek({ status: "healthy" })),
-];
-
-const changes = [];
-for (const test of candidates) {
-  const history = await get(`/tests/${test.id}/status-history`, {
-    startedAfter: weekStart.toISOString(),
-    limit: 100,
-  });
-  const from = history.data.at(-1)?.fromStatus;
-  if (from && from !== test.status) changes.push({ ...test, from });
+async function tenAtATime(items, fn) {
+  const results = [];
+  for (let i = 0; i < items.length; i += 10) {
+    results.push(...(await Promise.all(items.slice(i, i + 10).map(fn))));
+  }
+  return results;
 }
+
+const unhealthy = await listAll("/tests", { status: "flaky,broken", include: "metrics", period: "7d" });
+const unhealthyIds = new Set(unhealthy.map((t) => t.id));
+const recoveries = await listAll("/detection-events", {
+  isClassificationEvent: true,
+  monitorStatus: "inactive",
+  detectedAfter: weekStart.toISOString(),
+});
+const recoveredIds = [...new Set(recoveries.map((e) => e.testId))].filter((id) => !unhealthyIds.has(id));
+const recovered = await tenAtATime(recoveredIds, (id) => get(`/tests/${id}`, { include: "metrics", period: "7d" }));
+
+const candidates = [...unhealthy, ...recovered].filter(
+  (t) => t?.statusSince && new Date(t.statusSince) >= weekStart,
+);
+const changes = (
+  await tenAtATime(candidates, async (test) => {
+    const history = await get(`/tests/${test.id}/status-history`, {
+      startedAfter: weekStart.toISOString(),
+      limit: 100,
+    });
+    const from = history?.data.at(-1)?.fromStatus;
+    return from && from !== test.status ? { ...test, from } : null;
+  })
+).filter(Boolean);
 
 const byOwner = new Map();
 for (const test of changes) {
@@ -83,7 +101,7 @@ for (const test of changes) {
 const escape = (text) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const line = (t) => {
   const rate = t.metrics ? `, ${Math.round(t.metrics.failureRate * 100)}% of ${t.metrics.runCount} runs failed` : "";
-  return `• <${t.url}|${escape(t.name)}>: ${t.from} → ${t.status}${rate}`;
+  return `• <${t.url}|${escape(t.name.slice(0, 80))}>: ${t.from} → ${t.status}${rate}`;
 };
 
 const blocks = [{ type: "header", text: { type: "plain_text", text: "Flaky tests this week" } }];
@@ -92,10 +110,10 @@ if (byOwner.size === 0) {
 }
 for (const [owner, tests] of [...byOwner].sort(([a], [b]) => a.localeCompare(b)).slice(0, 49)) {
   tests.sort((a, b) => SEVERITY[b.status] - SEVERITY[a.status]);
-  const more = tests.length > 10 ? `\n…and ${tests.length - 10} more` : "";
+  const more = tests.length > 8 ? `\n…and ${tests.length - 8} more` : "";
   blocks.push({
     type: "section",
-    text: { type: "mrkdwn", text: `*${escape(owner)}*\n${tests.slice(0, 10).map(line).join("\n")}${more}` },
+    text: { type: "mrkdwn", text: `*${escape(owner)}*\n${tests.slice(0, 8).map(line).join("\n")}${more}` },
   });
 }
 
@@ -107,7 +125,7 @@ const res = await fetch(process.env.SLACK_WEBHOOK_URL, {
 if (!res.ok) throw new Error(`Slack: ${res.status} ${await res.text()}`);
 ```
 
-The script lists up to 10 tests for each owner, worst first, and up to 49 owners, which stays within Slack's limits for one message. To send each team its own digest, run the script once per team with `owner` added to both `changedThisWeek` calls and that team's webhook URL.
+The script makes up to 10 requests at a time and lists up to 8 tests for each owner, worst first, and up to 49 owners, which stays within Slack's limits for one message. To send each team its own digest, keep only that team's group from `byOwner` and post it to the team's webhook URL.
 
 ## 4. Run it every week
 
@@ -134,7 +152,7 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 ```
 
-Step 1 reads every healthy test, which takes one request per 100 tests. Requests share your organization's [rate limit](/api/rate-limits). For a large organization, narrow the healthy list with `owner` or `testCollectionId`, or run the digest outside working hours.
+The number of requests depends on how many tests are unhealthy or changed status this week, not on how many tests you have. On an organization with over 275,000 tests and about 2,300 unhealthy ones, the digest made about 1,300 requests and took under 90 seconds. Requests share your organization's [rate limit](/api/rate-limits), so run the digest outside working hours.
 
 ## Related
 
