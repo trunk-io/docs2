@@ -93,10 +93,6 @@ app.post("/trunk", express.raw({ type: "application/json" }), (req, res) => {
 app.listen(3000);
 ```
 
-<Info>
-Webhook statuses are uppercase (`FLAKY`), while the API returns them lowercase (`flaky`). The `test_case.id` in the webhook is the same id the API takes as `testId`.
-</Info>
-
 ## 3. Read the test
 
 Fetch the test before acting. Webhooks can arrive late or be retried, so this confirms the test is still flaky, gets its owners, and shows whether a ticket is already linked. Adding `include=metrics` returns its recent failure rate for the Slack message:
