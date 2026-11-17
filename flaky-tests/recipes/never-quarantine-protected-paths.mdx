@@ -13,28 +13,30 @@ Quarantine keeps flaky tests from blocking CI. For some code, that's the wrong t
 
 - [Quarantining](../quarantining/index#enable-quarantining) must be on for each test collection. An override has no effect in a collection where quarantining is off.
 - Create an [API key](/api/authentication#api-keys) with the **Quarantine tests** permission. Reading tests needs no permission. If a collection's **Manual Quarantine Permissions** setting is **Admins only**, an API key still works, since only an admin can create one.
-- The script needs Node.js 22.5 or later, for `path.matchesGlob`.
+- The script needs Node.js 18 or later.
 
 ## 1. Write down your protected paths
 
-Keep the paths in your repository, so changing the policy goes through code review like any other change. Each entry is a glob matched against a test's `file`, the path your test reports upload:
+Keep the paths in your repository, so changing the policy goes through code review like any other change. Each entry is a path prefix. A test is protected when its `file`, the path your test reports upload, starts with one of them:
 
 ```json quarantine-policy.json
 {
   "neverQuarantine": [
-    "src/payments/**",
-    "**/security/**",
-    "db/migrations/**/*_test.go"
+    "src/payments/",
+    "src/auth/",
+    "db/migrations/"
   ],
   "reason": "Protected path: see quarantine-policy.json"
 }
 ```
 
+End a directory prefix with `/`, so `src/auth/` doesn't also protect `src/authors/`.
+
 `reason` is saved with each override. People see it on the test's page in Trunk, so say where the policy lives.
 
 ## 2. Find the tests under those paths
 
-Call [`GET /v2/tests`](/api/tests/list-and-search-tests) with `file` set to the start of each glob, up to its first wildcard: `src/payments/` for `src/payments/**`. The `file` filter matches any part of the path, not only its start, and it doesn't understand wildcards. So it can return tests outside your paths, and the script matches each test's `file` against the glob itself. A glob that starts with a wildcard, such as `**/security/**`, has no fixed start, so the script searches for its first fixed part (`/security/`) instead.
+Call [`GET /v2/tests`](/api/tests/list-and-search-tests) with `file` set to each prefix, paging through the results with `nextCursor`. `file` also matches a path that contains the prefix further in, such as `lib/src/payments/`, so the script keeps only the tests whose `file` starts with the prefix.
 
 Without `testCollectionId`, the list covers every test collection in your organization. A test that uploads to two collections, such as one for pull requests and one for the default branch, appears once in each, with a different `id`. Both need the override.
 
@@ -52,7 +54,6 @@ This script does steps 2 and 3. Run it with `DRY_RUN=1` first to see which tests
 
 ```javascript protect-paths.mjs
 import { readFileSync } from "node:fs";
-import { matchesGlob } from "node:path";
 
 const API = "https://api.trunk.io/v2";
 const headers = {
@@ -82,18 +83,13 @@ async function listAll(path, params) {
   return rows;
 }
 
-// The longest run of the glob with no wildcard in it, used as the `file` search.
-const fixedPart = (glob) =>
-  glob
-    .split(/[*?[\]{}]/)
-    .reduce((longest, part) => (part.length > longest.length ? part : longest), "");
-export const isProtected = (file) => policy.neverQuarantine.some((glob) => matchesGlob(file, glob));
+export const isProtected = (file) => policy.neverQuarantine.some((prefix) => file.startsWith(prefix));
 
 export async function findProtectedTests() {
   const tests = new Map();
-  for (const glob of policy.neverQuarantine) {
-    for (const test of await listAll("/tests", { file: fixedPart(glob) })) {
-      if (matchesGlob(test.file, glob)) tests.set(test.id, test);
+  for (const prefix of policy.neverQuarantine) {
+    for (const test of await listAll("/tests", { file: prefix })) {
+      if (test.file.startsWith(prefix)) tests.set(test.id, test);
     }
   }
   return [...tests.values()];
@@ -113,9 +109,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const protectedTests = await findProtectedTests();
   // List rows leave out the override, so list the tests that have one and look each up.
   const overrides = new Map();
-  for (const glob of policy.neverQuarantine) {
+  for (const prefix of policy.neverQuarantine) {
     for (const mode of ["neverQuarantine", "alwaysQuarantine"]) {
-      for (const t of await listAll("/tests", { file: fixedPart(glob), quarantineOverride: mode })) {
+      for (const t of await listAll("/tests", { file: prefix, quarantineOverride: mode })) {
         overrides.set(t.id, mode);
       }
     }
@@ -136,8 +132,6 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   }
 }
 ```
-
-On an older Node.js, install [`minimatch`](https://www.npmjs.com/package/minimatch) and use `minimatch(file, glob)` in place of `matchesGlob`.
 
 ## 4. Run it every day
 
@@ -221,7 +215,7 @@ The Slack message goes to an [incoming webhook](https://api.slack.com/messaging/
 
 ## 6. Check that it's working
 
-Call [`GET /v2/tests`](/api/tests/list-and-search-tests) with `quarantineState=quarantined` and `file` set as in step 2, then match each test's `file` against your globs. The result should be empty. A test that turns up is quarantined under a protected path, usually because it's new since the last run, or because its collection's override settings refused the API key.
+Call [`GET /v2/tests`](/api/tests/list-and-search-tests) with `quarantineState=quarantined` and `file` set to each prefix, keeping the tests whose `file` starts with it. The result should be empty. A test that turns up is quarantined under a protected path, usually because it's new since the last run, or because its collection's override settings refused the API key.
 
 Never Quarantine means a flaky test under a protected path blocks CI until someone fixes it. To find those tests, call the same endpoint with `status=flaky,broken`, and make sure each has an owner. [Post a Weekly Flaky Test Digest](./weekly-triage-digest) groups them by code owner, and [`POST /v2/tests/{testId}/create-ticket`](/api/tests/create-a-ticket-for-a-test) files a ticket for one.
 
