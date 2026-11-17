@@ -340,7 +340,7 @@
               },
               {
                 "group": "Recipes",
-                "root": "flaky-tests/recipes/index",
+                "root": "flaky-tests/recipes",
                 "pages": [
                   "flaky-tests/recipes/autofix-flaky-tests",
                   "flaky-tests/recipes/autofix-ci-failures",
