@@ -1,0 +1,226 @@
+---
+title: "Never Quarantine Tests in Protected Paths"
+description: "Keep every test under the paths you choose out of quarantine, including tests added later and overrides people change by hand."
+og:title: "Keep protected paths out of quarantine with the Trunk API"
+---
+Quarantine keeps flaky tests from blocking CI. For some code, that's the wrong trade. You may want every test for payments, authentication, or a database migration to block a merge when it fails, even if it's flaky. This recipe sets a **Never Quarantine** [override](../quarantining/index#overriding-individual-tests) on every test under the paths you choose, and keeps it in place:
+
+- A scheduled script finds every test whose file matches your paths and sets the override on the ones that don't have it. Tests added since the last run get it too.
+- An optional webhook handler puts the override back as soon as someone changes it, and tells your team in Slack.
+- A check confirms that no test under your paths is quarantined.
+
+## Before you start
+
+- [Quarantining](../quarantining/index#enable-quarantining) must be on for each test collection. An override has no effect in a collection where quarantining is off.
+- Create an [API key](/api/authentication#api-keys) with the **Quarantine tests** permission. Reading tests needs no permission. If a collection's **Manual Quarantine Permissions** setting is **Admins only**, an API key still works, since only an admin can create one.
+- The script needs Node.js 18 or later.
+
+## 1. Write down your protected paths
+
+Keep the paths in your repository, so changing the policy goes through code review like any other change. Each entry is a path prefix. A test is protected when its `file`, the path your test reports upload, starts with one of them:
+
+```json quarantine-policy.json
+{
+  "neverQuarantine": [
+    "src/payments/",
+    "src/auth/",
+    "db/migrations/"
+  ],
+  "reason": "Protected path: see quarantine-policy.json"
+}
+```
+
+End a directory prefix with `/`, so `src/auth/` doesn't also protect `src/authors/`.
+
+`reason` is saved with each override. People see it on the test's page in Trunk, so say where the policy lives.
+
+## 2. Find the tests under those paths
+
+Call [`GET /v2/tests`](/api/tests/list-and-search-tests) with `file` set to each prefix, paging through the results with `nextCursor`. `file` also matches a path that contains the prefix further in, such as `lib/src/payments/`, so the script keeps only the tests whose `file` starts with the prefix.
+
+Without `testCollectionId`, the list covers every test collection in your organization. A test that uploads to two collections, such as one for pull requests and one for the default branch, appears once in each, with a different `id`. Both need the override.
+
+## 3. Set the override
+
+Call [`POST /v2/tests/quarantine`](/api/tests/set-quarantine-overrides-on-many-tests) with up to 100 tests at a time, each with `mode` set to `neverQuarantine`. Each test in the response either `succeeded`, was `unchanged` because it already had that override, or `failed` with an `error`. A failure doesn't undo the other tests in the request, and a test that failed with `INTERNAL_ERROR` can be sent again.
+
+The request is safe to repeat: a test that already has the override is left alone. That's what makes the script safe to run on a schedule.
+
+<Note>
+The script also replaces an **Always Quarantine** override on a protected test, because the policy says those tests are never quarantined. To leave those tests alone and only list them, remove `alwaysQuarantine` from `REPLACE` in the script.
+</Note>
+
+This script does steps 2 and 3. Run it with `DRY_RUN=1` first to see which tests it would change without changing them.
+
+```javascript protect-paths.mjs
+import { readFileSync } from "node:fs";
+
+const API = "https://api.trunk.io/v2";
+const headers = {
+  Authorization: `Bearer ${process.env.TRUNK_API_KEY}`,
+  "Content-Type": "application/json",
+};
+const policy = JSON.parse(readFileSync("quarantine-policy.json", "utf8"));
+const REPLACE = new Set([undefined, null, "alwaysQuarantine"]);
+const dryRun = process.env.DRY_RUN === "1";
+
+async function call(method, path, { params = {}, body } = {}) {
+  const url = new URL(API + path);
+  for (const [key, value] of Object.entries(params)) url.searchParams.set(key, value);
+  const res = await fetch(url, { method, headers, body: body && JSON.stringify(body) });
+  if (!res.ok) throw new Error(`${res.status} ${method} ${path}: ${await res.text()}`);
+  return res.json();
+}
+
+async function listAll(path, params) {
+  const rows = [];
+  let cursor;
+  do {
+    const page = await call("GET", path, { params: { ...params, limit: 100, ...(cursor && { cursor }) } });
+    rows.push(...page.data);
+    cursor = page.nextCursor;
+  } while (cursor);
+  return rows;
+}
+
+export const isProtected = (file) => policy.neverQuarantine.some((prefix) => file.startsWith(prefix));
+
+export async function findProtectedTests() {
+  const tests = new Map();
+  for (const prefix of policy.neverQuarantine) {
+    for (const test of await listAll("/tests", { file: prefix })) {
+      if (test.file.startsWith(prefix)) tests.set(test.id, test);
+    }
+  }
+  return [...tests.values()];
+}
+
+export async function protect(tests) {
+  const results = [];
+  for (let i = 0; i < tests.length; i += 100) {
+    const items = tests.slice(i, i + 100).map((t) => ({ testId: t.id, mode: "neverQuarantine" }));
+    const res = await call("POST", "/tests/quarantine", { body: { reason: policy.reason, items } });
+    results.push(...res.results);
+  }
+  return results;
+}
+
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const protectedTests = await findProtectedTests();
+  // List rows leave out the override, so list the tests that have one and look each up.
+  const overrides = new Map();
+  for (const prefix of policy.neverQuarantine) {
+    for (const mode of ["neverQuarantine", "alwaysQuarantine"]) {
+      for (const t of await listAll("/tests", { file: prefix, quarantineOverride: mode })) {
+        overrides.set(t.id, mode);
+      }
+    }
+  }
+  const toChange = protectedTests.filter((t) => REPLACE.has(overrides.get(t.id)));
+  const skipped = protectedTests.filter((t) => overrides.get(t.id) === "alwaysQuarantine" && !REPLACE.has("alwaysQuarantine"));
+
+  console.log(`${protectedTests.length} tests under protected paths, ${toChange.length} to change`);
+  for (const t of skipped) console.log(`left alone (Always Quarantine): ${t.file} ${t.name}`);
+  if (dryRun) {
+    for (const t of toChange) console.log(`would change: ${t.file} ${t.name}`);
+  } else {
+    const results = await protect(toChange);
+    const failed = results.filter((r) => r.status === "failed");
+    console.log(`${results.filter((r) => r.status === "succeeded").length} changed, ${failed.length} failed`);
+    for (const r of failed) console.error(`failed: ${r.testId} ${r.error.code}`);
+    if (failed.length) process.exit(1);
+  }
+}
+```
+
+## 4. Run it every day
+
+New tests don't have the override until the script runs again, so run it at least daily. This GitHub Actions workflow runs every day at 06:00 UTC, and whenever the policy file changes on the default branch. Store the API key as a repository secret:
+
+```yaml .github/workflows/protect-paths.yml
+name: Never quarantine protected paths
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  push:
+    branches: [main]
+    paths: [quarantine-policy.json]
+  workflow_dispatch:
+
+jobs:
+  protect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node protect-paths.mjs
+        env:
+          TRUNK_API_KEY: ${{ secrets.TRUNK_API_KEY }}
+```
+
+The number of requests depends on how many tests are under your paths, not on how many tests you have. Requests share your organization's [rate limit](/api/rate-limits).
+
+<Note>
+Removing a path from the policy doesn't remove the overrides the script set. To clear them, send the same tests to [`POST /v2/tests/quarantine`](/api/tests/set-quarantine-overrides-on-many-tests) with `mode` set to `clear`.
+</Note>
+
+## 5. Put overrides back right away (optional)
+
+Between runs, a person can remove the override from a protected test in the web app. If the test is flaky, Trunk can quarantine it before the next run. To catch that right away, subscribe an endpoint you run to two [webhook](../webhooks/index) events:
+
+| Event | Fires when | What the handler does |
+|---|---|---|
+| `v2.test_case.quarantining_setting_changed` | A person sets or clears an override | If the test is under a protected path and the new setting isn't `NEVER_QUARANTINE`, puts the override back and posts to Slack |
+| `v2.test_case.status_changed` | A test turns flaky, broken or healthy | If the test is under a protected path and is quarantined, sets the override |
+
+Both payloads include the test's `file_path`, so the handler can check the policy without another request. A change your API key makes doesn't send `v2.test_case.quarantining_setting_changed`, so the handler's own writes don't trigger it again.
+
+This handler reuses the functions from `protect-paths.mjs`. Call it from your web server with each webhook's parsed body, after you [verify the webhook's signature](https://docs.svix.com/receiving/verifying-payloads/how):
+
+```javascript handle-webhook.mjs
+import { isProtected, protect } from "./protect-paths.mjs";
+
+export async function handleWebhook(event) {
+  const test = event.test_case;
+  if (!test || !isProtected(test.file_path)) return;
+
+  if (event.type === "v2.test_case.quarantining_setting_changed") {
+    if (event.updated_quarantining_setting === "NEVER_QUARANTINE") return;
+    await protect([test]);
+    await notify(
+      `${event.actor.full_name} changed the quarantine override on ${test.name} (${test.file_path}). ` +
+        `It's under a protected path, so it was set back to Never Quarantine.` +
+        (event.reason ? ` Their reason: ${event.reason}` : ""),
+    );
+  }
+
+  if (event.type === "v2.test_case.status_changed" && test.quarantined) {
+    await protect([test]);
+  }
+}
+
+async function notify(text) {
+  const res = await fetch(process.env.SLACK_WEBHOOK_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text }),
+  });
+  if (!res.ok) throw new Error(`Slack: ${res.status} ${await res.text()}`);
+}
+```
+
+The Slack message goes to an [incoming webhook](https://api.slack.com/messaging/webhooks). The person who changed the override sees it set back on the test's **Events** tab, with your policy's `reason`.
+
+## 6. Check that it's working
+
+Call [`GET /v2/tests`](/api/tests/list-and-search-tests) with `quarantineState=quarantined` and `file` set to each prefix, keeping the tests whose `file` starts with it. The result should be empty. A test that turns up is quarantined under a protected path, usually because it's new since the last run, or because its collection's override settings refused the API key.
+
+Never Quarantine means a flaky test under a protected path blocks CI until someone fixes it. To find those tests, call the same endpoint with `status=flaky,broken`, and make sure each has an owner. [Post a Weekly Flaky Test Digest](./weekly-triage-digest) groups them by code owner, and [`POST /v2/tests/{testId}/create-ticket`](/api/tests/create-a-ticket-for-a-test) files a ticket for one.
+
+## Related
+
+- [Quarantining](../quarantining/index). How quarantine and per-test overrides work.
+- [Post a Weekly Flaky Test Digest](./weekly-triage-digest). Report the flaky tests under your protected paths to their owners.
+- [Webhooks](../webhooks/index). The full event catalog and field reference.
