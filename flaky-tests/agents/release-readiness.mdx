@@ -1,0 +1,63 @@
+---
+title: "Gate a Release with an Agent"
+description: "Have an agent report the flaky and failing tests on a release branch, and block the release on them."
+og:title: "Gate a release on flaky and failing tests using the Trunk API"
+---
+Before you cut a release, an agent can check whether the release branch's tests are healthy: which tests failed there, and whether each one is broken, flaky or quarantined. Trunk's [API](/api) provides both. Have your agent follow these steps.
+
+## 1. Choose when to run
+
+- **After a release test job.** If a scheduled or manual job tests the release branch, run the agent when the job finishes. Pass it the job's build URL and job name.
+- **Before tagging.** Run the agent as a required step before your tag or publish job. Pass it the release branch and the time it was cut.
+
+## 2. Find the tests that matter
+
+Narrow every `GET /v2/tests` call below to the collection that holds the release branch's results with `testCollectionId`. To check only one team's tests, add `owner`.
+
+### From a release test job
+
+When the agent knows the job, list the tests that failed in it:
+
+1. List the tests that failed anywhere recently with [`GET /v2/tests`](/api/tests/list-and-search-tests), using `sort=lastFailureAt` and a `period` that covers the job, such as `1d`.
+2. For each test, call [`GET /v2/tests/{testId}/test-runs`](/api/tests/list-a-tests-runs) with `branches=<release branch>` and `conclusion=failure`. Keep the runs whose `buildUrl` and `jobName` match the job.
+
+Every test with a matching run failed in the job, including a test that broke for the first time on the release branch.
+
+<Note>
+`buildUrl` and `jobName` are what your test uploader recorded. On GitHub Actions, `buildUrl` is the workflow run's URL and `jobName` is the job's ID in the workflow file, not its display name. Read one run first to see the values your CI records.
+</Note>
+
+### From the release branch
+
+Without a job, choose the cases that matter for your release. List each case's tests with [`GET /v2/tests`](/api/tests/list-and-search-tests), then check each test's runs on the branch with [`GET /v2/tests/{testId}/test-runs`](/api/tests/list-a-tests-runs), using `branches=<release branch>`, `conclusion=failure` and `startedAfter=<cut time>`.
+
+| Case | `GET /v2/tests` filters |
+|---|---|
+| Broken tests that failed on the release branch | `status=broken` |
+| Quarantined tests that failed on the release branch | `quarantineState=quarantined` |
+| Tests that failed on the release branch's latest commit | `sort=lastFailureAt` and a `period`. Keep the runs whose `sha` is the latest commit |
+| Flaky tests that failed on the release branch | `status=flaky` |
+| Tests that became flaky since the cut | `status=flaky`, `newlyFlaky=true` and a `period` |
+
+`branches` takes globs, so `release/*` covers every release branch.
+
+<Note>
+A test's `status` and `quarantineState` describe it across every branch. Use the test's `quarantineState`, not the run's: a run's `quarantineState` records what the upload reported for that run.
+</Note>
+
+## 3. Decide and report
+
+For each test that failed, decide a verdict from the test's current state. Adjust these to your release policy:
+
+| The test is | Verdict |
+|---|---|
+| Quarantined | Warn |
+| `flaky` | Warn |
+| `broken`, or `healthy` (a new failure) | Block |
+
+- Exit non-zero on **Block**, so the tag or publish job doesn't run.
+- Post a report grouped by verdict. For each test, give its name, `codeowners`, the number of failures and a link to the latest failing run (`buildUrl`). [`GET /v2/tests/{testId}/status-history`](/api/tests/list-a-tests-status-transitions) shows when it became broken or flaky.
+- Track blockers with [`POST /v2/tests/{testId}/add-labels`](/api/tests/add-labels-to-a-test), for example `release-blocker`, and [`POST /v2/tests/{testId}/create-ticket`](/api/tests/create-a-ticket-for-a-test). To fix them, see [Fix Flaky Tests with an Agent](./autofix-flaky-tests).
+- Don't let the agent quarantine tests or mark them flaky to pass the gate. A person decides to override it.
+
+Run the agent again after each new commit to the release branch, until it passes.

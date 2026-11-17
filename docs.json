@@ -349,6 +349,7 @@
                 "root": "flaky-tests/agents/index",
                 "pages": [
                   "flaky-tests/agents/autofix-flaky-tests",
+                  "flaky-tests/agents/release-readiness",
                   "flaky-tests/agents/autofix-ci-failures",
                   "links/mcp-reference"
                 ]
