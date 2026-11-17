@@ -350,6 +350,7 @@
                 "root": "flaky-tests/agents/index",
                 "pages": [
                   "flaky-tests/agents/autofix-flaky-tests",
+                  "flaky-tests/agents/release-branch-test-health",
                   "flaky-tests/agents/autofix-ci-failures",
                   "flaky-tests/agents/tighten-test-timeouts",
                   "links/mcp-reference"

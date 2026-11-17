@@ -1,0 +1,69 @@
+---
+title: "Evaluate Release Branch Test Health"
+description: "Have an agent report the flaky and failing tests on a release branch before you cut a release."
+og:title: "Evaluate release branch test health using the Trunk API"
+---
+Before you cut a release, an agent can evaluate the health of the release branch's tests: which tests failed, and whether each one is broken, flaky or quarantined. Start from one of two lists of failed tests, then enrich each test with Trunk's [API](/api).
+
+## 1. Find the tests that failed
+
+Choose the approach that fits how you test releases.
+
+### From a pre-release workflow
+
+If a workflow tests the release before you cut it, have the analytics CLI write a summary of the upload, and give that file to the agent.
+
+1. In the workflow, upload the results with analytics CLI **1.0.0 or newer**, adding `--summary-output-file trunk-summary.json`.
+2. Pass `trunk-summary.json` to the agent, for example as a workflow artifact.
+
+The summary lists every failed test in the upload:
+
+- `failures` holds the failed tests that weren't quarantined, and `quarantined` the ones that were. Both are grouped by file.
+- Each test has its `name`, `file`, `failureMessage`, `failureText` and `link`.
+- The last segment of `link` (`…/tests/<testId>`) is the test's ID in the API. Use it in the calls below, not the test's `id` field, which is the CLI's own ID.
+
+<Note>
+The summary reports each test's final result in the report. A test that your runner retried and then passed counts as passed.
+</Note>
+
+### From a failure count monitor on release branches
+
+Have Trunk label every test that fails on a release branch, then start from that label.
+
+1. In the collection that holds the release branch's results, create a [failure count monitor](../detection/failure-count-monitor):
+   - **Branches:** the release branch, or a pattern such as `release/*`.
+   - **Failure count:** `1`.
+   - **Resolution timeout:** long enough to cover your release cycle, so a test stays labeled after a single failure. The web app allows up to 14 days.
+   - **Action:** **Apply labels**, with a label such as `failed-on-release`. See [Automatic labeling from monitors](../management/test-labels#automatic-labeling-from-monitors).
+2. Have the agent list the labeled tests with [`GET /v2/tests`](/api/tests/list-and-search-tests), using `testCollectionId` and `label=failed-on-release`.
+
+The label stays on a test until the resolution timeout passes with no new failures on a matching branch.
+
+## 2. Enrich each test
+
+| What the agent needs | Call |
+|---|---|
+| The test's status, quarantine state, owners and failure rate | [`GET /v2/tests/{testId}`](/api/tests/get-a-test) with `include=metrics&period=7d`. A `404` means Trunk has no record of the test yet, so it's new |
+| When it became broken or flaky, and which monitor flagged it | [`GET /v2/tests/{testId}/status-history`](/api/tests/list-a-tests-status-transitions) |
+| Its failing runs on the release branch, with commit, CI job and build URL | [`GET /v2/tests/{testId}/test-runs`](/api/tests/list-a-tests-runs) with `branches=<release branch>` and `conclusion=failure` |
+
+<Note>
+Read quarantine from the test's `quarantineState`, not the run's. A run's `quarantineState` records what its upload reported.
+</Note>
+
+## 3. Report
+
+Sort each test by its current state. Adjust these to your release policy:
+
+| The test is | Severity |
+|---|---|
+| Quarantined | Known issue |
+| `flaky` | Known issue |
+| `broken`, `healthy` or new | Needs attention |
+
+- Post a report grouped by severity. For each test, give its name, `codeowners`, failure rate and a link to its latest failing run.
+- Track the tests that need attention with [`POST /v2/tests/{testId}/add-labels`](/api/tests/add-labels-to-a-test), for example `release-risk`, and [`POST /v2/tests/{testId}/create-ticket`](/api/tests/create-a-ticket-for-a-test). To fix them, see [Fix Flaky Tests with an Agent](./autofix-flaky-tests).
+- To hold the release on the result, have the agent exit non-zero when any test needs attention, before your tag or publish job.
+- Don't let the agent quarantine tests or mark them flaky to improve the result.
+
+Run the agent again after each new commit to the release branch.
