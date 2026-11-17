@@ -1,5 +1,5 @@
 ---
-title: "Tighten Test Timeouts with an Agent"
+title: "Tighten Test Timeouts"
 description: "Find tests whose timeouts sit far above their passing runtime, and have a coding agent propose tighter values."
 og:title: "Tighten inflated test timeouts with an agent using the Trunk API"
 ---
@@ -7,7 +7,7 @@ A timeout set far above a test's passing runtime wastes CI time. When the test b
 
 The agent makes only two kinds of change: it lowers a timeout to fit the test's passing runtime, or it finds out why the test is slow.
 
-## 0. Configure a timeout inflation monitor
+## 1. Configure a timeout inflation monitor
 
 The [timeout inflation monitor](../detection/timeout-inflation-monitor) flags a test when its failures take far longer than its passes, which means its failures are waiting out a timeout. Create one in the test collection's monitor settings and use the preview panel to see which tests it would flag before you save. Give it a label such as `timeout-inflated`, so the tests it flags are easy to list.
 
@@ -20,13 +20,13 @@ These values suit this recipe. Adjust each one by what the right-hand column say
 | Pass percentile | p95 | The slowest healthy run you want to keep. Use p99 only if a slow pass must never time out. |
 | Fail percentile | p50 | The typical failure. A few fast failures, such as a failed assertion, then can't hide a test that usually waits out its timeout. |
 | Activation ratio | 3 | Must be higher than the resolution ratio. Raise it to 5 for a first pass on a suite with many inflated timeouts, so the worst ones come first. |
-| Resolution ratio | 2.5 | Must be higher than the headroom the agent applies in step 3 (2× by default). A test whose timeout was tightened then resolves on its own. |
+| Resolution ratio | 2.5 | Must be higher than the headroom the agent applies in step 4 (2× by default). A test whose timeout was tightened then resolves on its own. |
 | Min pass samples | 20 | The agent sets the new timeout from the passing percentile, which needs enough passing runs to be trustworthy. |
 | Min fail samples | 5 | Enough failures to show they land at the same timeout each time. |
 | Min absolute gap | 5000 ms for unit tests, 15000 ms for end-to-end suites | The smallest time saved per failure that is worth a pull request. End-to-end suites vary more from run to run. |
 | Stale after | 7 days | Resolves tests that were renamed or deleted. |
 
-## 1. Find the tests to tighten
+## 2. Find the tests to tighten
 
 Start the agent in one of two ways:
 
@@ -35,7 +35,7 @@ Start the agent in one of two ways:
 
 The monitor only flags a test whose failures wait out its timeout. To also find slow tests that haven't failed yet, call [`GET /v2/tests`](/api/tests/list-and-search-tests) with `sort=durationP95`, `period=7d` and `include=metrics`, and have the agent compare each test's runtime with its configured timeout.
 
-## 2. Gather context
+## 3. Gather context
 
 | What the agent needs | Call |
 |---|---|
@@ -57,7 +57,7 @@ Where frameworks set timeouts:
 - **JUnit:** `@Timeout`.
 - **CI jobs:** `timeout-minutes` and its equivalents.
 
-## 3. Propose tighter values or find the cause
+## 4. Propose tighter values or find the cause
 
 **Lower the timeout** when the test's passing durations are steady. Set it to twice the passing P95, at least 1.25 times the slowest pass in the window, and no lower than the framework's default for that kind of test. Round up to a round number. Propose a change only when the current timeout is at least three times the new value.
 
@@ -68,8 +68,13 @@ Where frameworks set timeouts:
 
 Have the agent open one pull request per suite or config file. In the description, list each test with its current timeout, passing P95 and slowest pass, failing P50, and proposed timeout. Estimate the CI time saved as the old timeout minus the new one, times the number of failures in the window.
 
-## 4. Track
+## 5. Track
 
 - Link the pull request's ticket with [`POST /v2/tests/{testId}/ticket`](/api/tests/link-a-ticket-to-a-test), or create one with [`POST /v2/tests/{testId}/create-ticket`](/api/tests/create-a-ticket-for-a-test).
 - After the pull request merges, the monitor resolves the test once its failures fall under the resolution ratio, and removes the label.
-- If a test starts timing out on healthy runs, the new timeout is too tight. Raise it to fit the slowest pass, or find the cause of the slowness as in step 3.
+- If a test starts timing out on healthy runs, the new timeout is too tight. Raise it to fit the slowest pass, or find the cause of the slowness as in step 4.
+
+## Related
+
+- [Timeout inflation monitor](../detection/timeout-inflation-monitor). How the monitor compares failing and passing durations.
+- [Fix Flaky Tests](./autofix-flaky-tests). Have the agent fix a test whose failures aren't timeouts.

@@ -1,0 +1,84 @@
+---
+title: "Recipes"
+description: "Step-by-step guides that use Trunk's API, webhooks and MCP server to fix flaky tests, guard your CI, and keep teams informed."
+og:title: "Flaky Tests recipes for Trunk"
+---
+Each recipe solves one problem end to end, with the calls, code and configuration it needs. Some run as a script or a CI step, some as a small service, and some hand the work to a coding agent such as Cursor or Claude Code.
+
+## Fix
+
+<CardGroup cols={2}>
+  <Card
+    title="Fix Flaky Tests"
+    arrow
+    href="/flaky-tests/recipes/autofix-flaky-tests"
+  >
+    Give a coding agent the context it needs to fix a flaky test.
+  </Card>
+  <Card
+    title="Autofix CI Failures"
+    arrow
+    href="/flaky-tests/recipes/autofix-ci-failures"
+  >
+    Have a coding agent investigate a red CI run and open a fix.
+  </Card>
+  <Card
+    title="Tighten Test Timeouts"
+    arrow
+    href="/flaky-tests/recipes/tighten-test-timeouts"
+  >
+    Bring inflated timeouts down to fit each test's passing runtime.
+  </Card>
+</CardGroup>
+
+## Guard
+
+<CardGroup cols={2}>
+  <Card
+    title="Evaluate Release Branch Test Health"
+    arrow
+    href="/flaky-tests/recipes/release-branch-test-health"
+  >
+    Report the failing tests on a release branch before you cut a release.
+  </Card>
+  <Card
+    title="Never Quarantine Tests in Protected Paths"
+    arrow
+    href="/flaky-tests/recipes/never-quarantine-protected-paths"
+  >
+    Keep every test under the paths you choose out of quarantine.
+  </Card>
+</CardGroup>
+
+## Notice
+
+<CardGroup cols={2}>
+  <Card
+    title="Explain a Failed Pull Request"
+    arrow
+    href="/flaky-tests/recipes/explain-failed-pr-tests"
+  >
+    Tell the author which failed tests are known flaky and which are probably real.
+  </Card>
+  <Card
+    title="Route Flaky Tests to Their Owners"
+    arrow
+    href="/flaky-tests/recipes/route-flaky-tests-to-owners"
+  >
+    File a ticket for a newly flaky test's owners and tell their team in Slack.
+  </Card>
+  <Card
+    title="Alert When a Test Escalates"
+    arrow
+    href="/flaky-tests/recipes/alert-on-test-escalation"
+  >
+    Send a Slack alert when a test gets worse, not only when it's first flagged.
+  </Card>
+  <Card
+    title="Post a Weekly Flaky Test Digest"
+    arrow
+    href="/flaky-tests/recipes/weekly-triage-digest"
+  >
+    Post the tests that changed status this week to Slack, grouped by owner.
+  </Card>
+</CardGroup>

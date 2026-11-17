@@ -33,7 +33,7 @@ Each test has `codeowners`, such as `@acme/payments`. Group the tests by owner. 
 
 This script does all three steps. It needs Node.js 18 or later and an [API key](/api/authentication#api-keys). Reading tests needs no permissions, so leave them all off.
 
-```javascript flaky-digest.mjs
+```javascript flaky-digest.mjs expandable
 const API = "https://api.trunk.io/v2";
 const headers = { Authorization: `Bearer ${process.env.TRUNK_API_KEY}` };
 const weekStart = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
@@ -59,10 +59,10 @@ async function listAll(path, params) {
   return rows;
 }
 
-async function tenAtATime(items, fn) {
+async function inBatches(items, size, fn) {
   const results = [];
-  for (let i = 0; i < items.length; i += 10) {
-    results.push(...(await Promise.all(items.slice(i, i + 10).map(fn))));
+  for (let i = 0; i < items.length; i += size) {
+    results.push(...(await Promise.all(items.slice(i, i + size).map(fn))));
   }
   return results;
 }
@@ -75,13 +75,13 @@ const recoveries = await listAll("/detection-events", {
   detectedAfter: weekStart.toISOString(),
 });
 const recoveredIds = [...new Set(recoveries.map((e) => e.testId))].filter((id) => !unhealthyIds.has(id));
-const recovered = await tenAtATime(recoveredIds, (id) => get(`/tests/${id}`, { include: "metrics", period: "7d" }));
+const recovered = await inBatches(recoveredIds, 10, (id) => get(`/tests/${id}`, { include: "metrics", period: "7d" }));
 
 const candidates = [...unhealthy, ...recovered].filter(
   (t) => t?.statusSince && new Date(t.statusSince) >= weekStart,
 );
 const changes = (
-  await tenAtATime(candidates, async (test) => {
+  await inBatches(candidates, 10, async (test) => {
     const history = await get(`/tests/${test.id}/status-history`, {
       startedAfter: weekStart.toISOString(),
       limit: 100,
@@ -131,7 +131,7 @@ The script makes up to 10 requests at a time and lists up to 8 tests for each ow
 
 Run the script from any scheduler, such as cron or a scheduled CI job. This GitHub Actions workflow posts every Monday at 14:00 UTC. Store the API key and the Slack webhook URL as repository secrets:
 
-```yaml .github/workflows/flaky-digest.yml
+```yaml .github/workflows/flaky-digest.yml expandable
 name: Weekly flaky test digest
 on:
   schedule:
@@ -156,6 +156,6 @@ The number of requests depends on how many tests are unhealthy or changed status
 
 ## Related
 
-- [Fix Flaky Tests with an Agent](../agents/autofix-flaky-tests). Hand the tests in your digest to a coding agent.
+- [Fix Flaky Tests](./autofix-flaky-tests). Hand the tests in your digest to a coding agent.
 - [Alert When a Test Escalates](./alert-on-test-escalation). Get an alert as soon as a test gets worse, instead of once a week.
 - [Managing Detected Flaky Tests](../management/managing-detected-flaky-tests). Build a triage process around the digest.
