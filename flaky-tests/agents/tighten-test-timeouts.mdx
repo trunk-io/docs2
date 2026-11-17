@@ -40,9 +40,9 @@ The monitor only flags a test whose failures wait out its timeout. To also find 
 | What the agent needs | Call |
 |---|---|
 | The test's name, file, owners, active monitors and P95 duration | [`GET /v2/tests/{testId}`](/api/tests/get-a-test) with `include=metrics&period=7d` |
-| Passing durations, by CI job | [`GET /v2/tests/{testId}/test-runs`](/api/tests/list-a-tests-runs) with `conclusion=success` and the monitor's `branches`. Each run's duration is `endedAt` minus `startedAt`; group by `jobName`. |
+| Passing durations, by CI job | [`GET /v2/tests/{testId}/test-runs`](/api/tests/list-a-tests-runs) with `conclusion=success`, the monitor's `branches`, and `startedAfter` set to the start of the monitor's window. Each run's duration is `endedAt` minus `startedAt`; group by `jobName`. |
 | Failing durations, to confirm failures land at the timeout | The same call with `conclusion=failure`. Failures that end at nearly the same duration are hitting a timeout. |
-| The configured timeout | Your repository. The agent checks from the narrowest setting to the widest: the test, its `describe` block or file, the framework config, then the CI job. |
+| The configured timeout | Your repository. The agent checks from the narrowest setting to the widest: the test, its `describe` block or file, the framework config, then the CI job. The failures should end just after that value. If they end well before it, they are hitting a shorter wait instead, such as an assertion timeout (Playwright's `expect` waits 5 seconds by default). |
 
 <Note>
 The P95 duration on the test covers failing runs too, so a test that keeps waiting out its timeout pushes its own P95 up. Have the agent use passing runs only.
