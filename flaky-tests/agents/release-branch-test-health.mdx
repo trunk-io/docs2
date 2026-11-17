@@ -1,9 +1,9 @@
 ---
-title: "Gate a Release with an Agent"
-description: "Have an agent report the flaky and failing tests on a release branch, and block the release on them."
-og:title: "Gate a release on flaky and failing tests using the Trunk API"
+title: "Evaluate Release Branch Test Health"
+description: "Have an agent report the flaky and failing tests on a release branch before you cut a release."
+og:title: "Evaluate release branch test health using the Trunk API"
 ---
-Before you cut a release, an agent can check whether the release's tests are healthy: which tests failed, and whether each one is broken, flaky or quarantined. Start from one of two lists of failed tests, then enrich each test with Trunk's [API](/api).
+Before you cut a release, an agent can evaluate the health of the release branch's tests: which tests failed, and whether each one is broken, flaky or quarantined. Start from one of two lists of failed tests, then enrich each test with Trunk's [API](/api).
 
 ## 1. Find the tests that failed
 
@@ -51,19 +51,19 @@ The label stays on a test until the resolution timeout passes with no new failur
 Read quarantine from the test's `quarantineState`, not the run's. A run's `quarantineState` records what its upload reported.
 </Note>
 
-## 3. Decide and report
+## 3. Report
 
-Decide a verdict for each test from its current state. Adjust these to your release policy:
+Sort each test by its current state. Adjust these to your release policy:
 
-| The test is | Verdict |
+| The test is | Severity |
 |---|---|
-| Quarantined | Warn |
-| `flaky` | Warn |
-| `broken`, `healthy` or new | Block |
+| Quarantined | Known issue |
+| `flaky` | Known issue |
+| `broken`, `healthy` or new | Needs attention |
 
-- Exit non-zero on **Block**, so the tag or publish job doesn't run.
-- Post a report grouped by verdict. For each test, give its name, `codeowners`, failure rate and a link to its latest failing run.
-- Track blockers with [`POST /v2/tests/{testId}/add-labels`](/api/tests/add-labels-to-a-test), for example `release-blocker`, and [`POST /v2/tests/{testId}/create-ticket`](/api/tests/create-a-ticket-for-a-test). To fix them, see [Fix Flaky Tests with an Agent](./autofix-flaky-tests).
-- Don't let the agent quarantine tests or mark them flaky to pass the gate. A person decides to override it.
+- Post a report grouped by severity. For each test, give its name, `codeowners`, failure rate and a link to its latest failing run.
+- Track the tests that need attention with [`POST /v2/tests/{testId}/add-labels`](/api/tests/add-labels-to-a-test), for example `release-risk`, and [`POST /v2/tests/{testId}/create-ticket`](/api/tests/create-a-ticket-for-a-test). To fix them, see [Fix Flaky Tests with an Agent](./autofix-flaky-tests).
+- To hold the release on the result, have the agent exit non-zero when any test needs attention, before your tag or publish job.
+- Don't let the agent quarantine tests or mark them flaky to improve the result.
 
-Run the agent again after each new commit to the release branch, until it passes.
+Run the agent again after each new commit to the release branch.
