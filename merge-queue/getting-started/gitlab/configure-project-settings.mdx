@@ -94,8 +94,10 @@ If the project refuses the method, the merge fails after testing.
 
 Trunk admits a merge request only when GitLab says it is ready to merge, so the merge checks you enable here gate the queue:
 
-- **Pipelines must succeed** applies to the merge request's own pipeline, before it enters the queue. Trunk honors **Skipped pipelines are considered successful**. Trunk doesn't post a commit status on your merge request, so the queue never blocks its own merge.
+- **Pipelines must succeed** applies to the merge request's own pipeline, before it enters the queue. Trunk honors **Skipped pipelines are considered successful**. If you turn this check on, your pipelines must run on the merge request itself, not only on the queue's test runs.
 - **All threads must be resolved** and required approvals also hold a merge request out of the queue until they pass.
+
+Trunk doesn't post a commit status on your merge request. GitLab counts a commit status as part of the merge request's pipeline, and a status that read "running" until the queue merged would make **Pipelines must succeed** refuse that merge. This is why the queue's [GitHub Statuses](/merge-queue/administration/advanced-settings#github-statuses) setting does nothing on GitLab.
 
 ### Merge trains
 
