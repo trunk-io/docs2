@@ -342,7 +342,8 @@
                 "group": "Recipes",
                 "pages": [
                   "flaky-tests/recipes/alert-on-test-escalation",
-                  "flaky-tests/recipes/weekly-triage-digest"
+                  "flaky-tests/recipes/weekly-triage-digest",
+                  "flaky-tests/recipes/route-flaky-tests-to-owners"
                 ]
               },
               {
