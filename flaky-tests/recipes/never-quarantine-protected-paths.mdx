@@ -19,7 +19,7 @@ Quarantine keeps flaky tests from blocking CI. For some code, that's the wrong t
 
 Keep the paths in your repository, so changing the policy goes through code review like any other change. Each entry is a path prefix. A test is protected when its `file`, the path your test reports upload, starts with one of them:
 
-```json quarantine-policy.json
+```json quarantine-policy.json expandable
 {
   "neverQuarantine": [
     "src/payments/",
@@ -52,7 +52,7 @@ The script also replaces an **Always Quarantine** override on a protected test, 
 
 This script does steps 2 and 3. Run it with `DRY_RUN=1` first to see which tests it would change without changing them.
 
-```javascript protect-paths.mjs
+```javascript protect-paths.mjs expandable
 import { readFileSync } from "node:fs";
 
 const API = "https://api.trunk.io/v2";
@@ -137,7 +137,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 
 New tests don't have the override until the script runs again, so run it at least daily. This GitHub Actions workflow runs every day at 06:00 UTC, and whenever the policy file changes on the default branch. Store the API key as a repository secret:
 
-```yaml .github/workflows/protect-paths.yml
+```yaml .github/workflows/protect-paths.yml expandable
 name: Never quarantine protected paths
 on:
   schedule:
@@ -179,7 +179,7 @@ Both payloads include the test's `file_path`, so the handler can check the polic
 
 This handler reuses the functions from `protect-paths.mjs`. Call it from your web server with each webhook's parsed body, after you [verify the webhook's signature](https://docs.svix.com/receiving/verifying-payloads/how):
 
-```javascript handle-webhook.mjs
+```javascript handle-webhook.mjs expandable
 import { isProtected, protect } from "./protect-paths.mjs";
 
 export async function handleWebhook(event) {

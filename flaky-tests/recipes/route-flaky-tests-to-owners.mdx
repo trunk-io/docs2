@@ -31,7 +31,7 @@ You need:
 
 Trunk returns each test's owners exactly as they appear in your `CODEOWNERS` file, such as `@acme/payments`. Keep a map from those owners to where each team wants to hear about flaky tests:
 
-```typescript
+```typescript expandable
 type Team = {
   slackChannel: string; // channel ID
   slackGroup?: string; // Slack user group ID, to @-mention the team
@@ -61,7 +61,7 @@ Mentioning the team's Slack user group is what makes the message an assignment a
 
 Verify the signature, then act only when a test moves *into* the flaky state. Respond quickly and do the work in the background, so a slow ticket call doesn't time out the delivery:
 
-```typescript
+```typescript expandable
 import express from "express";
 import { Webhook } from "svix";
 
@@ -97,7 +97,7 @@ app.listen(3000);
 
 Fetch the test before acting. Webhooks can arrive late or be retried, so this confirms the test is still flaky, gets its owners, and shows whether a ticket is already linked. Adding `include=metrics` returns its recent failure rate for the Slack message:
 
-```typescript
+```typescript expandable
 const TRUNK = "https://api.trunk.io/v2";
 const headers = {
   Authorization: `Bearer ${process.env.TRUNK_API_KEY}`,
@@ -137,7 +137,7 @@ Set the assignee through `fields`, using the shape your tracker expects. Anythin
 | Jira | `{ "assignee": { "accountId": "<Atlassian account ID>" } }` |
 | Linear | `{ "assignee": "<Linear user ID>" }` |
 
-```typescript
+```typescript expandable
 const createTicket = async (testId: string, assignee?: unknown) => {
   const res = await fetch(`${TRUNK}/tests/${testId}/create-ticket`, {
     method: "POST",
@@ -167,7 +167,7 @@ Don't retry a `504` blindly. The ticket can be filed after the call times out, s
 
 Post to the team's channel with the test, why it was flagged, and the ticket:
 
-```typescript
+```typescript expandable
 const notifyTeam = async (team: Team, owner: string, test: any, ticket: any) => {
   const mention = team.slackGroup
     ? `<!subteam^${team.slackGroup}> this test is yours (\`${owner}\` in CODEOWNERS).`
@@ -198,7 +198,7 @@ const notifyTeam = async (team: Team, owner: string, test: any, ticket: any) => 
 
 ## Put it together
 
-```typescript
+```typescript expandable
 const routeFlakyTest = async (testId: string) => {
   const test = await getTest(testId);
   if (test.status !== "flaky") return;

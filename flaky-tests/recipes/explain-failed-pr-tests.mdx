@@ -17,7 +17,7 @@ The step reads the list of failed tests from the summary that the uploader write
 
 Upload your results with `--summary-output-file`. The uploader then writes a JSON summary of the run, including every failed test:
 
-```json
+```json expandable
 {
   "schemaVersion": 2,
   "type": "UPLOAD",
@@ -83,7 +83,7 @@ A quarantined test with a failure rate near 100% isn't flaky: it fails every tim
 
 This script does steps 2 to 5 and creates or updates one comment on the pull request. It needs Node.js 18 or later and an [API key](/api/authentication#api-keys). Reading tests needs no permissions, so leave them all off.
 
-```javascript explain-failed-tests.mjs
+```javascript explain-failed-tests.mjs expandable
 import { readFileSync } from "node:fs";
 
 const API = "https://api.trunk.io/v2";
@@ -184,7 +184,7 @@ The script looks up four tests at a time. Each lookup makes at most three reques
 
 Run it in your test job, after the upload. In GitHub Actions:
 
-```yaml
+```yaml expandable
 jobs:
   test:
     runs-on: ubuntu-latest

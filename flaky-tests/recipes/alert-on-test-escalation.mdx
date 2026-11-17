@@ -34,7 +34,7 @@ Use this when consistently failing tests deserve a louder, separate signal than 
 
 **2. Filter the transformation to escalations.** In your Slack endpoint's transformation, cancel the webhook unless the status got worse. This example ranks the three statuses and only sends a message when `new_status` is more severe than `previous_status`, so recoveries and resolutions stay quiet:
 
-```javascript
+```javascript expandable
 // Status values are uppercase (HEALTHY, FLAKY, BROKEN), matching the payload.
 const SEVERITY = { HEALTHY: 0, FLAKY: 1, BROKEN: 2 };
 
@@ -55,7 +55,7 @@ function handler(webhook) {
 
 To alert *only* when a test reaches the broken state, and stay quiet on first-time flaky detections, gate on the new status directly instead:
 
-```javascript
+```javascript expandable
 function handler(webhook) {
   if (webhook.payload.new_status !== "BROKEN") {
     webhook.cancel = true;
@@ -88,7 +88,7 @@ Use this when you want to know about every detection event on a test, including 
 
 **2. Filter to monitor activations.** The event fires on both activation and resolution, so cancel the webhook unless a monitor is becoming active:
 
-```javascript
+```javascript expandable
 function handler(webhook) {
   const { monitor } = webhook.payload;
 

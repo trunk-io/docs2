@@ -33,7 +33,7 @@ Each test has `codeowners`, such as `@acme/payments`. Group the tests by owner. 
 
 This script does all three steps. It needs Node.js 18 or later and an [API key](/api/authentication#api-keys). Reading tests needs no permissions, so leave them all off.
 
-```javascript flaky-digest.mjs
+```javascript flaky-digest.mjs expandable
 const API = "https://api.trunk.io/v2";
 const headers = { Authorization: `Bearer ${process.env.TRUNK_API_KEY}` };
 const weekStart = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
@@ -131,7 +131,7 @@ The script makes up to 10 requests at a time and lists up to 8 tests for each ow
 
 Run the script from any scheduler, such as cron or a scheduled CI job. This GitHub Actions workflow posts every Monday at 14:00 UTC. Store the API key and the Slack webhook URL as repository secrets:
 
-```yaml .github/workflows/flaky-digest.yml
+```yaml .github/workflows/flaky-digest.yml expandable
 name: Weekly flaky test digest
 on:
   schedule:
