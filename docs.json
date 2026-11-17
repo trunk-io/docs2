@@ -398,6 +398,7 @@
               "ci/dynamic-ci",
               "ci/dynamic-ci/getting-started/index",
               "ci/dynamic-ci/merge-queue",
+              "ci/dynamic-ci/run-before-queue",
               "ci/dynamic-ci/force-run"
             ]
           },
