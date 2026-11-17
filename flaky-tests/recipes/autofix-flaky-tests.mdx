@@ -1,9 +1,14 @@
 ---
-title: "Fix Flaky Tests with an Agent"
+title: "Fix Flaky Tests"
 description: "Give a coding agent the context it needs to fix a flaky test, from Trunk's API."
 og:title: "Fix flaky tests with an agent using the Trunk API"
 ---
 A coding agent such as Cursor or Claude Code can fix a flaky test when it has the right context: which test, when it became flaky, and how it fails. Trunk's [API](/api) provides all of it. Have your agent follow these steps.
+
+## Before you begin
+
+- Create an [API key](/api/authentication#api-keys) for the agent. Reading tests needs no permissions. To have it link or create tickets, give it the **Create tickets** permission.
+- Turn on **CI Intelligence** for the repository, at **Settings** → **Repositories**, with the [Trunk CI GitHub App](/setup/integrations/github/trunk-ci) installed. It provides the failure output in step 2, and keeps logs for 30 days. Without it, have the agent open the run's `buildUrl` instead.
 
 ## 1. Find the tests to fix
 
@@ -21,13 +26,15 @@ Start the agent in one of two ways:
 | Failing runs, with branch, commit, pull request, CI job and build URL | [`GET /v2/tests/{testId}/test-runs`](/api/tests/list-a-tests-runs) with `conclusion=failure` |
 | The failure output | `GET /v2/ci-jobs` with the test's `repositoryId` and the run's `sha` as `commitSha`. Pick the job whose `name` matches the run's `jobName`; its `failure.logExcerpt` gives the failing lines. Read more of the log with `GET /v2/ci-jobs/{id}/log-lines`. |
 
-<Note>
-The failure output comes from CI Intelligence, so **CI Intelligence must be on** for the repository, at **Settings** → **Repositories**, with the [Trunk CI GitHub App](/setup/integrations/github/trunk-ci) installed. Logs are kept for 30 days. Without it, have the agent open the run's `buildUrl` instead.
-</Note>
-
 ## 3. Fix and track
 
 - Have the agent open a pull request that fixes the root cause, not one that raises a timeout or loosens an assertion.
 - To track the work, link the pull request's ticket with [`POST /v2/tests/{testId}/ticket`](/api/tests/link-a-ticket-to-a-test), or create one with [`POST /v2/tests/{testId}/create-ticket`](/api/tests/create-a-ticket-for-a-test).
 
 Keep monitoring the test afterwards to confirm the fix worked.
+
+## Related
+
+- [Route Flaky Tests to Their Owners](./route-flaky-tests-to-owners). File the ticket and tell the owning team, before the agent picks the test up.
+- [Tighten Test Timeouts](./tighten-test-timeouts). Have the agent fix tests that wait out their timeouts.
+- [Autofix CI Failures](./autofix-ci-failures). Fix a red CI run as soon as it fails, with Trunk's MCP server.

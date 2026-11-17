@@ -62,8 +62,14 @@ Sort each test by its current state. Adjust these to your release policy:
 | `broken`, `healthy` or new | Needs attention |
 
 - Post a report grouped by severity. For each test, give its name, `codeowners`, failure rate and a link to its latest failing run.
-- Track the tests that need attention with [`POST /v2/tests/{testId}/add-labels`](/api/tests/add-labels-to-a-test), for example `release-risk`, and [`POST /v2/tests/{testId}/create-ticket`](/api/tests/create-a-ticket-for-a-test). To fix them, see [Fix Flaky Tests with an Agent](./autofix-flaky-tests).
+- Track the tests that need attention with [`POST /v2/tests/{testId}/add-labels`](/api/tests/add-labels-to-a-test), for example `release-risk`, and [`POST /v2/tests/{testId}/create-ticket`](/api/tests/create-a-ticket-for-a-test). To fix them, see [Fix Flaky Tests](./autofix-flaky-tests).
 - To hold the release on the result, have the agent exit non-zero when any test needs attention, before your tag or publish job.
 - Don't let the agent quarantine tests or mark them flaky to improve the result.
 
 Run the agent again after each new commit to the release branch.
+
+## Related
+
+- [Fix Flaky Tests](./autofix-flaky-tests). Hand the tests that need attention to a coding agent.
+- [Explain a Failed Pull Request](./explain-failed-pr-tests). Use the same upload summary to explain failures on a pull request.
+- [Failure count monitor](../detection/failure-count-monitor). How the monitor labels tests that fail on a branch.

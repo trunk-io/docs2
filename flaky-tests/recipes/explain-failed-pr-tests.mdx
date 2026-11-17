@@ -17,7 +17,7 @@ The step reads the list of failed tests from the summary that the uploader write
 
 Upload your results with `--summary-output-file`. The uploader then writes a JSON summary of the run, including every failed test:
 
-```json
+```json expandable
 {
   "schemaVersion": 2,
   "type": "UPLOAD",
@@ -83,7 +83,7 @@ A quarantined test with a failure rate near 100% isn't flaky: it fails every tim
 
 This script does steps 2 to 5 and creates or updates one comment on the pull request. It needs Node.js 18 or later and an [API key](/api/authentication#api-keys). Reading tests needs no permissions, so leave them all off.
 
-```javascript explain-failed-tests.mjs
+```javascript explain-failed-tests.mjs expandable
 import { readFileSync } from "node:fs";
 
 const API = "https://api.trunk.io/v2";
@@ -100,10 +100,10 @@ async function get(path, params) {
   return res.json();
 }
 
-async function fewAtATime(items, fn) {
+async function inBatches(items, size, fn) {
   const results = [];
-  for (let i = 0; i < items.length; i += 4) {
-    results.push(...(await Promise.all(items.slice(i, i + 4).map(fn))));
+  for (let i = 0; i < items.length; i += size) {
+    results.push(...(await Promise.all(items.slice(i, i + size).map(fn))));
   }
   return results;
 }
@@ -114,40 +114,43 @@ const runs = (testId, params) =>
 
 async function explain(failed) {
   const name = `[\`${failed.name}\`](${failed.link})`;
-  if (!failed.id) return { order: 1, line: `⚪ ${name}: Trunk couldn't look this test up.` };
+  const quarantined = `🟢 ${name}: quarantined, so it didn't fail the job.`;
+  const fallback = () =>
+    failed.quarantined
+      ? { order: 5, line: quarantined }
+      : { order: 1, line: `⚪ ${name}: Trunk couldn't look this test up.` };
+  if (!failed.id) return fallback();
 
   try {
-    if (failed.quarantined) {
-      const test = await get(`/tests/${failed.id}`, { include: "metrics", period: "7d" });
-      const rate = test.metrics?.failureRate ?? 0;
-      const note = rate >= 0.95 ? ` It failed ${percent(rate)} of runs this week, so it needs fixing.` : "";
-      return { order: 5, line: `🟢 ${name}: quarantined, so it didn't fail the job.${note}` };
-    }
-    const [test, onMain, onPrs] = await Promise.all([
-      get(`/tests/${failed.id}`, { include: "metrics", period: "7d" }),
-      runs(failed.id, { branches: BASELINE_BRANCHES }),
-      runs(failed.id, { pullRequestOnly: true }),
-    ]);
+    const test = await get(`/tests/${failed.id}`, { include: "metrics", period: "7d" });
     const rate = test.metrics?.failureRate ?? 0;
     const ticket = test.ticket ? ` (${test.ticket.key})` : "";
-    const otherPrs = new Set(onPrs.data.map((run) => run.pullRequest?.number).filter((n) => n && n !== Number(PR_NUMBER))).size;
 
+    if (failed.quarantined) {
+      const note = rate >= 0.95 ? ` It failed ${percent(rate)} of runs this week, so it needs fixing.` : "";
+      return { order: 5, line: quarantined + note };
+    }
     if (test.status === "flaky") {
       const since = test.statusSince ? ` since ${test.statusSince.slice(0, 10)}` : "";
       return { order: 3, line: `🟡 ${name}: known flaky${since}, failing ${percent(rate)} of runs${ticket}. Retry it.` };
     }
+
+    const [onMain, onPrs] = await Promise.all([
+      runs(failed.id, { branches: BASELINE_BRANCHES }),
+      runs(failed.id, { pullRequestOnly: true }),
+    ]);
     if (test.status === "broken" || onMain.data.length > 0) {
       const where = test.status === "broken" ? "Trunk classifies it as broken" : `it also failed ${onMain.data.length} times on your main branch this week`;
       return { order: 4, line: `🟠 ${name}: ${where}${ticket}. Not caused by this change.` };
     }
+    const otherPrs = new Set(onPrs.data.map((run) => run.pullRequest?.number).filter((n) => n && n !== Number(PR_NUMBER))).size;
     if (otherPrs >= 3) {
       return { order: 2, line: `🟡 ${name}: failed on ${otherPrs} other pull requests this week. It may be flaky. Retry it once.` };
     }
     return { order: 0, line: `🔴 ${name}: passes on your main branch and hasn't failed on other pull requests. **Probably caused by this change.**` };
   } catch (error) {
     console.error(error);
-    if (failed.quarantined) return { order: 5, line: `🟢 ${name}: quarantined, so it didn't fail the job.` };
-    return { order: 1, line: `⚪ ${name}: Trunk couldn't look this test up.` };
+    return fallback();
   }
 }
 
@@ -158,7 +161,7 @@ const failed = [
 ];
 if (failed.length === 0) process.exit(0);
 
-const rows = (await fewAtATime(failed, explain)).sort((a, b) => a.order - b.order);
+const rows = (await inBatches(failed, 4, explain)).sort((a, b) => a.order - b.order);
 const real = rows.filter((row) => row.order === 0).length;
 const body = [
   MARKER,
@@ -184,7 +187,7 @@ The script looks up four tests at a time. Each lookup makes at most three reques
 
 Run it in your test job, after the upload. In GitHub Actions:
 
-```yaml
+```yaml expandable
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -230,4 +233,4 @@ Each job gets its own comment, so a pull request with several test jobs gets one
 - [Quarantining](../quarantining/). How quarantined failures stop failing your CI.
 - [Flake Detection](../detection/). How Trunk decides a test is flaky or broken.
 - [CLI reference](../reference/cli-reference). The uploader's options, including `--summary-output-file`.
-- [Alert When a Test Escalates](alert-on-test-escalation). Hear about a test when its status changes, rather than when it fails.
+- [Alert When a Test Escalates](./alert-on-test-escalation). Hear about a test when its status changes, rather than when it fails.

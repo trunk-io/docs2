@@ -5,7 +5,7 @@ og:title: "Alerting on flaky test escalation with Trunk webhooks"
 ---
 A single "this test is now flaky" alert tells you a test crossed a threshold once. It says nothing about what happens next: the same test failing on more branches, tripping more monitors, or sliding from flaky into a consistently broken regression. For the tests that matter, you want to hear about the escalation, not just the first detection.
 
-This page wires that up with Trunk webhooks and a Slack transformation. It builds on the [Slack integration guide](../webhooks/slack-integration), so set that connection up first, then come back here to filter it down to escalations.
+This recipe wires that up with Trunk webhooks and a Slack transformation. It builds on the [Slack integration guide](../webhooks/slack-integration), so set that connection up first, then come back here to filter it down to escalations.
 
 ## Pick the right event
 
@@ -34,20 +34,15 @@ Use this when consistently failing tests deserve a louder, separate signal than 
 
 **2. Filter the transformation to escalations.** In your Slack endpoint's transformation, cancel the webhook unless the status got worse. This example ranks the three statuses and only sends a message when `new_status` is more severe than `previous_status`, so recoveries and resolutions stay quiet:
 
-```javascript
-// Status values are uppercase (HEALTHY, FLAKY, BROKEN), matching the payload.
+```javascript expandable
 const SEVERITY = { HEALTHY: 0, FLAKY: 1, BROKEN: 2 };
 
 function handler(webhook) {
   const { previous_status = "HEALTHY", new_status = "HEALTHY" } = webhook.payload;
-
-  // Only alert when the test got worse, not when it recovered.
   if (SEVERITY[new_status] <= SEVERITY[previous_status]) {
     webhook.cancel = true;
     return webhook;
   }
-
-  // summarizeTestCase() is defined in the Slack integration guide.
   webhook.payload = summarizeTestCase(webhook.payload);
   return webhook;
 }
@@ -55,14 +50,12 @@ function handler(webhook) {
 
 To alert *only* when a test reaches the broken state, and stay quiet on first-time flaky detections, gate on the new status directly instead:
 
-```javascript
+```javascript expandable
 function handler(webhook) {
   if (webhook.payload.new_status !== "BROKEN") {
     webhook.cancel = true;
     return webhook;
   }
-
-  // summarizeTestCase() is defined in the Slack integration guide.
   webhook.payload = summarizeTestCase(webhook.payload);
   return webhook;
 }
@@ -88,31 +81,19 @@ Use this when you want to know about every detection event on a test, including 
 
 **2. Filter to monitor activations.** The event fires on both activation and resolution, so cancel the webhook unless a monitor is becoming active:
 
-```javascript
+```javascript expandable
 function handler(webhook) {
-  const { monitor } = webhook.payload;
-
-  // Only alert when a monitor starts flagging the test.
+  const { monitor, test_case } = webhook.payload;
   if (!monitor || monitor.status !== "active") {
     webhook.cancel = true;
     return webhook;
   }
-
   webhook.payload = {
     blocks: [
-      {
-        type: "header",
-        text: { type: "plain_text", text: `Monitor active: ${webhook.payload.test_case.name}` },
-      },
+      { type: "header", text: { type: "plain_text", text: `Monitor active: ${test_case.name}` } },
       {
         type: "section",
-        text: {
-          type: "mrkdwn",
-          text: [
-            `Monitor type: \`${monitor.type}\``,
-            `Test Details: ${webhook.payload.test_case.html_url}`,
-          ].join("\n"),
-        },
+        text: { type: "mrkdwn", text: `Monitor type: \`${monitor.type}\`\nTest details: ${test_case.html_url}` },
       },
     ],
   };

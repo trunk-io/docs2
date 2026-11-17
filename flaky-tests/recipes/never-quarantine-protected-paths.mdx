@@ -9,7 +9,7 @@ Quarantine keeps flaky tests from blocking CI. For some code, that's the wrong t
 - An optional webhook handler puts the override back as soon as someone changes it, and tells your team in Slack.
 - A check confirms that no test under your paths is quarantined.
 
-## Before you start
+## Before you begin
 
 - [Quarantining](../quarantining/index#enable-quarantining) must be on for each test collection. An override has no effect in a collection where quarantining is off.
 - Create an [API key](/api/authentication#api-keys) with the **Quarantine tests** permission. Reading tests needs no permission. If a collection's **Manual Quarantine Permissions** setting is **Admins only**, an API key still works, since only an admin can create one.
@@ -19,7 +19,7 @@ Quarantine keeps flaky tests from blocking CI. For some code, that's the wrong t
 
 Keep the paths in your repository, so changing the policy goes through code review like any other change. Each entry is a path prefix. A test is protected when its `file`, the path your test reports upload, starts with one of them:
 
-```json quarantine-policy.json
+```json quarantine-policy.json expandable
 {
   "neverQuarantine": [
     "src/payments/",
@@ -47,12 +47,12 @@ Call [`POST /v2/tests/quarantine`](/api/tests/set-quarantine-overrides-on-many-t
 The request is safe to repeat: a test that already has the override is left alone. That's what makes the script safe to run on a schedule.
 
 <Note>
-The script also replaces an **Always Quarantine** override on a protected test, because the policy says those tests are never quarantined. To leave those tests alone and only list them, remove `alwaysQuarantine` from `REPLACE` in the script.
+The script also replaces an **Always Quarantine** override on a protected test, because the policy says those tests are never quarantined. To leave those tests alone and only list them, set `REPLACE_ALWAYS_QUARANTINE` to `false` in the script.
 </Note>
 
 This script does steps 2 and 3. Run it with `DRY_RUN=1` first to see which tests it would change without changing them.
 
-```javascript protect-paths.mjs
+```javascript protect-paths.mjs expandable
 import { readFileSync } from "node:fs";
 
 const API = "https://api.trunk.io/v2";
@@ -61,7 +61,7 @@ const headers = {
   "Content-Type": "application/json",
 };
 const policy = JSON.parse(readFileSync("quarantine-policy.json", "utf8"));
-const REPLACE = new Set([undefined, null, "alwaysQuarantine"]);
+const REPLACE_ALWAYS_QUARANTINE = true;
 const dryRun = process.env.DRY_RUN === "1";
 
 async function call(method, path, { params = {}, body } = {}) {
@@ -107,7 +107,7 @@ export async function protect(tests) {
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   const protectedTests = await findProtectedTests();
-  // List rows leave out the override, so list the tests that have one and look each up.
+  // List rows leave out the override, so filter by each override to learn which tests have one.
   const overrides = new Map();
   for (const prefix of policy.neverQuarantine) {
     for (const mode of ["neverQuarantine", "alwaysQuarantine"]) {
@@ -116,11 +116,16 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       }
     }
   }
-  const toChange = protectedTests.filter((t) => REPLACE.has(overrides.get(t.id)));
-  const skipped = protectedTests.filter((t) => overrides.get(t.id) === "alwaysQuarantine" && !REPLACE.has("alwaysQuarantine"));
+  const toChange = protectedTests.filter((t) => {
+    const override = overrides.get(t.id);
+    if (override === "alwaysQuarantine" && !REPLACE_ALWAYS_QUARANTINE) {
+      console.log(`left alone (Always Quarantine): ${t.file} ${t.name}`);
+      return false;
+    }
+    return override !== "neverQuarantine";
+  });
 
   console.log(`${protectedTests.length} tests under protected paths, ${toChange.length} to change`);
-  for (const t of skipped) console.log(`left alone (Always Quarantine): ${t.file} ${t.name}`);
   if (dryRun) {
     for (const t of toChange) console.log(`would change: ${t.file} ${t.name}`);
   } else {
@@ -137,7 +142,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 
 New tests don't have the override until the script runs again, so run it at least daily. This GitHub Actions workflow runs every day at 06:00 UTC, and whenever the policy file changes on the default branch. Store the API key as a repository secret:
 
-```yaml .github/workflows/protect-paths.yml
+```yaml .github/workflows/protect-paths.yml expandable
 name: Never quarantine protected paths
 on:
   schedule:
@@ -179,7 +184,7 @@ Both payloads include the test's `file_path`, so the handler can check the polic
 
 This handler reuses the functions from `protect-paths.mjs`. Call it from your web server with each webhook's parsed body, after you [verify the webhook's signature](https://docs.svix.com/receiving/verifying-payloads/how):
 
-```javascript handle-webhook.mjs
+```javascript handle-webhook.mjs expandable
 import { isProtected, protect } from "./protect-paths.mjs";
 
 export async function handleWebhook(event) {
