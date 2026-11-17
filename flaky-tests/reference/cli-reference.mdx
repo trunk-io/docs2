@@ -324,6 +324,7 @@ The `upload` and `test` commands accept the following options:
 | `--allow-forked-pr-uploads` | Upload from a forked pull request, whose CI can't read your API token. Requires `--test-collection-id`, and the collection must have forked pull request uploads turned on. See [Uploads from Forked Pull Requests](/flaky-tests/get-started/fork-pr-uploads). Can also be set with the `TRUNK_ALLOW_FORKED_PR_UPLOADS=true` environment variable. **Optional**. |
 | `--test-process-exit-code` `<EXIT_CODE>` | Specify the exit code of the test previously run. This is used by the upload command to identify errors that happen outside of the context of the test execution (such as build errors). |
 | `--dry-run` | Write the test results bundle to a local `./bundle_upload` directory instead of uploading it to Trunk. [Quarantining](../quarantining/#quarantining-without-uploading) still runs and still determines the exit code. Can also be set with the `TRUNK_DRY_RUN=true` environment variable. **Optional**. |
+| `--summary-output-file <PATH>` | Write a JSON summary of the run to this file: the test counts, and each failed test with its Trunk test ID, whether it was quarantined, and its link. `trunk-analytics-cli summary-output-schema` prints the summary's JSON Schema. See [Explain a Failed Pull Request](/flaky-tests/recipes/explain-failed-pr-tests). Can also be set with the `TRUNK_SUMMARY_OUTPUT_FILE` environment variable. **Optional**. |
 
 <Info>
 **Memory Overhead**
