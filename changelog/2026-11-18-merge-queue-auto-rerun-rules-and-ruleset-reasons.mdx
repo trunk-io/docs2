@@ -1,0 +1,21 @@
+---
+title: "Merge Queue: Automatic re-run rules and ruleset block reasons"
+description: "Re-run failed jobs automatically when a verification run fails a required check, and see which GitHub ruleset rule is blocking a merge."
+date: 2026-11-18
+category: Merge Queue
+type: new-feature
+---
+
+**Your merge queue can now re-run failed jobs for you, and tells you which GitHub ruleset is blocking a pull request.**
+
+### New features
+
+- **Automatic re-run rules.** Set `autoRerunRules` on a queue to re-run failed GitHub Actions jobs when a verification run fails a required check. Each rule lists the jobs that trigger it, whether to re-run now (`now`) or after the workflow finishes (`wait`), and up to 2 re-runs. The pull request keeps its place in the queue while it waits. Rules need `failedTestRunTeardown: keepForRerun` and a GitHub repository. Set them with [Update a merge queue's configuration](/api/mergequeues/update-a-merge-queues-configuration).
+
+### Updates
+
+- **See who asked for a re-run.** A re-run's source in [queue-entry history](/api/pullrequests/list-a-pull-requests-queue-entry-state-history) can now be `auto`, meaning one of the queue's re-run rules started it.
+- **Ruleset rules behind a block.** When a GitHub ruleset rule may be stopping a pull request from merging, [Get a pull request](/api/pullrequests/get-a-pull-request) now returns the rule type, the ruleset name and a link to the ruleset.
+- **More from a GitHub Actions login.** A [GitHub Actions login](/api/authentication#github-actions) can now read a pull request's impacted targets as well as upload them. On a fork pull request, it can also call the Flaky Tests CLI endpoints. All its requests share one limit of 10 per second per repository. See [Rate limits](/api/rate-limits).
+
+See the [API reference](/api) for all v2 endpoints.
