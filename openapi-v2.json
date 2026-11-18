@@ -2588,7 +2588,7 @@
           "forgeRefused",
           "superseded"
         ],
-        "description": "How the wait for the re-run ended. `rerunStarted`: the re-run began testing. `expiredCiRunning`: the time limit passed while the workflow was still running, so the re-run was never sent. `expiredNotStarted`: the re-run was sent but did not start in time. `forgeRefused`: the provider refused the re-run. `superseded`: something else moved the entry on first, such as a restart, a cancel or the entry passing.",
+        "description": "How the wait for the re-run ended. `rerunStarted`: the re-run began testing. `expiredCiRunning`: the time limit passed while the workflow was still running, so the re-run was never sent. `expiredNotStarted`: a re-run was requested but did not start in time. `forgeRefused`: the provider refused the re-run. `superseded`: something else moved the entry on first, such as a restart, a cancel or the entry passing.",
         "example": "rerunStarted"
       },
       "FailedTransitionDetails": {
