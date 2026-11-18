@@ -910,17 +910,6 @@
                   "GET /v2/detection-events"
                 ]
               },
-              {
-                "group": "Dynamic CI",
-                "openapi": {
-                  "source": "/openapi-v2.json",
-                  "directory": "/api"
-                },
-                "pages": [
-                  "GET /v2/dynamic-ci/paths-filters",
-                  "PATCH /v2/dynamic-ci/paths-filters"
-                ]
-              },
               "api/webhooks",
               {
                 "group": "Legacy API",
@@ -1106,6 +1095,34 @@
                     },
                     "pages": [
                       "GET /openapi.json"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "Dynamic CI",
+                "pages": [
+                  {
+                    "group": "Paths filters",
+                    "openapi": {
+                      "source": "/openapi-v2beta-dynamic-ci.json",
+                      "directory": "/api/beta/dynamic-ci"
+                    },
+                    "pages": [
+                      "GET /v2beta/dynamic-ci/paths-filters",
+                      "PATCH /v2beta/dynamic-ci/paths-filters"
+                    ]
+                  },
+                  {
+                    "group": "Force runs",
+                    "openapi": {
+                      "source": "/openapi-v2beta-dynamic-ci.json",
+                      "directory": "/api/beta/dynamic-ci"
+                    },
+                    "pages": [
+                      "GET /v2beta/dynamic-ci/pr-jobs",
+                      "GET /v2beta/dynamic-ci/force-overrides",
+                      "PUT /v2beta/dynamic-ci/force-overrides"
                     ]
                   }
                 ]
@@ -1652,6 +1669,14 @@
     }
   },
   "redirects": [
+    {
+      "source": "/api/dynamicci/list-a-repositorys-paths-filters",
+      "destination": "/api/beta/dynamic-ci/dynamicci/list-a-repositorys-paths-filters"
+    },
+    {
+      "source": "/api/dynamicci/set-or-clear-paths-filters-on-jobs",
+      "destination": "/api/beta/dynamic-ci/dynamicci/set-or-clear-paths-filters-on-jobs"
+    },
     {
       "source": "/flaky-tests/agents",
       "destination": "/flaky-tests/recipes"
