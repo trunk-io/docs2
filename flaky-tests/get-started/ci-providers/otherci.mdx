@@ -99,7 +99,7 @@ You can also download the Trunk Analytics CLI and run it yourself, without the `
 ```bash
 SKU="trunk-analytics-cli-x86_64-unknown-linux.tar.gz"
 VERSION=$(curl -fsSL --connect-timeout 10 --max-time 60 --retry 3 \
-  https://trunk.io/releases/analytics-cli/prod/channel.json | cut -d'"' -f4)
+  https://trunk.io/releases/analytics-cli/prod/channel-1.json | cut -d'"' -f4)
 curl -fL --connect-timeout 10 --max-time 60 --retry 3 \
   "https://trunk.io/releases/analytics-cli/prod/${VERSION}/${SKU}" \
   | tar -xz
