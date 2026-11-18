@@ -3,7 +3,7 @@
   "info": {
     "title": "Trunk API",
     "version": "2.0.0",
-    "description": "The Trunk public API. Every endpoint is scoped to a single organization and requires a credential.\n\n## Authentication\n\nFor automation, send an API key as `Authorization: Bearer <key>`. An organization admin creates one in the Trunk app under **Settings → Developer → API Keys**, and chooses the permissions it holds. A key with no permissions can read merge queues but change nothing in them. Each write's description names the permission it needs, if any. Permissions cover merge queues and test-result uploads, including the quarantine lookups a CI run makes before it uploads; any key can call the other Flaky Tests and Dynamic CI endpoints, including their writes.\n\nA short-lived token in the `x-trunk-token` header is what Trunk's own tools send, such as the `trunk` CLI after `trunk auth login`. Your own integrations should use an API key.\n\nA GitHub Actions job can upload impacted targets with no Trunk secret: the `trunk-io/login` action exchanges the run's own GitHub credential (its OIDC token, or on a pull request from a fork its `GITHUB_TOKEN`) for a short-lived first-party token. That token is accepted only by `PUT /v2/impacted-targets`, for the run's own repository — and on a fork pull request, only for that pull request and its head sha.\n\n## Errors\n\nErrors from the API are an `ErrorResponse`: `{ \"error\": { \"code\", \"message\" } }`. Switch on `code`, which is stable; `message` is prose and may change at any time.\n\nSome responses don't have this shape. Trunk's edge answers `401`, `403` for some credential problems (including a request with no credential), `429`, and gateway errors such as `503` before the request reaches the API. The API itself answers `413` for a body over 512 KB and `504` for a request that runs past its time limit (usually 5 seconds), both as plain text. Read `error.code` only when the body is JSON with an `error` object, and otherwise branch on the status code.\n\n**An authorization denial on a read is reported as `404`, not `403`** — whether a resource exists must not leak across organizations, so a resource in another organization is indistinguishable from one that does not exist. `403 INSUFFICIENT_PERMISSIONS` means the credential is valid but is not permitted the action (or carries no organization).\n\nEvery response from the API carries an `X-Request-Id` header; edge responses may not. Quote it in support requests.\n\n## Rate limiting\n\nMost requests share one limit per organization (currently 100 requests per second), across every API key, user, and CLI session in it. Some requests have limits of their own and don't count toward it: `GET` requests on paths that start with `/v2/pull-requests`, `/v2/ci-jobs`, `/v2/ci-workflow-runs`, or `/v2/ci-failure-clusters` (5 per second per API key or user); the merge queue metrics endpoints (5 per second per organization); impacted-target uploads from a GitHub Actions login (10 per second per repository, and separately for its fork pull requests); test-result uploads (1000 per second per organization) and quarantine lookups (250 per second per organization). Exceeding a limit returns `429`; retry with backoff. The limit is enforced at the edge, which does not yet wrap its `429` in the `ErrorResponse` envelope or send `Retry-After`, so treat any `429` as rate limiting regardless of body.\n\n## Compatibility\n\nWithin v2, Trunk may add: new endpoints, new **optional** response fields, new members to any enum (including new `code` values, new queue-entry states, and new providers), and new optional request parameters. **Clients must tolerate values and fields they do not recognize** rather than failing closed — a client that switches exhaustively over an enum will break when a member is added. Removals and semantic changes require a new major version.\n\n## Provider support\n\nMerge queues, verification runs and checks are **GitHub-only** today; `Check.provider` has a single member for that reason. `PUT /v2/impacted-targets` accepts GitHub and GitLab repositories. A GitHub Actions login (the `trunk-io/login` action, or `trunk auth login --github-actions`) uploads only for its own GitHub repository. The `Provider` enum lists values the repository index can store, not surfaces that are fully supported.\n\n## Not yet available\n\nA pull request's numeric **position** in its queue is not exposed, and list responses are not ordered by queue position. `GET /v2/merge-queues/{id}/order` returns the order the engine will consider pull requests in, but an array index there is not a wait: use a pending entry's `directlyAhead` rather than counting, and `GET /v2/pull-requests/{id}/queue-entry-estimate` for when it is expected to merge (on queues that serve estimates). This API delivers no events of its own — poll it, or subscribe to [Merge Queue's webhooks](https://docs.trunk.io/merge-queue/webhooks). `Idempotency-Key` is not yet honored, so a mutation that times out must be reconciled by reading the resource back rather than blindly retried.",
+    "description": "The Trunk public API. Every endpoint is scoped to a single organization and requires a credential.\n\n## Authentication\n\nFor automation, send an API key as `Authorization: Bearer <key>`. An organization admin creates one in the Trunk app under **Settings → Developer → API Keys**, and chooses the permissions it holds. A key with no permissions can read merge queues but change nothing in them. Each write's description names the permission it needs, if any. Permissions cover merge queues and test-result uploads, including the quarantine lookups a CI run makes before it uploads; any key can call the other Flaky Tests and Dynamic CI endpoints, including their writes.\n\nA short-lived token in the `x-trunk-token` header is what Trunk's own tools send, such as the `trunk` CLI after `trunk auth login`. Your own integrations should use an API key.\n\nA GitHub Actions job can upload and read impacted targets with no Trunk secret: the `trunk-io/login` action exchanges the run's own GitHub credential (its OIDC token, or on a pull request from a fork its `GITHUB_TOKEN`) for a short-lived first-party token. That token is accepted only by `PUT /v2/impacted-targets`, by `GET /v2/pull-requests/{id}/impacted-targets` and, on a fork pull request, by the Flaky Tests CLI endpoints. It works only for the run's own repository. On a fork pull request it works only for that pull request, and the upload works only for the pull request's head sha.\n\n## Errors\n\nErrors from the API are an `ErrorResponse`: `{ \"error\": { \"code\", \"message\" } }`. Switch on `code`, which is stable; `message` is prose and may change at any time.\n\nSome responses don't have this shape. Trunk's edge answers `401`, `403` for some credential problems (including a request with no credential), `429`, and gateway errors such as `503` before the request reaches the API. The API itself answers `413` for a body over 512 KB and `504` for a request that runs past its time limit (usually 5 seconds), both as plain text. Read `error.code` only when the body is JSON with an `error` object, and otherwise branch on the status code.\n\n**An authorization denial on a read is reported as `404`, not `403`** — whether a resource exists must not leak across organizations, so a resource in another organization is indistinguishable from one that does not exist. `403 INSUFFICIENT_PERMISSIONS` means the credential is valid but is not permitted the action (or carries no organization).\n\nEvery response from the API carries an `X-Request-Id` header; edge responses may not. Quote it in support requests.\n\n## Rate limiting\n\nMost requests share one limit per organization (currently 100 requests per second), across every API key, user, and CLI session in it. Some requests have limits of their own and don't count toward it: `GET` requests on paths that start with `/v2/pull-requests`, `/v2/ci-jobs`, `/v2/ci-workflow-runs`, or `/v2/ci-failure-clusters` (5 per second per API key or user); the merge queue metrics endpoints (5 per second per organization); every request from a GitHub Actions login, which includes impacted-target uploads and reads and the Flaky Tests CLI endpoints on a fork pull request (10 per second per repository, and separately for its fork pull requests; the other limits in this list do not apply to it); test-result uploads (1000 per second per organization) and quarantine lookups (250 per second per organization). Exceeding a limit returns `429`; retry with backoff. The limit is enforced at the edge, which does not yet wrap its `429` in the `ErrorResponse` envelope or send `Retry-After`, so treat any `429` as rate limiting regardless of body.\n\n## Compatibility\n\nWithin v2, Trunk may add: new endpoints, new **optional** response fields, new members to any enum (including new `code` values, new queue-entry states, and new providers), and new optional request parameters. **Clients must tolerate values and fields they do not recognize** rather than failing closed — a client that switches exhaustively over an enum will break when a member is added. Removals and semantic changes require a new major version.\n\n## Provider support\n\nMerge queues, verification runs and checks are **GitHub-only** today; `Check.provider` has a single member for that reason. `PUT /v2/impacted-targets` accepts GitHub and GitLab repositories. A GitHub Actions login (the `trunk-io/login` action, or `trunk auth login --github-actions`) uploads only for its own GitHub repository. The `Provider` enum lists values the repository index can store, not surfaces that are fully supported.\n\n## Not yet available\n\nA pull request's numeric **position** in its queue is not exposed, and list responses are not ordered by queue position. `GET /v2/merge-queues/{id}/order` returns the order the engine will consider pull requests in, but an array index there is not a wait: use a pending entry's `directlyAhead` rather than counting, and `GET /v2/pull-requests/{id}/queue-entry-estimate` for when it is expected to merge (on queues that serve estimates). This API delivers no events of its own — poll it, or subscribe to [Merge Queue's webhooks](https://docs.trunk.io/merge-queue/webhooks). `Idempotency-Key` is not yet honored, so a mutation that times out must be reconciled by reading the resource back rather than blindly retried.",
     "contact": {
       "name": "Trunk Support",
       "url": "https://docs.trunk.io"
@@ -96,7 +96,7 @@
         "type": "apiKey",
         "in": "header",
         "name": "x-trunk-token",
-        "description": "A short-lived token that Trunk's own tools send in the `x-trunk-token` header: the `trunk` CLI after `trunk auth login`, and the `trunk-io/login` action in a GitHub Actions run. Your own integrations should use an API key instead. Never send `Authorization` and `x-trunk-token` on the same request.\n\n**A token from a GitHub Actions run can only upload impacted targets** (`PUT /v2/impacted-targets`), for the repository the run belongs to; every other endpoint refuses it."
+        "description": "A short-lived token that Trunk's own tools send in the `x-trunk-token` header: the `trunk` CLI after `trunk auth login`, and the `trunk-io/login` action in a GitHub Actions run. Your own integrations should use an API key instead. Never send `Authorization` and `x-trunk-token` on the same request.\n\n**A token from a GitHub Actions run can only upload and read impacted targets** (`PUT /v2/impacted-targets` and `GET /v2/pull-requests/{id}/impacted-targets`), for the repository the run belongs to. On a pull request from a fork it can also call the Flaky Tests CLI endpoints. Every other endpoint refuses it."
       }
     },
     "schemas": {
@@ -374,6 +374,21 @@
             "description": "How long a re-run of failed checks (`POST /v2/pull-requests/{id}/rerun-failed-checks`) keeps its pull request in `pendingFailure` waiting for the re-run to start; `rerun.until` is the request time plus this. From 1 to 60. Applies while `failedTestRunTeardown` is `keepForRerun`. A change applies to later re-runs; a hold already in progress keeps its `rerun.until`.",
             "example": 30
           },
+          "autoRerunRules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AutoRerunRule"
+            },
+            "maxItems": 50,
+            "description": "Jobs that Trunk re-runs automatically when a verification run fails a required check. A rule starts when a job it names fails in the same workflow as a failed required check: Trunk re-runs the failed jobs of that workflow, at once (`now`) or when the workflow finishes (`wait`), up to `maxReruns` times. These re-runs and `POST /v2/pull-requests/{id}/rerun-failed-checks` share two re-runs per verification run. When jobs from more than one rule fail, the first of those rules applies, so the order of rules is significant; the order of `checks` within a rule is not, and a resend in another order changes nothing. A check can be in only one rule. Requires `failedTestRunTeardown: keepForRerun` and a GitHub repository; a check that Trunk cannot re-run is refused with `VALIDATION_FAILED`, naming the check. Empty means no rules.",
+            "example": [
+              {
+                "checks": ["smoke-check"],
+                "mode": "wait",
+                "maxReruns": 1
+              }
+            ]
+          },
           "enqueueingLabel": {
             "type": "string",
             "description": "The label that submits a pull request to this queue when `areLabelCommandsEnabled` is true. May not collide with a Trunk-reserved `trunk-*` state label.",
@@ -406,6 +421,7 @@
           "testBranchConstructionMode",
           "failedTestRunTeardown",
           "maxHoldMinutes",
+          "autoRerunRules",
           "enqueueingLabel"
         ],
         "description": "A queue's full configuration. `requiredStatuses` (what must pass) is a merge-protection control rather than a tuning knob, so treat write access to this object as security-relevant."
@@ -460,6 +476,38 @@
         "enum": ["tearDown", "keepForRerun"],
         "description": "What the queue does with a failed verification run's testing branch and CI. `tearDown` deletes them when the run fails. `keepForRerun` keeps them while the entry waits in `pendingFailure`, so its failed checks can be re-run on the same run (`POST /v2/pull-requests/{id}/rerun-failed-checks`); they are torn down once the entry stops waiting, including runs kept before a switch back to `tearDown`. Switching to `tearDown` also ends any re-run hold already in progress.",
         "example": "tearDown"
+      },
+      "AutoRerunRule": {
+        "type": "object",
+        "properties": {
+          "checks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 50,
+            "description": "Exact GitHub Actions job names or commit-status contexts, as the queue's required-statuses picker lists them. A matrix job is one name per combination, for example `test (ubuntu)`. The order carries no meaning.",
+            "example": ["smoke-check", "lint"]
+          },
+          "mode": {
+            "$ref": "#/components/schemas/AutoRerunMode"
+          },
+          "maxReruns": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2,
+            "description": "How many times Trunk re-runs: 1 or 2.",
+            "example": 1
+          }
+        },
+        "required": ["checks", "mode", "maxReruns"],
+        "description": "A rule that re-runs failed jobs automatically when a job it names fails in the same workflow as a failed required check."
+      },
+      "AutoRerunMode": {
+        "type": "string",
+        "enum": ["wait", "now"],
+        "description": "When Trunk re-runs the failed jobs. `wait` lets the rest of the workflow finish first. `now` stops the workflow's running jobs and re-runs them with the failed jobs.",
+        "example": "wait"
       },
       "ErrorResponse": {
         "type": "object",
@@ -1249,6 +1297,13 @@
                 "message": "needs 1 more approving review",
                 "have": 0,
                 "need": 1
+              },
+              {
+                "code": "other",
+                "message": "the commit author email rule in ruleset `Acme policy` may not be satisfied",
+                "ruleType": "commit_author_email_pattern",
+                "rulesetName": "Acme policy",
+                "rulesetUrl": "https://github.com/acme/widgets/rules/42"
               }
             ]
           }
@@ -1289,6 +1344,21 @@
             "minimum": 0,
             "description": "`stackNeedsRebase` only: the number of the pull request this branch must be rebased onto.",
             "example": 3
+          },
+          "ruleType": {
+            "type": "string",
+            "description": "`other` only: the type of the ruleset rule that may be blocking the merge, as GitHub names it (for example `commit_author_email_pattern`). Open-ended: a rule type GitHub adds later passes through unchanged.",
+            "example": "commit_author_email_pattern"
+          },
+          "rulesetName": {
+            "type": "string",
+            "description": "`other` only: the name of the ruleset that holds the rule.",
+            "example": "Acme policy"
+          },
+          "rulesetUrl": {
+            "type": "string",
+            "description": "`other` only: GitHub's page for the ruleset. Present only when it is an `https://github.com` URL.",
+            "example": "https://github.com/acme/widgets/rules/42"
           }
         },
         "required": ["code", "message"],
@@ -1309,7 +1379,7 @@
           "stackNeedsRebase",
           "other"
         ],
-        "description": "Why the pull request is not mergeable. `behind`, `pending`, and `awaitingCheck` resolve without author action (Trunk updates the branch; GitHub is still computing; a required check is still running); the rest need the author to act. `stackNeedsRebase` means a PR in the middle of this GitHub stack was pushed to without rebasing the ones above it. `other` is any other block; its `message` names a ruleset rule when Trunk has one.",
+        "description": "Why the pull request is not mergeable. `behind`, `pending`, and `awaitingCheck` resolve without author action (Trunk updates the branch; GitHub is still computing; a required check is still running); the rest need the author to act. `stackNeedsRebase` means a PR in the middle of this GitHub stack was pushed to without rebasing the ones above it. `other` is any other block; when Trunk can name the ruleset rule behind it, `ruleType`, `rulesetName` and `rulesetUrl` say which, and `message` names it.",
         "example": "reviewRequired"
       },
       "PullRequestCi": {
@@ -1651,6 +1721,42 @@
             "maximum": 60,
             "description": "How long a re-run of failed checks (`POST /v2/pull-requests/{id}/rerun-failed-checks`) keeps its pull request in `pendingFailure` waiting for the re-run to start; `rerun.until` is the request time plus this. From 1 to 60. Applies while `failedTestRunTeardown` is `keepForRerun`. A change applies to later re-runs; a hold already in progress keeps its `rerun.until`."
           },
+          "autoRerunRules": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "checks": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "minItems": 1,
+                  "maxItems": 50
+                },
+                "mode": {
+                  "type": "string",
+                  "enum": ["wait", "now"]
+                },
+                "maxReruns": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 2
+                }
+              },
+              "required": ["checks", "mode", "maxReruns"]
+            },
+            "maxItems": 50,
+            "description": "Jobs that Trunk re-runs automatically when a verification run fails a required check. A rule starts when a job it names fails in the same workflow as a failed required check: Trunk re-runs the failed jobs of that workflow, at once (`now`) or when the workflow finishes (`wait`), up to `maxReruns` times. These re-runs and `POST /v2/pull-requests/{id}/rerun-failed-checks` share two re-runs per verification run. When jobs from more than one rule fail, the first of those rules applies, so the order of rules is significant; the order of `checks` within a rule is not, and a resend in another order changes nothing. A check can be in only one rule. Requires `failedTestRunTeardown: keepForRerun` and a GitHub repository; a check that Trunk cannot re-run is refused with `VALIDATION_FAILED`, naming the check. Empty means no rules.",
+            "example": [
+              {
+                "checks": ["smoke-check"],
+                "mode": "wait",
+                "maxReruns": 1
+              }
+            ]
+          },
           "enqueueingLabel": {
             "type": "string",
             "minLength": 1,
@@ -1658,7 +1764,7 @@
           }
         },
         "additionalProperties": false,
-        "description": "A JSON Merge Patch: an absent key leaves that setting unchanged, and an unknown key is rejected rather than dropped. `requiredStatuses: []` and `batchingRules: []` clear those lists. A `batchingRules` write replaces the whole set. `notReadyTimeoutMinutes` must be a whole number of hours."
+        "description": "A JSON Merge Patch: an absent key leaves that setting unchanged, and an unknown key is rejected rather than dropped. `requiredStatuses: []`, `batchingRules: []` and `autoRerunRules: []` clear those lists. A `batchingRules` or `autoRerunRules` write replaces the whole set. `notReadyTimeoutMinutes` must be a whole number of hours."
       },
       "UploadImpactedTargetsRequest": {
         "type": "object",
@@ -2170,7 +2276,7 @@
           },
           "reason": {
             "type": ["string", "null"],
-            "description": "Why the entry entered this state. `null` for `testing` and `pendingFailure`, which carry no reason.\n\nThe values below are the vocabulary in use today, grouped by the state they accompany. **This is an open set** — it is the engine's own vocabulary and new values may appear within v2, so match on the values you care about and treat anything else as unclassified rather than failing closed.\n\n**Why an entry is waiting (`notReady`)** — `USER_REQUESTED`, `TRUNK_ADMIN_REQUESTED`, `API_REQUESTED`, `PR_PUSHED_TO` (a push to the pull request sent it back to wait on the new commit).\n\n**Why an entry (re)entered the line (`pending`)** — these are what distinguish a restart's cause:\n\n| Value | Meaning |\n| --- | --- |\n| `TESTS_RESTARTED_BY_USER` | A person restarted the tests. |\n| `TESTS_RESTARTED_BY_API_REQUEST` | Restarted through the API — e.g. `pullRequests.restartTests`. |\n| `MERGE_ITEM_NOW_READY` | A readiness condition became satisfied. |\n| `MANUAL_PUSH_TO_TARGET_BRANCH` | Someone pushed to the target branch, invalidating the tested state. |\n| `PREREQUISITE_MERGE_ITEM_FAILED` | An entry ahead of this one failed, so this one must re-test. |\n| `PREREQUISITE_MERGE_ITEM_CANCELLED` | An entry ahead was removed. |\n| `PREREQUISITE_MERGE_ITEM_MANUALLY_MERGED` | An entry ahead was merged outside the queue. |\n| `SKIP_THE_LINE_INTERRUPTED` | A higher-priority entry preempted this one. |\n| `BISECTION_REQUIRED` | A batch failed and the engine is bisecting to find the culprit. |\n| `BISECTION_TEST_RUN_PASSED` | A bisection run cleared this entry. |\n\n**Why verification passed (`testsPassed`)** — `TEST_RUN_PASSED`, `SUCCESSOR_TEST_RUN_PASSED`, `PASSED_BY_OPTIMIZATION`.\n\n**Why an entry failed (`failed`)** — `TEST_RUN_REQUIRED_STATUS_FAILED`, `TEST_RUN_TIMEOUT`, `TEST_RUN_FAILED_BY_OPTIMIZATION`, `START_TEST_RUN_MERGE_CONFLICT`, `START_TEST_RUN_RETRY_EXHAUSTED`, `START_TEST_RUN_DRAFT_PRS_NOT_ALLOWED`, `START_TEST_RUN_PERMISSIONS_BLOCK_TEST_BRANCH`, `START_TEST_RUN_NO_REQUIRED_STATUSES`, `START_TEST_RUN_CONFIG_NOT_FOUND`, `START_TEST_RUN_CONFIG_PARSING_FAILURE`, `START_TEST_RUN_CONFIG_BAD_VERSION`, `START_TEST_RUN_CONFIG_BAD_REQUIRED_STATUSES`, `START_TEST_RUN_CONFIG_MISSING_REQUIRED_STATUSES`, `START_TEST_RUN_INVALID_EVENT`, `PR_UPDATED_AT_MERGE_TIME`, `GITHUB_API_MERGE_PR_FAILED`, `GITHUB_API_DIRECT_MERGE_PR_FAILED`, `GITHUB_API_BRANCH_PROTECTION_UNMET`, `GITHUB_API_MERGE_ALREADY_IN_PROGRESS`, `GITHUB_API_RATE_LIMIT_EXCEEDED`, `GITHUB_API_REPEATED_SERVER_ERRORS`, `MERGE_METHOD_NOT_ALLOWED`, `GITHUB_STACK_MERGE_STUCK_PENDING`.\n\n**Why an entry was removed (`cancelled`)** — `USER_REQUESTED`, `TRUNK_ADMIN_REQUESTED`, `PR_CLOSED`, `PR_MERGED_INTO_OTHER_BRANCH`, `PR_PUSHED_TO` (older entries only; a push now returns an entry to `notReady`), `PR_BASE_BRANCH_CHANGED`, `PR_CONVERTED_TO_DRAFT`, `NOT_READY_TIMEOUT_EXPIRED`, `STACKED_PR_MEMBER_PUSHED_TO`, `STACKED_PR_MEMBER_CLOSED`, `STACKED_PR_MEMBER_MERGED`, `STACKED_PR_MEMBER_BASE_BRANCH_CHANGED`, `STACKED_PR_STACK_CHANGED`, `STACKED_PR_GROUP_CANCELLED_AT_MERGE_TIME`.\n\n**Why an entry merged (`merged`)** — `MERGE_GRAPH_MERGE`, `MERGE_GRAPH_DIRECT_MERGE`, `MANUAL_MERGE`.",
+            "description": "Why the entry entered this state. `null` for `testing` and `pendingFailure`, which carry no reason.\n\nThe values below are the vocabulary in use today, grouped by the state they accompany. **This is an open set** — it is the engine's own vocabulary and new values may appear within v2, so match on the values you care about and treat anything else as unclassified rather than failing closed.\n\n**Why an entry is waiting (`notReady`)** — `USER_REQUESTED`, `TRUNK_ADMIN_REQUESTED`, `API_REQUESTED`, `PR_PUSHED_TO` (a push to the pull request sent it back to wait on the new commit).\n\n**Why an entry (re)entered the line (`pending`)** — these are what distinguish a restart's cause:\n\n| Value | Meaning |\n| --- | --- |\n| `TESTS_RESTARTED_BY_USER` | A person restarted the tests. |\n| `TESTS_RESTARTED_BY_API_REQUEST` | Restarted through the API — e.g. `pullRequests.restartTests`. |\n| `MERGE_ITEM_NOW_READY` | A readiness condition became satisfied. |\n| `MANUAL_PUSH_TO_TARGET_BRANCH` | Someone pushed to the target branch, invalidating the tested state. |\n| `PREREQUISITE_MERGE_ITEM_FAILED` | An entry ahead of this one failed and left the queue, so this one must re-test. Older entries also use it for a batch ahead that failed and is bisecting. |\n| `PREREQUISITE_MERGE_ITEM_BISECTING` | A batch ahead of this one failed and stays in the queue while the engine bisects it, so this one must re-test. |\n| `PREREQUISITE_MERGE_ITEM_CANCELLED` | An entry ahead was removed. |\n| `PREREQUISITE_MERGE_ITEM_RETURNED_TO_WAITING` | An entry ahead was pushed to and returned to `notReady`. |\n| `BATCH_MEMBER_REMOVED` | An entry tested in the same batch was pushed to or removed. |\n| `PREREQUISITE_MERGE_ITEM_MANUALLY_MERGED` | An entry ahead was merged outside the queue. |\n| `SKIP_THE_LINE_INTERRUPTED` | A higher-priority entry preempted this one. |\n| `BISECTION_REQUIRED` | A batch failed and the engine is bisecting to find the culprit. |\n| `BISECTION_TEST_RUN_PASSED` | A bisection run cleared this entry. |\n\n**Why verification passed (`testsPassed`)** — `TEST_RUN_PASSED`, `SUCCESSOR_TEST_RUN_PASSED`, `PASSED_BY_OPTIMIZATION`.\n\n**Why an entry failed (`failed`)** — `TEST_RUN_REQUIRED_STATUS_FAILED`, `TEST_RUN_TIMEOUT`, `TEST_RUN_FAILED_BY_OPTIMIZATION`, `START_TEST_RUN_MERGE_CONFLICT`, `START_TEST_RUN_RETRY_EXHAUSTED`, `START_TEST_RUN_DRAFT_PRS_NOT_ALLOWED`, `START_TEST_RUN_PERMISSIONS_BLOCK_TEST_BRANCH`, `START_TEST_RUN_NO_REQUIRED_STATUSES`, `START_TEST_RUN_CONFIG_NOT_FOUND`, `START_TEST_RUN_CONFIG_PARSING_FAILURE`, `START_TEST_RUN_CONFIG_BAD_VERSION`, `START_TEST_RUN_CONFIG_BAD_REQUIRED_STATUSES`, `START_TEST_RUN_CONFIG_MISSING_REQUIRED_STATUSES`, `START_TEST_RUN_INVALID_EVENT`, `PR_UPDATED_AT_MERGE_TIME`, `GITHUB_API_MERGE_PR_FAILED`, `GITHUB_API_DIRECT_MERGE_PR_FAILED`, `GITHUB_API_BRANCH_PROTECTION_UNMET`, `GITHUB_API_MERGE_ALREADY_IN_PROGRESS`, `GITHUB_API_RATE_LIMIT_EXCEEDED`, `GITHUB_API_REPEATED_SERVER_ERRORS`, `MERGE_METHOD_NOT_ALLOWED`, `GITHUB_STACK_MERGE_STUCK_PENDING`.\n\n**Why an entry was removed (`cancelled`)** — `USER_REQUESTED`, `TRUNK_ADMIN_REQUESTED`, `PR_CLOSED`, `PR_MERGED_INTO_OTHER_BRANCH`, `PR_PUSHED_TO` (older entries only; a push now returns an entry to `notReady`), `PR_BASE_BRANCH_CHANGED`, `PR_CONVERTED_TO_DRAFT`, `NOT_READY_TIMEOUT_EXPIRED`, `STACKED_PR_MEMBER_PUSHED_TO`, `STACKED_PR_MEMBER_CLOSED`, `STACKED_PR_MEMBER_MERGED`, `STACKED_PR_MEMBER_BASE_BRANCH_CHANGED`, `STACKED_PR_STACK_CHANGED`, `STACKED_PR_GROUP_CANCELLED_AT_MERGE_TIME`.\n\n**Why an entry merged (`merged`)** — `MERGE_GRAPH_MERGE`, `MERGE_GRAPH_DIRECT_MERGE`, `MANUAL_MERGE`.",
             "example": "TEST_RUN_REQUIRED_STATUS_FAILED"
           },
           "verificationRunId": {
@@ -2463,8 +2569,8 @@
       },
       "RerunVia": {
         "type": "string",
-        "enum": ["web", "api"],
-        "description": "Where the re-run was requested: the Trunk web app or the API.",
+        "enum": ["web", "api", "auto"],
+        "description": "Where the re-run was requested: the Trunk web app, the API, or one of the queue's `autoRerunRules` (`auto`, with no requester).",
         "example": "api"
       },
       "RerunMode": {
@@ -3535,6 +3641,12 @@
             "example": {
               "build-image": ["amd64", "arm64"]
             }
+          },
+          "rbqDispatchId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Set by Trunk's Run Before Queue on a build it created (`TRUNK_RBQ_DISPATCH_ID`). Send it unchanged when the variable is present.",
+            "example": "3f9d2c1e-7a4b-4e8f-9c2d-5b6a7e8f9a0b"
           }
         },
         "required": [
@@ -11560,7 +11672,7 @@
         "operationId": "mergeQueues.updateConfig",
         "tags": ["mergeQueues"],
         "summary": "Update a merge queue's configuration",
-        "description": "Requires the **Update Merge Queue settings** permission. Applies a JSON Merge Patch to the queue's configuration: an absent key leaves that setting unchanged, and an unknown key is rejected rather than silently dropped. Send `requiredStatuses: []` or `batchingRules: []` to clear those lists.\n\n**`requiredStatuses` is a merge-protection control, not a tuning knob**: it decides what must pass before an entry may merge (clearing it falls back to `.trunk/trunk.yaml` and the branch's protection rules). Treat access to this endpoint as security-relevant. Refused with `MODE_CHANGE_IN_PROGRESS` while the queue is converting between modes, and with `ALLOWED_BOT_SUBMITTERS_FROZEN` for a body carrying the removed `allowedBotSubmitters`: bots are approved on the Bots page of the organization's settings.",
+        "description": "Requires the **Update Merge Queue settings** permission. Applies a JSON Merge Patch to the queue's configuration: an absent key leaves that setting unchanged, and an unknown key is rejected rather than silently dropped. Send `requiredStatuses: []`, `batchingRules: []` or `autoRerunRules: []` to clear those lists.\n\n**`requiredStatuses` is a merge-protection control, not a tuning knob**: it decides what must pass before an entry may merge (clearing it falls back to `.trunk/trunk.yaml` and the branch's protection rules). Treat access to this endpoint as security-relevant. Refused with `MODE_CHANGE_IN_PROGRESS` while the queue is converting between modes, and with `ALLOWED_BOT_SUBMITTERS_FROZEN` for a body carrying the removed `allowedBotSubmitters`: bots are approved on the Bots page of the organization's settings.",
         "parameters": [
           {
             "schema": {
@@ -12136,7 +12248,7 @@
         "operationId": "pullRequests.impactedTargets",
         "tags": ["pullRequests"],
         "summary": "Get a pull request's impacted targets",
-        "description": "Returns the impacted targets most recently uploaded for this pull request's head commit, with `PUT /impacted-targets`. The head commit is the one Trunk has indexed for the pull request; a squash merge does not move it, so this answers for a merged pull request too. Uploads are stored per commit, so a push after the upload makes this a `404 IMPACTED_TARGETS_NOT_FOUND` until CI uploads for the new commit. For a stacked pull request this is its own commit's upload alone, not the stack's. This reflects uploads only: a queue that treats an older pull request as impacting everything through its backfill cutoff has no upload for it, and this read answers 404.",
+        "description": "Returns the impacted targets most recently uploaded for this pull request's head commit, with `PUT /impacted-targets`. The head commit is the one Trunk has indexed for the pull request; a squash merge does not move it, so this answers for a merged pull request too. Uploads are stored per commit, so a push after the upload makes this a `404 IMPACTED_TARGETS_NOT_FOUND` until CI uploads for the new commit. For a stacked pull request this is its own commit's upload alone, not the stack's. This reflects uploads only: a queue that treats an older pull request as impacting everything through its backfill cutoff has no upload for it, and this read answers 404.\n\nA GitHub Actions login can call this for a pull request in its own repository. It cannot look a pull request up by number, so it needs the pull request's `id` from another source. A fork pull request's login can read only its own pull request, and only if the repository has a merge queue whose GitHub settings allow impacted targets from fork pull requests. If one of these two conditions is false, Trunk refuses the read with `403 INSUFFICIENT_PERMISSIONS`.",
         "parameters": [
           {
             "schema": {
