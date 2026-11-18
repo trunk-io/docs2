@@ -1,0 +1,17 @@
+---
+title: "Flaky Tests: Explain a failed pull request's tests"
+description: "The uploader's run summary now includes each failed test's Trunk test ID, and a new recipe comments on red pull requests with which failures are flaky and which are probably real."
+date: 2026-11-17
+category: Flaky Tests
+type: new-feature
+---
+
+**You can now tell pull request authors which failed tests they caused and which they can retry.**
+
+### New features
+
+- **Explain a failed pull request.** A new recipe, [Explain a Failed Pull Request](/flaky-tests/recipes/explain-failed-pr-tests), adds a step to your test job that comments on the pull request. Each failed test is marked as quarantined, known flaky, already failing on your main branch, possibly flaky, or probably caused by the change. It includes a Node.js script and a GitHub Actions workflow, and uses only the [Get a test](/api/tests/get-a-test) and [List a test's runs](/api/tests/list-a-tests-runs) endpoints.
+
+### Updates
+
+- **Trunk test IDs in the run summary.** Each failed test in the uploader's JSON summary now has an `id` you can pass straight to the [v2 API](/api). Write the summary with `--summary-output-file` or `TRUNK_SUMMARY_OUTPUT_FILE`, or read the [Analytics Uploader Action](https://github.com/trunk-io/analytics-uploader)'s `summary-output-file` output. See the [CLI reference](/flaky-tests/reference/cli-reference).
