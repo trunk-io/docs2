@@ -76,19 +76,17 @@ In your project → **Settings** → **Merge requests**:
 Set **Merge method** to **Merge commit**.
 
 <Warning>
-  **Don't use Fast-forward merge or Merge commit with semi-linear history.** With these methods, GitLab requires a merge request to be rebased onto the target branch before it can merge. Trunk doesn't rebase your merge requests, so each queued merge request stops being ready every time the target branch moves.
+  **Don't use Fast-forward merge or Merge commit with semi-linear history.** With these methods, GitLab merges a merge request only once it is rebased onto the target branch, and Trunk doesn't rebase your merge requests. Once a merge request merges, the ones queued behind it still run their tests, then fail to merge with `cannot be merged (detailed_merge_status: need_rebase)` and leave the queue. A merge request submitted while it needs a rebase waits until someone rebases it.
 </Warning>
 
 ### Squash commits when merging
 
 Trunk merges with the queue's **Default merge method** (in the queue's **Settings** → **General**): **Squash**, or **Merge Commit**, which merges without squashing and appears as "Don't squash" when you submit. Don't choose **Rebase**: a GitLab queue can't merge with it, and the merge fails.
 
-Make sure the project's **Squash commits when merging** option allows the queue's method:
+Set the project's **Squash commits when merging** option to **Allow** or **Encourage**, so the queue's method decides. The other two options override the queue without an error:
 
-- If the queue squashes, don't set the project option to **Do not allow**.
-- If the queue uses merge commits, don't set the project option to **Require**.
-
-If the project refuses the method, the merge fails after testing.
+- **Do not allow:** GitLab merges without squashing, even when the queue squashes.
+- **Require:** GitLab squashes, even when the queue uses merge commits.
 
 ### Merge checks
 
@@ -101,7 +99,7 @@ Trunk doesn't post a commit status on your merge request. GitLab counts a commit
 
 ### Merge trains
 
-Turn off **merge trains** on a project that uses Trunk Merge Queue. Both features decide the order of merges into the same branch, and they work against each other. Merged results pipelines are fine to keep: Trunk counts them when it reads a test run's pipelines.
+Turn off **merge trains** on a project that uses Trunk Merge Queue. Trunk merges each merge request directly and never adds it to a merge train, so a train does nothing for merge requests in the queue. Merged results pipelines are fine to keep: Trunk counts them when it reads a test run's pipelines.
 
 ## Verify your configuration
 
@@ -111,7 +109,7 @@ Before you submit your first merge request to the queue, confirm:
 - No protected branch pattern matches `trunk-merge/**`, or the service account can push to and delete the matching branches.
 - Push rules, if you use them, accept `trunk-merge/` branch names and the service account's unsigned commits.
 - The project's merge method is **Merge commit**.
-- The queue's default merge method is **Squash** or **Merge Commit**, and the project's squash option allows it.
+- The queue's default merge method is **Squash** or **Merge Commit**, and the project's squash option is **Allow** or **Encourage**.
 - Merge trains are off.
 
 ## Next steps
