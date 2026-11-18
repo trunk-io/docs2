@@ -1,0 +1,25 @@
+---
+title: "Runners: Runners API in beta"
+description: "Manage Trunk Runners usage, caches, templates and CI settings through the new Runners beta API."
+date: 2026-11-17
+category: Runners
+type: new-feature
+---
+
+**You can now manage Trunk Runners through an API, not only from the web app.** Trunk Runners is in private beta.
+
+### New features
+
+The Runners API is in beta at `https://api.trunk.io/v2beta/runners`. Authenticate with a Trunk API key. See [Authentication](/api/authentication).
+
+- **Usage.** Read your organization's runner usage, list the live runners, and get measurements for CI jobs.
+- **CI jobs.** Fetch a job's log and its runner metrics.
+- **CI configuration.** Read and update your CI configuration. List the available regions and set or reset a region per repository.
+- **Runner groups.** List runner groups and the repositories assigned to each.
+- **Cache.** Check cache usage for your organization or a repository. List a repository's cache entries, evictions and purges, and purge its cache. See [Caching](/runners/cache/index).
+- **Cache settings.** List, set and reset cache settings per repository. See [Cache settings](/runners/cache/settings).
+- **Templates.** Create, update, publish and delete templates, and save or discard drafts. See [Templates](/runners/actions/templates).
+- **Template builds.** List builds, read build logs, and rebuild or roll back a template in a region.
+- **CI experiments.** Check whether an experiment can start, start it, and open a pull request from its results.
+
+See the [API reference](/api) for all endpoints.
