@@ -21,6 +21,7 @@ Dynamic CI decides which jobs a pull request needs, but sometimes an engineer or
 - **You changed something the history can't see**, such as a config, a dependency, or an environment change that affects a job Dynamic CI would skip.
 - **You want fresh signal before review**, for example a slow integration suite you want green before asking for approval.
 - **An agent needs proof**: an agent fixing a specific failure can require the affected job to run on its next push to confirm the fix.
+- **Run Before Queue failed to start**: force the jobs and click **Run N jobs now** to unblock the pull request. See [Run Before Queue](/ci/dynamic-ci/run-before-queue#failed-to-start).
 
 ## Browser extension
 

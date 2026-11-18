@@ -25,6 +25,18 @@ og:title: "Trunk Dynamic CI FAQ"
     Only when a paths filter you configured excludes it. See
     [Merge queues](/ci/dynamic-ci/merge-queue).
   </Accordion>
+
+  <Accordion title="Can I make sure a skipped job runs before a pull request enters the queue?">
+    Yes. Set the job to [Run Before Queue](/ci/dynamic-ci/run-before-queue).
+    Trunk starts it on the head commit before the pull request enters the
+    queue, unless it already ran there.
+  </Accordion>
+
+  <Accordion title="Why is my pull request held with a Run Before Queue line?">
+    Trunk is starting its Run Before Queue jobs on the head commit. If the
+    line says **Run Before Queue failed to start**, force the jobs and rerun,
+    or push. See [Failed to start](/ci/dynamic-ci/run-before-queue#failed-to-start).
+  </Accordion>
 </AccordionGroup>
 
 ## Forks
@@ -33,5 +45,12 @@ og:title: "Trunk Dynamic CI FAQ"
   <Accordion title="What happens on pull requests from forks?">
     A pull request from a fork has no access to your repository's secrets, so
     the filter job has no token and every job runs.
+  </Accordion>
+
+  <Accordion title="Does Run Before Queue build pull requests from forks on Buildkite?">
+    No. Trunk creates no build for a fork pull request, because it would run
+    fork code with the pipeline's secrets. Run Before Queue fails to start
+    until someone with access to the pipeline runs the steps on the head
+    commit.
   </Accordion>
 </AccordionGroup>

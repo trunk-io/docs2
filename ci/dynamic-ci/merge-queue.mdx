@@ -21,3 +21,10 @@ if: >-
   needs.dynamic-ci-filter.outputs.unit-tests != 'false' &&
   github.ref != 'refs/heads/release'
 ```
+
+## Run jobs before the queue
+
+A job Dynamic CI skipped on every push of a pull request may never have run on
+its head commit. Set it to [Run Before Queue](/ci/dynamic-ci/run-before-queue)
+and Trunk holds the submitted pull request in **Not Ready** until the job has
+started on the head commit.
