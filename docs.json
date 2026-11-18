@@ -1189,6 +1189,7 @@
               {
                 "group": "November",
                 "pages": [
+                  "changelog/2026-11-18-beta-apis-and-merge-queue-auto-reruns",
                   "changelog/2026-11-16-flaky-tests-api-monitors-labels-and-permissions",
                   "changelog/2026-11-10-browser-extension-1-12-0",
                   "changelog/2026-11-04-dynamic-ci-impacts-and-action-updates",
