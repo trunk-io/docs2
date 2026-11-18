@@ -1,0 +1,17 @@
+---
+title: "Merge Queue: Bisection restarts and ruleset blocks in the v2 API"
+description: "The v2 API now tells you when a pull request re-tests because a batch ahead is bisecting, and names the GitHub ruleset blocking a merge."
+date: 2026-11-18
+category: Merge Queue
+type: update
+---
+
+**The v2 API now gives you clearer reasons when a pull request waits or can't merge.**
+
+### Updates
+
+- **New bisection restart reason.** A queue entry's `reason` can now be `PREREQUISITE_MERGE_ITEM_BISECTING`. It means a batch ahead failed and stays in the queue while Trunk bisects it, so this pull request must re-test. Older entries still use `PREREQUISITE_MERGE_ITEM_FAILED` for this case. See [queue-entry state history](/api/pullrequests/list-a-pull-requests-queue-entry-state-history).
+- **Ruleset details on merge blocks.** When a GitHub ruleset blocks a merge, the `other` mergeability reason now includes `ruleType`, `rulesetName` and `rulesetUrl` when Trunk can name the rule. See [Get a pull request](/api/pullrequests/get-a-pull-request).
+- **Read impacted targets from GitHub Actions.** A `trunk-io/login` token can now [read a pull request's impacted targets](/api/pullrequests/get-a-pull-requests-impacted-targets) in its own repository, as well as upload them. No Trunk secret is needed. See [Authentication](/api/authentication).
+
+If you match on queue-entry reasons, treat values you don't recognize as unclassified. See the [API reference](/api) for all v2 endpoints.
