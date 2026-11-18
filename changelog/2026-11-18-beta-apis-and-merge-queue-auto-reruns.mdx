@@ -1,0 +1,23 @@
+---
+title: "Beta APIs for Runners and Dynamic CI, and automatic re-runs in Merge Queue"
+description: "Manage Trunk Runners and Dynamic CI through new beta APIs, set merge queue auto re-run rules through the v2 API, and see which ruleset rule blocks a merge."
+date: 2026-11-18
+category: Merge Queue
+type: new-feature
+---
+
+**Trunk Runners and Dynamic CI now have their own beta APIs, and Merge Queue can re-run failed jobs for you.**
+
+### New features
+
+- **Runners API (beta).** Read runner usage and live runners, fetch CI job logs and metrics, and manage CI regions, runner groups, caches and templates. Start with [Get the organization's runner usage](/api/beta/runners/runners/get-the-organizations-runner-usage). Trunk Runners is in private beta. See [Trunk Runners](/runners).
+- **Dynamic CI API (beta).** [List](/api/beta/dynamic-ci/dynamicci/list-a-repositorys-paths-filters) or [set](/api/beta/dynamic-ci/dynamicci/set-or-clear-paths-filters-on-jobs) a repository's paths filters, and [replace a pull request's force overrides](/api/beta/dynamic-ci/dynamicci/replace-a-pull-requests-force-overrides). See [Path filters](/ci/dynamic-ci/configuration/path-filters).
+- **Automatic re-runs in Merge Queue.** Set `autoRerunRules` with [Update a merge queue's configuration](/api/mergequeues/update-a-merge-queues-configuration). When a job you name fails alongside a failed required check, Trunk re-runs the workflow's failed jobs, now or once the workflow finishes, up to twice. Requires a GitHub repository and `failedTestRunTeardown: keepForRerun`.
+
+### Updates
+
+- **Dynamic CI endpoints moved to `/v2beta`.** The paths filters, force overrides and pull request jobs endpoints left the v2 API. Update any integration that calls them on `/v2`. Old docs links redirect to the beta pages.
+- **See which ruleset blocks a merge.** When a pull request is not mergeable for an `other` reason, [Get a pull request](/api/pullrequests/get-a-pull-request) now returns `ruleType`, `rulesetName` and `rulesetUrl` when Trunk can name the GitHub ruleset rule.
+- **Clearer restart reasons.** [Queue-entry state history](/api/pullrequests/list-a-pull-requests-queue-entry-state-history) adds `PREREQUISITE_MERGE_ITEM_BISECTING`, `PREREQUISITE_MERGE_ITEM_RETURNED_TO_WAITING` and `BATCH_MEMBER_REMOVED`, so you can tell why an entry had to re-test.
+- **Read impacted targets from GitHub Actions.** A `trunk-io/login` token can now [read a pull request's impacted targets](/api/pullrequests/get-a-pull-requests-impacted-targets), not only upload them. On a fork pull request it can also call the Flaky Tests CLI endpoints.
+- **Repository-scoped Flaky Tests is retired.** Every organization now uses test collections. Settings that lived on the repository now live on each collection. See the [Flaky Tests overview](/flaky-tests/overview).
