@@ -3825,6 +3825,7 @@
         "description": "The relay's `KilnCiConfig`: `defaultSize` and `ciTokenAnchor` are not on it.",
         "required": [
           "sharedCacheEnabled",
+          "templateCaptureAnyBranch",
           "adapterCacheSettings",
           "adapterCacheShareScopes"
         ],
@@ -3885,6 +3886,10 @@
           },
           "sharedCacheEnabled": {
             "type": "boolean"
+          },
+          "templateCaptureAnyBranch": {
+            "type": "boolean",
+            "description": "Whether a template capture also takes a passed `pull_request` run and a run on a branch\nthat is not the default branch (kiln ADR-0110 §Update 2026-11-19). With it on, any person\nwho can push a branch of a repository can write the repository's captured templates."
           }
         }
       },
