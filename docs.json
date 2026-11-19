@@ -796,6 +796,7 @@
                   "POST /v2/pull-requests/{id}/reprioritize",
                   "PATCH /v2/pull-requests/{id}/queue-entry",
                   "POST /v2/pull-requests/{id}/restart-tests",
+                  "POST /v2/pull-requests/{id}/rerun-failed-checks",
                   "POST /v2/pull-requests/{id}/dequeue",
                   "GET /v2/pull-requests/{id}/queue-entry-history",
                   "GET /v2/queue-entry-history",
@@ -846,8 +847,20 @@
                 "pages": [
                   "GET /v2/test-collections",
                   "POST /v2/test-collections",
-                  "GET /v2/test-collections/{id}",
-                  "GET /v2/test-uploads/{id}"
+                  "GET /v2/test-collections/{id}"
+                ]
+              },
+              {
+                "group": "Test uploads",
+                "openapi": {
+                  "source": "/openapi-v2.json",
+                  "directory": "/api"
+                },
+                "pages": [
+                  "POST /v2/test-collections/{id}/uploads",
+                  "GET /v2/test-uploads/{id}",
+                  "POST /v2/test-collections/{id}/quarantine-status",
+                  "POST /v2/test-collections/{id}/all-quarantined-tests"
                 ]
               },
               {
@@ -908,6 +921,32 @@
                 },
                 "pages": [
                   "GET /v2/detection-events"
+                ]
+              },
+              {
+                "group": "CI runs",
+                "openapi": {
+                  "source": "/openapi-v2.json",
+                  "directory": "/api"
+                },
+                "pages": [
+                  "GET /v2/pull-requests/{id}/ci-commits",
+                  "GET /v2/ci-workflow-runs",
+                  "GET /v2/ci-jobs",
+                  "GET /v2/ci-jobs/{id}/annotations",
+                  "GET /v2/ci-jobs/{id}/log-lines",
+                  "GET /v2/ci-failure-clusters/{id}"
+                ]
+              },
+              {
+                "group": "Dynamic CI",
+                "openapi": {
+                  "source": "/openapi-v2.json",
+                  "directory": "/api"
+                },
+                "pages": [
+                  "POST /v2/dynamic-ci/generate-plan",
+                  "POST /v2/dynamic-ci/generate-buildkite-plan"
                 ]
               },
               "api/webhooks",
