@@ -1,0 +1,21 @@
+---
+title: "API: Read CI jobs, logs and failure analysis in the v2 API"
+description: "List a commit's CI jobs and workflow runs, read a job's log lines and annotations, and look up failure clusters through the v2 API."
+date: 2026-11-19
+category: CI Autopilot
+type: new-feature
+---
+
+**You can now read your CI results and failure analysis from the v2 API.**
+
+### New features
+
+- **CI jobs on a commit.** [List the CI jobs on a commit](/api/cijobs/list-the-ci-jobs-on-a-commit) by pull request or by repository and commit SHA. Each failed job includes its failing step, the AI analysis, a log excerpt and its failure cluster.
+- **Workflow runs.** [List the CI workflow runs on a commit](/api/ciworkflowruns/list-the-ci-workflow-runs-on-a-commit), each with its jobs counted.
+- **Job logs.** [List a CI job's log lines](/api/cijobs/list-a-ci-jobs-log-lines), or pass a failure's excerpt range to read only the failing lines. This needs the **Read CI logs** permission. Logs are kept for 30 days.
+- **Check-run annotations.** [List a CI job's annotations](/api/cijobs/list-a-ci-jobs-check-run-annotations) to see why a job failed when no log step explains it, such as a disconnected runner.
+- **Failure clusters.** [Get a CI failure cluster](/api/cifailureclusters/get-a-ci-failure-cluster) to see how often a failure with the same cause happened, with the analysis of a representative failure.
+- **Commits that ran CI.** [List the commits that ran CI on a pull request](/api/pullrequests/list-the-commits-that-ran-ci-on-a-pull-request), newest activity first.
+- **CI status on a pull request.** [Get a pull request](/api/pullrequests/get-a-pull-request) includes a `ci` summary of the head commit's jobs, with links to the job lists and a `pollAfterSeconds` hint for when to check again.
+
+See the [API reference](/api).
