@@ -1,0 +1,24 @@
+---
+title: "Merge Queue: Re-run failed checks and new API references"
+description: "Re-run a failed pull request's checks without losing its place in the queue, set rules that re-run failed jobs automatically, and browse new CI, Runners and Dynamic CI API references."
+date: 2026-11-19
+category: Merge Queue
+type: new-feature
+---
+
+**You can now re-run a failed pull request's checks without losing its place in the merge queue.**
+
+### New features
+
+- **Re-run failed checks.** [Re-run a pull request's failed checks](/api/pullrequests/re-run-a-pull-requests-failed-checks) through the v2 API. The pull request keeps its place in the queue while it waits for the re-run to start. Requires the **Merge and cancel PRs** permission and GitHub Actions.
+- **Automatic re-run rules.** Name the jobs Trunk should re-run when a verification run fails a required check. Trunk re-runs the failed jobs right away or after the workflow finishes, up to twice per run. Set `autoRerunRules` when you [update a queue's configuration](/api/mergequeues/update-a-merge-queues-configuration).
+- **CI runs in the API reference.** [List the commits that ran CI on a pull request](/api/pullrequests/list-the-commits-that-ran-ci-on-a-pull-request), [list a commit's CI jobs](/api/cijobs/list-the-ci-jobs-on-a-commit) with each failure's analysis, [read a job's log lines](/api/cijobs/list-a-ci-jobs-log-lines) and [get a failure cluster](/api/cifailureclusters/get-a-ci-failure-cluster).
+- **Runners API (beta).** Read [runner usage](/api/beta/runners/runners/get-the-organizations-runner-usage), [manage templates](/api/beta/runners/runners/list-templates) and [purge a repository's cache](/api/beta/runners/runners/purge-a-repositorys-cache). See [Trunk Runners](/runners).
+- **Dynamic CI API (beta).** [Force jobs to run](/api/beta/dynamic-ci/dynamicci/replace-a-pull-requests-force-overrides) on a pull request and [list Dynamic CI's decisions](/api/beta/dynamic-ci/dynamicci/list-dynamic-cis-decisions).
+
+### Updates
+
+- **Ruleset details on blocked merges.** When a GitHub ruleset rule may block a merge, [Get a pull request](/api/pullrequests/get-a-pull-request) now names the rule type, the ruleset and a link to it.
+- **New bisection reason.** A pull request that re-tests because a batch ahead of it is bisecting now records `PREREQUISITE_MERGE_ITEM_BISECTING` in its [queue-entry history](/api/pullrequests/list-a-pull-requests-queue-entry-state-history).
+- **Read impacted targets with no secret.** The `trunk-io/login` action can now [read a pull request's impacted targets](/api/pullrequests/get-a-pull-requests-impacted-targets) as well as upload them. See [Authentication](/api/authentication).
+- **Paths filters moved to beta.** The Dynamic CI paths-filter endpoints now live under `/v2beta`. Old reference links redirect. See [List a repository's paths filters](/api/beta/dynamic-ci/dynamicci/list-a-repositorys-paths-filters).
