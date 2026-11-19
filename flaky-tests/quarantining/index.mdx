@@ -146,12 +146,12 @@ Here's an example file.
 	
 	    - name: Upload test results
 	      if: always()
-	      uses: trunk-io/analytics-uploader@v2
+	      uses: trunk-io/analytics-uploader@v3
 	      with:
 	        junit-paths: <TEST OUTPUT PATH>
 	        org-slug: my-trunk-org-slug
 	        test-collection-id: <TRUNK_TEST_COLLECTION_ID>
-	        token: ${{ secrets.TRUNK_API_TOKEN }}
+	        token: ${{ secrets.TRUNK_API_KEY }}
 ```
 
 If you want to run the test command and upload in a single step, the test command must be **run via the Analytics Uploader** through the `run: <COMMAND TO RUN TESTS>` parameter.
@@ -171,11 +171,11 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Run tests and upload results
-        uses: trunk-io/analytics-uploader@v2
+        uses: trunk-io/analytics-uploader@v3
         with:
           junit-paths: <TEST OUTPUT PATH>
           run: <COMMAND TO RUN TESTS>
-          token: ${{ secrets.TRUNK_API_TOKEN }}
+          token: ${{ secrets.TRUNK_API_KEY }}
           org-slug: my-trunk-org-slug
           test-collection-id: <TRUNK_TEST_COLLECTION_ID>
 ```
@@ -228,7 +228,7 @@ With `--dry-run`, the CLI still checks your failed tests against Trunk's quarant
 
 Keep in mind:
 
-* An organization token and network access are still required; the quarantine check queries Trunk's backend to determine which tests are quarantined.
+* An API key with the **Upload test results** permission and network access are still required; the quarantine check queries Trunk's backend to determine which tests are quarantined.
 * Because nothing is uploaded, the run won't appear in your dashboard or contribute to [flaky test detection](../detection/). Quarantining decisions are based on results from your other, uploading CI jobs.
 * The local bundle written to `./bundle_upload` can also be useful for inspecting exactly what the CLI would have uploaded.
 

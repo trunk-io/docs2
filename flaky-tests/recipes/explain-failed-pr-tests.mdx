@@ -81,7 +81,7 @@ A quarantined test with a failure rate near 100% isn't flaky: it fails every tim
 
 ## 5. Post the comment
 
-This script does steps 2 to 5 and creates or updates one comment on the pull request. It needs Node.js 18 or later and an [API key](/api/authentication#api-keys). Reading tests needs no permissions, so leave them all off.
+This script does steps 2 to 5 and creates or updates one comment on the pull request. It needs Node.js 18 or later and an [API key](/api/authentication#api-keys). Reading tests needs no permissions, so the key the uploader uses, which has **Upload test results**, works here too.
 
 ```javascript explain-failed-tests.mjs expandable
 import { readFileSync } from "node:fs";
@@ -204,12 +204,12 @@ jobs:
         id: trunk
         if: ${{ !cancelled() }}
         continue-on-error: true
-        uses: trunk-io/analytics-uploader@v2
+        uses: trunk-io/analytics-uploader@v3
         with:
           junit-paths: "**/junit.xml"
           org-slug: <TRUNK_ORG_URL_SLUG>
           test-collection-id: <TRUNK_TEST_COLLECTION_ID>
-          token: ${{ secrets.TRUNK_API_TOKEN }}
+          token: ${{ secrets.TRUNK_API_KEY }}
 
       - name: Explain failed tests
         if: ${{ !cancelled() && github.event_name == 'pull_request' && steps.trunk.outputs.summary-output-file != '' }}
@@ -225,7 +225,7 @@ jobs:
 Each job gets its own comment, so a pull request with several test jobs gets one comment per job that had failures. A rerun of the same job updates its comment rather than adding another.
 
 <Note>
-`TRUNK_API_TOKEN` is the organization token the uploader uses. `TRUNK_API_KEY` is an [API key](/api/authentication#api-keys) for the API. They are different credentials.
+Both steps use the same `TRUNK_API_KEY`, an [API key](/api/authentication#api-keys) with the **Upload test results** permission. The uploader needs that permission; reading tests needs none.
 </Note>
 
 ## Related

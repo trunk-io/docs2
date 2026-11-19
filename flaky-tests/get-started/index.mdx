@@ -9,6 +9,7 @@ Trunk Flaky Tests detects flaky tests by analyzing test results from your CI run
 
 * Account at [app.trunk.io](https://app.trunk.io)
 * Ability to modify repository CI configuration and add secrets
+* A Trunk API key with the **Upload test results** permission, or access to create one under **Settings** → **Developer** → **API Keys**
 * Tests running in CI on both PRs and stable branches (e.g., main, master, or develop)
 
 ### Step 1: Create a test collection
@@ -32,10 +33,11 @@ If not, configure your test frameworks to output JUnit XML:
 
 ### Step 3: Configure CI uploads
 
-Add test result uploads to all CI jobs that run tests. Every upload step passes the **Collection ID** from Step 1, as `--test-collection-id` or the `TRUNK_TEST_COLLECTION_ID` environment variable.
+Add test result uploads to all CI jobs that run tests. Uploads go through the [`trunk` CLI](./trunk-cli): install it, store a Trunk API key with the **Upload test results** permission with `trunk auth api-key set`, and run `trunk flakytests upload` after your tests. On GitHub Actions, the [`trunk-io/analytics-uploader@v3`](./ci-providers/github-actions) action does all three. Every upload step passes the **Collection ID** from Step 1, as `--test-collection-id` or the `TRUNK_TEST_COLLECTION_ID` environment variable.
 
-1. See [**CI Providers**](./ci-providers/) for integration instructions
-2. Configure uploads in jobs that run on:
+1. Create an API key with the **Upload test results** permission. See [Create an API key](./trunk-cli#create-an-api-key).
+2. See [**CI Providers**](./ci-providers/) for integration instructions
+3. Configure uploads in jobs that run on:
    * Pull request branches
    * Stable branches (`main`, `master`, `develop`, etc.)
    * Merge queue branches (if applicable)
