@@ -47,7 +47,7 @@ The `.trunk` repository contains the workflows run to scan your codebase and pul
 
 Your `.trunk` repository must be added to your Trunk GitHub app installation. You can verify this by navigating to: `https://github.com/organizations/<your_organization>/settings/installations`, clicking "configure" next to Trunk-io, and verifying that the repository access is either "All repositories" or that your `.trunk` repository is selected.
 
-To find Code Quality issues in your repositories and pull requests, we dispatch GitHub Actions workflows in your `.trunk` repository, which checks out your repositories and pull requests and then run `trunk check` in them. This strategy allows you to:
+To find Code Quality issues in your repositories and pull requests, we dispatch GitHub Actions workflows in your `.trunk` repository, which check out your repositories and pull requests and then run `trunk check` in them. This strategy allows you to:
 
 * start using Trunk Code Quality in all your repositories without any configuration, and
 * be in full control over the environment where we analyze your code, since we're running on your GitHub Actions runners.
