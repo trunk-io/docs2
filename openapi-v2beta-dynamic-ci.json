@@ -3,7 +3,7 @@
   "info": {
     "title": "Trunk Dynamic CI API (beta)",
     "version": "0.1.0",
-    "description": "Dynamic CI endpoints in beta. They may change without notice, and are promoted to `/v2` when they are stable. Authentication, errors and rate limits are those of the Trunk API v2.",
+    "description": "Dynamic CI endpoints in beta. An endpoint and this spec can change at any time, without notice. Fetch this spec again at least every 5 minutes to stay current, and do not commit a script or integration that depends on a beta endpoint. Endpoints move to `/v2` when they are stable. Authentication, errors and rate limits are those of the Trunk API v2.",
     "contact": {
       "name": "Trunk Support",
       "url": "https://docs.trunk.io"
@@ -150,55 +150,11 @@
           "VALIDATION_FAILED",
           "NOT_FOUND",
           "INVALID_CURSOR",
-          "MERGE_QUEUE_NOT_FOUND",
-          "PR_ALREADY_ENQUEUED",
-          "PR_NOT_ENQUEUEABLE",
-          "UPSTREAM_ERROR",
-          "VERIFICATION_RUN_NOT_FOUND",
-          "PR_NOT_FOUND",
-          "IMPACTED_TARGETS_NOT_FOUND",
           "REPOSITORY_NOT_FOUND",
-          "IMPACTED_TARGETS_UNSUPPORTED",
-          "QUEUE_ALREADY_EXISTS",
-          "QUEUE_HAS_ACTIVE_ENTRIES",
-          "MODE_CHANGE_IN_PROGRESS",
-          "PR_NOT_IN_ACTIVE_STATE",
-          "MERGE_QUEUE_NOT_CREATABLE",
-          "PR_TESTS_NOT_RESTARTABLE",
-          "ALLOWED_BOT_SUBMITTERS_FROZEN",
-          "ESTIMATE_NOT_ENABLED",
-          "PR_RERUN_FEATURE_DISABLED",
-          "PR_RERUN_NOT_PENDING_FAILURE",
-          "PR_RERUN_QUEUE_DOES_NOT_KEEP_FAILED_RUNS",
-          "PR_RERUN_NOT_A_REQUIRED_CHECK_FAILURE",
-          "PR_RERUN_CHECK_NOT_RERUNNABLE",
-          "PR_RERUN_RUN_TORN_DOWN",
-          "PR_RERUN_HOLD_LIMIT_REACHED",
-          "PR_RERUN_FORGE_NOT_SUPPORTED",
-          "PROVIDER_URL_NOT_FOUND",
           "CI_HOST_UNSUPPORTED",
           "CI_SCOPE_NOT_FOUND",
           "PATHS_FILTER_CONFLICT",
-          "CI_JOB_NOT_FOUND",
-          "CI_FAILURE_CLUSTER_NOT_FOUND",
-          "TEST_COLLECTION_NOT_FOUND",
-          "TEST_NOT_FOUND",
-          "TEST_UPLOAD_NOT_FOUND",
-          "MONITOR_NOT_FOUND",
-          "MONITOR_LIMIT_EXCEEDED",
-          "MONITOR_NOT_ACTIVE",
-          "OUT_OF_RANGE",
-          "TEST_UNAVAILABLE",
-          "TICKETING_NOT_CONFIGURED",
-          "TICKETING_CREDENTIALS_INVALID",
-          "TICKETING_SITE_REFUSED",
-          "TICKET_NOT_FOUND",
-          "TICKET_NOT_LINKED",
-          "TICKET_LINK_CONFLICT",
-          "TEST_ALREADY_LINKED",
-          "TICKET_FIELDS_REJECTED",
-          "TICKET_CONTENT_UNAVAILABLE",
-          "TICKETING_CREATE_REFUSED",
+          "QUERY_TIMEOUT",
           "RATE_LIMIT_EXCEEDED"
         ],
         "description": "Stable machine-readable error identifier. Switch on this, never on `message`. A shipped code's meaning never changes, but **new codes may be added within v2** — treat an unrecognized code as a generic failure of its HTTP status rather than failing closed.",
@@ -726,6 +682,298 @@
         },
         "required": ["jobId"],
         "additionalProperties": false
+      },
+      "DecisionList": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Decision"
+            },
+            "maxItems": 100
+          },
+          "nextCursor": {
+            "type": ["string", "null"],
+            "description": "Opaque cursor for the next page, or null on the last page. Pass it back verbatim as `cursor`; do not construct or inspect one.",
+            "example": "AQEKZm9vYmFy"
+          },
+          "hasMore": {
+            "type": "boolean",
+            "description": "True when another page is available.",
+            "example": true
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total rows matching the filter. Present only when the request set `includeTotal=true`.",
+            "example": 1247
+          },
+          "totalPages": {
+            "type": "integer",
+            "description": "Pages of `limit` decisions that match the filter. Present only with `includeTotal=true`.",
+            "example": 50
+          }
+        },
+        "required": ["data", "nextCursor", "hasMore"]
+      },
+      "Decision": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Stable for the decision. A decision's `outcome`, `falseSkip` and `skipNotHonored` can change after it is first listed, so a copy keyed on this id should be refreshed.",
+            "example": "6a7b8c9d-0000-4000-8000-000000000006"
+          },
+          "decidedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-11-18T09:12:00.000Z"
+          },
+          "repo": {
+            "$ref": "#/components/schemas/PlanRepo"
+          },
+          "workflow": {
+            "type": "object",
+            "properties": {
+              "workflowId": {
+                "type": "string",
+                "example": "2b3c4d5e-0000-4000-8000-000000000002"
+              },
+              "name": {
+                "type": "string",
+                "example": "CI"
+              },
+              "path": {
+                "type": ["string", "null"],
+                "example": ".github/workflows/ci.yaml"
+              }
+            },
+            "required": ["workflowId", "name", "path"]
+          },
+          "job": {
+            "type": "object",
+            "properties": {
+              "jobId": {
+                "type": "string",
+                "description": "The job, as `dynamicCi.listPrJobs` and force overrides name it.",
+                "example": "3c4d5e6f-0000-4000-8000-000000000003"
+              },
+              "jobKey": {
+                "type": ["string", "null"],
+                "example": "unit-tests"
+              },
+              "name": {
+                "type": "string",
+                "description": "The name the job ran under. A matrix variation's carries its values.",
+                "example": "Unit Tests"
+              },
+              "variationId": {
+                "type": ["string", "null"],
+                "description": "The matrix variation this decision is for, when the job is decided per variation.",
+                "example": "4d5e6f70-0000-4000-8000-000000000004"
+              }
+            },
+            "required": ["jobId", "jobKey", "name", "variationId"]
+          },
+          "lane": {
+            "$ref": "#/components/schemas/DecisionLane"
+          },
+          "commitSha": {
+            "type": "string",
+            "example": "9f2c1b7c2b4c9d1e0a3f5b6c7d8e9f0a1b2c3d4e"
+          },
+          "branch": {
+            "type": ["string", "null"],
+            "example": "feature/speed"
+          },
+          "pullRequest": {
+            "type": ["object", "null"],
+            "properties": {
+              "number": {
+                "type": "integer",
+                "example": 4901
+              },
+              "title": {
+                "type": ["string", "null"],
+                "example": "Speed up the merge queue"
+              }
+            },
+            "required": ["number", "title"],
+            "description": "The pull request the run tested. A merge-queue run's is the one its branch names. Null for a push."
+          },
+          "actor": {
+            "type": ["string", "null"],
+            "description": "Who triggered the run.",
+            "example": "octocat"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/DecisionMode"
+          },
+          "allowListed": {
+            "type": "boolean",
+            "description": "The actor or a label is on the repository's Learning allow list, so the decision was served as if Enforced.",
+            "example": false
+          },
+          "recommendation": {
+            "type": "string",
+            "enum": ["run", "skip"],
+            "description": "Dynamic CI's verdict for the job.",
+            "example": "skip"
+          },
+          "reason": {
+            "$ref": "#/components/schemas/DecisionReason"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/DecisionOutcome"
+          },
+          "skipNotHonored": {
+            "type": "boolean",
+            "description": "An Enforced or Evolving skip whose job ran anyway, so nothing was saved. Flagged for 24 hours after the decision only.",
+            "example": false
+          },
+          "falseSkip": {
+            "type": "boolean",
+            "description": "Trunk found the skip wrong: the job failed in its own run, or a merge-queue run that included the skip failed. It can become true hours after the decision.",
+            "example": false
+          },
+          "links": {
+            "$ref": "#/components/schemas/DecisionLinks"
+          },
+          "signals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DecisionSignal"
+            },
+            "maxItems": 32,
+            "description": "Each signal's vote on this decision, ignored signals left out. Present only with `include=signals`."
+          }
+        },
+        "required": [
+          "id",
+          "decidedAt",
+          "repo",
+          "workflow",
+          "job",
+          "lane",
+          "commitSha",
+          "branch",
+          "pullRequest",
+          "actor",
+          "mode",
+          "allowListed",
+          "recommendation",
+          "reason",
+          "outcome",
+          "skipNotHonored",
+          "falseSkip",
+          "links"
+        ]
+      },
+      "DecisionLane": {
+        "type": "string",
+        "enum": ["pullRequest", "mergeQueue", "runBeforeQueue"],
+        "description": "Where the job ran: a pull request's CI, a merge-queue test run, or a run Trunk started before the pull request entered the queue."
+      },
+      "DecisionMode": {
+        "type": "string",
+        "enum": ["enforced", "evolving", "learning", "unknown"],
+        "description": "The repository's Dynamic CI mode when the decision was made. In `learning` a skip is only recorded and the job runs. `unknown` is a decision from before Trunk stored the mode."
+      },
+      "DecisionReason": {
+        "type": "string",
+        "enum": [
+          "forcedMustRun",
+          "forcedNeverRun",
+          "incompleteFailsafe",
+          "weightedVoteRun",
+          "weightedVoteSkip",
+          "forcedUnprunable"
+        ],
+        "description": "How the engine reached the recommendation: a signal forced a run or a skip, too many signals had no data so the job ran, the weighted vote decided, or the workflow cannot remove this matrix variation."
+      },
+      "DecisionOutcome": {
+        "type": "string",
+        "enum": ["skipped", "succeeded", "failed", "canceled", "inProgress"],
+        "description": "What the job did, whatever was recommended. `failed` includes a timeout. `inProgress` is a job that is running or has not reported yet."
+      },
+      "DecisionLinks": {
+        "type": "object",
+        "properties": {
+          "pullRequest": {
+            "type": ["string", "null"],
+            "description": "The pull request's page in Trunk, at this commit, on its Dynamic CI tab. Null with no pull request, or when Trunk has no repository record for it.",
+            "example": "https://app.trunk.io/acme/pull/4901?repo=1a2b3c4d-0000-4000-8000-000000000001&sha=9f2c1b7c2b4c9d1e0a3f5b6c7d8e9f0a1b2c3d4e&tab=dynamic-ci&job=Unit+Tests"
+          },
+          "job": {
+            "type": "string",
+            "description": "The commit's CI trace in Trunk, with the job's span selected when the job ran.",
+            "example": "https://app.trunk.io/acme/ci/commits/9f2c1b7c2b4c9d1e0a3f5b6c7d8e9f0a1b2c3d4e?span=0123456789abcdef"
+          },
+          "falseSkipProof": {
+            "type": ["string", "null"],
+            "description": "The failed run that showed the skip was wrong. Null unless `falseSkip`.",
+            "example": "https://app.trunk.io/acme/ci/runs/fedcba9876543210"
+          },
+          "gitHubPullRequest": {
+            "type": ["string", "null"],
+            "example": "https://github.com/acme/widgets/pull/4901"
+          },
+          "gitHubCommit": {
+            "type": ["string", "null"],
+            "example": "https://github.com/acme/widgets/commit/9f2c1b7c2b4c9d1e0a3f5b6c7d8e9f0a1b2c3d4e"
+          }
+        },
+        "required": [
+          "pullRequest",
+          "job",
+          "falseSkipProof",
+          "gitHubPullRequest",
+          "gitHubCommit"
+        ]
+      },
+      "DecisionSignal": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/DecisionSignalType"
+          },
+          "vote": {
+            "$ref": "#/components/schemas/DecisionSignalVote"
+          },
+          "confidence": {
+            "type": "number",
+            "example": 0.92
+          },
+          "weight": {
+            "type": ["number", "null"],
+            "description": "The signal's weight in the vote. Null for a decision made before Trunk stored weights.",
+            "example": 1
+          }
+        },
+        "required": ["type", "vote", "confidence", "weight"]
+      },
+      "DecisionSignalType": {
+        "type": "string",
+        "enum": [
+          "estimated-cost",
+          "previous-result-on-pr",
+          "historical-pass-rate",
+          "diff-driven-volatility",
+          "force-override",
+          "merge-failure",
+          "mid-pr-stack",
+          "required-check",
+          "merge-queue-is-required",
+          "paths-filter",
+          "draft-pull-request",
+          "impact-reach"
+        ],
+        "example": "paths-filter"
+      },
+      "DecisionSignalVote": {
+        "type": "string",
+        "enum": ["mustRun", "neverRun", "voteRun", "voteSkip", "incomplete"],
+        "description": "`mustRun` and `neverRun` force the decision. `voteRun` and `voteSkip` are weighted by confidence. `incomplete` is a signal with too little data."
       }
     },
     "parameters": {}
@@ -1776,6 +2024,437 @@
                       "error": {
                         "code": "INTERNAL_ERROR",
                         "message": "An unexpected error occurred"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2beta/dynamic-ci/decisions": {
+      "get": {
+        "operationId": "dynamicCi.listDecisions",
+        "tags": ["dynamicCi"],
+        "summary": "List Dynamic CI's decisions",
+        "description": "**Beta.** This endpoint and its spec can change at any time, without notice. Fetch the spec again at least every 5 minutes (`GET /v2beta/dynamic-ci/openapi.json`), and do not commit a script or integration that depends on this shape.\n\nEvery job decision Dynamic CI made, newest first, as the Decisions page lists them: whether it recommended a run or a skip, why, and what the job then did. Every repository in the organization unless `owner` and `name` name one, over the last 7 days unless `since` and `until` say otherwise.\n\nA decision can change after it is listed: `outcome` fills in when the job finishes, and `falseSkip` can become true hours later. To keep a copy, read the window again with some overlap and replace each decision by `id`. The cursor holds the window the first page used, so a decision made while you page does not move a page, and a cursor whose window starts more than a day past the 90-day limit is refused.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25,
+              "description": "Page size, between 1 and 100.",
+              "example": 25
+            },
+            "required": false,
+            "description": "Page size, between 1 and 100.",
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "Opaque cursor from a previous response's `nextCursor`. A cursor is bound to the operation and filter it was minted for.",
+              "example": "AQEKZm9vYmFy"
+            },
+            "required": false,
+            "description": "Opaque cursor from a previous response's `nextCursor`. A cursor is bound to the operation and filter it was minted for.",
+            "name": "cursor",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "description": "Set true to include `total` in the response. Costs an extra COUNT query, so it is off by default.",
+              "example": false
+            },
+            "required": false,
+            "description": "Set true to include `total` in the response. Costs an extra COUNT query, so it is off by default.",
+            "name": "includeTotal",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "default": "github.com",
+              "description": "The repositories' host. `github.com` is the only supported value today.",
+              "example": "github.com"
+            },
+            "required": false,
+            "description": "The repositories' host. `github.com` is the only supported value today.",
+            "name": "host",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "With `name`, lists one repository's decisions. Without both, every repository in the organization.",
+              "example": "acme"
+            },
+            "required": false,
+            "description": "With `name`, lists one repository's decisions. Without both, every repository in the organization.",
+            "name": "owner",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "example": "widgets"
+            },
+            "required": false,
+            "name": "name",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Decisions made at or after this time. Defaults to 7 days before `until`. Trunk keeps 90 days of decisions, so an earlier time reads from 90 days ago.",
+              "example": "2026-11-11T00:00:00Z"
+            },
+            "required": false,
+            "description": "Decisions made at or after this time. Defaults to 7 days before `until`. Trunk keeps 90 days of decisions, so an earlier time reads from 90 days ago.",
+            "name": "since",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Decisions made before this time. Defaults to now.",
+              "example": "2026-11-18T00:00:00Z"
+            },
+            "required": false,
+            "description": "Decisions made before this time. Defaults to now.",
+            "name": "until",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "example": "2b3c4d5e-0000-4000-8000-000000000002"
+            },
+            "required": false,
+            "name": "workflowId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "A job, with its matrix variations.",
+              "example": "3c4d5e6f-0000-4000-8000-000000000003"
+            },
+            "required": false,
+            "description": "A job, with its matrix variations.",
+            "name": "jobId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Who triggered the run.",
+              "example": "octocat"
+            },
+            "required": false,
+            "description": "Who triggered the run.",
+            "name": "actor",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": ["enforced", "learning"],
+              "description": "The mode the decision was made in. `enforced` keeps `evolving` decisions too.",
+              "example": "enforced"
+            },
+            "required": false,
+            "description": "The mode the decision was made in. `enforced` keeps `evolving` decisions too.",
+            "name": "mode",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": ["run", "skip"],
+              "description": "Dynamic CI's verdict.",
+              "example": "run"
+            },
+            "required": false,
+            "description": "Dynamic CI's verdict.",
+            "name": "recommendation",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "Comma-separated; a decision matching any of them is kept. What the job did (`passed`, `failed`, `skipped`), or what that showed about the verdict: `falseSkip` (a skip found wrong), `falseRun` (a run whose job passed), `skipNotTaken` (an Enforced skip whose job ran).",
+              "example": "falseSkip,skipNotTaken"
+            },
+            "required": false,
+            "description": "Comma-separated; a decision matching any of them is kept. What the job did (`passed`, `failed`, `skipped`), or what that showed about the verdict: `falseSkip` (a skip found wrong), `falseRun` (a run whose job passed), `skipNotTaken` (an Enforced skip whose job ran).",
+            "name": "jobOutcome",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "Comma-separated; any of them. `pathsFilter` (the paths filter forced the run, or was the only signal that voted), `vote`, `mustRun` (another signal forced the run), `neverRun` (a signal forced the skip), `noData` (too many signals had no data).",
+              "example": "pathsFilter"
+            },
+            "required": false,
+            "description": "Comma-separated; any of them. `pathsFilter` (the paths filter forced the run, or was the only signal that voted), `vote`, `mustRun` (another signal forced the run), `neverRun` (a signal forced the skip), `noData` (too many signals had no data).",
+            "name": "decidedBy",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "Comma-separated `<signal>:<run|skip>` pairs; a decision is kept when every pair holds.",
+              "example": "paths-filter:skip"
+            },
+            "required": false,
+            "description": "Comma-separated `<signal>:<run|skip>` pairs; a decision is kept when every pair holds.",
+            "name": "signalVote",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": ["sameRun", "mergeQueueAfterPr"],
+              "description": "Keeps the false skips found in their own run, or by a merge-queue run after the pull request skipped the job.",
+              "example": "sameRun"
+            },
+            "required": false,
+            "description": "Keeps the false skips found in their own run, or by a merge-queue run after the pull request skipped the job.",
+            "name": "falseSkipKind",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2147483647,
+              "description": "A pull request's decisions, its merge-queue runs included.",
+              "example": 4901
+            },
+            "required": false,
+            "description": "A pull request's decisions, its merge-queue runs included.",
+            "name": "pullRequestNumber",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{4,40}$",
+              "description": "A commit sha or a prefix of at least 4 characters.",
+              "example": "9f2c1b7"
+            },
+            "required": false,
+            "description": "A commit sha or a prefix of at least 4 characters.",
+            "name": "commitSha",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": ["signals"],
+              "description": "`signals` adds each decision's signal votes.",
+              "example": "signals"
+            },
+            "required": false,
+            "description": "`signals` adds each decision's signal votes.",
+            "name": "include",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of decisions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DecisionList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`VALIDATION_FAILED` | `INVALID_CURSOR` | `CI_HOST_UNSUPPORTED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "VALIDATION_FAILED": {
+                    "summary": "VALIDATION_FAILED",
+                    "value": {
+                      "error": {
+                        "code": "VALIDATION_FAILED",
+                        "message": "Invalid input: expected string, received undefined"
+                      }
+                    }
+                  },
+                  "INVALID_CURSOR": {
+                    "summary": "INVALID_CURSOR",
+                    "value": {
+                      "error": {
+                        "code": "INVALID_CURSOR",
+                        "message": "Invalid or expired cursor."
+                      }
+                    }
+                  },
+                  "CI_HOST_UNSUPPORTED": {
+                    "summary": "CI_HOST_UNSUPPORTED",
+                    "value": {
+                      "error": {
+                        "code": "CI_HOST_UNSUPPORTED",
+                        "message": "Dynamic CI does not support the repository host gitlab.example.com"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "`AUTHENTICATION_REQUIRED` | `INVALID_TOKEN`. A malformed, expired, or deleted credential. Trunk's edge usually answers this before the request reaches the API, with a body that is not this envelope (`{\"error\": \"unauthorized: invalid api key\"}` for a bad API key, or plain text for a bad `x-trunk-token`), so branch on the status. A request with no credential at all gets `403` from the edge.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "AUTHENTICATION_REQUIRED": {
+                    "summary": "AUTHENTICATION_REQUIRED",
+                    "value": {
+                      "error": {
+                        "code": "AUTHENTICATION_REQUIRED",
+                        "message": "No credential was supplied"
+                      }
+                    }
+                  },
+                  "INVALID_TOKEN": {
+                    "summary": "INVALID_TOKEN",
+                    "value": {
+                      "error": {
+                        "code": "INVALID_TOKEN",
+                        "message": "The supplied token failed verification"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "`INSUFFICIENT_PERMISSIONS`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INSUFFICIENT_PERMISSIONS": {
+                    "summary": "INSUFFICIENT_PERMISSIONS",
+                    "value": {
+                      "error": {
+                        "code": "INSUFFICIENT_PERMISSIONS",
+                        "message": "The supplied credential is missing the required permission"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`REPOSITORY_NOT_FOUND`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "REPOSITORY_NOT_FOUND": {
+                    "summary": "REPOSITORY_NOT_FOUND",
+                    "value": {
+                      "error": {
+                        "code": "REPOSITORY_NOT_FOUND",
+                        "message": "Repository not found"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "RATE_LIMIT_EXCEEDED": {
+                    "summary": "RATE_LIMIT_EXCEEDED",
+                    "value": {
+                      "error": {
+                        "code": "RATE_LIMIT_EXCEEDED",
+                        "message": "Rate limit exceeded; retry with backoff"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "`INTERNAL_ERROR`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "INTERNAL_ERROR": {
+                    "summary": "INTERNAL_ERROR",
+                    "value": {
+                      "error": {
+                        "code": "INTERNAL_ERROR",
+                        "message": "An unexpected error occurred"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "`QUERY_TIMEOUT`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "QUERY_TIMEOUT": {
+                    "summary": "QUERY_TIMEOUT",
+                    "value": {
+                      "error": {
+                        "code": "QUERY_TIMEOUT",
+                        "message": "Reading these decisions took too long. Narrow the window with since and until, or name a repository."
                       }
                     }
                   }
