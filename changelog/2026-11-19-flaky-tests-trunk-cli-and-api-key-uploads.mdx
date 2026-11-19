@@ -1,0 +1,21 @@
+---
+title: "Flaky Tests: Upload test results with the trunk CLI and an API key"
+description: "Install the new trunk CLI, store an API key with the Upload test results permission, and upload with trunk flakytests. The GitHub Action moves to v3."
+date: 2026-11-19
+category: Flaky Tests
+type: new-feature
+---
+
+**You can now upload test results with the new `trunk` CLI and a Trunk API key.**
+
+### New features
+
+- **The `trunk` CLI.** Install it with `curl -fsSL https://install.trunk.io | sh` on macOS and Linux. Windows support is experimental. Store your key once with `trunk auth api-key set`, then run `trunk flakytests upload` after your tests, or wrap your test command with `trunk flakytests test`. The CLI updates itself outside CI, and you can pin versions. See [Trunk CLI](/flaky-tests/get-started/trunk-cli).
+- **`trunk-io/analytics-uploader@v3`.** Version 3 of the GitHub Action runs the `trunk` CLI for you. Pass an API key with the **Upload test results** permission as `token`. See [GitHub Actions](/flaky-tests/get-started/ci-providers/github-actions).
+
+### Updates
+
+- **Uploads use an API key.** Create an API key with the **Upload test results** permission under **Settings** → **Developer** → **API Keys**. It replaces the organization API token for uploads. See [Permissions](/api/authentication#permissions).
+- **Trunk Analytics CLI 1.0.0.** Version 1.0.0 and later accept only an API key and require `--test-collection-id`. To keep using the organization token for now, stay on a 0.17.x release. See the [CLI reference](/flaky-tests/reference/cli-reference).
+- **Upgrading from `@v2`.** Replace `token` with an API key, set `test-collection-id` on every step, and remove the `hide-banner` and `public-repo-id` inputs. To keep the organization token for now, stay on `@v2`. See [Upgrading from v2](/flaky-tests/get-started/ci-providers/github-actions#upgrading-from-v2).
+- **Fork pull requests.** Pass `--allow-forked-pr-uploads` with `--test-collection-id` to upload from forks with `trunk flakytests`, or set `allow-forked-pr-uploads: true` on the v3 action. See [Fork PR uploads](/flaky-tests/get-started/fork-pr-uploads).
