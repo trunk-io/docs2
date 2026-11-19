@@ -3049,7 +3049,7 @@
           },
           "alreadyHeld": {
             "type": "boolean",
-            "description": "True when an earlier request for these checks was already waiting, so this request changed nothing.",
+            "description": "True when an earlier request for these checks was already waiting, so this request changed nothing. A `now` also answers true, without switching, once Trunk has sent any part of the re-run or found one under way.",
             "example": false
           },
           "switchedToNow": {
@@ -3082,7 +3082,7 @@
         },
         "required": ["mode"],
         "additionalProperties": false,
-        "description": "`mode` is required: `now` stops the jobs still running in the failed checks' workflows and re-runs them with the failed jobs, and `wait` re-runs the failed jobs once those workflows finish. `now` on a request that is waiting switches it to `now`. Send the body as `application/json`; a missing body, or one without `mode`, is a `400`."
+        "description": "`mode` is required: `now` stops the jobs still running in the failed checks' workflows and re-runs them with the failed jobs, and `wait` re-runs the failed jobs once those workflows finish. `now` on a request that is waiting switches it to `now`, unless Trunk has already sent any part of the re-run or found one under way, which answers `rerun.alreadyHeld`. Send the body as `application/json`; a missing body, or one without `mode`, is a `400`."
       },
       "CiPlan": {
         "type": "object",
@@ -13929,7 +13929,7 @@
         "operationId": "pullRequests.rerunFailedChecks",
         "tags": ["pullRequests"],
         "summary": "Re-run a pull request's failed checks",
-        "description": "Requires the **Merge and cancel PRs** permission. Re-runs the failed jobs of the GitHub Actions workflows behind the failed required checks, and keeps the pull request's place in the queue: it stays in `pendingFailure` until the re-run starts or `rerun.until` passes, whichever is first. If the re-run has not started by then, the pull request fails as it would have without the request. Only possible while the entry is in `pendingFailure` on a queue that keeps failed test runs; every refusal is a `422` with its own code.\n\n`mode` is required. **Disruptive** with `mode: now`: it stops the jobs still running in the failed checks' workflows. `mode: wait` lets them finish first. `now` on a request that is waiting switches it to `now` (`rerun.switchedToNow`). `Idempotency-Key` is not honored, but a repeat with the same `mode` is safe: it answers `rerun.alreadyHeld` and changes nothing.",
+        "description": "Requires the **Merge and cancel PRs** permission. Re-runs the failed jobs of the GitHub Actions workflows behind the failed required checks, and keeps the pull request's place in the queue: it stays in `pendingFailure` until the re-run starts or `rerun.until` passes, whichever is first. If the re-run has not started by then, the pull request fails as it would have without the request. Only possible while the entry is in `pendingFailure` on a queue that keeps failed test runs; every refusal is a `422` with its own code.\n\n`mode` is required. **Disruptive** with `mode: now`: it stops the jobs still running in the failed checks' workflows. `mode: wait` lets them finish first. `now` on a request that is waiting switches it to `now` (`rerun.switchedToNow`), unless Trunk has already sent any part of the re-run or found one under way, which answers `rerun.alreadyHeld`. `Idempotency-Key` is not honored, but a repeat with the same `mode` is safe: it answers `rerun.alreadyHeld` and changes nothing.",
         "parameters": [
           {
             "schema": {
