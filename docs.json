@@ -1163,6 +1163,16 @@
                       "GET /v2beta/dynamic-ci/force-overrides",
                       "PUT /v2beta/dynamic-ci/force-overrides"
                     ]
+                  },
+                  {
+                    "group": "Decisions",
+                    "openapi": {
+                      "source": "/openapi-v2beta-dynamic-ci.json",
+                      "directory": "/api/beta/dynamic-ci"
+                    },
+                    "pages": [
+                      "GET /v2beta/dynamic-ci/decisions"
+                    ]
                   }
                 ]
               }
