@@ -16,31 +16,31 @@ Before you start these steps, see the [Test Frameworks](../frameworks/) docs for
 Work through the steps below in order. Once you've finished the last one, you're set up — navigate to [app.trunk.io](https://app.trunk.io) to see your results.
 
 <Steps>
-  <Step title={<a href="#trunk-organization-slug-and-token">Get your Trunk organization slug, token, and collection ID</a>} />
-  <Step title={<a href="#add-your-trunk-token-as-a-secret">Set your token as a secret in Depot CI</a>} />
+  <Step title={<a href="#trunk-organization-slug-and-api-key">Get your Trunk organization slug, API key, and collection ID</a>} />
+  <Step title={<a href="#add-your-api-key-as-a-secret">Set your API key as a secret in Depot CI</a>} />
   <Step title={<a href="#upload-to-trunk">Configure Depot CI to upload to Trunk</a>} />
   <Step title={<a href="#validate-your-uploads">Validate your uploads in Trunk</a>} />
 </Steps>
 
-## Trunk Organization Slug and Token
+## Trunk Organization Slug and API Key
 
-Before setting up uploads to Trunk, you must sign in to [app.trunk.io](https://app.trunk.io/login?intent=flaky%20tests) and obtain your Trunk organization slug, your token, and the ID of the test collection to upload to.
+Before setting up uploads to Trunk, you must sign in to [app.trunk.io](https://app.trunk.io/login?intent=flaky%20tests) and obtain your Trunk organization slug, an API key, and the ID of the test collection to upload to.
 
 ### Trunk Slug
 
 You can find your organization slug under **Settings** → **Organization** → **General**.
 
-### Trunk Token
+### Trunk API Key
 
-You can find your token under **Settings** → **Developer** → **API Keys**, in the **Organization API token (v1)** section. Since this is a secret, do not leak it publicly. Ensure you get your _organization token_, not an API key or a repo token.
+Create an API key under **Settings** → **Developer** → **API Keys** with the **Create Key** button, and select the **Upload test results** permission. The key starts with `trunk_v2_` and is shown only once. See [Create an API key](/flaky-tests/get-started/trunk-cli#create-an-api-key).
 
 ### Test Collection ID
 
 Create a [test collection](/flaky-tests/test-collections) under **Flaky Tests** → **Collections**, or open an existing one, and copy its ID from the collection's page header. It is not a secret, so you can include it directly in your upload command.
 
-## Add Your Trunk Token as a Secret
+## Add Your API Key as a Secret
 
-Store the Trunk API token as a [Depot CI secret](https://depot.dev/docs/ci/how-to-guides/manage-secrets-and-variables) named `TRUNK_API_TOKEN`. If you already store it as a GitHub secret, `depot ci migrate secrets-and-vars` imports it.
+Store the API key as a [Depot CI secret](https://depot.dev/docs/ci/how-to-guides/manage-secrets-and-variables) named `TRUNK_API_KEY`. If you already store it as a GitHub secret, `depot ci migrate secrets-and-vars` imports it.
 
 ## Upload to Trunk
 
@@ -67,12 +67,12 @@ jobs:
       - name: Upload Test Results to Trunk.io
         if: ${{ !cancelled() }} # Upload the results even if the tests fail
         continue-on-error: true # don't fail this job if the upload fails
-        uses: trunk-io/analytics-uploader@v2
+        uses: trunk-io/analytics-uploader@v3
         with:
           junit-paths: "**/junit.xml"
           org-slug: <TRUNK_ORG_URL_SLUG>
           test-collection-id: <TRUNK_TEST_COLLECTION_ID>
-          token: ${{ secrets.TRUNK_API_TOKEN }}
+          token: ${{ secrets.TRUNK_API_KEY }}
 ```
 
 The action accepts every report format the GitHub Actions guide shows (XCResult, Bazel BEP, Swift Test XUnit). See the [Analytics Uploader reference](https://github.com/trunk-io/analytics-uploader) for all available arguments.
@@ -94,4 +94,4 @@ Once your workflow has run on a stable branch, navigate to [app.trunk.io](https:
 - The **Uploads** tab lists every report Trunk has ingested, with status and any warnings (missing file paths, malformed XML, and so on).
 - The **Tests** tab shows individual test cases once an upload has been processed.
 
-If a recent run isn't showing up, check the job logs in Depot for upload errors and confirm your `TRUNK_API_TOKEN` secret is available to the workflow and the collection ID is correct.
+If a recent run isn't showing up, check the job logs in Depot for upload errors and confirm your `TRUNK_API_KEY` secret is available to the workflow and the collection ID is correct.
