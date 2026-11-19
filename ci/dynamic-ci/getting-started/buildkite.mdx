@@ -9,6 +9,7 @@ og:title: "Set up Trunk Dynamic CI for Buildkite"
     The key doesn't need any permissions.
   </Step>
   <Step title="Setup OpenTelemetry Export from BuildKite: Provides span data to the Dynamic CI system so we can learn about your pipelines and jobs. [Configure BuildKite to export CI data to Trunk](/setup/integrations/buildkite)">
+    The export needs its own Trunk API key with the **Write CI data** permission. Follow [Buildkite setup](/setup/integrations/buildkite#create-trunk-api-key-for-the-uploads) to create it.
   </Step>
   <Step title="Paste a BuildKite API token with the `read_builds` and `read_organizations` scopes into [Settings → Organization → Buildkite](https://app.trunk.io/settings/organization/buildkite). Use a token from a dedicated BuildKite user.">
   </Step>
