@@ -1,0 +1,19 @@
+---
+title: "Dynamic CI: Force runs and decisions in the beta API"
+description: "Force Dynamic CI jobs to run on a pull request, list the jobs Dynamic CI sees, and read its decisions through the Dynamic CI beta API."
+date: 2026-11-19
+category: Dynamic CI
+type: new-feature
+---
+
+**Agents and scripts can now force Dynamic CI jobs to run and review what Dynamic CI decided, all through the API.** Dynamic CI is in private beta. These endpoints are in beta too, so they can change without notice.
+
+### New features
+
+- **Force jobs to run.** [List the jobs Dynamic CI sees](/api/beta/dynamic-ci/dynamicci/list-the-jobs-dynamic-ci-sees) on a pull request. Then [replace the pull request's force overrides](/api/beta/dynamic-ci/dynamicci/replace-a-pull-requests-force-overrides) so Dynamic CI runs those jobs whatever the signals say. Send the full list each time. A force you leave out is revoked. [List the active force overrides](/api/beta/dynamic-ci/dynamicci/list-a-pull-requests-force-overrides) to check what's set. See [Force Run](/ci/dynamic-ci/force-run).
+- **Read Dynamic CI's decisions.** [List decisions](/api/beta/dynamic-ci/dynamicci/list-dynamic-cis-decisions) to see whether Dynamic CI recommended a run or a skip for each job, why, and what the job then did. By default the list covers every repository over the last 7 days.
+
+### Updates
+
+- **Paths filters move to the beta API.** [List](/api/beta/dynamic-ci/dynamicci/list-a-repositorys-paths-filters) and [set or clear](/api/beta/dynamic-ci/dynamicci/set-or-clear-paths-filters-on-jobs) paths filters now live in the Dynamic CI section of the API reference. Old links redirect. See [Path filters](/ci/dynamic-ci/configuration/path-filters).
+- **New API key permissions.** Setting force overrides needs **Force CI jobs to run**. Setting paths filters needs **Update Dynamic CI settings**. If a key lacks the permission, the API returns `403 INSUFFICIENT_PERMISSIONS`.
