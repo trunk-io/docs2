@@ -1,0 +1,16 @@
+---
+title: "Flaky Tests: Analytics CLI 1.0.0 summary uses API test IDs"
+description: "In Trunk Analytics CLI 1.0.0, each failed test's id in the upload summary is its test ID in the Trunk API."
+date: 2026-11-19
+category: Flaky Tests
+type: update
+---
+
+**The upload summary now gives you test IDs you can pass straight to the API.**
+
+### Updates
+
+- **Summary `id` is the API test ID.** In analytics CLI 1.0.0 and newer, each failed test's `id` in the `--summary-output-file` summary is the `testId` the [v2 API](/api) takes. You no longer need to parse it from the test's `link`.
+- **`id` can be `null`.** If Trunk couldn't identify the test's collection for the run, `id` is `null`. Skip those tests, or find them by name with [`GET /v2/tests`](/api/tests/list-and-search-tests).
+
+See [Evaluate Release Branch Test Health](/flaky-tests/recipes/release-branch-test-health) and the [CLI reference](/flaky-tests/reference/cli-reference).
