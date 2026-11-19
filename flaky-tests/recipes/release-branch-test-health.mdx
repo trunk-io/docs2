@@ -19,8 +19,8 @@ If a workflow tests the release before you cut it, have the analytics CLI write 
 The summary lists every failed test in the upload:
 
 - `failures` holds the failed tests that weren't quarantined, and `quarantined` the ones that were. Both are grouped by file.
-- Each test has its `name`, `file`, `failureMessage`, `failureText` and `link`.
-- The last segment of `link` (`…/tests/<testId>`) is the test's ID in the API. Use it in the calls below, not the test's `id` field, which is the CLI's own ID.
+- Each test has its `id`, `name`, `file`, `failureMessage`, `failureText` and `link`.
+- `id` is the test's ID in the API. Use it as `testId` in the calls below. It is `null` when Trunk couldn't identify the test's collection for the run; skip those tests, or find them by name with [`GET /v2/tests`](/api/tests/list-and-search-tests).
 
 <Note>
 The summary reports each test's final result in the report. A test that your runner retried and then passed counts as passed.
