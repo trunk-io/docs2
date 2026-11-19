@@ -1,0 +1,21 @@
+---
+title: "Runners: Runners API in beta"
+description: "Manage runner usage, templates, cache, regions and CI configuration through the new Runners beta API."
+date: 2026-11-19
+category: Runners
+type: new-feature
+---
+
+**You can now manage [Trunk Runners](/runners/getting-started) through an API.** The Runners API is in beta and can change without notice.
+
+### New features
+
+- **Usage and jobs.** Read your organization's [runner usage](/api/beta/runners/runners/get-the-organizations-runner-usage), live runners, and a CI job's logs and metrics.
+- **Templates.** Create, update, publish, rebuild and roll back [templates](/runners/actions/templates), and read their builds and build logs.
+- **Cache.** Read cache usage and entries per repository, and purge a repository's [cache](/runners/cache).
+- **CI configuration.** Read and update CI configuration, per-repository regions and cache settings, and list runner groups.
+- **CI experiments.** Check whether an experiment can start, start it, and open a pull request from it.
+
+### Updates
+
+- **Template capture from any branch.** The CI configuration has a `templateCaptureAnyBranch` setting. When it is on, template capture also uses passed `pull_request` runs and runs on branches other than the default branch. Anyone who can push a branch can then write the repository's captured templates.

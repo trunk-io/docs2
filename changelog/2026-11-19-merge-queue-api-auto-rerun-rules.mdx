@@ -1,0 +1,22 @@
+---
+title: "Merge Queue: Automatic re-runs and clearer failure details in the v2 API"
+description: "Set rules that re-run failed jobs automatically, see which GitHub ruleset blocked a merge, and read new reasons for restarted tests."
+date: 2026-11-19
+category: Merge Queue
+type: new-feature
+---
+
+**You can now have Trunk re-run failed jobs automatically, and the API tells you more about why an entry failed or restarted.**
+
+### New features
+
+- **Automatic re-run rules.** Set `autoRerunRules` with [Update a merge queue's configuration](/api/mergequeues/update-a-merge-queues-configuration). When a job a rule names fails alongside a failed required check, Trunk re-runs the workflow's failed jobs, up to 2 times. Choose `now` to re-run at once or `wait` to let the workflow finish first. Requires a GitHub repository.
+
+### Updates
+
+- **Ruleset details.** When a GitHub ruleset blocks a merge, the failure details include the rule type, the ruleset name and a link to the ruleset.
+- **Unfinished checks on timeouts.** When a test run times out, the failure details list the required checks that had not finished.
+- **New restart reasons.** Pending entries can now report that a batch ahead is bisecting, an entry ahead returned to waiting, or a batch member was removed. Re-runs from a rule report their source as `auto`.
+- **Read impacted targets from GitHub Actions.** A GitHub Actions login through `trunk-io/login` can now [read a pull request's impacted targets](/api/pullrequests/get-a-pull-requests-impacted-targets), with no Trunk secret.
+
+See the [API reference](/api) for details.

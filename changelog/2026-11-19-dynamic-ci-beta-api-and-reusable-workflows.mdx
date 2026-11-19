@@ -1,0 +1,18 @@
+---
+title: "Dynamic CI: Decisions API and reusable workflow support"
+description: "List Dynamic CI's decisions through the API, find the paths filter and force run endpoints under Beta, and use Dynamic CI inside reusable workflows."
+date: 2026-11-19
+category: Dynamic CI
+type: new-feature
+---
+
+**You can now read Dynamic CI's decisions through the API, and Dynamic CI tells apart jobs inside reusable workflows.** Dynamic CI is in private beta.
+
+### New features
+
+- **Decisions API.** [List Dynamic CI's decisions](/api/beta/dynamic-ci/dynamicci/list-dynamic-cis-decisions) to see each job's run or skip recommendation, why, and what the job then did. It covers the last 7 days by default.
+
+### Updates
+
+- **Beta endpoints moved.** The paths filter, force override and pull request jobs endpoints moved from `/v2/dynamic-ci` to `/v2beta/dynamic-ci`. Beta endpoints can change without notice. See [Paths filters](/api/beta/dynamic-ci/dynamicci/list-a-repositorys-paths-filters) and [Path filters](/ci/dynamic-ci/configuration/path-filters).
+- **Reusable workflows.** A plan request can now name the job's check run, workflow file and job key. Dynamic CI uses them to tell apart jobs when several jobs call the same reusable workflow.
