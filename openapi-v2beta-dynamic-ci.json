@@ -2208,11 +2208,11 @@
           {
             "schema": {
               "type": "string",
-              "description": "Comma-separated; any of them. `pathsFilter` (the paths filter forced the run, or was the only signal that voted), `vote`, `mustRun` (another signal forced the run), `neverRun` (a signal forced the skip), `noData` (too many signals had no data).",
+              "description": "Comma-separated; any of them. `pathsFilter` (the paths filter forced the run, or was the only signal that voted), `vote`, `mustRun` (another signal forced the run), `neverRun` (a signal forced the skip), `noData` (too many signals had no data), `runBeforeQueue` (a job in a run Trunk started before queue, or a job that must run before queue on a push to a pull request waiting to queue; no other kind includes these).",
               "example": "pathsFilter"
             },
             "required": false,
-            "description": "Comma-separated; any of them. `pathsFilter` (the paths filter forced the run, or was the only signal that voted), `vote`, `mustRun` (another signal forced the run), `neverRun` (a signal forced the skip), `noData` (too many signals had no data).",
+            "description": "Comma-separated; any of them. `pathsFilter` (the paths filter forced the run, or was the only signal that voted), `vote`, `mustRun` (another signal forced the run), `neverRun` (a signal forced the skip), `noData` (too many signals had no data), `runBeforeQueue` (a job in a run Trunk started before queue, or a job that must run before queue on a push to a pull request waiting to queue; no other kind includes these).",
             "name": "decidedBy",
             "in": "query"
           },
