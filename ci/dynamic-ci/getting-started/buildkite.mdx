@@ -10,7 +10,15 @@ og:title: "Set up Trunk Dynamic CI for Buildkite"
   </Step>
   <Step title="Setup OpenTelemetry Export from BuildKite: Provides span data to the Dynamic CI system so we can learn about your pipelines and jobs. [Configure BuildKite to export CI data to Trunk](/setup/integrations/buildkite)">
   </Step>
-  <Step title="Paste a BuildKite API token with the `read_builds` and `read_organizations` scopes into [Settings → Organization → Buildkite](https://app.trunk.io/settings/organization/buildkite). Use a token from a dedicated BuildKite user.">
+  <Step title="Paste a BuildKite API token into [Settings → Organization → Buildkite](https://app.trunk.io/settings/organization/buildkite). Use a token from a dedicated BuildKite user.">
+    The token needs these scopes:
+
+    - `read_builds`
+    - `write_builds`
+    - `read_pipelines`
+    - `read_organizations`
+
+    The token's user needs Build & Read access on your pipelines.
   </Step>
 </Steps>
 
@@ -153,8 +161,8 @@ Set `debug: true` to print what the plugin asked for and the plan it got back.
   the upload step.
 
 Builds without a pull request, such as pushes to your default branch, can be
-skipped. Force overrides from the browser extension are not available for
-Buildkite yet.
+skipped. To force a step, use [Force Run](/ci/dynamic-ci/force-run#trunk-web-app)
+in the Trunk web app; the browser extension's controls are for GitHub Actions.
 
 ## Next
 

@@ -13,7 +13,7 @@ Dynamic CI decides which jobs a pull request needs, but sometimes an engineer or
 | [API](#api) | Agents and automation that need a job to run as part of their workflow |
 
 <Note>
-  Force Run overrides are available for GitHub Actions workflows. Buildkite is not supported yet.
+  The browser extension's controls are for GitHub Actions workflows. For Buildkite, use the [Trunk web app](#trunk-web-app).
 </Note>
 
 ## When to force a job
@@ -21,6 +21,7 @@ Dynamic CI decides which jobs a pull request needs, but sometimes an engineer or
 - **You changed something the history can't see**, such as a config, a dependency, or an environment change that affects a job Dynamic CI would skip.
 - **You want fresh signal before review**, for example a slow integration suite you want green before asking for approval.
 - **An agent needs proof**: an agent fixing a specific failure can require the affected job to run on its next push to confirm the fix.
+- **Run Before Queue failed to start**: force the jobs and click **Run N jobs now** to unblock the pull request. See [Run Before Queue](/ci/dynamic-ci/run-before-queue#failed-to-start).
 
 ## Browser extension
 
