@@ -46,11 +46,16 @@ A matrix job runs or skips as a whole by default. To skip some of its
 variations and run others, pick the keys to group it by under **Matrix
 variations → Group by**. See [Matrix jobs](/ci/dynamic-ci/configuration/matrices).
 
-## Run before queue
+## Run Before Queue
 
-<Info>
-  Coming soon. When enabled, the job must run before the pull request can enter the merge queue. This guarantees the job runs, not that it passes.
-</Info>
+Makes sure the job has run on the pull request's head commit before the pull request enters the merge queue. See [Run Before Queue](/ci/dynamic-ci/run-before-queue). In beta.
+
+| Setting | Behavior |
+| --- | --- |
+| **Off** | Dynamic CI decides the job normally. |
+| **On the head commit** | Trunk runs the job on the head commit before the pull request enters the queue, unless it already ran there. |
+
+A job with any setting but **Off** shows an **RBQ** badge in its Schedule column.
 
 ## Related
 
@@ -61,5 +66,9 @@ variations → Group by**. See [Matrix jobs](/ci/dynamic-ci/configuration/matric
 
   <Card title="Merge queues" icon="shield-check" href="/ci/dynamic-ci/merge-queue">
     How Dynamic CI behaves on merge queue runs.
+  </Card>
+
+  <Card title="Run Before Queue" icon="list-check" href="/ci/dynamic-ci/run-before-queue">
+    Run a job on the head commit before the pull request enters the queue.
   </Card>
 </CardGroup>
