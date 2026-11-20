@@ -1,0 +1,18 @@
+---
+title: "Merge Queue: Merge estimates, failed-check re-runs and CI runs in the v2 API"
+description: "Estimate when a queued pull request will merge, re-run its failed checks without losing its place, and read its CI jobs, logs and failure clusters through the v2 API."
+date: 2026-11-20
+category: Merge Queue
+type: new-feature
+---
+
+**You can now ask the v2 API when a pull request will merge, re-run its failed checks, and read its CI results.**
+
+### New features
+
+- **Merge estimates.** [Estimate when a queued pull request will merge](/api/pullrequests/estimate-when-a-queued-pull-request-will-merge), when its testing starts and finishes, and how many pull requests it's waiting behind. If Trunk can't give an estimate, for example on a paused queue, the response says why. Queues that don't serve estimates yet return `404 ESTIMATE_NOT_ENABLED`.
+- **Re-run failed checks.** [Re-run a pull request's failed checks](/api/pullrequests/re-run-a-pull-requests-failed-checks) while it's in `pendingFailure`, and keep its place in the queue. Trunk re-runs the failed GitHub Actions jobs behind the failed required checks. Use `mode: wait` to let running jobs finish first, or `mode: now` to stop them. Requires the **Merge and cancel PRs** permission.
+- **CI runs.** List the [commits that ran CI](/api/pullrequests/list-the-commits-that-ran-ci-on-a-pull-request) on a pull request, and the [CI jobs](/api/cijobs/list-the-ci-jobs-on-a-commit) and [workflow runs](/api/ciworkflowruns/list-the-ci-workflow-runs-on-a-commit) on a commit. A failed job includes its failing step, AI analysis and log excerpt.
+- **Logs, annotations and failure clusters.** Read a job's [log lines](/api/cijobs/list-a-ci-jobs-log-lines) (requires the new **Read CI logs** permission), its [check-run annotations](/api/cijobs/list-a-ci-jobs-check-run-annotations), and the [failure cluster](/api/cifailureclusters/get-a-ci-failure-cluster) that groups failures with the same cause. Logs are kept for 30 days.
+
+See the [API reference](/api) for all v2 endpoints.
