@@ -21,13 +21,7 @@ commit, and lets it in once those jobs have started.
 - **Dynamic CI on** for the repository: **Enforced**, or **Learning** with the pull request on the [allow list](/ci/dynamic-ci/configuration/mode#allow-list). In Learning mode, a pull request that isn't on the allow list enters the queue without Run Before Queue.
 - **GitHub Actions:** the [Trunk app](/setup/integrations/github/trunk-app) installed with **Actions: read & write**, and `trunk-io/dynamic-ci@v1`.
 - **Buildkite:**
-  - A Buildkite API token in [Settings → Organization → Buildkite](https://app.trunk.io/settings/organization/buildkite) with these scopes:
-    - `read_builds`
-    - `write_builds`
-    - `read_pipelines`
-    - `read_organizations`
-  - If you connected Buildkite before, reconnect with a new token that has these scopes.
-  - The token's user needs Build & Read access on the pipeline.
+  - A Buildkite API token in [Settings → Organization → Buildkite](https://app.trunk.io/settings/organization/buildkite) with the scopes in [the Buildkite setup](/ci/dynamic-ci/getting-started/buildkite). If you connected Buildkite before, reconnect with a new token that has them.
   - The Dynamic CI plugin v0.1.10 or later.
 - **The job's setting.** In [Configuration → Jobs](/ci/dynamic-ci/configuration/jobs#run-before-queue), set **Run Before Queue** to **On the head commit**.
 
