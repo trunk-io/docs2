@@ -1,0 +1,15 @@
+---
+title: "Merge Queue: New error for GitLab queues in the v2 API"
+description: "Two v2 merge queue list endpoints now return 422 MERGE_QUEUE_FORGE_NOT_SUPPORTED for merge queues on GitLab."
+date: 2026-11-20
+category: Merge Queue
+type: update
+---
+
+**The v2 API now tells you clearly when a merge queue endpoint doesn't serve GitLab yet.**
+
+### Updates
+
+- **New `MERGE_QUEUE_FORGE_NOT_SUPPORTED` error.** [List a merge queue's pull requests](/api/mergequeues/list-a-merge-queues-pull-requests) and [list a merge queue's verification runs](/api/mergequeues/list-a-merge-queues-verification-runs) return `422 MERGE_QUEUE_FORGE_NOT_SUPPORTED` when the queue is on GitLab. Sending the same request again returns the same response, so don't retry it.
+
+See [Status codes and errors](/api/errors#error-codes) for every error code.
