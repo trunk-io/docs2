@@ -54,6 +54,7 @@ Each permission adds writes:
 | **Mute monitors** (Flaky Tests) | Mute or unmute a monitor for one test or for many at once. | [Mute one test](/api/monitortests/mute-a-monitor-for-one-test), [unmute one test](/api/monitortests/unmute-a-monitor-for-one-test), [mute many](/api/monitortests/mute-a-monitor-for-many-tests), [unmute many](/api/monitortests/unmute-a-monitor-for-many-tests) |
 | **Link tickets** (Flaky Tests) | Link an existing ticket in the connected ticketing provider to a test, or unlink it. | [Link](/api/tests/link-a-ticket-to-a-test), [unlink](/api/tests/unlink-a-tests-ticket) |
 | **Create tickets** (Flaky Tests) | File a new ticket for a test in the connected ticketing provider and link it to the test. | [Create a ticket](/api/tests/create-a-ticket-for-a-test) |
+| **Generate Dynamic CI plans** (Dynamic CI) | Ask which CI jobs a change lets you skip. The `trunk-io/dynamic-ci` action and the Buildkite plugin need it. | [GitHub Actions plan](/api/dynamicci/generate-a-ci-skip-plan), [Buildkite plan](/api/dynamicci/generate-a-ci-skip-plan-for-a-buildkite-pipeline) |
 
 A request's permissions come from its body as well as its endpoint. For example, a submit that sets a priority needs both **Merge and cancel PRs** and **Set priority on PRs**. If the key doesn't have a permission that the request needs, the API returns `403 INSUFFICIENT_PERMISSIONS` and changes nothing.
 
