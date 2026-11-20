@@ -1,0 +1,19 @@
+---
+title: "Dynamic CI: Run Before Queue (beta)"
+description: "Have Trunk run the jobs Dynamic CI skipped on a pull request's head commit before the pull request enters the merge queue."
+date: 2026-11-20
+category: Dynamic CI
+type: new-feature
+---
+
+**Dynamic CI can now run skipped jobs on the head commit before a pull request enters the merge queue, so fewer pull requests get evicted.** Run Before Queue is in beta. Reach out on [Slack](https://slack.trunk.io) to turn it on.
+
+### New features
+
+- **Run Before Queue.** Set a job to **On the head commit** in [Configuration → Jobs](/ci/dynamic-ci/configuration/jobs#run-before-queue). When you submit a pull request, Trunk holds it in **Not Ready**, starts each of those jobs that didn't run on the head commit, and admits it once they've started. Required jobs still gate the pull request through their status checks. See [Run Before Queue](/ci/dynamic-ci/run-before-queue).
+- **GitHub Actions and Buildkite.** On GitHub Actions, Trunk reruns the workflow with only the Run Before Queue jobs and the jobs they need. On Buildkite, Trunk creates a new build that runs only the Run Before Queue steps. Buildkite requires the Dynamic CI plugin v0.1.10 or later and a token with the [required scopes](/ci/dynamic-ci/getting-started/buildkite).
+
+### Updates
+
+- **RBQ badge.** Jobs set to Run Before Queue show an **RBQ** badge in their Schedule column.
+- **Clear readiness messages.** The pull request's readiness shows when Trunk is starting the jobs. If they fail to start, it shows why, and Slack Not Ready subscribers get a message. To unblock it, [Force Run](/ci/dynamic-ci/force-run) the jobs and click **Run N jobs now**, or push.
