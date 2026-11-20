@@ -1241,6 +1241,7 @@
                 "group": "November",
                 "pages": [
                   "changelog/2026-11-20-dynamic-ci-run-before-queue",
+                  "changelog/2026-11-20-merge-queue-api-gitlab-support",
                   "changelog/2026-11-19-flaky-tests-analytics-cli-1-0-0-summary-test-ids",
                   "changelog/2026-11-19-flaky-tests-trunk-cli-and-api-key-uploads",
                   "changelog/2026-11-16-flaky-tests-api-monitors-labels-and-permissions",

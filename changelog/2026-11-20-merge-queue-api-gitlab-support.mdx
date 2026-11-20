@@ -1,0 +1,22 @@
+---
+title: "Merge Queue: GitLab support in the v2 API"
+description: "The v2 merge queue and pull request endpoints now serve GitLab merge queues, with GitLab jobs, verdicts and usernames in responses."
+date: 2026-11-20
+category: Merge Queue
+type: new-feature
+---
+
+**You can now manage [GitLab merge queues](/merge-queue/getting-started/gitlab) through the v2 API, with the same endpoints you use for GitHub.**
+
+### New features
+
+- **GitLab queues on every merge queue route.** [List](/api/mergequeues/list-merge-queues), [submit to](/api/mergequeues/submit-a-pull-request-to-a-merge-queue), pause, resume and configure GitLab merge queues. The pull request endpoints, such as [Get a pull request](/api/pullrequests/get-a-pull-request) and [Dequeue a pull request](/api/pullrequests/dequeue-a-pull-request), work on GitLab merge requests too.
+
+### Updates
+
+- **Forge on checks and mergeability.** Checks and mergeability details now carry a `provider` of `github` or `gitlab`.
+- **GitLab CI jobs as checks.** A check's `kind` can now be `job` for a GitLab CI job. On GitLab, a new `countsAsPass` field shows whether GitLab counts the check as passing, for example a failed job with `allow_failure`.
+- **GitLab users in history.** [Queue-entry history](/api/pullrequests/list-a-pull-requests-queue-entry-state-history) actors now include `forge` and `forgeLogin`. On a GitLab queue, `forgeLogin` is the GitLab username.
+- **Unsupported forges.** `422 MERGE_QUEUE_FORGE_NOT_SUPPORTED` now applies only to forges the API doesn't serve yet, such as Bitbucket. See [Status codes and errors](/api/errors#error-codes).
+
+If your client switches over these enums, handle the new values. See the [API reference](/api).
