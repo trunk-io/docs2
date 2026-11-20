@@ -47,10 +47,7 @@ og:title: "Trunk Dynamic CI FAQ"
     the filter job has no token and every job runs.
   </Accordion>
 
-  <Accordion title="Does Run Before Queue build pull requests from forks on Buildkite?">
-    No. Trunk creates no build for a fork pull request, because it would run
-    fork code with the pipeline's secrets. Run Before Queue fails to start
-    until someone with access to the pipeline runs the steps on the head
-    commit.
+  <Accordion title="Does Run Before Queue work on pull requests from forks?">
+    No. Dynamic CI runs every job on them.
   </Accordion>
 </AccordionGroup>

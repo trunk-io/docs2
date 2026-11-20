@@ -123,19 +123,24 @@ A job that already ran on the head commit, passed or failed, is not run again.
   </Tab>
 
   <Tab title="Buildkite">
-    Trunk creates a new build of the pipeline on the head commit. Trunk doesn't
-    read `depends_on`, so only the steps set to Run Before Queue run, plus a
-    called job's caller. Every other step is skipped. Set the steps your Run
-    Before Queue steps depend on to Run Before Queue as well.
+    Trunk creates a new build of the pipeline on the head commit. Only the
+    steps set to Run Before Queue run. Every other step is skipped.
+
+    <Warning>
+      Trunk doesn't read `depends_on` on Buildkite. If a Run Before Queue step
+      needs a step it `depends_on` to run for accurate results, set that step
+      to Run Before Queue too.
+    </Warning>
 
     - **Status.** The new build reports `buildkite/<pipeline>` on the head commit and replaces the earlier build's status. Don't make the pipeline status a required check unless every step in it is set to Run Before Queue.
     - **Trigger steps.** Trigger steps always run, so every child pipeline runs. A child pipeline runs its own steps set to Run Before Queue and decides the rest as usual.
-    - **Pull requests from forks** get no build, because it would run fork code with the pipeline's secrets. Run Before Queue fails to start; someone with access to the pipeline can run the steps on the head commit instead.
     - **Skip intermediate builds.** With this pipeline setting on, a push right after Trunk creates its build can skip it. The push's own build then runs the Run Before Queue steps.
   </Tab>
 </Tabs>
 
 A matrix job runs every variation.
+
+Pull requests from forks aren't supported. Dynamic CI runs every job on them.
 
 Once Run Before Queue has started for a pull request, each later push runs its
 Run Before Queue jobs, and the jobs they need, in that push's own CI while the
