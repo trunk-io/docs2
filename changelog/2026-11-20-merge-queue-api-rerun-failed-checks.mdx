@@ -1,0 +1,18 @@
+---
+title: "Merge Queue: Re-run failed checks from the API"
+description: "Re-run a queued pull request's failed GitHub Actions checks through the v2 API without losing its place in the queue."
+date: 2026-11-20
+category: Merge Queue
+type: new-feature
+---
+
+**You can now re-run a queued pull request's failed checks from the API and keep its place in the queue.**
+
+### New features
+
+- **Re-run failed checks.** [Re-run a pull request's failed checks](/api/pullrequests/re-run-a-pull-requests-failed-checks) while it's in [pending failure](/merge-queue/optimizations/pending-failure-depth). Trunk re-runs the failed jobs of the GitHub Actions workflows behind the failed required checks. The pull request stays in pending failure until the re-run starts. If it doesn't start in time, the pull request fails as it would have otherwise.
+- **Choose when it runs.** Send `mode: now` to stop the jobs still running in those workflows and re-run right away, or `mode: wait` to let them finish first. Repeating a request with the same `mode` is safe.
+
+### Updates
+
+- **Permissions.** The endpoint needs the **Merge and cancel PRs** permission. See [Permissions](/api/authentication#permissions).
