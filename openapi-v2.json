@@ -565,6 +565,7 @@
           "PR_RERUN_RUN_TORN_DOWN",
           "PR_RERUN_HOLD_LIMIT_REACHED",
           "PR_RERUN_FORGE_NOT_SUPPORTED",
+          "MERGE_QUEUE_FORGE_NOT_SUPPORTED",
           "PROVIDER_URL_NOT_FOUND",
           "CI_HOST_UNSUPPORTED",
           "CI_JOB_NOT_FOUND",
@@ -10329,6 +10330,27 @@
               }
             }
           },
+          "422": {
+            "description": "`MERGE_QUEUE_FORGE_NOT_SUPPORTED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "MERGE_QUEUE_FORGE_NOT_SUPPORTED": {
+                    "summary": "MERGE_QUEUE_FORGE_NOT_SUPPORTED",
+                    "value": {
+                      "error": {
+                        "code": "MERGE_QUEUE_FORGE_NOT_SUPPORTED",
+                        "message": "This merge queue is on GitLab, which this endpoint does not serve yet"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
           "429": {
             "description": "`RATE_LIMIT_EXCEEDED`. Trunk's edge answers this, and does not yet wrap it in the error envelope or send `Retry-After`: treat any `429` as rate limiting, whatever its body, and retry with backoff.",
             "content": {
@@ -12084,6 +12106,27 @@
                       "error": {
                         "code": "MERGE_QUEUE_NOT_FOUND",
                         "message": "Merge queue not found"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "`MERGE_QUEUE_FORGE_NOT_SUPPORTED`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "MERGE_QUEUE_FORGE_NOT_SUPPORTED": {
+                    "summary": "MERGE_QUEUE_FORGE_NOT_SUPPORTED",
+                    "value": {
+                      "error": {
+                        "code": "MERGE_QUEUE_FORGE_NOT_SUPPORTED",
+                        "message": "This merge queue is on GitLab, which this endpoint does not serve yet"
                       }
                     }
                   }
