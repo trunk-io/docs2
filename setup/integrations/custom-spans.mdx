@@ -1,0 +1,167 @@
+---
+title: "Custom spans"
+description: "Send OpenTelemetry spans from inside a CI job to Trunk, and see them under the job or step in the trace waterfall."
+og:title: "Send custom spans to Trunk CI"
+---
+
+Trunk shows each CI run as a trace: the run, its jobs and, on GitHub Actions, the steps of each job. A job or a step is the smallest item that Trunk can show. When one step does a lot of work, for example an Nx command that runs lint, test and build for 40 projects, the trace waterfall shows one long bar. You cannot see which task was slow or which task failed.
+
+With custom spans, you send OpenTelemetry (OTLP) spans from inside a CI job to Trunk. Trunk shows each span under the job or step that sent it. This works on GitHub Actions, Buildkite and Evergreen.
+
+For Nx, the [Trunk Nx plugin](/setup/integrations/custom-spans/nx) sends one span for each Nx task. You do not write code.
+
+## What you see
+
+In the trace waterfall, a job or step that has custom spans has an arrow on its row. The row is collapsed by default. Expand it to see the spans as a tree. Click a bar to see the attributes of the span.
+
+| State | What you see in the trace waterfall |
+| --- | --- |
+| A job or step has custom spans | An arrow on its row. Collapsed by default. Expand it to see the spans as a tree. |
+| A custom span failed | The bar is red. The job or step keeps the status that your CI provider reports. |
+| A custom span was a cache hit | The bar has the label "cached". |
+| A job or step has no custom spans | No change. |
+| Spans arrived, but their job or step is not in the trace yet | The spans are not shown. They show when Trunk has the job or step. |
+
+On GitHub Actions, custom spans show under a step. On Buildkite, they show under the job. On Evergreen, they show under the task. Trunk does not show steps for Buildkite and Evergreen.
+
+Other rules:
+
+- **Spans can arrive before their parent.** Trunk shows them when it has the job or step.
+- **Spans can nest.** A span whose parent is another custom span shows under that span. For example, a span for each test file can show under its `web:test` span.
+- **Each attempt is separate.** Spans show only under the attempt whose ids they use.
+- **Send again is safe.** If you send the same span (same span id) two times, Trunk shows it one time.
+- **Custom spans do not change CI metrics.** Job and step counts, durations, failure rates and Dynamic CI decisions stay the same.
+
+## Set up
+
+#### Before you start
+
+Trunk must already collect the CI data for your repository. To set this up, see [GitHub](/setup/integrations/github), [Buildkite](/setup/integrations/buildkite) or [Evergreen](/setup/integrations/evergreen).
+
+#### Create a Trunk API key
+
+1. In the Trunk app, go to [**Settings** → **Developer** → **API Keys**](https://app.trunk.io/settings/developer/api-tokens) and click **Create Key**.
+2. Select the **Write CI data** permission.
+3. Add the key to the secrets of your CI provider as `TRUNK_API_KEY`.
+4. Make the key available to the job or step that sends spans.
+
+#### GitHub Actions: name the step
+
+On GitHub Actions, give the step that sends spans a fixed `name:`. The name must be unique in the job. Then pass the step name and the job's check run id to the step. No environment variable gives these two values:
+
+```yaml
+- name: Run checks and affected tasks
+  env:
+    TRUNK_API_KEY: ${{ secrets.TRUNK_API_KEY }}
+    TRUNK_GITHUB_CHECK_RUN_ID: ${{ job.check_run_id }}
+    TRUNK_GITHUB_STEP_NAME: Run checks and affected tasks
+  run: npx nx affected -t lint test build
+```
+
+`TRUNK_GITHUB_STEP_NAME` must be the same as the step's `name:`.
+
+#### Send the spans
+
+Do one of these:
+
+- **With Nx (Nx 20.4 or later):** install the [Trunk Nx plugin](/setup/integrations/custom-spans/nx). The plugin finds your CI provider and the job or step. It sets the ids and the attributes for you.
+- **With a different tool:** send OTLP over HTTP to Trunk, as the sections below tell you.
+
+## Send spans from your own tool
+
+Send OTLP over HTTP (protobuf or JSON) to this endpoint:
+
+| Field | Value |
+| --- | --- |
+| Endpoint | `https://api.trunk.io/v2/ci/custom/v1/traces` |
+| Base URL, if your exporter adds `/v1/traces` itself | `https://api.trunk.io/v2/ci/custom` |
+| Headers | `Authorization: Bearer <your Trunk API key>` |
+
+For each top-level span, set:
+
+- The **trace id** to the trace id of the CI run.
+- The **parent span id** to the span id of the job or step.
+
+Calculate the two ids with the [formulas](#id-formulas) below. For a span under another custom span, use the span id of that custom span as the parent, as in all OTLP data.
+
+<Tip>
+Many OpenTelemetry tools read the W3C `TRACEPARENT` environment variable. If your tool does, set `TRACEPARENT` to `00-<trace id>-<parent span id>-01`. Then your tool sets the two ids for you.
+</Tip>
+
+### Id formulas
+
+In the formulas, `sha256(s)` is the SHA-256 hash of the UTF-8 string `s`, as lowercase hex (64 characters). `[a:b]` is the part of that hex string from character `a` (included) to character `b` (not included). The first character is `0`.
+
+| CI provider | Trace id | Parent span id | Values in the job |
+| --- | --- | --- | --- |
+| GitHub Actions | `sha256("{run_id}:{run_attempt}:t")[0:32]` | Step: `sha256("{check_run_id}-{step_name}-s")[16:32]` | `GITHUB_RUN_ID`, `GITHUB_RUN_ATTEMPT`, `${{ job.check_run_id }}` and the step's `name:` |
+| Buildkite | `sha256(build_uuid)[0:32]` | Job: `sha256(job_uuid)[0:16]` | `BUILDKITE_BUILD_ID` and `BUILDKITE_JOB_ID` |
+| Evergreen | `sha256("evergreen:{version_id}:t")[0:32]` | Task: `sha256("evergreen:{task_id}:{execution}-j")[16:32]` | The expansions `${version_id}`, `${task_id}` and `${execution}` |
+
+On GitHub Actions, `step_name` is the step's `name:` after GitHub replaces the expressions in it. On Evergreen, to put the expansions in the environment of a `shell.exec` command, set `add_expansions_to_env: true` on the command.
+
+For example, in a shell on GitHub Actions:
+
+```bash
+trace_id=$(printf '%s' "${GITHUB_RUN_ID}:${GITHUB_RUN_ATTEMPT}:t" | sha256sum | cut -c1-32)
+parent_span_id=$(printf '%s' "${TRUNK_GITHUB_CHECK_RUN_ID}-${TRUNK_GITHUB_STEP_NAME}-s" | sha256sum | cut -c17-32)
+```
+
+On Buildkite:
+
+```bash
+trace_id=$(printf '%s' "${BUILDKITE_BUILD_ID}" | sha256sum | cut -c1-32)
+parent_span_id=$(printf '%s' "${BUILDKITE_JOB_ID}" | sha256sum | cut -c1-16)
+```
+
+`cut` counts from `1`, so `[16:32]` is `cut -c17-32`.
+
+#### Check your ids
+
+Use these values to test your code:
+
+| CI provider | Input | Expected id |
+| --- | --- | --- |
+| GitHub Actions | Trace: `run_id` `16891510901`, `run_attempt` `1` | `e1d7a80c6c1d21429d89e99481a9527b` |
+| GitHub Actions | Step: `check_run_id` `47952870763`, `step_name` `Run tests` | `5c204e13aa033215` |
+| Buildkite | Trace: build `01a0eab9-c0c8-419c-b381-01984c97514d` | `f80e3dd24ecd7a857d8b7a5c72a2ce47` |
+| Buildkite | Job: job `01a0f487-dafb-41b4-b9ee-97edfd503d79` | `99151ce33e319554` |
+| Evergreen | Trace: `version_id` `v1` | `8e6052bdbb63e41c75b73c7a0cc22ac7` |
+| Evergreen | Task: `task_id` `t1`, `execution` `0` | `f94442732dbc32ff` |
+
+### Attributes
+
+Trunk reads these span attributes. The Nx plugin sets them for you.
+
+| Attribute | Example | What Trunk does with it |
+| --- | --- | --- |
+| `trunk.cicd.work.name` | `web:test` | The label of the bar. If it is not set, Trunk uses the span name. |
+| `trunk.cicd.work.kind` | `task`, `test`, `phase`, `other` | Shown in the details. |
+| `trunk.cicd.work.group` | `web` | Shown in the details. |
+| `trunk.cicd.work.result` | `success`, `failure`, `skipped`, `cancelled` | The color of the bar. If it is not set, Trunk uses the span status. |
+| `trunk.cicd.work.cache` | `hit`, `miss` | A "cached" label on the bar. |
+| `trunk.cicd.work.tool.name`, `trunk.cicd.work.tool.version` | `nx`, `24.0.6` | Shown in the details. |
+| `trunk.cicd.worker.name` | `build-agent-3` | Shown in the details as the machine. |
+
+**Your own attributes.** You can add other span and resource attributes. Trunk keeps them and shows them in the span details. Names that start with `trunk.` are for Trunk only.
+
+## Troubleshooting
+
+| Problem | What to do |
+| --- | --- |
+| The send fails with `401` | Make sure that the API key has the **Write CI data** permission. Make sure that the header is `Authorization: Bearer <API key>`. |
+| The send fails with `400` | The body is not valid OTLP, or a span has no trace id or span id. The response tells you which. |
+| GitHub Actions: no spans show under the step | Make sure that `TRUNK_GITHUB_STEP_NAME` is the same as the step's `name:` after GitHub replaces the expressions in it. Make sure that `TRUNK_GITHUB_CHECK_RUN_ID` comes from `${{ job.check_run_id }}` in the same job. |
+| GitHub Actions: two steps in the job have the same name | Give each step a unique `name:`. Trunk cannot tell them apart. |
+| No spans show (all CI providers) | Make sure that Trunk collects CI data for the repository. With your own tool, compare the trace id and the parent span id with the [formulas](#id-formulas). Trunk accepts spans with incorrect ids, but it cannot show them. |
+
+For Nx problems, see the [Nx plugin troubleshooting](/setup/integrations/custom-spans/nx#troubleshooting).
+
+## Limits
+
+- **CI providers:** GitHub Actions, Buildkite and Evergreen. A provider that Trunk does not collect, for example GitLab CI, is not supported.
+- **Steps on Buildkite and Evergreen:** spans show under the job or task. Trunk shows no steps for these providers.
+- **GitHub Actions steps with no `name:`:** you cannot send spans for such a step. Give the step a name.
+- **Failure analysis and logs:** these stay on the job and the step. Custom spans do not have them.
+- **Other pages:** custom spans show only in the trace waterfall. They do not show on the CI Jobs or CI Failures pages.
+- **Number of spans:** at most 10,000 custom spans for each job. Trunk drops the spans after that.
