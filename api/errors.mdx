@@ -91,7 +91,7 @@ Read `error.code` only when the body is JSON with an `error` object. Otherwise, 
 | `422` | `PR_NOT_ENQUEUEABLE` | Trunk can't put the pull request in the queue. `message` tells you why. |
 | `422` | `PR_TESTS_NOT_RESTARTABLE` | The pull request's tests can't restart in its current state. |
 | `422` | `MERGE_QUEUE_NOT_CREATABLE` | Trunk can't create a merge queue for this repository and branch. For example, the branch doesn't exist. |
-| `422` | `MERGE_QUEUE_FORGE_NOT_SUPPORTED` | The merge queue is on GitLab, which this endpoint doesn't serve yet. |
+| `422` | `MERGE_QUEUE_FORGE_NOT_SUPPORTED` | The merge queue is on a forge this endpoint doesn't serve yet, such as Bitbucket. |
 | `422` | `IMPACTED_TARGETS_UNSUPPORTED` | The repository's provider doesn't support impacted targets. |
 | `422` | `ALLOWED_BOT_SUBMITTERS_FROZEN` | The request sends `allowedBotSubmitters`, which is removed. Approve bots on the **Bots** page of your organization's settings. |
 | `422` | `TICKET_NOT_FOUND` | The ticketing system has no ticket with that ID. |
