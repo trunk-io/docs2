@@ -1,0 +1,22 @@
+---
+title: "CI Autopilot: Read CI jobs, failures and logs from the API"
+description: "List a commit's CI jobs and workflow runs, read failure analysis, logs and annotations, and look up failure clusters through the v2 API."
+date: 2026-11-20
+category: CI Autopilot
+type: new-feature
+---
+
+**You can now read your CI jobs, their failures and their logs from the v2 API.** It's built for coding agents that fix failing CI. Turn on **CI Intelligence** for the repository under **Settings** → **Repositories** to get failure output.
+
+### New features
+
+- **CI jobs and workflow runs.** List the [CI jobs](/api/cijobs/list-the-ci-jobs-on-a-commit) or [workflow runs](/api/ciworkflowruns/list-the-ci-workflow-runs-on-a-commit) on a commit, by pull request or by commit SHA. A failed job includes its failing step, AI analysis, log excerpt and failure cluster.
+- **Commits that ran CI.** [List every commit that ran CI on a pull request](/api/pullrequests/list-the-commits-that-ran-ci-on-a-pull-request).
+- **Job logs.** [Read a job's log lines](/api/cijobs/list-a-ci-jobs-log-lines), or only the failing lines from the log excerpt. Logs are kept for 30 days.
+- **Annotations.** [List a failed job's check-run annotations](/api/cijobs/list-a-ci-jobs-check-run-annotations) when no log step explains the failure, such as a disconnected runner.
+- **Failure clusters.** [Get a failure cluster](/api/cifailureclusters/get-a-ci-failure-cluster) to see how often a failure with the same cause happened.
+
+### Updates
+
+- **Read CI logs permission.** Reading job logs needs an API key with the **Read CI logs** permission. See [Permissions](/api/authentication#permissions).
+- **Fix flaky tests with an agent.** The [Fix Flaky Tests](/flaky-tests/recipes/autofix-flaky-tests) recipe uses these endpoints to give an agent a test's failure output.
