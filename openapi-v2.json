@@ -1279,9 +1279,7 @@
         "type": "object",
         "properties": {
           "provider": {
-            "type": "string",
-            "enum": ["github"],
-            "example": "github"
+            "$ref": "#/components/schemas/ForgeProvider"
           },
           "reasons": {
             "type": "array",
@@ -1309,6 +1307,12 @@
         },
         "required": ["provider", "reasons"],
         "description": "Present only when Trunk recorded structured reasons for a `notMergeable` verdict — absent otherwise (a repo Trunk has not enriched, or an entry past the not-ready window). Absence never means the pull request is mergeable; fall back to `mergeability`."
+      },
+      "ForgeProvider": {
+        "type": "string",
+        "enum": ["github", "gitlab"],
+        "description": "The forge a value comes from. More forges may be added; treat an unknown value as a forge this client does not handle.",
+        "example": "github"
       },
       "MergeabilityReason": {
         "type": "object",
@@ -1852,7 +1856,7 @@
           },
           "testBranchCommitUrl": {
             "type": "string",
-            "description": "The tested commit on the provider, for a human to open — v1 publishes this same link as `testBranchUrl`, which addresses the commit rather than the branch. Absent for a non-GitHub repository, and for a run that never got a tested commit (one cancelled before it started).",
+            "description": "The tested commit on the provider, for a human to open — v1 publishes this same link as `testBranchUrl`, which addresses the commit rather than the branch. Built for GitHub (`/commit/`) and GitLab (`/-/commit/`) repositories. Absent on any other forge, and for a run that never got a tested commit (one cancelled before it started).",
             "example": "https://github.com/acme/widgets/commit/1f0a9b8c7d6e5f40312233445566778899aabbcc"
           },
           "createdAt": {
@@ -1969,15 +1973,18 @@
           "providerConclusion": {
             "$ref": "#/components/schemas/ProviderCheckConclusion"
           },
+          "countsAsPass": {
+            "type": "boolean",
+            "description": "GitLab only: whether GitLab counts the check as passing. A failed job or commit status with `allow_failure` counts as passing, so `conclusion` is `failure` and this is `true`. Absent on GitHub.",
+            "example": true
+          },
           "url": {
             "type": ["string", "null"],
             "description": "Link to the check at its provider, for a human to open. Null when the provider did not supply one.",
             "example": "https://github.com/acme/widgets/runs/31245987"
           },
           "provider": {
-            "type": "string",
-            "enum": ["github"],
-            "example": "github"
+            "$ref": "#/components/schemas/ForgeProvider"
           }
         },
         "required": [
@@ -1989,12 +1996,12 @@
           "url",
           "provider"
         ],
-        "description": "A normalized CI check. Both provider check runs and commit statuses map onto this one shape; `kind` says which one this is, and the `provider*` fields carry the unfolded values."
+        "description": "A normalized CI check. GitHub check runs, GitLab jobs and commit statuses map onto this one shape; `kind` says which one this is. On GitHub the `provider*` fields carry the unfolded values; on GitLab `countsAsPass` carries GitLab's own verdict, and only the job or status that ran last for each pipeline and name is listed."
       },
       "CheckKind": {
         "type": "string",
-        "enum": ["checkRun", "statusCheck"],
-        "description": "Which provider entity a check is. `checkRun` is a GitHub check run, with its own lifecycle; `statusCheck` is a commit status, which carries a state and nothing else. It decides how to read `providerConclusion`.",
+        "enum": ["checkRun", "statusCheck", "job"],
+        "description": "Which provider entity a check is. `checkRun` is a GitHub check run, with its own lifecycle; `job` is a GitLab CI job; `statusCheck` is a commit status on either forge. On GitHub it decides how to read `providerConclusion`.",
         "example": "checkRun"
       },
       "CheckStatus": {
@@ -2026,7 +2033,7 @@
           "WAITING",
           "REQUESTED"
         ],
-        "description": "A check's status as the provider reported it, before normalization, uppercased as Trunk stores it — the vocabulary v1 publishes. `WAITING` and `PENDING` are the deployment-gate states: a check run in one of them is waiting on a manual approval, not running, and the normalized `status` reports `QUEUED`, `REQUESTED`, `WAITING` and `PENDING` alike as `queued`. Absent on a `statusCheck`, which has no lifecycle of its own, and on a check run whose provider set none.",
+        "description": "A check's status as the provider reported it, before normalization, uppercased as Trunk stores it — the vocabulary v1 publishes. `WAITING` and `PENDING` are the deployment-gate states: a check run in one of them is waiting on a manual approval, not running, and the normalized `status` reports `QUEUED`, `REQUESTED`, `WAITING` and `PENDING` alike as `queued`. Absent on a `statusCheck`, which has no lifecycle of its own, on a check run whose provider set none, and on GitLab.",
         "example": "COMPLETED"
       },
       "ProviderCheckConclusion": {
@@ -2043,7 +2050,7 @@
           "SUCCESS",
           "TIMED_OUT"
         ],
-        "description": "The provider's own verdict, before normalization, uppercased as Trunk stores it. Read it with `kind`: a `checkRun` uses GitHub's check-run conclusions (everything here but `ERROR`), a `statusCheck` its commit-status states (`SUCCESS`, `FAILURE`, `ERROR`, `PENDING`). This is where the values the normalized `conclusion` cannot express survive — it folds `ACTION_REQUIRED` and `STALE` to `neutral`, and `ERROR` to `failure` beside a genuine `FAILURE`. Absent when the provider set none.",
+        "description": "The provider's own verdict, before normalization, uppercased as Trunk stores it. Read it with `kind`: a `checkRun` uses GitHub's check-run conclusions (everything here but `ERROR`), a `statusCheck` its commit-status states (`SUCCESS`, `FAILURE`, `ERROR`, `PENDING`). This is where the values the normalized `conclusion` cannot express survive — it folds `ACTION_REQUIRED` and `STALE` to `neutral`, and `ERROR` to `failure` beside a genuine `FAILURE`. Absent when the provider set none, and on GitLab.",
         "example": "SUCCESS"
       },
       "TestedPullRequest": {
@@ -2318,6 +2325,14 @@
             "description": "The actor's GitHub login.",
             "example": "octocat"
           },
+          "forge": {
+            "$ref": "#/components/schemas/ForgeProvider"
+          },
+          "forgeLogin": {
+            "type": "string",
+            "description": "The login (not the display name) of the person who caused the change, on `forge`. Equals `gitHubLogin` for a GitHub account; on a GitLab queue it is a GitLab username and `gitHubLogin` is absent.",
+            "example": "octocat"
+          },
           "trunkUserId": {
             "type": "string",
             "description": "The actor's Trunk user id. Carried alongside the login because a GitHub login is renameable and so cannot be correlated against.",
@@ -2518,7 +2533,7 @@
           },
           "conclusion": {
             "type": "string",
-            "description": "Why the check counted as failed, in SCREAMING_SNAKE_CASE. A provider check run contributes its conclusion (`FAILURE`, `TIMED_OUT`, `CANCELLED`, `ACTION_REQUIRED`); a commit status contributes its state (`FAILURE`, `ERROR`). Omitted on runs recorded before it was captured.",
+            "description": "Why the check counted as failed, in SCREAMING_SNAKE_CASE. A GitHub check run contributes its conclusion (`FAILURE`, `TIMED_OUT`, `CANCELLED`, `ACTION_REQUIRED`); a GitHub commit status contributes its state (`FAILURE`, `ERROR`); a GitLab job or commit status contributes its status, uppercased (`FAILED`, `CANCELED`, `SKIPPED`). Omitted on runs recorded before it was captured.",
             "example": "FAILURE"
           }
         },
@@ -10343,7 +10358,7 @@
                     "value": {
                       "error": {
                         "code": "MERGE_QUEUE_FORGE_NOT_SUPPORTED",
-                        "message": "This merge queue is on GitLab, which this endpoint does not serve yet"
+                        "message": "This merge queue is on Bitbucket, which this endpoint does not serve yet"
                       }
                     }
                   }
@@ -12126,7 +12141,7 @@
                     "value": {
                       "error": {
                         "code": "MERGE_QUEUE_FORGE_NOT_SUPPORTED",
-                        "message": "This merge queue is on GitLab, which this endpoint does not serve yet"
+                        "message": "This merge queue is on Bitbucket, which this endpoint does not serve yet"
                       }
                     }
                   }
