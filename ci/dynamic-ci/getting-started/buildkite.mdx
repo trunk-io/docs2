@@ -6,7 +6,7 @@ og:title: "Set up Trunk Dynamic CI for Buildkite"
 
 <Steps>
   <Step title="Configure Secrets in BuildKite:  [Create a Trunk API Key](/api/authentication) and add it to BuildKite's secret store named `TRUNK_API_TOKEN`">
-    The key doesn't need any permissions.
+    When you create it, select the **Generate Dynamic CI plans** permission. A new key has no permissions, and without this one Trunk refuses every plan request and every job runs.
   </Step>
   <Step title="Setup OpenTelemetry Export from BuildKite: Provides span data to the Dynamic CI system so we can learn about your pipelines and jobs. [Configure BuildKite to export CI data to Trunk](/setup/integrations/buildkite)">
   </Step>

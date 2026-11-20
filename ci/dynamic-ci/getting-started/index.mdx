@@ -14,7 +14,7 @@ og:title: "Get started with Trunk Dynamic CI"
   </Step>
 
   <Step title="Add your API key to GitHub secrets: [Create an API key](/api/authentication#create-an-api-key) and store it as a repository secret named `TRUNK_API_TOKEN`">
-    The key doesn't need any permissions.
+    When you create it, select the **Generate Dynamic CI plans** permission. A new key has no permissions, and without this one Trunk refuses every plan request and every job runs.
   </Step>
 
   <Step title="Add Dynamic CI to your CI">
