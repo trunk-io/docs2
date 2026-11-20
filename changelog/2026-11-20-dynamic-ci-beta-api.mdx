@@ -1,0 +1,15 @@
+---
+title: "Dynamic CI: Beta API for Force Run, paths filters and decisions"
+description: "Force Dynamic CI jobs to run, manage paths filters in bulk and read Dynamic CI's decisions through the new beta API."
+date: 2026-11-20
+category: Dynamic CI
+type: new-feature
+---
+
+**You can now drive Dynamic CI from scripts and agents with the beta Dynamic CI API.** Beta endpoints can change at any time, so don't build a long-lived integration on them yet. Authenticate with an [API key](/api/authentication#api-keys).
+
+### New features
+
+- **Force Run.** List the jobs Dynamic CI sees on a pull request, then read or replace its Force Run overrides. Replacing sends the full set, so any override you leave out is revoked. Requires the **Force CI jobs to run** permission. See [List the jobs Dynamic CI sees](/api/beta/dynamic-ci/dynamicci/list-the-jobs-dynamic-ci-sees) and [Force Run](/ci/dynamic-ci/force-run).
+- **Paths filters.** List every paths filter in a repository, or set and clear filters on up to 500 jobs in one request. Requires the **Update Dynamic CI settings** permission. See [List a repository's paths filters](/api/beta/dynamic-ci/dynamicci/list-a-repositorys-paths-filters) and [Path filters](/ci/dynamic-ci/configuration/path-filters).
+- **Decisions.** List each run or skip Dynamic CI recommended, why, and what the job then did. Filter by repository, time window, job, pull request and more. See [List Dynamic CI's decisions](/api/beta/dynamic-ci/dynamicci/list-dynamic-cis-decisions).
