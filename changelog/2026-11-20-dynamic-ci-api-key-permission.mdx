@@ -1,0 +1,14 @@
+---
+title: "Dynamic CI: API keys need the Generate Dynamic CI plans permission"
+description: "Select Generate Dynamic CI plans on the API key you use with the Dynamic CI GitHub Action or Buildkite plugin, or every job runs."
+date: 2026-11-20
+category: Dynamic CI
+type: update
+---
+
+**Your Dynamic CI API key needs the Generate Dynamic CI plans permission.** Dynamic CI is in private beta.
+
+### Updates
+
+- **Generate Dynamic CI plans permission.** Trunk only returns a plan to a key with this permission. The `trunk-io/dynamic-ci` action and the Buildkite plugin both need it. See [API authentication](/api/authentication).
+- **Check your key.** A new API key starts with no permissions. Without this one, Trunk refuses every plan request, Dynamic CI fails open, and every job runs with no error. Select it when you [create the key](/api/authentication#create-an-api-key) for [GitHub Actions](/ci/dynamic-ci/getting-started) or [Buildkite](/ci/dynamic-ci/getting-started/buildkite).
