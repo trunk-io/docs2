@@ -1,0 +1,15 @@
+---
+title: "Flaky Tests: Repository-scoped Flaky Tests is retired"
+description: "Every organization now uses test collections. Pull request comments and the legacy v1 Flaky Tests endpoints are retired."
+date: 2026-11-19
+category: Flaky Tests
+type: update
+---
+
+**Every organization now uses [test collections](/flaky-tests/test-collections), and repository-scoped Flaky Tests is retired.**
+
+### Updates
+
+- **Settings live on each collection.** Quarantining and other settings are under **Tests** → **[your collection]** → **Settings**. See [Quarantining](/flaky-tests/quarantining).
+- **Legacy v1 Flaky Tests endpoints are retired.** The `/v1/flaky-tests/*` endpoints still accept requests but no longer return results. Use the v2 test and test collection endpoints instead. See [Migrate Flaky Tests from the legacy API](/api/v1/migrate-flaky-tests).
+- **Pull request comments are retired.** To see a pull request's flaky and quarantined failures on GitHub, use the [Trunk browser extension](/merge-queue/browser-extensions#test-details-panel).
