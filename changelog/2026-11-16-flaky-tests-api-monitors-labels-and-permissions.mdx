@@ -19,6 +19,5 @@ type: new-feature
 ### Updates
 
 - **New API key permissions.** Flaky Tests writes now need a matching permission on the API key: **Quarantine tests**, **Flag tests**, **Manage monitors**, **Mute monitors**, **Link tickets** and **Create tickets**. A key without permissions can still read collections, tests, monitors and detection events. If a key lacks a permission, the API returns `403 INSUFFICIENT_PERMISSIONS`. See [Permissions](/api/authentication#permissions).
-- **Read a pull request's impacted targets.** A new v2 endpoint returns the impacted targets uploaded for a pull request.
 
 See the [API reference](/api) for all v2 endpoints.

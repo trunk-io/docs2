@@ -1,0 +1,17 @@
+---
+title: "Merge Queue: Read a pull request's impacted targets"
+description: "A new v2 endpoint returns the impacted targets uploaded for a pull request, so you can reuse them after it merges."
+date: 2026-11-16
+category: Merge Queue
+type: new-feature
+---
+
+**You can now read back the impacted targets you uploaded for a pull request.**
+
+### New features
+
+- **Read a pull request's impacted targets.** [Get a pull request's impacted targets](/api/pullrequests/get-a-pull-requests-impacted-targets) returns the targets uploaded for the pull request's head commit. Use it after the pull request merges, for example to run only the post-merge jobs those targets affect.
+- **Works with squash merges.** The answer comes from the pull request's head commit, so a squash merge doesn't change it.
+- **Needs an API key.** The GitHub Actions login can upload targets but can't read them. See [Authentication](/api/authentication).
+
+See [Upload impacted targets from GitHub Actions](/merge-queue/optimizations/parallel-queues/github-actions) for the full upload and read flow.
