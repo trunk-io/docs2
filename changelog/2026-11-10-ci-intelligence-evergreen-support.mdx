@@ -1,0 +1,14 @@
+---
+title: "CI Intelligence: Evergreen support"
+description: "Send Evergreen task and version webhooks to Trunk to collect CI data from your Evergreen projects."
+date: 2026-11-10
+category: CI Intelligence
+type: new-feature
+---
+
+**Trunk can now collect CI data from [Evergreen](https://github.com/evergreen-ci/evergreen), MongoDB's CI system.**
+
+### New features
+
+- **Evergreen webhooks.** Add two webhook subscriptions to your Evergreen repo or project settings: **Any task finishes** and **Any version finishes**. Trunk turns Evergreen projects into pipelines, versions into pipeline runs, and tasks into jobs. Restarted tasks show up as new attempts of the same job. See the [Evergreen guide](/setup/integrations/evergreen).
+- **Works with your existing repositories.** Trunk matches each Evergreen version to a repository in your organization by name. Turn on **CI Intelligence** for the repository under **Settings** → **Repositories**, then authenticate with a Trunk API key.
