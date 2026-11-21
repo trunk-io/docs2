@@ -1,0 +1,15 @@
+---
+title: "Merge Queue: Re-run failed checks leaves a started re-run alone"
+description: "Asking to re-run a pull request's failed checks now leaves a re-run alone once Trunk has started it or found one under way."
+date: 2026-11-19
+category: Merge Queue
+type: update
+---
+
+**Re-running a pull request's failed checks through the v2 API no longer disrupts a re-run that has already started.**
+
+### Updates
+
+- **`mode: now` respects a re-run that has started.** [Re-run a pull request's failed checks](/api/pullrequests/re-run-a-pull-requests-failed-checks) with `mode: now` usually switches a waiting request to `now`. Once Trunk has sent any part of the re-run, or found one already under way, it no longer switches. It answers with `rerun.alreadyHeld: true` and changes nothing.
+
+See the [API reference](/api) for all v2 endpoints.
