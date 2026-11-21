@@ -22,6 +22,18 @@ Leave a job whole when its variations divide the same work differently on every
 run. Dynamic CI can only learn from a variation's history if that variation does
 the same work each time (see below).
 
+Dynamic CI always decides these GitHub Actions matrices as one unit:
+
+- **An axis whose values come from an expression**, such as
+  `shard: ${{ fromJSON(needs.plan.outputs.shards) }}`. Write the values as a
+  list, or have the planner job pass whole rows that the matrix reads at
+  `include:`.
+- **`include:` rows from an expression beside axes.** Have the planner write
+  every variation as a full row, and remove the axes.
+- **A literal fallback that declares axes**, such as
+  `fromJSON(... || '{"os":["ubuntu-latest","macos-14"]}')`. Write the fallback as
+  `include:` rows instead.
+
 ## Choose the keys to group by
 
 This is the choice that matters most. You pick one or more of the matrix's keys.
@@ -50,6 +62,9 @@ Some more guidance:
   follows the decision for the whole job.
 - **Start with the key that names what breaks independently.** If the macOS build
   fails for reasons the Linux build never sees, group by OS.
+- **A group passes only when every variation in it passed.** A run where a
+  variation was skipped or missing does not count toward the group's history, so
+  adding a key to the group shortens its history for a while.
 
 ## Opt a job in
 
@@ -57,7 +72,7 @@ Some more guidance:
   <Step title="Open the job's settings">
     In [Dynamic CI → Configuration](https://app.trunk.io/ci/dynamic-ci/configuration),
     open the **Jobs** tab and click the matrix job to expand it. A matrix job's
-    **Schedule** column shows how it is grouped, such as **matrix: Group by none**.
+    **Schedule** column shows how it is grouped, such as **Group by none**.
   </Step>
 
   <Step title="Pick the keys under Group by">
@@ -77,9 +92,17 @@ Some more guidance:
     - **Buildkite:** no pipeline change beyond the plugin version. See
       [Matrix steps on Buildkite](/ci/dynamic-ci/getting-started/buildkite#matrix-steps).
 
-    Once you group a GitHub Actions job, the section shows a setup checklist of
-    what your workflow still needs. **Understanding variations** links to the
-    setup steps for your matrix's shape.
+    If the workflow on the default branch does not read the variations to run
+    yet, the section says **The workflow needs a change before Dynamic CI can
+    skip variations.** The **Matrix setup** card on the
+    [Issues](https://app.trunk.io/ci/dynamic-ci/issues) tab then shows the
+    change, with YAML you can copy. Every variation runs until the change is on
+    the default branch. **Understanding variations** links to the setup steps
+    for your matrix's shape.
+
+    For a matrix Dynamic CI can't split (see [When to opt in](#when-to-opt-in)),
+    the section says **Dynamic CI decides this job as one unit.** If the job is
+    already grouped, click **Decide as one unit**: grouping it saves nothing.
   </Step>
 
   <Step title="Save">
