@@ -565,6 +565,7 @@
           "PR_RERUN_RUN_TORN_DOWN",
           "PR_RERUN_HOLD_LIMIT_REACHED",
           "PR_RERUN_FORGE_NOT_SUPPORTED",
+          "PR_RERUN_BUILDKITE_NOT_CONNECTED",
           "MERGE_QUEUE_FORGE_NOT_SUPPORTED",
           "PROVIDER_URL_NOT_FOUND",
           "CI_HOST_UNSUPPORTED",
@@ -14147,7 +14148,7 @@
             }
           },
           "422": {
-            "description": "`PR_RERUN_FEATURE_DISABLED` | `PR_RERUN_NOT_PENDING_FAILURE` | `PR_RERUN_QUEUE_DOES_NOT_KEEP_FAILED_RUNS` | `PR_RERUN_NOT_A_REQUIRED_CHECK_FAILURE` | `PR_RERUN_CHECK_NOT_RERUNNABLE` | `PR_RERUN_RUN_TORN_DOWN` | `PR_RERUN_HOLD_LIMIT_REACHED` | `PR_RERUN_FORGE_NOT_SUPPORTED`",
+            "description": "`PR_RERUN_FEATURE_DISABLED` | `PR_RERUN_NOT_PENDING_FAILURE` | `PR_RERUN_QUEUE_DOES_NOT_KEEP_FAILED_RUNS` | `PR_RERUN_NOT_A_REQUIRED_CHECK_FAILURE` | `PR_RERUN_CHECK_NOT_RERUNNABLE` | `PR_RERUN_RUN_TORN_DOWN` | `PR_RERUN_HOLD_LIMIT_REACHED` | `PR_RERUN_FORGE_NOT_SUPPORTED` | `PR_RERUN_BUILDKITE_NOT_CONNECTED`",
             "content": {
               "application/json": {
                 "schema": {
@@ -14223,6 +14224,15 @@
                       "error": {
                         "code": "PR_RERUN_FORGE_NOT_SUPPORTED",
                         "message": "Trunk can re-run checks only for GitHub repositories. Use Restart tests."
+                      }
+                    }
+                  },
+                  "PR_RERUN_BUILDKITE_NOT_CONNECTED": {
+                    "summary": "PR_RERUN_BUILDKITE_NOT_CONNECTED",
+                    "value": {
+                      "error": {
+                        "code": "PR_RERUN_BUILDKITE_NOT_CONNECTED",
+                        "message": "Trunk cannot re-run `buildkite/ci` because Trunk has no valid API key for its Buildkite organization. Add one in Settings → Integrations → Buildkite."
                       }
                     }
                   }
