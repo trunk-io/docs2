@@ -1,0 +1,24 @@
+---
+title: "CI Autopilot: CI runs in the v2 API"
+description: "Read a commit's CI jobs and workflow runs, failure analysis, job logs and failure clusters through the v2 API."
+date: 2026-11-23
+category: CI Autopilot
+type: new-feature
+---
+
+**You can now read CI results and failure analysis from the v2 API, not only from the web app.**
+
+### New features
+
+- **CI jobs.** [List the CI jobs on a commit](/api/cijobs/list-the-ci-jobs-on-a-commit) by pull request or by repository and commit SHA. Each failed job includes its failing step, AI analysis, log excerpt and failure cluster. Use `updatedAfter` or an `ETag` to read only what changed.
+- **Workflow runs.** [List the CI workflow runs on a commit](/api/ciworkflowruns/list-the-ci-workflow-runs-on-a-commit), each with its jobs counted.
+- **Commits on a pull request.** [List the commits that ran CI on a pull request](/api/pullrequests/list-the-commits-that-ran-ci-on-a-pull-request), newest activity first.
+- **Job logs.** [List a CI job's log lines](/api/cijobs/list-a-ci-jobs-log-lines), or pass a failure's excerpt range to read only the failing lines. Logs are kept for 30 days. This endpoint needs the **Read CI logs** permission on your API key. See [Permissions](/api/authentication#permissions).
+- **Check-run annotations.** [List a CI job's check-run annotations](/api/cijobs/list-a-ci-jobs-check-run-annotations) to see why a job failed when no log step explains it, such as a disconnected runner.
+- **Failure clusters.** [Get a CI failure cluster](/api/cifailureclusters/get-a-ci-failure-cluster) to see how often a failure with the same cause happened and the analysis of a representative failure.
+
+### Updates
+
+- **Rate limits.** `GET` requests to the CI runs endpoints are limited to 5 per second per API key or user, and don't count toward your organization's shared limit. See [Rate limits](/api/rate-limits).
+
+See the [API reference](/api) for all v2 endpoints.
