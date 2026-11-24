@@ -1,0 +1,18 @@
+---
+title: "Dynamic CI: Force runs and decisions in the beta API"
+description: "Force jobs to run on a pull request and list Dynamic CI's decisions through the Dynamic CI beta API."
+date: 2026-11-24
+category: Dynamic CI
+type: new-feature
+---
+
+**You can now force jobs to run and read Dynamic CI's decisions through the Dynamic CI beta API.** Beta endpoints can change at any time, so don't build a lasting integration on them.
+
+### New features
+
+- **Force runs.** [List the jobs Dynamic CI sees](/api/beta/dynamic-ci/dynamicci/list-the-jobs-dynamic-ci-sees) on a pull request, then [list](/api/beta/dynamic-ci/dynamicci/list-a-pull-requests-force-overrides) or [replace](/api/beta/dynamic-ci/dynamicci/replace-a-pull-requests-force-overrides) its force overrides. A forced job runs whatever the signals say. Replacing overrides requires the **Force CI jobs to run** permission. See [Force Run](/ci/dynamic-ci/force-run).
+- **Decisions.** [List Dynamic CI's decisions](/api/beta/dynamic-ci/dynamicci/list-dynamic-cis-decisions), newest first. Each decision shows what Dynamic CI decided, whether the model, a rule, or a safety run decided it, and what the job then did. By default, the list covers every repository in your organization over the last 7 days.
+
+### Updates
+
+- **Dynamic CI section in the API reference.** The [paths filters](/api/beta/dynamic-ci/dynamicci/list-a-repositorys-paths-filters) endpoints now sit with the other beta endpoints under **Dynamic CI**. Old links redirect.
