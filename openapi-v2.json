@@ -2624,7 +2624,7 @@
       "RerunMode": {
         "type": "string",
         "enum": ["now", "wait"],
-        "description": "`now`: stop the jobs still running in the failed checks' workflows and re-run them with the failed jobs. `wait`: re-run the failed jobs once those workflows finish.",
+        "description": "`now`: re-run the failed jobs at once, and in a GitHub Actions workflow also stop the jobs still running and re-run them with the failed jobs; a Buildkite build is never stopped. `wait`: re-run the failed jobs once their workflow run or Buildkite build finishes.",
         "example": "now"
       },
       "RerunHoldEnding": {
@@ -3099,7 +3099,7 @@
         },
         "required": ["mode"],
         "additionalProperties": false,
-        "description": "`mode` is required: `now` stops the jobs still running in the failed checks' workflows and re-runs them with the failed jobs, and `wait` re-runs the failed jobs once those workflows finish. `now` on a request that is waiting switches it to `now`, unless Trunk has already sent any part of the re-run or found one under way, which answers `rerun.alreadyHeld`. Send the body as `application/json`; a missing body, or one without `mode`, is a `400`."
+        "description": "`mode` is required: `now` re-runs the failed jobs at once, and in a GitHub Actions workflow also stops the jobs still running and re-runs them with the failed jobs (a Buildkite build is never stopped); `wait` re-runs the failed jobs once their workflow run or Buildkite build finishes. `now` on a request that is waiting switches it to `now`, unless Trunk has already sent any part of the re-run or found one under way, which answers `rerun.alreadyHeld`. Send the body as `application/json`; a missing body, or one without `mode`, is a `400`."
       },
       "CiPlan": {
         "type": "object",
@@ -13988,7 +13988,7 @@
         "operationId": "pullRequests.rerunFailedChecks",
         "tags": ["pullRequests"],
         "summary": "Re-run a pull request's failed checks",
-        "description": "Requires the **Merge and cancel PRs** permission. Re-runs the failed jobs of the GitHub Actions workflows behind the failed required checks, and keeps the pull request's place in the queue: it stays in `pendingFailure` until the re-run starts or `rerun.until` passes, whichever is first. If the re-run has not started by then, the pull request fails as it would have without the request. Only possible while the entry is in `pendingFailure` on a queue that keeps failed test runs; every refusal is a `422` with its own code.\n\n`mode` is required. **Disruptive** with `mode: now`: it stops the jobs still running in the failed checks' workflows. `mode: wait` lets them finish first. `now` on a request that is waiting switches it to `now` (`rerun.switchedToNow`), unless Trunk has already sent any part of the re-run or found one under way, which answers `rerun.alreadyHeld`. `Idempotency-Key` is not honored, but a repeat with the same `mode` is safe: it answers `rerun.alreadyHeld` and changes nothing.",
+        "description": "Requires the **Merge and cancel PRs** permission. Re-runs the failed jobs behind the failed required checks (GitHub Actions workflows, and Buildkite builds of an organization whose Buildkite API key Trunk holds), and keeps the pull request's place in the queue: it stays in `pendingFailure` until the re-run starts or `rerun.until` passes, whichever is first. If the re-run has not started by then, the pull request fails as it would have without the request. Only possible while the entry is in `pendingFailure` on a queue that keeps failed test runs; every refusal is a `422` with its own code.\n\n`mode` is required. **Disruptive** with `mode: now`: it stops the jobs still running in the failed checks' GitHub Actions workflows; it never stops a Buildkite build. `mode: wait` lets them finish first. `now` on a request that is waiting switches it to `now` (`rerun.switchedToNow`), unless Trunk has already sent any part of the re-run or found one under way, which answers `rerun.alreadyHeld`. `Idempotency-Key` is not honored, but a repeat with the same `mode` is safe: it answers `rerun.alreadyHeld` and changes nothing.",
         "parameters": [
           {
             "schema": {
@@ -14196,7 +14196,7 @@
                     "value": {
                       "error": {
                         "code": "PR_RERUN_CHECK_NOT_RERUNNABLE",
-                        "message": "Trunk can re-run only GitHub Actions checks. Re-run `buildkite/ci` in its own CI, or use Restart tests."
+                        "message": "Trunk cannot re-run `jenkins/ci`. Re-run it in its own CI, or use Restart tests."
                       }
                     }
                   },
