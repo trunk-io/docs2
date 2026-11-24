@@ -1,0 +1,123 @@
+---
+title: "Directory sync (SCIM)"
+description: "Let your identity provider decide who is a member of your Trunk organization and what role each member has."
+hidden: true
+noindex: true
+---
+
+With directory sync, your identity provider (IdP), such as Okta, Microsoft Entra ID or Google Workspace, manages the members of your Trunk organization. People that your IdP assigns to Trunk become members. Your IdP groups decide who is an Admin and who is a Member. People that your IdP removes lose access to Trunk.
+
+To use directory sync, contact [support@trunk.io](mailto:support@trunk.io). Trunk support turns it on for you.
+
+## Before you start
+
+- Your organization signs in to Trunk with SSO. To set up SSO, contact [support@trunk.io](mailto:support@trunk.io).
+- Your organization's email domain is verified for SSO. Trunk support verifies it when it sets up SSO.
+- Trunk support turns on directory sync for your organization, and then sends your IT team a directory setup link.
+
+<Warning>
+When Trunk support turns on directory sync, Trunk cancels the pending invitations of your organization. If a person opens an old invitation link, Trunk tells them that your directory manages the members of the organization.
+</Warning>
+
+### Who Trunk adds
+
+- Trunk adds only people whose email is on a verified domain of your organization. Trunk does not add other people, and lists them as people not added. If someone already is a member and their email is not on a verified domain, the first confirmation removes them. This includes members that exist only in Trunk, such as service accounts and contractors.
+- Trunk matches each person by email. If a person already uses Trunk with the same email, Trunk uses their existing account. They do not get a second account.
+- If the email in your directory is different from the email that a person uses in Trunk, Trunk makes a new user for them. The same occurs when the email changes in your directory. The old user loses its membership at the first confirmation, or at the next sync after that.
+- Trunk applies your directory as it is. If a mistake in your IdP setup removes people from the Trunk app, Trunk removes them from your organization. To fix this, correct the setup in your IdP.
+
+## Set up directory sync
+
+<Steps>
+<Step title="Assign people to the Trunk app in your IdP">
+In your IdP, assign the people who use Trunk to the Trunk app. Assign only these people: everyone that you assign becomes a member of your Trunk organization.
+
+Do this before you map groups. The group mapping step shows no groups until the first person gets to Trunk.
+</Step>
+<Step title="Connect your directory">
+Open the directory setup link from Trunk support, and follow the steps to connect your IdP.
+</Step>
+<Step title="Map groups to roles">
+In the same setup, map your IdP groups to the two Trunk roles: **Admin** and **Member**.
+
+Make sure that the people who administer Trunk are in a group that you map to Admin. If a person is in groups that map to Admin and to Member, they get Admin.
+</Step>
+<Step title="Preview and confirm">
+An Admin of your Trunk organization previews the changes and confirms them on the Team page. See [Preview and confirm](#preview-and-confirm).
+</Step>
+</Steps>
+
+## Organization states
+
+In the Trunk app, an Admin can see the state of directory sync in **Settings** → **Organization** → **Team**, in the **Directory sync** card.
+
+| State | What it means |
+| --- | --- |
+| **Off** | Directory sync is off. You manage members in Trunk. |
+| **Waiting for confirmation** | Your directory adds new people, each as a Member. Role changes and removals wait until an Admin confirms the first preview. |
+| **Managed by your directory** | Your directory decides every member and every role. |
+
+While directory sync is on, the Team page tells every member that your directory manages the members of the organization. The **Invite Users** button, the role and remove controls, and **Leave Organization** are not available.
+
+## Preview and confirm
+
+While your organization is **Waiting for confirmation**, Trunk adds the people in your directory as Members, but it does not change roles or remove anyone. Before your directory sets roles and removes people, an Admin must confirm a preview.
+
+<Steps>
+<Step title="Get the people ready">
+Make sure that the people who administer Trunk are in a group that you map to Admin. If they are not, the preview shows them as people to remove, or Trunk refuses the confirmation because the organization would have no Admin.
+</Step>
+<Step title="Run a preview">
+Go to **Settings** → **Organization** → **Team**. In the **Directory sync** card, click **Preview**. The preview shows the people to add, the roles to change and the people to remove.
+</Step>
+<Step title="Confirm the preview">
+Read the preview. If it is correct, click **Confirm**, then confirm again in the dialog. After the confirmation, your organization is **Managed by your directory**. You cannot undo the confirmation.
+</Step>
+</Steps>
+
+A preview is valid for 30 minutes. If your directory changes after the preview, Trunk refuses the confirmation and shows a new preview. Read the new preview, then confirm it.
+
+Members who already sign in with SSO stay members at the confirmation if your directory includes them. Their role comes from their groups, not from the role that they had in Trunk.
+
+## After the confirmation
+
+Changes in your IdP get to Trunk automatically, usually in less than two minutes. Trunk also does a full sync of each organization every 30 minutes.
+
+To sync immediately, an Admin clicks **Sync now** in the **Directory sync** card. Trunk shows a preview of the changes. Click **Apply changes** to apply them.
+
+### Change a person's group
+
+To move a person from one group to a different group, add them to the new group before you remove them from the old group. If the person is in no mapped group for more than a few seconds, Trunk can remove them and then add them again.
+
+### Remove a person
+
+To remove a person from Trunk, deactivate them in your IdP, or unassign them from the Trunk app. Trunk removes their membership, and signs them out of the Trunk app and the Trunk CLI in every Trunk organization. Their memberships in other Trunk organizations do not change.
+
+<Note>
+In Okta, a suspended person cannot sign in, but their Trunk membership stays. A Trunk session that they already have continues to work until it expires. To remove the person from Trunk, deactivate them or unassign them.
+</Note>
+
+While your organization is **Waiting for confirmation**, Trunk does not remove people. A person that your IdP removes stays a member until an Admin confirms the first preview.
+
+### A person who comes back
+
+If your IdP deactivates a person and later activates them again, Trunk gives them the role that their groups give at that time. Trunk does not keep their old role.
+
+## Changes on hold and people not added
+
+The **Directory sync** card shows two lists:
+
+- **Changes on hold**: changes that Trunk does not apply, with the reason. For example, the directory gives a person more than one role, or a role that Trunk does not know. Give the person one role, Admin or Member, in your IdP.
+- **People not added**: people in your directory that Trunk did not add, with the reason. For example, "The email domain is not verified" or "The person did not accept the invitation yet". To add a domain, contact Trunk support.
+
+## An organization with no Admin
+
+When your directory manages the organization, your IdP groups decide every role. If no group maps to Admin, the organization has no Admin, and the Team page tells members to ask their IT team. To fix this, map a group to the Admin role in your IdP.
+
+## Replace your directory
+
+To replace your directory with a different one, contact Trunk support first. When the new directory has fully synced, Trunk support examines the changes with you before anyone confirms them.
+
+## Turn off directory sync
+
+To turn off directory sync, contact Trunk support. When Trunk support turns it off, the members and their roles stay as they are, and the usual member controls come back on the Team page.
