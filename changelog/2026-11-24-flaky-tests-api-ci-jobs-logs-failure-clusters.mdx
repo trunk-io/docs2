@@ -1,0 +1,23 @@
+---
+title: "Flaky Tests: CI jobs, logs and failure clusters in the v2 API"
+description: "Read a pull request's CI jobs, workflow runs, job logs and grouped failures through the v2 API."
+date: 2026-11-24
+category: Flaky Tests
+type: new-feature
+---
+
+**You can now read why CI failed on a pull request straight from the v2 API, so your scripts and agents don't have to scrape CI logs.**
+
+### New features
+
+- **CI jobs on a commit.** [List the CI jobs](/api/cijobs/list-the-ci-jobs-on-a-commit) on a pull request's head commit, or on any commit. A failed job carries its failure inline: the failing step, the AI analysis, the log excerpt and its failure cluster.
+- **Workflow runs and commits.** [List the workflow runs](/api/ciworkflowruns/list-the-ci-workflow-runs-on-a-commit) on a commit, or [list every commit that ran CI](/api/pullrequests/list-the-commits-that-ran-ci-on-a-pull-request) on a pull request.
+- **Job logs.** [Read a job's log lines](/api/cijobs/list-a-ci-jobs-log-lines), or only the failing lines from a failure's excerpt. Logs are kept for 30 days. This endpoint needs the new **Read CI logs** API key permission.
+- **Annotations.** [List a failed job's check-run annotations](/api/cijobs/list-a-ci-jobs-check-run-annotations) when no log step explains the failure, such as a disconnected runner.
+- **Failure clusters.** [Get a failure cluster](/api/cifailureclusters/get-a-ci-failure-cluster) to see how often the same failure has happened and the analysis of a representative failure.
+
+### Updates
+
+- **CI summary on pull requests.** [Get a pull request](/api/pullrequests/get-a-pull-request) now returns a `ci` summary of the head commit's jobs, with links to the lists and a `pollAfterSeconds` hint for when to read again.
+
+See the [API reference](/api) for all v2 endpoints.
