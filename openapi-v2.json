@@ -380,7 +380,7 @@
               "$ref": "#/components/schemas/AutoRerunRule"
             },
             "maxItems": 50,
-            "description": "Jobs that Trunk re-runs automatically when a verification run fails a required check. A rule starts when a job it names fails in the same workflow as a failed required check: Trunk re-runs the failed jobs of that workflow, at once (`now`) or when the workflow finishes (`wait`), up to `maxReruns` times. These re-runs and `POST /v2/pull-requests/{id}/rerun-failed-checks` share two re-runs per verification run. When jobs from more than one rule fail, the first of those rules applies, so the order of rules is significant; the order of `checks` within a rule is not, and a resend in another order changes nothing. A check can be in only one rule. Requires `failedTestRunTeardown: keepForRerun` and a GitHub repository; a check that Trunk cannot re-run is refused with `VALIDATION_FAILED`, naming the check. Empty means no rules.",
+            "description": "Jobs that Trunk re-runs automatically when a verification run fails a required check. A rule starts when a job it names fails in the same CI run (a GitHub Actions workflow run, or a Buildkite build of an organization whose Buildkite API key Trunk holds) as a failed required check: Trunk re-runs the failed jobs of that run, at once (`now`) or when the run finishes (`wait`), up to `maxReruns` times. These re-runs and `POST /v2/pull-requests/{id}/rerun-failed-checks` share two re-runs per verification run. When jobs from more than one rule fail, the first of those rules applies, so the order of rules is significant; the order of `checks` within a rule is not, and a resend in another order changes nothing. A check can be in only one rule. Requires `failedTestRunTeardown: keepForRerun` and a GitHub repository; a check that Trunk cannot re-run is refused with `VALIDATION_FAILED`, naming the check. Empty means no rules.",
             "example": [
               {
                 "checks": ["smoke-check"],
@@ -501,12 +501,12 @@
           }
         },
         "required": ["checks", "mode", "maxReruns"],
-        "description": "A rule that re-runs failed jobs automatically when a job it names fails in the same workflow as a failed required check."
+        "description": "A rule that re-runs failed jobs automatically when a job it names fails in the same CI run (a GitHub Actions workflow run or a Buildkite build) as a failed required check."
       },
       "AutoRerunMode": {
         "type": "string",
         "enum": ["wait", "now"],
-        "description": "When Trunk re-runs the failed jobs. `wait` lets the rest of the workflow finish first. `now` stops the workflow's running jobs and re-runs them with the failed jobs.",
+        "description": "When Trunk re-runs the failed jobs. `wait` lets the rest of the GitHub Actions workflow run or Buildkite build finish first. `now` re-runs the failed jobs at once, and in a GitHub Actions workflow also stops the jobs that continue to run and re-runs them; a Buildkite build is never stopped.",
         "example": "wait"
       },
       "ErrorResponse": {
@@ -1752,7 +1752,7 @@
               "required": ["checks", "mode", "maxReruns"]
             },
             "maxItems": 50,
-            "description": "Jobs that Trunk re-runs automatically when a verification run fails a required check. A rule starts when a job it names fails in the same workflow as a failed required check: Trunk re-runs the failed jobs of that workflow, at once (`now`) or when the workflow finishes (`wait`), up to `maxReruns` times. These re-runs and `POST /v2/pull-requests/{id}/rerun-failed-checks` share two re-runs per verification run. When jobs from more than one rule fail, the first of those rules applies, so the order of rules is significant; the order of `checks` within a rule is not, and a resend in another order changes nothing. A check can be in only one rule. Requires `failedTestRunTeardown: keepForRerun` and a GitHub repository; a check that Trunk cannot re-run is refused with `VALIDATION_FAILED`, naming the check. Empty means no rules.",
+            "description": "Jobs that Trunk re-runs automatically when a verification run fails a required check. A rule starts when a job it names fails in the same CI run (a GitHub Actions workflow run, or a Buildkite build of an organization whose Buildkite API key Trunk holds) as a failed required check: Trunk re-runs the failed jobs of that run, at once (`now`) or when the run finishes (`wait`), up to `maxReruns` times. These re-runs and `POST /v2/pull-requests/{id}/rerun-failed-checks` share two re-runs per verification run. When jobs from more than one rule fail, the first of those rules applies, so the order of rules is significant; the order of `checks` within a rule is not, and a resend in another order changes nothing. A check can be in only one rule. Requires `failedTestRunTeardown: keepForRerun` and a GitHub repository; a check that Trunk cannot re-run is refused with `VALIDATION_FAILED`, naming the check. Empty means no rules.",
             "example": [
               {
                 "checks": ["smoke-check"],
@@ -2636,7 +2636,7 @@
           "forgeRefused",
           "superseded"
         ],
-        "description": "How the wait for the re-run ended. `rerunStarted`: the re-run began testing. `expiredCiRunning`: the time limit passed while the workflow was still running, so the re-run was never sent. `expiredNotStarted`: a re-run was requested but did not start in time. `forgeRefused`: the provider refused the re-run. `superseded`: something else moved the entry on first, such as a restart, a cancel or the entry passing.",
+        "description": "How the wait for the re-run ended. `rerunStarted`: the re-run began testing. `expiredCiRunning`: the time limit passed while the workflow run or Buildkite build was still running, so the re-run was never sent. `expiredNotStarted`: a re-run was requested but did not start in time. `forgeRefused`: the provider refused the re-run. `superseded`: something else moved the entry on first, such as a restart, a cancel or the entry passing.",
         "example": "rerunStarted"
       },
       "FailedTransitionDetails": {
