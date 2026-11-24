@@ -814,14 +814,28 @@
             "description": "The actor or a label is on the repository's Learning allow list, so the decision was served as if Enforced.",
             "example": false
           },
-          "recommendation": {
+          "decision": {
             "type": "string",
             "enum": ["run", "skip"],
-            "description": "Dynamic CI's verdict for the job.",
+            "description": "What Dynamic CI decided for the job. In `learning`, what it would have decided: the job ran in all cases.",
             "example": "skip"
           },
+          "decidedBy": {
+            "$ref": "#/components/schemas/DecisionDecidedBy"
+          },
+          "decisionKind": {
+            "$ref": "#/components/schemas/DecisionKind"
+          },
           "reason": {
-            "$ref": "#/components/schemas/DecisionReason"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DecisionReason"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How the model decided. Null unless `decidedBy` is `model`."
           },
           "outcome": {
             "$ref": "#/components/schemas/DecisionOutcome"
@@ -833,19 +847,19 @@
           },
           "falseSkip": {
             "type": "boolean",
-            "description": "Trunk found the skip wrong: the job failed in its own run, or a merge-queue run that included the skip failed. It can become true hours after the decision.",
+            "description": "Trunk found the skip wrong: the job failed in its own run, or a merge-queue run that included the skip failed. Only a served or Learning skip that the model decided can be a false skip, never a skip that a rule decided. It can become true hours after the decision.",
             "example": false
           },
           "links": {
             "$ref": "#/components/schemas/DecisionLinks"
           },
           "signals": {
-            "type": "array",
+            "type": ["array", "null"],
             "items": {
               "$ref": "#/components/schemas/DecisionSignal"
             },
             "maxItems": 32,
-            "description": "Each signal's vote on this decision, ignored signals left out. Present only with `include=signals`."
+            "description": "Each signal's vote in the model's decision, ignored signals left out. Present only with `include=signals`. Null unless `decidedBy` is `model`."
           }
         },
         "required": [
@@ -861,7 +875,9 @@
           "actor",
           "mode",
           "allowListed",
-          "recommendation",
+          "decision",
+          "decidedBy",
+          "decisionKind",
           "reason",
           "outcome",
           "skipNotHonored",
@@ -879,6 +895,28 @@
         "enum": ["enforced", "evolving", "learning", "unknown"],
         "description": "The repository's Dynamic CI mode when the decision was made. In `learning` a skip is only recorded and the job runs. `unknown` is a decision from before Trunk stored the mode."
       },
+      "DecisionDecidedBy": {
+        "type": "string",
+        "enum": [
+          "model",
+          "pathsFilter",
+          "draftPullRequest",
+          "alwaysRun",
+          "alwaysSkip",
+          "forceOverride",
+          "requiredNoMergeQueue",
+          "runBeforeQueue",
+          "runBeforeQueueRerun"
+        ],
+        "description": "Which part of Dynamic CI made the decision. `model`: the model decided from its signals. `pathsFilter`: no changed file matched the job's paths filter, so Dynamic CI skipped the job. `draftPullRequest`: the pull request is a draft, so Dynamic CI skipped the job. `alwaysRun` and `alwaysSkip`: the job's policy. `forceOverride`: a person forced the job to run. `requiredNoMergeQueue`: the job is required and the repository has no merge queue, so Dynamic CI ran the job. `runBeforeQueue`: the job must run before the pull request enters the merge queue, so Dynamic CI ran the job. `runBeforeQueueRerun`: a job in a run that Trunk started before the merge queue.",
+        "example": "model"
+      },
+      "DecisionKind": {
+        "type": "string",
+        "enum": ["model", "rule", "safety", "runBeforeQueueRerun"],
+        "description": "The kind of `decidedBy`, as the Dynamic CI figures count it. `model`: a model decision. `rule`: a paths filter, a draft pull request, or an Always run or Always skip policy. A rule skip is not a model skip and is never a false skip. `safety`: a force override, a required job with no merge queue, or a job that must run before the merge queue. `runBeforeQueueRerun`: a job in a run that Trunk started before the merge queue. The figures do not count these.",
+        "example": "model"
+      },
       "DecisionReason": {
         "type": "string",
         "enum": [
@@ -889,7 +927,7 @@
           "weightedVoteSkip",
           "forcedUnprunable"
         ],
-        "description": "How the engine reached the recommendation: a signal forced a run or a skip, too many signals had no data so the job ran, the weighted vote decided, or the workflow cannot remove this matrix variation."
+        "description": "How the model decided: a signal forced a run or a skip, too many signals had no data so the job ran, the weighted vote decided, or the workflow cannot remove this matrix variation."
       },
       "DecisionOutcome": {
         "type": "string",
@@ -2039,7 +2077,7 @@
         "operationId": "dynamicCi.listDecisions",
         "tags": ["dynamicCi"],
         "summary": "List Dynamic CI's decisions",
-        "description": "**Beta.** This endpoint and its spec can change at any time, without notice. Fetch the spec again at least every 5 minutes (`GET /v2beta/dynamic-ci/openapi.json`), and do not commit a script or integration that depends on this shape.\n\nEvery job decision Dynamic CI made, newest first, as the Decisions page lists them: whether it recommended a run or a skip, why, and what the job then did. Every repository in the organization unless `owner` and `name` name one, over the last 7 days unless `since` and `until` say otherwise.\n\nA decision can change after it is listed: `outcome` fills in when the job finishes, and `falseSkip` can become true hours later. To keep a copy, read the window again with some overlap and replace each decision by `id`. The cursor holds the window the first page used, so a decision made while you page does not move a page, and a cursor whose window starts more than a day past the 90-day limit is refused.",
+        "description": "**Beta.** This endpoint and its spec can change at any time, without notice. Fetch the spec again at least every 5 minutes (`GET /v2beta/dynamic-ci/openapi.json`), and do not commit a script or integration that depends on this shape.\n\nEvery job decision Dynamic CI made, newest first, as the Decisions page lists them: what Dynamic CI decided, which part of Dynamic CI decided it (the model, a rule or a safety run), and what the job then did. Only a decision that the model made has the model's reason and signal votes. Every repository in the organization unless `owner` and `name` name one, over the last 7 days unless `since` and `until` say otherwise.\n\nA decision can change after it is listed: `outcome` fills in when the job finishes, and `falseSkip` can become true hours later. To keep a copy, read the window again with some overlap and replace each decision by `id`. The cursor holds the window the first page used, so a decision made while you page does not move a page, and a cursor whose window starts more than a day past the 90-day limit is refused.",
         "parameters": [
           {
             "schema": {
@@ -2186,12 +2224,12 @@
             "schema": {
               "type": "string",
               "enum": ["run", "skip"],
-              "description": "Dynamic CI's verdict.",
+              "description": "What Dynamic CI decided for the job. In `learning`, what it would have decided.",
               "example": "run"
             },
             "required": false,
-            "description": "Dynamic CI's verdict.",
-            "name": "recommendation",
+            "description": "What Dynamic CI decided for the job. In `learning`, what it would have decided.",
+            "name": "decision",
             "in": "query"
           },
           {
@@ -2208,11 +2246,11 @@
           {
             "schema": {
               "type": "string",
-              "description": "Comma-separated; any of them. `pathsFilter` (the paths filter forced the run, or was the only signal that voted), `vote`, `mustRun` (another signal forced the run), `neverRun` (a signal forced the skip), `noData` (too many signals had no data), `runBeforeQueue` (a job in a run Trunk started before queue, or a job that must run before queue on a push to a pull request waiting to queue; no other kind includes these).",
-              "example": "pathsFilter"
+              "description": "Comma-separated; a decision that any of them made is kept. The values are those of `decidedBy` in the response.",
+              "example": "pathsFilter,alwaysSkip"
             },
             "required": false,
-            "description": "Comma-separated; any of them. `pathsFilter` (the paths filter forced the run, or was the only signal that voted), `vote`, `mustRun` (another signal forced the run), `neverRun` (a signal forced the skip), `noData` (too many signals had no data), `runBeforeQueue` (a job in a run Trunk started before queue, or a job that must run before queue on a push to a pull request waiting to queue; no other kind includes these).",
+            "description": "Comma-separated; a decision that any of them made is kept. The values are those of `decidedBy` in the response.",
             "name": "decidedBy",
             "in": "query"
           },
@@ -2268,11 +2306,11 @@
             "schema": {
               "type": "string",
               "enum": ["signals"],
-              "description": "`signals` adds each decision's signal votes.",
+              "description": "`signals` adds the signal votes of each decision that the model made.",
               "example": "signals"
             },
             "required": false,
-            "description": "`signals` adds each decision's signal votes.",
+            "description": "`signals` adds the signal votes of each decision that the model made.",
             "name": "include",
             "in": "query"
           }
