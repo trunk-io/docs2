@@ -21,10 +21,14 @@ When Trunk support turns on directory sync, Trunk cancels the pending invitation
 
 ### Who Trunk adds
 
-- Trunk adds only people whose email is on a verified domain of your organization. Trunk does not add other people, and lists them as people not added. If someone already is a member and their email is not on a verified domain, the first confirmation removes them. This includes members that exist only in Trunk, such as service accounts and contractors.
+- Trunk adds only people whose email is on a verified domain of your organization. Trunk does not add other people, and lists them as people not added.
 - Trunk matches each person by email. If a person already uses Trunk with the same email, Trunk uses their existing account. They do not get a second account.
 - If the email in your directory is different from the email that a person uses in Trunk, Trunk makes a new user for them. The same occurs when the email changes in your directory. The old user loses its membership at the first confirmation, or at the next sync after that.
 - Trunk applies your directory as it is. If a mistake in your IdP setup removes people from the Trunk app, Trunk removes them from your organization. To fix this, correct the setup in your IdP.
+
+<Warning>
+At the first confirmation, Trunk removes every member that your directory does not include. This includes service accounts and contractors that exist only in Trunk. Trunk also removes members whose email is not on a verified domain.
+</Warning>
 
 ## Set up directory sync
 
@@ -49,7 +53,7 @@ An Admin of your Trunk organization previews the changes and confirms them on th
 
 ## Organization states
 
-In the Trunk app, an Admin can see the state of directory sync in **Settings** → **Organization** → **Team**, in the **Directory sync** card.
+While directory sync is on, an Admin can see its state in the Trunk app: navigate to **Settings** → **Organization** → **Team**, and look at the **Directory sync** card.
 
 | State | What it means |
 | --- | --- |
@@ -57,7 +61,7 @@ In the Trunk app, an Admin can see the state of directory sync in **Settings** �
 | **Waiting for confirmation** | Your directory adds new people, each as a Member. Role changes and removals wait until an Admin confirms the first preview. |
 | **Managed by your directory** | Your directory decides every member and every role. |
 
-While directory sync is on, the Team page tells every member that your directory manages the members of the organization. The **Invite Users** button, the role and remove controls, and **Leave Organization** are not available.
+While directory sync is on, the Team page tells every member that your directory manages the members of the organization. The **Invite Users** button and the role and remove controls are not available on the Team page, and **Leave Organization** is not available on the **General** page.
 
 ## Preview and confirm
 
@@ -65,25 +69,25 @@ While your organization is **Waiting for confirmation**, Trunk adds the people i
 
 <Steps>
 <Step title="Get the people ready">
-Make sure that the people who administer Trunk are in a group that you map to Admin. If they are not, the preview shows them as people to remove, or Trunk refuses the confirmation because the organization would have no Admin.
+Make sure that the people who administer Trunk are in a group that you map to Admin. If they are not, the preview shows them as people to remove or as Admins that become Members, or Trunk refuses the confirmation because the organization would have no Admin.
 </Step>
 <Step title="Run a preview">
-Go to **Settings** → **Organization** → **Team**. In the **Directory sync** card, click **Preview**. The preview shows the people to add, the roles to change and the people to remove.
+In the Trunk app, navigate to **Settings** → **Organization** → **Team**. In the **Directory sync** card, click the **Preview** button. The preview shows the people to add, the roles to change and the people to remove.
 </Step>
 <Step title="Confirm the preview">
-Read the preview. If it is correct, click **Confirm**, then confirm again in the dialog. After the confirmation, your organization is **Managed by your directory**. You cannot undo the confirmation.
+Read the preview. If it is correct, click the **Confirm** button, then click **Confirm** again in the dialog. After the confirmation, your organization is **Managed by your directory**. You cannot undo the confirmation.
 </Step>
 </Steps>
 
 A preview is valid for 30 minutes. If your directory changes after the preview, Trunk refuses the confirmation and shows a new preview. Read the new preview, then confirm it.
 
-Members who already sign in with SSO stay members at the confirmation if your directory includes them. Their role comes from their groups, not from the role that they had in Trunk.
+Members that your directory includes stay members at the confirmation. Their role comes from their groups, not from the role that they had in Trunk.
 
 ## After the confirmation
 
 Changes in your IdP get to Trunk automatically, usually in less than two minutes. Trunk also does a full sync of each organization every 30 minutes.
 
-To sync immediately, an Admin clicks **Sync now** in the **Directory sync** card. Trunk shows a preview of the changes. Click **Apply changes** to apply them.
+To sync immediately, an Admin clicks the **Sync now** button in the **Directory sync** card. Trunk shows a preview of the changes. To apply them, click the **Apply changes** button, then click **Apply changes** again in the dialog.
 
 ### Change a person's group
 
@@ -108,7 +112,9 @@ If your IdP deactivates a person and later activates them again, Trunk gives the
 The **Directory sync** card shows two lists:
 
 - **Changes on hold**: changes that Trunk does not apply, with the reason. For example, the directory gives a person more than one role, or a role that Trunk does not know. Give the person one role, Admin or Member, in your IdP.
-- **People not added**: people in your directory that Trunk did not add, with the reason. For example, "The email domain is not verified" or "The person did not accept the invitation yet". To add a domain, contact Trunk support.
+- **People not added**: people in your directory that Trunk did not add, with the reason. For example:
+  - "The email domain is not verified": to add a domain, contact Trunk support.
+  - "The person did not accept the invitation yet": the person got to Trunk before your domain was verified. In your IdP, unassign the person from the Trunk app, then assign them again. If they still are not added, contact Trunk support.
 
 ## An organization with no Admin
 
