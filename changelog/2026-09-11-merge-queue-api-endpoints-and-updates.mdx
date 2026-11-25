@@ -1,0 +1,32 @@
+---
+title: "Merge Queue: New API endpoints and expanded fields"
+description: "Batch PR lookups, list completed testing over a time range, a newly-documented list endpoint for PRs, and richer responses on ten existing endpoints."
+slug: merge-queue-api-endpoints-and-updates
+date: 2026-09-11
+category: Merge Queue
+type: update
+---
+
+The [Trunk Merge Queue API](/merge-queue/reference/merge) picks up two new endpoints, a newly-documented list endpoint, and additional fields across ten existing endpoints.
+
+## New endpoints
+
+**[`/getSubmittedPullRequests`](/merge-queue/reference/merge/get-several-submitted-pull-requests-from-a-merge-queue)** — the batch form of `/getSubmittedPullRequest`. Look up many PRs in a single request. Unsubmitted PRs come back in a `notFound` list rather than failing the whole request.
+
+**[`/listMergeQueueTestingResults`](/merge-queue/reference/merge/list-completed-merge-queue-testing-for-a-time-range)** — list completed merge queue testing runs over a time range, newest first. Pass any returned `testRunId` to [`/getMergeQueueTestingDetails`](/merge-queue/reference/merge/get-details-about-testing-that-merge-queue-is-performing) for the full record.
+
+## Now in the reference
+
+**[`/listPullRequests`](/merge-queue/reference/merge/list-pull-requests-in-a-merge-queue)** now has its own reference page. The endpoint itself shipped in March (see the [original announcement](/changelog/2026-03-19-merge-queue-list-pull-requests-public-api-endpoint)); it just wasn't in the navigation until now.
+
+If you're choosing between the three read endpoints, the [API landing page](/merge-queue/reference/merge) has a short guide: use `/getSubmittedPullRequest(s)` when you already know which PRs to look up, and `/listPullRequests` to discover them with cursor pagination and state or concluded-time filters.
+
+## Expanded fields on existing endpoints
+
+- **[`/getSubmittedPullRequest`](/merge-queue/reference/merge/get-a-submitted-pull-request-from-a-merge-queue)** accepts an optional `includeTimeline` flag. When set, the response includes every state change with its cause: cancellation reasons, branch-protection block reasons, the culprit for conflicts, and failing checks.
+- **[`/listPullRequests`](/merge-queue/reference/merge/list-pull-requests-in-a-merge-queue)** accepts an `until` bound on the concluded-time range.
+- **[`/getQueue`](/merge-queue/reference/merge/get-the-merge-queue)** and **[`/updateQueue`](/merge-queue/reference/merge/update-the-merge-queue)** expose `allowedBotSubmitters`, `stateLabelsEnabled`, `testBranchConstructionMode`, and `notReadyTimeoutHours`. `pendingFailureDepth` and `testingTimeoutMinutes` now accept `0` to disable.
+- **[`/getMergeQueueTestingDetails`](/merge-queue/reference/merge/get-details-about-testing-that-merge-queue-is-performing)** reports the `PENDING`, `WAITING`, and `REQUESTED` deployment-gate check states.
+- Flaky Tests list endpoints now include `bazel_label` on test cases.
+
+No endpoints or schemas were removed.
