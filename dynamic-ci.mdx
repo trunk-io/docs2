@@ -23,7 +23,7 @@ spend less on CI and wait less on each push.
     New jobs always run, and if Trunk is slow or unreachable, everything runs.
   </Card>
 
-  <Card title="Backed by the queue" icon="layer-group" href="/ci/dynamic-ci/merge-queue">
+  <Card title="Backed by the queue" icon="layer-group" href="/dynamic-ci/merge-queue">
     The merge queue tests the exact commit about to land and skips nothing by default.
   </Card>
 </CardGroup>
@@ -53,11 +53,7 @@ request.
 - **The merge queue skips nothing by default.** On a merge-queue run, Dynamic CI
   skips a job only when a paths filter you configured says the change does not
   touch it. With no paths filter, every job runs.
-- **The engine learns from the queue.** When a job the pull request skipped
-  fails in the merge queue, Trunk records it as a false skip. The engine learns
-  from those outcomes, so its skip recommendations get more accurate over time.
-  A job that rejected a pull request from the queue always runs on that pull
-  request's next push. See [Merge queues](/ci/dynamic-ci/merge-queue).
+- **The engine learns from the queue.** When a job the pull request skipped fails in the merge queue, Trunk records it as a false skip. The engine learns from those outcomes, so its skip recommendations get more accurate over time. A job that rejected a pull request from the queue always runs on that pull request's next push. See [Merge queues](/dynamic-ci/merge-queue).
 
 ## How it decides
 
@@ -93,6 +89,6 @@ Dynamic CI is being tuned against real repositories during the beta, and the
 fastest way to change it is to tell us what it got wrong. Reach out on
 [Slack](https://slack.trunk.io).
 
-<Card title="Get started" icon="arrow-right" href="/ci/dynamic-ci/getting-started">
+<Card title="Get started" icon="arrow-right" href="/dynamic-ci/getting-started">
   Set up Trunk CI, add Dynamic CI to your CI provider, and turn on enforcement.
 </Card>

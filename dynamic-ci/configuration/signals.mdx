@@ -13,7 +13,7 @@ For every job, Dynamic CI combines several independent kinds of evidence, or sig
 | **This pull request so far** | Whether the job has already run on this pull request, and how it went. |
 | **Where the pull request sits** | Whether other pull requests are stacked on top of it, and whether the job gates the merge. |
 | **What the merge queue found** | Recent merge-queue failures for this pull request, and skips the queue later caught. |
-| **What you told it** | Your [path filters](/ci/dynamic-ci/configuration/path-filters), [job schedules](/ci/dynamic-ci/configuration/jobs) and [Force Run](/ci/dynamic-ci/force-run) overrides. These always take precedence. |
+| **What you told it** | Your [path filters](/dynamic-ci/configuration/path-filters), [job schedules](/dynamic-ci/configuration/jobs) and [Force Run](/dynamic-ci/force-run) overrides. These always take precedence. |
 
 Everything Dynamic CI learns comes from your organization's own CI history.
 
@@ -21,4 +21,4 @@ Everything Dynamic CI learns comes from your organization's own CI history.
 
 - **A job with no history always runs.**
 - **If Trunk is slow or unreachable, everything runs.**
-- **A job that rejected a pull request from the merge queue always runs** on that pull request's next push. See [Merge queues](/ci/dynamic-ci/merge-queue).
+- **A job that rejected a pull request from the merge queue always runs** on that pull request's next push. See [Merge queues](/dynamic-ci/merge-queue).

@@ -72,10 +72,8 @@ Some more guidance:
   </Step>
 
   <Step title="Set up your CI">
-    - **GitHub Actions:** the matrix reads which variations to run from the
-      Dynamic CI job. See [Matrix jobs on GitHub Actions](/ci/dynamic-ci/getting-started/github-actions#matrix-jobs).
-    - **Buildkite:** no pipeline change beyond the plugin version. See
-      [Matrix steps on Buildkite](/ci/dynamic-ci/getting-started/buildkite#matrix-steps).
+    - **GitHub Actions:** the matrix reads which variations to run from the Dynamic CI job. See [Matrix jobs on GitHub Actions](/dynamic-ci/getting-started/github-actions#matrix-jobs).
+    - **Buildkite:** no pipeline change beyond the plugin version. See [Matrix steps on Buildkite](/dynamic-ci/getting-started/buildkite#matrix-steps).
 
     Once you group a GitHub Actions job, the section shows a setup checklist of
     what your workflow still needs. **Understanding variations** links to the
@@ -91,6 +89,4 @@ Some more guidance:
 
 To decide the job as one unit again, unpick every key under **Group by** and save.
 
-Settings still apply to the whole job: **Always Run** and
-[Force Run](/ci/dynamic-ci/force-run) run every variation, and a
-[path filter](/ci/dynamic-ci/configuration/path-filters) applies to every group.
+Settings still apply to the whole job: **Always Run** and [Force Run](/dynamic-ci/force-run) run every variation, and a [path filter](/dynamic-ci/configuration/path-filters) applies to every group.

@@ -396,35 +396,35 @@
           {
             "group": "Overview",
             "pages": [
-              "ci/dynamic-ci",
-              "ci/dynamic-ci/getting-started/index",
-              "ci/dynamic-ci/merge-queue",
+              "dynamic-ci",
+              "dynamic-ci/getting-started/index",
+              "dynamic-ci/merge-queue",
               "ci/dynamic-ci/run-before-queue",
-              "ci/dynamic-ci/force-run"
+              "dynamic-ci/force-run"
             ]
           },
           {
             "group": "CI providers",
             "pages": [
-              "ci/dynamic-ci/getting-started/github-actions",
-              "ci/dynamic-ci/getting-started/buildkite"
+              "dynamic-ci/getting-started/github-actions",
+              "dynamic-ci/getting-started/buildkite"
             ]
           },
           {
             "group": "Configuration",
             "pages": [
-              "ci/dynamic-ci/configuration/jobs",
-              "ci/dynamic-ci/configuration/matrices",
-              "ci/dynamic-ci/configuration/signals",
-              "ci/dynamic-ci/configuration/path-filters",
-              "ci/dynamic-ci/configuration/mode"
+              "dynamic-ci/configuration/jobs",
+              "dynamic-ci/configuration/matrices",
+              "dynamic-ci/configuration/signals",
+              "dynamic-ci/configuration/path-filters",
+              "dynamic-ci/configuration/mode"
             ]
           },
           {
             "group": "Reference",
             "pages": [
-              "ci/dynamic-ci/dynamic-ci-action-reference",
-              "ci/dynamic-ci/faq"
+              "dynamic-ci/dynamic-ci-action-reference",
+              "dynamic-ci/faq"
             ]
           }
         ]
@@ -3144,28 +3144,32 @@
       "destination": "/flaky-tests/recipes/autofix-flaky-tests"
     },
     {
-      "source": "/dynamic-ci",
-      "destination": "/ci/dynamic-ci"
-    },
-    {
-      "source": "/dynamic-ci/:slug*",
-      "destination": "/ci/dynamic-ci/:slug*"
-    },
-    {
       "source": "/ci/dynamic-ci/github-integration",
-      "destination": "/ci/dynamic-ci/force-run"
+      "destination": "/dynamic-ci/force-run"
+    },
+    {
+      "source": "/dynamic-ci/github-integration",
+      "destination": "/dynamic-ci/force-run"
+    },
+    {
+      "source": "/ci/dynamic-ci",
+      "destination": "/dynamic-ci"
+    },
+    {
+      "source": "/ci/dynamic-ci/:slug*",
+      "destination": "/dynamic-ci/:slug*"
     },
     {
       "source": "/ci/get-started/buildkite",
       "destination": "/setup/integrations/buildkite"
     },
     {
-      "source": "/ci/dynamic-ci/configuration",
-      "destination": "/ci/dynamic-ci/configuration/jobs"
+      "source": "/dynamic-ci/configuration",
+      "destination": "/dynamic-ci/configuration/jobs"
     },
     {
-      "source": "/ci/dynamic-ci/settings",
-      "destination": "/ci/dynamic-ci/configuration/mode"
+      "source": "/dynamic-ci/settings",
+      "destination": "/dynamic-ci/configuration/mode"
     },
     {
       "source": "/actions",

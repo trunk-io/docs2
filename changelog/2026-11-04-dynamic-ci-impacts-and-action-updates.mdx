@@ -10,10 +10,10 @@ type: new-feature
 
 ### New features
 
-- **Send your build tool's impact from Buildkite.** If your build tool counts how much of the codebase a change affects, such as affected packages, send that count so Trunk runs broad changes. Requires the Buildkite plugin v0.1.8 or later. Ask us to turn the signal on. See the [Buildkite guide](/ci/dynamic-ci/getting-started/buildkite).
+- **Send your build tool's impact from Buildkite.** If your build tool counts how much of the codebase a change affects, such as affected packages, send that count so Trunk runs broad changes. Requires the Buildkite plugin v0.1.8 or later. Ask us to turn the signal on. See the [Buildkite guide](/dynamic-ci/getting-started/buildkite).
 
 ### Updates
 
-- **Verdicts on the run summary.** Set `enable-annotation: true` on `trunk-io/dynamic-ci` to post each job's recommendation to the run's annotations and job summary. See the [action reference](/ci/dynamic-ci/dynamic-ci-action-reference).
+- **Verdicts on the run summary.** Set `enable-annotation: true` on `trunk-io/dynamic-ci` to post each job's recommendation to the run's annotations and job summary. See the [action reference](/dynamic-ci/dynamic-ci-action-reference).
 - **Lighter checkout.** The action only needs `actions/checkout` with `clean: false`. When the checkout lacks the base or head commit, it reads the changed files with `github-token`.
-- **Workflow checks.** Once your workflows call Dynamic CI, Trunk checks their YAML and flags problems. See the [GitHub Actions guide](/ci/dynamic-ci/getting-started/github-actions).
+- **Workflow checks.** Once your workflows call Dynamic CI, Trunk checks their YAML and flags problems. See the [GitHub Actions guide](/dynamic-ci/getting-started/github-actions).

@@ -8,7 +8,7 @@ A coding agent such as Cursor or Claude Code can fix a flaky test when it has th
 ## Before you begin
 
 - Create an [API key](/api/authentication#api-keys) for the agent. Reading tests needs no permissions. To have it link or create tickets, give it the **Create tickets** permission.
-- Turn on **CI Intelligence** for the repository, at **Settings** → **Repositories**, with the [Trunk CI GitHub App](/setup/integrations/github/trunk-ci) installed. It provides the failure output in step 2, and keeps logs for 30 days. Without it, have the agent open the run's `buildUrl` instead.
+- Install the [Trunk CI GitHub App](/setup/integrations/github/trunk-ci).
 
 ## 1. Find the tests to fix
 

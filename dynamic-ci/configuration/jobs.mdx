@@ -4,7 +4,7 @@ sidebarTitle: "Jobs"
 description: "Find a job in the Trunk app and set its schedule for pull requests and the merge queue."
 ---
 
-Dynamic CI is configured job by job on the [Configuration tab](https://app.trunk.io/ci/dynamic-ci/configuration) in the Trunk web app. Each job has a schedule that controls how it is evaluated on pull requests and in the merge queue, plus optional [path filters](/ci/dynamic-ci/configuration/path-filters) that tell Dynamic CI which changes are relevant to it.
+Dynamic CI is configured job by job on the [Configuration tab](https://app.trunk.io/ci/dynamic-ci/configuration) in the Trunk web app. Each job has a schedule that controls how it is evaluated on pull requests and in the merge queue, plus optional [path filters](/dynamic-ci/configuration/path-filters) that tell Dynamic CI which changes are relevant to it.
 
 ## Find a job
 
@@ -42,33 +42,22 @@ The schedule controls how Dynamic CI evaluates a job. You set it separately for 
 
 ## Matrix variations
 
-A matrix job runs or skips as a whole by default. To skip some of its
-variations and run others, pick the keys to group it by under **Matrix
-variations → Group by**. See [Matrix jobs](/ci/dynamic-ci/configuration/matrices).
+A matrix job runs or skips as a whole by default. To skip some of its variations and run others, pick the keys to group it by under **Matrix variations → Group by**. See [Matrix jobs](/dynamic-ci/configuration/matrices).
 
-## Run Before Queue
+## Run before queue
 
-Makes sure the job has run on the pull request's head commit before the pull request enters the merge queue. See [Run Before Queue](/ci/dynamic-ci/run-before-queue). In beta.
-
-| Setting | Behavior |
-| --- | --- |
-| **Off** | Dynamic CI decides the job normally. |
-| **On the head commit** | Trunk runs the job on the head commit before the pull request enters the queue, unless it already ran there. |
-
-A job with any setting but **Off** shows an **RBQ** badge in its Schedule column.
+<Info>
+  Coming soon. When enabled, the job must run before the pull request can enter the merge queue. This guarantees the job runs, not that it passes.
+</Info>
 
 ## Related
 
 <CardGroup cols={2}>
-  <Card title="Force Run" icon="arrow-up" href="/ci/dynamic-ci/force-run">
+  <Card title="Force Run" icon="arrow-up" href="/dynamic-ci/force-run">
     Override Dynamic CI on a single pull request.
   </Card>
 
-  <Card title="Merge queues" icon="shield-check" href="/ci/dynamic-ci/merge-queue">
+  <Card title="Merge queues" icon="shield-check" href="/dynamic-ci/merge-queue">
     How Dynamic CI behaves on merge queue runs.
-  </Card>
-
-  <Card title="Run Before Queue" icon="list-check" href="/ci/dynamic-ci/run-before-queue">
-    Run a job on the head commit before the pull request enters the queue.
   </Card>
 </CardGroup>
