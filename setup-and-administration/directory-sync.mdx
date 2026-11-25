@@ -13,6 +13,7 @@ To use directory sync, contact [support@trunk.io](mailto:support@trunk.io). Trun
 
 - Your organization signs in to Trunk with SSO. To set up SSO, contact [support@trunk.io](mailto:support@trunk.io).
 - Your organization's email domain is verified for SSO. Trunk support verifies it when it sets up SSO.
+- Your organization has a Trunk Admin who can confirm the first preview. See [Preview and confirm](#preview-and-confirm).
 - Trunk support turns on directory sync for your organization, and then sends your IT team a directory setup link.
 
 <Warning>
@@ -66,6 +67,10 @@ While directory sync is on, the Team page tells every member that your directory
 ## Preview and confirm
 
 While your organization is **Waiting for confirmation**, Trunk adds the people in your directory as Members, but it does not change roles or remove anyone. Before your directory sets roles and removes people, an Admin must confirm a preview.
+
+<Note>
+The first confirmation needs a person who is already an Admin of your Trunk organization. Until the confirmation, your directory adds people only as Members, so a person who first gets to Trunk through your directory cannot confirm. An existing Admin who is also in your directory stays an Admin while the organization waits. An existing Admin who is not in your directory can also confirm, but the confirmation removes them.
+</Note>
 
 <Steps>
 <Step title="Get the people ready">
@@ -127,3 +132,5 @@ To replace your directory with a different one, contact Trunk support first. Whe
 ## Turn off directory sync
 
 To turn off directory sync, contact Trunk support. When Trunk support turns it off, the members and their roles stay as they are, and the usual member controls come back on the Team page.
+
+Turning off changes only Trunk. Your directory, its connection to your IdP and its group mapping stay. To turn directory sync on again, contact Trunk support. You do not need to set up the directory again. Your organization goes back to **Waiting for confirmation**, Trunk cancels its pending invitations again, and an Admin must confirm a new preview. The changes made in your directory while directory sync was off apply at that confirmation.
