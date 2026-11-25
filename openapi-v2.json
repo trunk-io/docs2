@@ -1846,10 +1846,20 @@
             "description": "True when this run exists to attribute a failed batch to a specific entry, rather than to verify new work.",
             "example": false
           },
+          "bisectionId": {
+            "type": "string",
+            "description": "The split of a failing batch that this run tested. Each split gets a new id, shared by the runs it produced. It is the same value as `bisectionId` on a `testsPassed` queue-entry-history transition. Absent outside bisection. The queue records this and `bisectedFromVerificationRunId` on bisection runs created from 2025-12-12. An older bisection run, or one cancelled before it started, carries neither and reads `isBisection: false`.",
+            "example": "3c4d5e6f-7a8b-4c9d-8e0f-1a2b3c4d5e6f"
+          },
+          "bisectedFromVerificationRunId": {
+            "type": "string",
+            "description": "The verification run whose failure started the bisection this run belongs to: the batch that was split. It stays the same through every later split of that bisection, so it groups all of the bisection's runs. To list them, send `bisectedFromVerificationRunId` to `GET /v2/merge-queues/{id}/verification-runs`. Absent outside bisection, and on the bisection runs that `bisectionId` describes as carrying neither. A pull request that passes bisection and goes back to the queue is tested again by an ordinary run, which does not carry it.",
+            "example": "a1b2c3d4-e5f6-4718-9a0b-1c2d3e4f5061"
+          },
           "testBranch": {
             "type": "string",
-            "description": "The ephemeral branch the queue built to run this verification on.",
-            "example": "trunk-merge/01HX3K"
+            "description": "The ephemeral branch the queue built to run this verification on. For runs created from 2025-10-23 it is `trunk-merge/pr-<number>/<id>`, where `<number>` is the first tested pull request and `<id>` is this run's `id`, with `-bisection` appended for a bisection run. The suffix does not prove the run carries lineage: see `bisectionId` for the runs that read `isBisection: false`. A run cancelled before it started can have an empty `testBranch`. A CI job running on the branch can read the run's `id` from its name. Just after the queue pushes the branch, the run can be unreadable (`404`) for a few seconds, so retry.",
+            "example": "trunk-merge/pr-4231/a1b2c3d4-e5f6-4718-9a0b-1c2d3e4f5061"
           },
           "testBranchSha": {
             "type": "string",
@@ -2452,7 +2462,7 @@
           },
           "bisectionId": {
             "type": "string",
-            "description": "Present when the pass was established by a bisection run rather than the batch's own. A correlation key only — equal across every `testsPassed` transition one bisection established — and not addressable by any endpoint.",
+            "description": "Present when the pass was established by a bisection run rather than the batch's own. Identifies one split of the failing batch: equal across every `testsPassed` transition that split established. For runs created from 2025-12-12 it is the same value as `bisectionId` on that verification run. An older run carries no `bisectionId`.",
             "example": "b7e2c1d0-4f3a-4c5b-9d8e-1a2b3c4d5e6f"
           },
           "successorPullRequestId": {
@@ -12035,6 +12045,18 @@
             "description": "Only runs created strictly after this instant (ISO-8601, UTC).",
             "name": "createdAfter",
             "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Only the bisection runs started by this run's failure — every run of that bisection, across all of its splits. The run itself is not included. Send the batch run's `id`, or a bisection run's `bisectedFromVerificationRunId`; a bisection run's own `id` matches nothing. Bisection runs created before 2025-12-12 carry no lineage, so this filter does not find them.",
+              "example": "a1b2c3d4-e5f6-4718-9a0b-1c2d3e4f5061"
+            },
+            "required": false,
+            "description": "Only the bisection runs started by this run's failure — every run of that bisection, across all of its splits. The run itself is not included. Send the batch run's `id`, or a bisection run's `bisectedFromVerificationRunId`; a bisection run's own `id` matches nothing. Bisection runs created before 2025-12-12 carry no lineage, so this filter does not find them.",
+            "name": "bisectedFromVerificationRunId",
+            "in": "query"
           }
         ],
         "responses": {
@@ -12200,7 +12222,7 @@
         "operationId": "pullRequests.listVerificationRuns",
         "tags": ["pullRequests"],
         "summary": "List a pull request's verification runs",
-        "description": "Lists every verification run that tested this pull request, newest first — including a run it shared with others, which is reported here for each pull request in the batch. `sort` and `direction` are not configurable yet: each accepts only the value this list already uses (`createdAt`, `desc`) and rejects anything else with `400`. `createdAfter` is not served on this endpoint at all and is rejected with `400` whatever the value; the queue's own verification-run list does serve it.",
+        "description": "Lists every verification run that tested this pull request, newest first — including a run it shared with others, which is reported here for each pull request in the batch. `sort` and `direction` are not configurable yet: each accepts only the value this list already uses (`createdAt`, `desc`) and rejects anything else with `400`. `createdAfter` and `bisectedFromVerificationRunId` are not served on this endpoint at all and are rejected with `400` whatever the value; the queue's own verification-run list serves both.",
         "parameters": [
           {
             "schema": {
