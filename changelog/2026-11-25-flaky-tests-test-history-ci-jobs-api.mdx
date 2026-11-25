@@ -1,0 +1,20 @@
+---
+title: "Flaky Tests: Test history, CI jobs and logs in the v2 API"
+description: "Read a test's status history and runs, its CI jobs and their logs through the v2 API, and send Buildkite builds to Trunk over OpenTelemetry."
+date: 2026-11-25
+category: Flaky Tests
+type: new-feature
+---
+
+**You can now give a coding agent everything it needs to fix a flaky test, straight from the v2 API.** See [Fix Flaky Tests](/flaky-tests/recipes/autofix-flaky-tests).
+
+### New features
+
+- **Test status history.** [List a test's status transitions](/api/tests/list-a-tests-status-transitions) to see when it became flaky and which monitors were active.
+- **Test runs.** [List a test's runs](/api/tests/list-a-tests-runs) with the branch, commit, pull request and CI job of each. Filter by branch globs or pull-request runs only.
+- **CI jobs and logs.** [List the CI jobs on a commit](/api/cijobs/list-the-ci-jobs-on-a-commit), including each failure's step, analysis and log excerpt. [Read a job's log lines](/api/cijobs/list-a-ci-jobs-log-lines) with the **Read CI logs** permission. Logs are kept for 30 days.
+- **Buildkite OpenTelemetry export.** Send Buildkite build and job traces to Trunk with an API key. See [Buildkite](/setup/integrations/buildkite).
+
+### Updates
+
+- **Newly flaky tests.** [List and search tests](/api/tests/list-and-search-tests) accepts `newlyFlaky=true` with a `period` to find tests that recently became flaky.
