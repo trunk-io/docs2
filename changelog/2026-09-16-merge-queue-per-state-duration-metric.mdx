@@ -1,0 +1,18 @@
+---
+title: "Merge Queue: Per-state duration metric"
+description: "A new Prometheus metric breaks queue time down by state, and percentile gauges are now documented for every duration histogram."
+slug: merge-queue-per-state-duration-metric
+date: 2026-09-16
+category: Merge Queue
+type: new-feature
+---
+
+**The Prometheus metrics endpoint now exposes a single metric that breaks queue time down by state.**
+
+`mq_pr_state_duration_1h_seconds` reports the time PRs spent in each individual queue state on a `state` label, covering `not_ready`, `pending`, `testing`, `tests_passed`, `pending_failure`, and the terminal states. One metric replaces the need to add a new series each time you want to chart another phase of the queue.
+
+- **Decompose Time in queue by state.** Select `state=~"pending|testing|tests_passed|pending_failure"` to see exactly which phase is driving your queue time.
+- **Percentile gauges are now documented.** Every duration histogram on the endpoint also emits `_p50`, `_p75`, `_p90`, `_p95`, and `_p99` gauges you can read directly, without a `histogram_quantile()` over `_bucket` series.
+- **Existing metrics are unchanged.** `mq_pr_wait_duration_1h_seconds` and `mq_pr_test_duration_1h_seconds` keep emitting the same values, so current dashboards and alerts continue to work.
+
+See [Per-state durations](/merge-queue/administration/metrics#per-state-durations) for the full label reference, PromQL examples, and guidance on when to prefer the new metric over the existing ones.
