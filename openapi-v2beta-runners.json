@@ -3051,94 +3051,6 @@
           }
         ]
       },
-      "PublicAdapterCacheSettings": {
-        "type": "object",
-        "properties": {
-          "actions": {
-            "type": [
-              "boolean",
-              "null"
-            ]
-          },
-          "bazel": {
-            "type": [
-              "boolean",
-              "null"
-            ]
-          },
-          "go": {
-            "type": [
-              "boolean",
-              "null"
-            ]
-          },
-          "gradle": {
-            "type": [
-              "boolean",
-              "null"
-            ]
-          },
-          "nix": {
-            "type": [
-              "boolean",
-              "null"
-            ]
-          },
-          "nx": {
-            "type": [
-              "boolean",
-              "null"
-            ]
-          },
-          "sccache": {
-            "type": [
-              "boolean",
-              "null"
-            ]
-          }
-        }
-      },
-      "PublicAdapterShareScopes": {
-        "type": "object",
-        "properties": {
-          "bazel": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "go": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "gradle": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "nix": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "nx": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "sccache": {
-            "type": [
-              "string",
-              "null"
-            ]
-          }
-        }
-      },
       "PublicAmounts": {
         "type": "object",
         "required": [
@@ -3397,7 +3309,7 @@
       },
       "PublicCacheCaps": {
         "type": "object",
-        "description": "A cache cap for each cache type, in GiB; an adapter with no value is left out.",
+        "description": "A cache cap for each cache type, in GiB; a type with no value is left out.",
         "properties": {
           "actions": {
             "type": "integer",
@@ -3752,6 +3664,94 @@
           }
         }
       },
+      "PublicCacheTypeSettings": {
+        "type": "object",
+        "properties": {
+          "actions": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "bazel": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "go": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "gradle": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "nix": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "nx": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "sccache": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          }
+        }
+      },
+      "PublicCacheTypeShareScopes": {
+        "type": "object",
+        "properties": {
+          "bazel": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "go": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "gradle": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "nix": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "nx": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "sccache": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
       "PublicCacheUsage": {
         "type": "object",
         "required": [
@@ -3826,17 +3826,32 @@
         "required": [
           "sharedCacheEnabled",
           "templateCaptureAnyBranch",
+          "cacheTypeSettings",
+          "cacheTypeShareScopes",
           "adapterCacheSettings",
           "adapterCacheShareScopes"
         ],
         "properties": {
           "adapterCacheSettings": {
-            "$ref": "#/components/schemas/PublicOrgAdapterCacheSettings"
+            "$ref": "#/components/schemas/PublicOrgCacheTypeSettings",
+            "description": "Deprecated: the old name of `cacheTypeSettings`, with the same value."
           },
           "adapterCacheShareScopes": {
-            "$ref": "#/components/schemas/PublicOrgAdapterShareScopes"
+            "$ref": "#/components/schemas/PublicOrgCacheTypeShareScopes",
+            "description": "Deprecated: the old name of `cacheTypeShareScopes`, with the same value."
           },
           "cacheMaxGibByAdapter": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PublicCacheCaps",
+                "description": "Deprecated: the old name of `cacheMaxGibByType`, with the same value."
+              }
+            ]
+          },
+          "cacheMaxGibByType": {
             "oneOf": [
               {
                 "type": "null"
@@ -3848,12 +3863,22 @@
             ]
           },
           "cacheMaxGibEffectiveByAdapter": {
+            "$ref": "#/components/schemas/PublicEffectiveCacheCaps",
+            "description": "Deprecated: the old name of `cacheMaxGibEffectiveByType`, with the same value."
+          },
+          "cacheMaxGibEffectiveByType": {
             "$ref": "#/components/schemas/PublicEffectiveCacheCaps"
           },
           "cacheRepoMaxGibLimit": {
             "type": "integer",
             "format": "int64",
             "description": "Absent, with the next field, when the staff flags could not be read."
+          },
+          "cacheTypeSettings": {
+            "$ref": "#/components/schemas/PublicOrgCacheTypeSettings"
+          },
+          "cacheTypeShareScopes": {
+            "$ref": "#/components/schemas/PublicOrgCacheTypeShareScopes"
           },
           "defaultRegion": {
             "type": [
@@ -4736,72 +4761,6 @@
           }
         }
       },
-      "PublicOrgAdapterCacheSettings": {
-        "type": "object",
-        "required": [
-          "actions",
-          "bazel",
-          "sccache",
-          "nix",
-          "gradle",
-          "nx",
-          "go"
-        ],
-        "properties": {
-          "actions": {
-            "type": "boolean"
-          },
-          "bazel": {
-            "type": "boolean"
-          },
-          "go": {
-            "type": "boolean"
-          },
-          "gradle": {
-            "type": "boolean"
-          },
-          "nix": {
-            "type": "boolean"
-          },
-          "nx": {
-            "type": "boolean"
-          },
-          "sccache": {
-            "type": "boolean"
-          }
-        }
-      },
-      "PublicOrgAdapterShareScopes": {
-        "type": "object",
-        "required": [
-          "bazel",
-          "sccache",
-          "nix",
-          "gradle",
-          "nx",
-          "go"
-        ],
-        "properties": {
-          "bazel": {
-            "type": "string"
-          },
-          "go": {
-            "type": "string"
-          },
-          "gradle": {
-            "type": "string"
-          },
-          "nix": {
-            "type": "string"
-          },
-          "nx": {
-            "type": "string"
-          },
-          "sccache": {
-            "type": "string"
-          }
-        }
-      },
       "PublicOrgBuild": {
         "allOf": [
           {
@@ -4851,6 +4810,72 @@
             ]
           },
           "queuedSince": {
+            "type": "string"
+          }
+        }
+      },
+      "PublicOrgCacheTypeSettings": {
+        "type": "object",
+        "required": [
+          "actions",
+          "bazel",
+          "sccache",
+          "nix",
+          "gradle",
+          "nx",
+          "go"
+        ],
+        "properties": {
+          "actions": {
+            "type": "boolean"
+          },
+          "bazel": {
+            "type": "boolean"
+          },
+          "go": {
+            "type": "boolean"
+          },
+          "gradle": {
+            "type": "boolean"
+          },
+          "nix": {
+            "type": "boolean"
+          },
+          "nx": {
+            "type": "boolean"
+          },
+          "sccache": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PublicOrgCacheTypeShareScopes": {
+        "type": "object",
+        "required": [
+          "bazel",
+          "sccache",
+          "nix",
+          "gradle",
+          "nx",
+          "go"
+        ],
+        "properties": {
+          "bazel": {
+            "type": "string"
+          },
+          "go": {
+            "type": "string"
+          },
+          "gradle": {
+            "type": "string"
+          },
+          "nix": {
+            "type": "string"
+          },
+          "nx": {
+            "type": "string"
+          },
+          "sccache": {
             "type": "string"
           }
         }
@@ -5086,7 +5111,7 @@
       },
       "PublicRepoCacheSetting": {
         "type": "object",
-        "description": "The relay's `KilnRepoCacheSetting`: each adapter key present, `null` when unset.",
+        "description": "The relay's `KilnRepoCacheSetting`: each cache type key present, `null` when unset.",
         "required": [
           "githubOrgId",
           "owner",
@@ -5100,7 +5125,8 @@
                 "type": "null"
               },
               {
-                "$ref": "#/components/schemas/PublicAdapterCacheSettings"
+                "$ref": "#/components/schemas/PublicCacheTypeSettings",
+                "description": "Deprecated: the old name of `cacheTypeSettings`, with the same value."
               }
             ]
           },
@@ -5110,11 +5136,23 @@
                 "type": "null"
               },
               {
-                "$ref": "#/components/schemas/PublicAdapterShareScopes"
+                "$ref": "#/components/schemas/PublicCacheTypeShareScopes",
+                "description": "Deprecated: the old name of `cacheTypeShareScopes`, with the same value."
               }
             ]
           },
           "cacheMaxGibByAdapter": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PublicCacheCaps",
+                "description": "Deprecated: the old name of `cacheMaxGibByType`, with the same value."
+              }
+            ]
+          },
+          "cacheMaxGibByType": {
             "oneOf": [
               {
                 "type": "null"
@@ -5126,12 +5164,36 @@
             ]
           },
           "cacheMaxGibEffectiveByAdapter": {
+            "$ref": "#/components/schemas/PublicEffectiveCacheCaps",
+            "description": "Deprecated: the old name of `cacheMaxGibEffectiveByType`, with the same value."
+          },
+          "cacheMaxGibEffectiveByType": {
             "$ref": "#/components/schemas/PublicEffectiveCacheCaps"
           },
           "cacheRepoMaxGibLimit": {
             "type": "integer",
             "format": "int64",
             "description": "Absent, with the next field, when the staff flags or the org values could not be read."
+          },
+          "cacheTypeSettings": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PublicCacheTypeSettings"
+              }
+            ]
+          },
+          "cacheTypeShareScopes": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PublicCacheTypeShareScopes"
+              }
+            ]
           },
           "githubOrgId": {
             "type": "string"
