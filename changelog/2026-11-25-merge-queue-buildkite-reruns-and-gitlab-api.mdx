@@ -1,0 +1,21 @@
+---
+title: "Merge Queue: Buildkite re-runs, GitLab in the v2 API and Dynamic CI key permission"
+description: "Re-run failed Buildkite jobs without losing a pull request's place, read GitLab merge queues through the v2 API, trace bisection runs, and give Dynamic CI keys the Generate Dynamic CI plans permission."
+date: 2026-11-25
+category: Merge Queue
+type: new-feature
+---
+
+**Merge Queue can now re-run failed Buildkite jobs, and the v2 API serves GitLab merge queues.** Dynamic CI API keys also need a new permission, so check your keys.
+
+### New features
+
+- **Re-run failed Buildkite jobs.** [Re-run failed checks](/api/pullrequests/re-run-a-pull-requests-failed-checks) and automatic re-run rules now cover Buildkite builds, not only GitHub Actions workflows. The pull request keeps its place in the queue while the jobs re-run. Trunk needs a valid API key for your Buildkite organization in **Settings → Integrations → Buildkite**. Without one, the API returns `422 PR_RERUN_BUILDKITE_NOT_CONNECTED`. Trunk never stops a running Buildkite build, even with `mode: now`.
+- **GitLab merge queues in the v2 API.** The merge queue, pull request and verification run endpoints now serve [GitLab](/merge-queue/getting-started/gitlab) queues. Checks include GitLab CI jobs, and `countsAsPass` shows whether GitLab counts a failed job as passing (`allow_failure`). Queue entry history names who made a change with `forge` and `forgeLogin`. Bitbucket queues return `422 MERGE_QUEUE_FORGE_NOT_SUPPORTED`.
+- **Trace bisection runs.** Verification runs now carry `bisectionId` and `bisectedFromVerificationRunId`. To list every run of one bisection, filter [a merge queue's verification runs](/api/mergequeues/list-a-merge-queues-verification-runs) by `bisectedFromVerificationRunId`.
+
+### Updates
+
+- **Dynamic CI keys need the Generate Dynamic CI plans permission.** The `trunk-io/dynamic-ci` action and the Buildkite plugin now need an API key with this permission. Without it, Trunk refuses every plan request and every job runs. See [Permissions](/api/authentication#permissions) and [Get started with Dynamic CI](/ci/dynamic-ci/getting-started).
+- **Dynamic CI decisions API (beta).** In [List Dynamic CI's decisions](/api/beta/dynamic-ci/dynamicci/list-dynamic-cis-decisions), `recommendation` is now `decision`. New `decidedBy` and `decisionKind` fields show whether the model, a rule or a safety run made each decision. Skips that a rule made, such as a paths filter or an Always skip policy, never count as false skips.
+- **Runners API (beta).** Cache settings fields now use "cache type" instead of "adapter", for example `cacheTypeSettings` and `cacheMaxGibByType`. The old field names still appear with the same values but are deprecated.
