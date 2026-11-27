@@ -1,0 +1,28 @@
+---
+title: "Merge Queue: GitLab, merge estimates, CI results and Dynamic CI in the API"
+description: "Manage GitLab merge queues, estimate merge times, re-run failed checks, read CI results and drive Dynamic CI through the Trunk API."
+date: 2026-11-24
+category: Merge Queue
+type: new-feature
+---
+
+**This week the Trunk API gains GitLab merge queues, merge estimates, failed-check re-runs, CI results and a beta Dynamic CI API.**
+
+### New features
+
+- **GitLab merge queues.** The v2 merge queue and pull request endpoints now work on [GitLab merge queues](/merge-queue/getting-started/gitlab). [List](/api/mergequeues/list-merge-queues) queues, [submit](/api/mergequeues/submit-a-pull-request-to-a-merge-queue) merge requests and [dequeue](/api/pullrequests/dequeue-a-pull-request) them with the same calls you use for GitHub.
+- **Merge estimates.** [Estimate when a queued pull request will merge](/api/pullrequests/estimate-when-a-queued-pull-request-will-merge), when its testing starts and finishes, and how many pull requests are ahead of it. If Trunk can't estimate, the response says why.
+- **Re-run failed checks.** [Re-run a pull request's failed checks](/api/pullrequests/re-run-a-pull-requests-failed-checks) while it's in `pendingFailure`, and it keeps its place in the queue. This works for GitHub Actions and Buildkite. Use `mode: wait` to let running jobs finish first, or `mode: now` to stop them.
+- **CI results.** List the [CI jobs](/api/cijobs/list-the-ci-jobs-on-a-commit) and [workflow runs](/api/ciworkflowruns/list-the-ci-workflow-runs-on-a-commit) on a commit, and the [commits that ran CI](/api/pullrequests/list-the-commits-that-ran-ci-on-a-pull-request) on a pull request. A failed job includes its failing step, AI analysis and log excerpt.
+- **Logs, annotations and failure clusters.** Read a job's [log lines](/api/cijobs/list-a-ci-jobs-log-lines) and [check-run annotations](/api/cijobs/list-a-ci-jobs-check-run-annotations). [Get a failure cluster](/api/cifailureclusters/get-a-ci-failure-cluster) to see how often the same failure has happened. Logs are kept for 30 days.
+- **Dynamic CI beta API.** Force jobs to run, set paths filters in bulk and list Dynamic CI's run or skip decisions. See [List the jobs Dynamic CI sees](/api/beta/dynamic-ci/dynamicci/list-the-jobs-dynamic-ci-sees) and [List Dynamic CI's decisions](/api/beta/dynamic-ci/dynamicci/list-dynamic-cis-decisions). Beta endpoints can change at any time.
+
+### Updates
+
+- **Dynamic CI API keys need a permission.** The `trunk-io/dynamic-ci` action and the Buildkite plugin now need an API key with **Generate Dynamic CI plans**. Without it, Trunk refuses plan requests and every job runs. Update your key in [Get started](/ci/dynamic-ci/getting-started).
+- **New permissions.** Reading job logs needs **Read CI logs**. The Dynamic CI beta API needs **Force CI jobs to run** or **Update Dynamic CI settings**. See [Permissions](/api/authentication#permissions).
+- **CI summary on pull requests.** [Get a pull request](/api/pullrequests/get-a-pull-request) now returns a `ci` summary of the head commit's jobs and a `pollAfterSeconds` hint.
+- **GitLab fields.** Checks and mergeability carry a `provider` of `github` or `gitlab`. GitLab CI jobs appear as checks with a `countsAsPass` verdict, and queue-entry history actors include their GitLab username.
+- **Clearer errors.** `404 ESTIMATE_NOT_ENABLED` means a queue doesn't serve estimates yet. `422 MERGE_QUEUE_FORGE_NOT_SUPPORTED` now applies only to forges the API doesn't serve, such as Bitbucket. See [Status codes and errors](/api/errors#error-codes).
+
+See the [API reference](/api) for all v2 endpoints.
